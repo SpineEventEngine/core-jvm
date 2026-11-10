@@ -37,7 +37,6 @@ import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
 import static io.spine.server.aggregate.given.Given.ACommand.addTask;
 import static io.spine.server.aggregate.given.Given.ACommand.createProject;
 import static io.spine.server.aggregate.given.Given.ACommand.startProject;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("`AggregateCommandEndpoint` should")
@@ -52,7 +51,7 @@ class AggregateCommandEndpointTest {
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
-        context = buildForTests(BoundedContextBuilder.assumingTests());
+        context = BoundedContextBuilder.assumingTests().build();
         projectId = ProjectId.generate();
 
         // Create a subscriber of ProjectCreated event.

@@ -88,7 +88,6 @@ import static io.spine.server.stand.given.StandTestEnv.setupExpectedFindAllBehav
 import static io.spine.server.stand.given.StandTestEnv.storeSampleProject;
 import static io.spine.server.stand.given.StandTestEnv.subscribeAndActivate;
 import static io.spine.server.stand.given.StandTestEnv.verifyObserver;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -158,8 +157,9 @@ class StandTest extends TenantAwareTest {
         @DisplayName("projection repositories")
         void projectionRepositories() {
             var multitenant = isMultitenant();
-            var boundedContext = closeAfterTest(buildForTests(BoundedContextBuilder
-                    .assumingTests(multitenant)));
+            var boundedContext = closeAfterTest(BoundedContextBuilder
+                    .assumingTests(multitenant)
+                    .build());
             var stand = boundedContext.stand();
 
             checkTypesEmpty(stand);
@@ -182,7 +182,7 @@ class StandTest extends TenantAwareTest {
         @DisplayName("aggregate repositories")
         void aggregateRepositories() {
             var boundedContext =
-                    closeAfterTest(buildForTests(BoundedContextBuilder.assumingTests()));
+                    closeAfterTest(BoundedContextBuilder.assumingTests().build());
             var stand = boundedContext.stand();
 
             checkTypesEmpty(stand);
@@ -417,8 +417,9 @@ class StandTest extends TenantAwareTest {
         void uponEventFromStandaloneAssignee() {
             var waiter = new AloneWaiter();
             var context = closeAfterTest(
-                    buildForTests(BoundedContextBuilder.assumingTests(isMultitenant())
-                                         .addCommandDispatcher(waiter)));
+                    BoundedContextBuilder.assumingTests(isMultitenant())
+                            .addCommandDispatcher(waiter)
+                            .build());
             var stand = context.stand();
             var topic = requestFactory.topic().allOf(OrderPlaced.class);
 
@@ -616,8 +617,9 @@ class StandTest extends TenantAwareTest {
                 .setMultitenant(multitenant)
                 .build();
         var repository = new CustomerAggregateRepository();
-        closeAfterTest(buildForTests(BoundedContextBuilder.assumingTests()
-                                            .add(repository)));
+        closeAfterTest(BoundedContextBuilder.assumingTests()
+                .add(repository)
+                .build());
         stand.registerTypeSupplier(repository);
         var queryFactory = getRequestFactory().query();
         var query =

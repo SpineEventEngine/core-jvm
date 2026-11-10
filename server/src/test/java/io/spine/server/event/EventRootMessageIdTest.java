@@ -65,7 +65,6 @@ import static io.spine.server.event.given.EventRootCommandIdTestEnv.inviteTeamMe
 import static io.spine.server.event.given.EventRootCommandIdTestEnv.projectId;
 import static io.spine.server.event.given.EventRootCommandIdTestEnv.teamId;
 import static io.spine.server.tenant.TenantAwareRunner.with;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("`Event` root message should")
@@ -75,8 +74,9 @@ public class EventRootMessageIdTest {
 
     @BeforeEach
     void setUp() {
-        context = buildForTests(BoundedContextBuilder
-                .assumingTests(/* multitenant = */ true));
+        context = BoundedContextBuilder
+                .assumingTests(/* multitenant = */ true)
+                .build();
         var projectRepository = new ProjectAggregateRepository();
         var teamRepository = new TeamAggregateRepository();
         var teamCreationRepository = new TeamCreationRepository();

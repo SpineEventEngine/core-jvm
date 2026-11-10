@@ -25,7 +25,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -41,7 +40,7 @@ class AggregatePartClassTest {
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
-        var boundedContext = buildForTests(BoundedContextBuilder.assumingTests());
+        var boundedContext = BoundedContextBuilder.assumingTests().build();
         var projectId = ProjectId.generate();
         root = new AnAggregateRoot(boundedContext, projectId);
     }

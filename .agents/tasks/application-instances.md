@@ -37,6 +37,12 @@ Decisions:
 - Q8 (2026-11-10): the tenant index is set with `Application.Builder.setTenantIndex()`.
   `Application.use(TenantIndex)` and the internal `closeIndex()` are removed. Nothing else about
   tenants changes in this work. See section 9.
+- Q9 (2026-11-10): a builder made by one of the `assumingTests()` factories is marked as made
+  for tests. Its public `build()` builds the context as the only context of a new application
+  over a new environment; for any other builder, `build()` throws `IllegalStateException`.
+  `assumingTests(name)` and `assumingTests(name, multitenant)` serve the tests that need
+  a particular name. A test that needs a particular environment adds the builder to an
+  `Application`. `TestContexts.kt` with `buildForTests()` is removed. This revises Q6.
 
 To confirm (assumed while writing, not asked):
 
@@ -364,18 +370,26 @@ environments and applications.
 Added while implementing, within the decisions above:
 
 - `BoundedContextBuilder.build()` becomes the package-private `build(ServerEnvironment)`, which
-  takes the technologies not set on the builder from the environment. A leftover `build()` call
-  fails to compile, also in the tests in `io.spine.server`, which could call a package-private
-  `build()` and fail only at runtime.
+  takes the technologies not set on the builder from the environment. The public `build()` is
+  back for the builders made for tests (Q9). For any other builder it throws, so a leftover call
+  fails when it runs, not when it compiles.
 - `ThirdPartyContext` is converted to Kotlin, so that it gives the application its builder and
   takes the built context through `internal` members, with no public API for it.
 - `server-testlib` has `TestApplications.kt`: `testApplication { add(…) }`, and
   `TestApplications.newBuilder()` for Java, whose server environment is a new one of the `Tests`
-  type unless the block sets another; and `TestContexts.kt`:
-  `BoundedContextBuilder.buildForTests(environment)`, the shortcut for one context.
+  type unless the block sets another.
   `BlackBox.from(BoundedContextBuilder)` builds such an application and closes it in `close()`.
   An extension `applicationForTests()` on the context builder was replaced by
   `testApplication {}` on 2026-11-10: a context builder should not produce an application.
+  `TestContexts.kt`, with the shortcut `buildForTests(environment)` for one context, was removed
+  the same day in favor of `build()` on a builder made for tests (Q9).
+- A test closes each application it builds, together with its environment, when it completes.
+  `AbstractDeliveryTest` keeps the applications of a test and closes them in `tearDown()`: their
+  environments share the storage factory of the test, which closing an environment closes.
+  `DefaultEventStoreTest` closes its application, and so its storage factory, after each test.
+  `BlackBox.from(Application)` takes an application of one context and closes it with the black
+  box. The application that `build()` creates for a test-only context is not reachable, so it
+  is not closed; the context is.
 - The test fixtures of `server` that storage implementations reuse take the storage factory from
   an overridable `storageFactory()` of `AbstractStorageTest` and `AbstractDeliveryTest`, instead
   of `ServerEnvironment.instance()`. `AbstractDeliveryTest` also has `nodeId()`, `use(Delivery)`,

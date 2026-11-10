@@ -29,7 +29,6 @@ import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 
 import static io.spine.server.dispatch.DispatchOutcomes.successfulOutcome;
-import static io.spine.testing.server.TestContexts.buildForTests;
 
 /**
  * Test environment class for testing {@code BoundedContext} configuration from
@@ -60,7 +59,7 @@ public final class ForeignContextConfig {
     }
 
     private static BoundedContext context() {
-        return buildForTests(BoundedContextBuilder.assumingTests());
+        return BoundedContextBuilder.assumingTests().build();
     }
 
     private static CommandDispatcher newCommandDispatcher() {

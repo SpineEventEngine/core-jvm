@@ -32,7 +32,6 @@ import io.spine.server.procman.given.journal.JournalTestPmRepo
 import io.spine.test.procman.ProjectId
 import io.spine.test.procman.event.PmProjectCreated
 import io.spine.test.procman.event.PmTaskAdded
-import io.spine.testing.server.buildForTests
 import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -48,7 +47,7 @@ internal class PmEventJournalSpec {
     @BeforeEach
     fun setUp() {
         ModelTests.dropAllModels()
-        context = BoundedContextBuilder.assumingTests().buildForTests()
+        context = BoundedContextBuilder.assumingTests().build()
         id = newProjectId()
     }
 
@@ -134,7 +133,7 @@ internal class PmEventJournalSpec {
 
         journal.isOpen shouldBe false
         // Re-create the context so that `tearDown()` closes a live one.
-        context = BoundedContextBuilder.assumingTests().buildForTests()
+        context = BoundedContextBuilder.assumingTests().build()
     }
 
     private companion object {

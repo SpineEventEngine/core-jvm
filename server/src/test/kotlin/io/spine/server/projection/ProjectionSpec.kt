@@ -56,7 +56,6 @@ import io.spine.test.projection.event.stringImported
 import io.spine.testing.TestValues.random
 import io.spine.testing.TestValues.randomString
 import io.spine.testing.server.TestEventFactory
-import io.spine.testing.server.buildForTests
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -145,7 +144,7 @@ internal class ProjectionSpec {
         @Suppress("UNCHECKED_CAST")
         val repository = DefaultRepository.of(SavingProjection::class.java)
                 as ProjectionRepository<String, SavingProjection, SavedString>
-        BoundedContextBuilder.assumingTests().buildForTests().use { context ->
+        BoundedContextBuilder.assumingTests().build().use { context ->
             val contextAccess = context.internalAccess()
             contextAccess.register(repository)
             val monitor = DiagnosticMonitor()

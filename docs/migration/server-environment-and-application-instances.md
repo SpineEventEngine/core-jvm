@@ -25,7 +25,7 @@ the contexts of the application it is given, and closes the application when it 
 | `ServerEnvironment.nodeId()`, `type()` | methods | Kotlin properties; Java calls stay the same |
 | `Application.instance()`, `use(TenantIndex)`, `defaultMultitenantIndex()` | public | **removed**; use `Application.newBuilder()` and `setTenantIndex()` |
 | `Application.contexts()` | internal | public: the contexts the application built |
-| `BoundedContextBuilder.build()` | public | **package-private**; add the builder to an `Application` |
+| `BoundedContextBuilder.build()` | public | throws `IllegalStateException` for a builder of `BoundedContext.singleTenant()` or `multitenant()`; add the builder to an `Application` |
 | `BoundedContextBuilder.setStorageFactory()` and the other technologies | public | **package-private**; the application sets them |
 | `Server.Builder` | serves the contexts of `Application.instance()` | `setApplication()` is required |
 | `Server.shutdown()`, `shutdownAndWait()` | close the contexts | close the application and its environment |
@@ -121,15 +121,24 @@ environment. An application registers a tenant with `application.tenantIndex().k
 
 ## 6. Tests
 
-- Build a context for a test with `buildForTests()` from `server-testlib`
-  (`TestContexts.buildForTests(builder)` in Java). The context is the only context of a new
-  application over a new environment of the `Tests` type. Pass an environment to use other
-  technologies: `builder.buildForTests(serverEnvironment { under<Tests> { use(delivery) } })`.
 - Build an application for a test with `testApplication { add(…) }` from `server-testlib`
   (`TestApplications.newBuilder()` in Java). Its server environment is a new one of the `Tests`
-  type, unless the block sets another.
+  type, unless the block sets another. The test closes the application when it completes:
+
+  ```kotlin
+  val environment = serverEnvironment { under<Tests> { use(delivery) } }
+  val application = testApplication {
+      serverEnvironment = environment
+      add(BoundedContext.singleTenant("Tasks").add(TaskRepository()))
+  }
+  application.use {
+      val context = it.contexts().single()
+      // …
+  }
+  ```
 - `BlackBox.from(BoundedContextBuilder)` builds such an application, and closing the black box
-  closes it. `BlackBox.from(BoundedContext)` closes only the context.
+  closes it. `BlackBox.from(Application)` takes an application of one context, and closing
+  the black box closes it too. `BlackBox.from(BoundedContext)` closes only the context.
 - Tests no longer reset the server environment: each test builds its own.
 - Contexts that receive the external events of each other must share a transport: put them into
   one application, or build their environments with one `TransportFactory`.

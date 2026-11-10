@@ -36,7 +36,6 @@ import java.util.Iterator;
 import static com.google.common.collect.Iterators.size;
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.testing.core.given.GivenTenantId.generate;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -58,8 +57,9 @@ class RepositoryTest {
 
     @BeforeEach
     void setUp() {
-        context = buildForTests(BoundedContextBuilder
-                .assumingTests(/* multitenant = */ true));
+        context = BoundedContextBuilder
+                .assumingTests(/* multitenant = */ true)
+                .build();
         repository = new TestRepo();
         context.internalAccess()
                .register(repository);
@@ -119,8 +119,9 @@ class RepositoryTest {
         @Test
         @DisplayName("throwing `ISE`")
         void prohibit() {
-            var anotherContext = buildForTests(BoundedContext
-                    .singleTenant("Context-1"));
+            var anotherContext = BoundedContextBuilder
+                    .assumingTests("Context-1")
+                    .build();
             assertThrows(IllegalStateException.class, () ->
                     repository.registerWith(anotherContext));
         }
@@ -180,7 +181,7 @@ class RepositoryTest {
     void iterateBareRepository() throws Exception {
         // Close `context` first: it serves the entity state type of `BareRepository`.
         context.close();
-        try (var bareContext = buildForTests(BoundedContextBuilder.assumingTests())) {
+        try (var bareContext = BoundedContextBuilder.assumingTests().build()) {
             var bare = new BareRepository();
             bareContext.internalAccess()
                        .register(bare);
@@ -208,8 +209,9 @@ class RepositoryTest {
         repo.checkNotRegistered();
         assertThrows(IllegalStateException.class, repo::checkRegistered);
 
-        var context = buildForTests(BoundedContextBuilder
-                .assumingTests());
+        var context = BoundedContextBuilder
+                .assumingTests()
+                .build();
         repo.registerWith(context);
 
         assertTrue(repo.isRegistered());
@@ -223,7 +225,7 @@ class RepositoryTest {
         var repo = new TestRepo();
 
         var contextName = "test context";
-        var context = buildForTests(BoundedContext.singleTenant(contextName));
+        var context = BoundedContextBuilder.assumingTests(contextName).build();
         repo.registerWith(context);
 
         assertTrue(repo.isRegistered());
@@ -235,7 +237,7 @@ class RepositoryTest {
     @DisplayName("not register in another context")
     void anotherContext() {
         assertTrue(repository.isRegistered());
-        var anotherContext = buildForTests(BoundedContext.singleTenant("another"));
+        var anotherContext = BoundedContextBuilder.assumingTests("another").build();
         assertThrows(IllegalStateException.class, () -> repository.registerWith(anotherContext));
     }
 

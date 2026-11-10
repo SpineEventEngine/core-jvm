@@ -20,6 +20,7 @@ import io.spine.base.CommandMessage;
 import io.spine.core.Command;
 import io.spine.core.CommandContext.Schedule;
 import io.spine.core.CommandId;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
@@ -37,7 +38,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.Messages.isDefault;
 import static io.spine.system.server.SystemBoundedContexts.systemOf;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -50,6 +50,11 @@ class ScheduledCommandTest {
 
     private RecordBasedRepository<CommandId, ScheduledCommand, ScheduledCommandRecord> repository;
     private BoundedContext context;
+
+    /**
+     * The application of the {@link #context}, closed after each test.
+     */
+    private Application application;
     private TestCommandScheduler scheduler;
 
     @BeforeEach
@@ -61,7 +66,12 @@ class ScheduledCommandTest {
         var contextBuilder = BoundedContextBuilder.assumingTests();
         contextBuilder.systemSettings()
                       .enableCommandLog();
-        context = buildForTests(contextBuilder, environment);
+        application = Application.newBuilder()
+                .setServerEnvironment(environment)
+                .add(contextBuilder)
+                .build();
+        context = application.contexts()
+                             .get(0);
         context.internalAccess()
                .register(DefaultRepository.of(CompanyAggregate.class));
         var system = systemOf(this.context);
@@ -76,8 +86,8 @@ class ScheduledCommandTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
-        context.close();
+    void tearDown() {
+        application.close();
     }
 
     @Test

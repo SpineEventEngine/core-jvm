@@ -29,7 +29,6 @@ import io.spine.server.type.EventClass
 import io.spine.server.type.EventEnvelope
 import io.spine.test.entity.Project
 import io.spine.test.entity.ProjectId
-import io.spine.testing.server.buildForTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -43,7 +42,7 @@ import org.junit.jupiter.api.Test
 @DisplayName("`Repository`, as the owner of the `Inbox` and the cache, should")
 internal class RepositoryInboxAndCacheSpec {
 
-    private val context = BoundedContextBuilder.assumingTests().buildForTests()
+    private val context = BoundedContextBuilder.assumingTests().build()
 
     /**
      * Closes the context, which closes the repositories registered with it.

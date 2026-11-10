@@ -16,7 +16,7 @@ package io.spine.server.given.context.fizzbuzz
 
 import io.spine.annotation.VisibleForTesting
 import io.spine.server.BoundedContext
-import io.spine.server.BoundedContext.singleTenant
+import io.spine.server.BoundedContextBuilder.assumingTests
 import io.spine.server.command.Assign
 import io.spine.server.event.NoReaction
 import io.spine.server.event.React
@@ -29,7 +29,6 @@ import io.spine.server.given.context.fizzbuzz.event.NumberQualified
 import io.spine.server.given.context.fizzbuzz.event.numberQualified
 import io.spine.server.procman.ProcessManager
 import io.spine.server.route.Route
-import io.spine.testing.server.buildForTests
 
 /**
  * Creates a toy context around the rules of
@@ -40,9 +39,9 @@ import io.spine.testing.server.buildForTests
  *
  * @see io.spine.server.given.context.sorting.createSortingContext
  */
-fun createFizzBuzzContext(): BoundedContext = singleTenant("FizzBuzz").apply {
+fun createFizzBuzzContext(): BoundedContext = assumingTests("FizzBuzz").apply {
     add(NumberQualification::class.java)
-}.buildForTests()
+}.build()
 
 /**
  * This process manager handles the [QualifyNumber] command and the [NumberQualified] event

@@ -19,7 +19,7 @@ import io.spine.base.EventMessage
 import io.spine.core.EventContext
 import io.spine.core.Subscribe
 import io.spine.server.BoundedContext
-import io.spine.server.BoundedContext.singleTenant
+import io.spine.server.BoundedContextBuilder.assumingTests
 import io.spine.server.command.Assign
 import io.spine.server.command.SingleCommandAssignee
 import io.spine.server.given.context.sorting.SorterKt.bucket
@@ -28,7 +28,6 @@ import io.spine.server.given.context.sorting.event.FigureGenerated
 import io.spine.server.given.context.sorting.event.figureGenerated
 import io.spine.server.projection.Projection
 import io.spine.server.route.Route
-import io.spine.testing.server.buildForTests
 
 /**
  * Creates a toy context that generates geometric figures in response to
@@ -52,11 +51,11 @@ import io.spine.testing.server.buildForTests
  *
  * @see io.spine.server.given.context.fizzbuzz.createFizzBuzzContext
  */
-fun createSortingContext(): BoundedContext = singleTenant("Sorting").apply {
+fun createSortingContext(): BoundedContext = assumingTests("Sorting").apply {
     addAssignee(FigureGenerator())
     add(SorterView::class.java)
     add(FigureStatsView::class.java)
-}.buildForTests()
+}.build()
 
 /**
  * Generates geometric figures taking the parameters from the [GenerateFigures] command.

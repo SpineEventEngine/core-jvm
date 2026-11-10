@@ -20,7 +20,6 @@ import io.spine.test.system.server.MealOrder;
 import io.spine.test.system.server.OrderId;
 
 import static io.spine.system.server.SystemBoundedContexts.systemOf;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class SystemClientTestEnv {
@@ -32,7 +31,7 @@ public class SystemClientTestEnv {
     }
 
     public static BoundedContext contextWithSystemProjection() {
-        var context = buildForTests(BoundedContextBuilder.assumingTests());
+        var context = BoundedContextBuilder.assumingTests().build();
         var systemContext = systemOf(context);
         systemContext.internalAccess()
                      .register(new MealOrderRepository());

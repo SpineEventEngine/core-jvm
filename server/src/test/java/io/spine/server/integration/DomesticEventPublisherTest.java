@@ -28,7 +28,6 @@ import java.util.Set;
 
 import static com.google.common.testing.NullPointerTester.Visibility.PACKAGE;
 import static com.google.common.truth.Truth.assertThat;
-import static io.spine.testing.server.TestContexts.buildForTests;
 
 @DisplayName("`DomesticEventPublisher` should")
 class DomesticEventPublisherTest {
@@ -40,7 +39,7 @@ class DomesticEventPublisherTest {
 
     @BeforeEach
     void initBus() {
-        context = buildForTests(BoundedContextBuilder.assumingTests());
+        context = BoundedContextBuilder.assumingTests().build();
         broker = context.internalAccess()
                         .broker();
     }

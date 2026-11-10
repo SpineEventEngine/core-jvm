@@ -27,7 +27,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -50,7 +49,7 @@ class EventSubscriberTest {
         // Create event that should fail.
         var eventEnvelope = createEvent(false);
 
-        var context = buildForTests(BoundedContextBuilder.assumingTests());
+        var context = BoundedContextBuilder.assumingTests().build();
         var contextAccess = context.internalAccess();
         contextAccess.registerEventDispatcher(subscriber);
         var monitor = new DiagnosticMonitor();

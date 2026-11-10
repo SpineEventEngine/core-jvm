@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.spine.grpc.StreamObservers.noOpObserver;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 public class SingleTenantCommandBusTestEnv {
@@ -56,7 +55,7 @@ public class SingleTenantCommandBusTestEnv {
 
         public static FaultyAssignee initializedAssignee() {
             var assignee = new FaultyAssignee();
-            assignee.registerWith(buildForTests(BoundedContextBuilder.assumingTests()));
+            assignee.registerWith(BoundedContextBuilder.assumingTests().build());
             return assignee;
         }
 

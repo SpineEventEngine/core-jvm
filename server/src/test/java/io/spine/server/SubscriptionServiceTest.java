@@ -65,7 +65,6 @@ import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.Given.CommandMessage.createProject;
 import static io.spine.server.Given.CommandMessage.sendReport;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -100,11 +99,12 @@ class SubscriptionServiceTest {
     @SuppressWarnings("resource")  /* Fine for tests. */
     void setUp() {
         ModelTests.dropAllModels();
-        context = buildForTests(BoundedContextBuilder
+        context = BoundedContextBuilder
                 .assumingTests()
                 .add(new ProjectAggregateRepository())
                 .addEventDispatcher(new AggProjectCreatedReactor())
-                .addCommandDispatcher(new ReportSender()));
+                .addCommandDispatcher(new ReportSender())
+                .build();
         subscriptionService = SubscriptionService.newBuilder()
                 .add(context)
                 .add(randomCtx())
@@ -116,7 +116,7 @@ class SubscriptionServiceTest {
     }
 
     private BoundedContext randomCtx() {
-        return remember(buildForTests(BoundedContext.singleTenant(newUuid())));
+        return remember(BoundedContextBuilder.assumingTests(newUuid()).build());
     }
 
     @AfterEach
@@ -136,7 +136,8 @@ class SubscriptionServiceTest {
 
     /** Creates a new multi-tenant BoundedContext with the passed name. */
     private BoundedContext ctx(String name) {
-        return remember(buildForTests(BoundedContext.multitenant(name)));
+        var builder = BoundedContextBuilder.assumingTests(name, /* multitenant = */ true);
+        return remember(builder.build());
     }
 
     /** Adds the passed context to those closed after the current test. */

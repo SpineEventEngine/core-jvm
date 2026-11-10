@@ -44,7 +44,6 @@ import static io.spine.protobuf.Durations2.milliseconds;
 import static io.spine.server.BoundedContextBuilder.assumingTests;
 import static io.spine.server.commandbus.Given.CommandMessage.addTask;
 import static io.spine.server.commandbus.Given.CommandMessage.createProjectMessage;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @DisplayName("`ExecutorCommandScheduler` should")
@@ -73,8 +72,9 @@ class ExecutorCommandSchedulerTest {
         scheduler = new ExecutorCommandScheduler(executorService);
         commandContext = GivenCommandContext.withScheduledDelayOf(DELAY);
 
-        context = buildForTests(assumingTests()
-                .addCommandDispatcher(new TestCommandAssignee()));
+        context = assumingTests()
+                .addCommandDispatcher(new TestCommandAssignee())
+                .build();
         commandBus = context.commandBus();
 
         watcher = new MemoizingCommandFlowWatcher();

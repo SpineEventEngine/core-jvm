@@ -34,7 +34,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static io.spine.testing.DisplayNames.NOT_ACCEPT_NULLS;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -53,7 +52,7 @@ class VisibilityGuardTest {
 
     @BeforeEach
     void setUp() {
-        boundedContext = buildForTests(BoundedContextBuilder.assumingTests());
+        boundedContext = BoundedContextBuilder.assumingTests().build();
         repositories = Lists.newArrayList();
 
         guard = VisibilityGuard.newInstance();

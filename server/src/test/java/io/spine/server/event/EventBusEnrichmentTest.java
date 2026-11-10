@@ -25,7 +25,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.spine.testing.server.TestContexts.buildForTests;
 
 @DisplayName("`EventBus` should manage event enrichment")
 class EventBusEnrichmentTest {
@@ -38,11 +37,12 @@ class EventBusEnrichmentTest {
     void setUp() {
         var enricher = EventEnricher.newBuilder().build();
         subscriber = new RememberingSubscriber();
-        context = buildForTests(BoundedContextBuilder
+        context = BoundedContextBuilder
                 .assumingTests(/* multitenant = */ true)
                 .enrichEventsUsing(enricher)
                 .addEventDispatcher(subscriber)
-                .add(ProjectAggregate.class));
+                .add(ProjectAggregate.class)
+                .build();
         eventBus = context.eventBus();
     }
 

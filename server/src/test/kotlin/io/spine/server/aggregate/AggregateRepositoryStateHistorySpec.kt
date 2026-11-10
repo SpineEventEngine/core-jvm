@@ -39,6 +39,7 @@ import io.spine.server.aggregate.given.Given
 import io.spine.server.aggregate.given.history.FailingHistoryFactory
 import io.spine.server.aggregate.given.history.HistoryReadingAggregate
 import io.spine.server.aggregate.given.history.StateHistoryTestRepository
+import io.spine.server.application
 import io.spine.server.event.AbstractEventSubscriber
 import io.spine.server.entity.EntityRecord
 import io.spine.server.serverEnvironment
@@ -48,7 +49,6 @@ import io.spine.test.aggregate.event.AggProjectCreated
 import io.spine.test.aggregate.event.aggProjectArchived
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.server.TestEventFactory
-import io.spine.testing.server.buildForTests
 import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -65,7 +65,7 @@ internal class AggregateRepositoryStateHistorySpec {
     @BeforeEach
     fun setUp() {
         ModelTests.dropAllModels()
-        context = BoundedContextBuilder.assumingTests().buildForTests()
+        context = BoundedContextBuilder.assumingTests().build()
         repository = StateHistoryTestRepository()
         context.internalAccess()
             .register(repository)
@@ -179,7 +179,7 @@ internal class AggregateRepositoryStateHistorySpec {
         // Close `context` first: it serves the entity state type of `StateHistoryTestRepository`.
         context.close()
         BoundedContextBuilder.assumingTests(/* multitenant = */ true)
-            .buildForTests().use { mtContext ->
+            .build().use { mtContext ->
                 val mtRepository = StateHistoryTestRepository()
                 mtContext.internalAccess()
                     .register(mtRepository)
@@ -241,27 +241,31 @@ internal class AggregateRepositoryStateHistorySpec {
                 use(FailingHistoryFactory())
             }
         }
-        BoundedContextBuilder.assumingTests().buildForTests(environment).use { failingContext ->
-                val failingRepository = StateHistoryTestRepository()
-                failingContext.internalAccess()
-                    .register(failingRepository)
-                val observer = CreatedProjectsObserver()
-                failingContext.internalAccess()
-                    .registerEventDispatcher(observer)
-                failingRepository.enableStateHistory()
-                failingContext.commandBus()
-                    .post(Given.ACommand.createProject(projectId), noOpObserver())
+        application {
+            serverEnvironment = environment
+            add(BoundedContextBuilder.assumingTests())
+        }.use { failingApplication ->
+            val failingContext = failingApplication.contexts().single()
+            val failingRepository = StateHistoryTestRepository()
+            failingContext.internalAccess()
+                .register(failingRepository)
+            val observer = CreatedProjectsObserver()
+            failingContext.internalAccess()
+                .registerEventDispatcher(observer)
+            failingRepository.enableStateHistory()
+            failingContext.commandBus()
+                .post(Given.ACommand.createProject(projectId), noOpObserver())
 
-                // The durable state write precedes the failing append...
-                failingRepository.loadAggregate(projectId)
-                    .version()
-                    .number shouldBe 1
-                // ...but the documented contract holds: the failure to record
-                // the history fails the dispatch, and the produced event is
-                // never posted. A write path swallowing the failure would have
-                // published it.
-                observer.seen shouldBe 0
-            }
+            // The durable state write precedes the failing append...
+            failingRepository.loadAggregate(projectId)
+                .version()
+                .number shouldBe 1
+            // ...but the documented contract holds: the failure to record
+            // the history fails the dispatch, and the produced event is
+            // never posted. A write path swallowing the failure would have
+            // published it.
+            observer.seen shouldBe 0
+        }
     }
 
     @Test

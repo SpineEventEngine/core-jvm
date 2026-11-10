@@ -34,7 +34,6 @@ import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.testing.DisplayNames.NOT_ACCEPT_NULLS;
-import static io.spine.testing.server.TestContexts.buildForTests;
 
 @DisplayName("`CommandAssignee` should")
 class AssigneeTest {
@@ -49,8 +48,9 @@ class AssigneeTest {
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
-        var context = buildForTests(BoundedContextBuilder
-                .assumingTests(/* multitenant = */ true));
+        var context = BoundedContextBuilder
+                .assumingTests(/* multitenant = */ true)
+                .build();
         commandBus = context.commandBus();
         eventBus = context.eventBus();
         assignee = new TestCommandAssignee();

@@ -15,9 +15,9 @@
 package io.spine.server.model.contexts.orders;
 
 import io.spine.server.BoundedContext;
+import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
 
-import static io.spine.testing.server.TestContexts.buildForTests;
 
 /**
  * Creates Orders Bounded Context.
@@ -28,7 +28,7 @@ public final class OrdersContext {
     }
 
     public static BoundedContext newInstance() {
-        var result = buildForTests(BoundedContext.singleTenant("Orders"));
+        var result = BoundedContextBuilder.assumingTests("Orders").build();
         result.internalAccess()
               .register(DefaultRepository.of(OrderAggregate.class));
         return result;

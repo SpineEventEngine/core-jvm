@@ -60,7 +60,6 @@ import static io.spine.server.event.given.bus.EventBusTestEnv.createProject;
 import static io.spine.server.event.given.bus.EventBusTestEnv.invalidArchiveProject;
 import static io.spine.server.event.given.bus.EventBusTestEnv.newTask;
 import static io.spine.server.event.given.bus.EventBusTestEnv.readEvents;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -84,7 +83,7 @@ class EventBusTest {
         if (enricher != null) {
             builder.enrichEventsUsing(enricher);
         }
-        this.context = buildForTests(builder);
+        this.context = builder.build();
         this.commandBus = context.commandBus();
         this.eventBus = context.eventBus();
     }
@@ -243,9 +242,10 @@ class EventBusTest {
 
         @BeforeEach
         void setUp() throws Exception {
-            var context = buildForTests(assumingTests()
+            var context = assumingTests()
                     .addEventDispatcher(new BareDispatcher())
-                    .addEventDispatcher(new RememberingSubscriber()));
+                    .addEventDispatcher(new RememberingSubscriber())
+                    .build();
 
             eventBus = context.eventBus();
             eventBus.close();
@@ -453,7 +453,7 @@ class EventBusTest {
         var executor = Executors.newFixedThreadPool(threadCount);
         // Catch non-easily reproducible bugs.
         for (var i = 0; i < 300; i++) {
-            var context = buildForTests(BoundedContextBuilder.assumingTests());
+            var context = BoundedContextBuilder.assumingTests().build();
             var eventBus = context.eventBus();
             StreamObserver<Ack> observer = StreamObservers.noOpObserver();
             for (var j = 0; j < threadCount; j++) {

@@ -15,9 +15,9 @@
 package io.spine.server.model.contexts.tasks;
 
 import io.spine.server.BoundedContext;
+import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
 
-import static io.spine.testing.server.TestContexts.buildForTests;
 
 /**
  * Creates an instance of the Tasks Bounded Context.
@@ -28,9 +28,10 @@ public final class TasksContext {
     }
 
     public static BoundedContext newInstance() {
-        var context = buildForTests(BoundedContext.singleTenant("Tasks")
+        var context = BoundedContextBuilder.assumingTests("Tasks")
                 .add(DefaultRepository.of(TaskAggregate.class))
-                .addCommandDispatcher(new CreationRetry()));
+                .addCommandDispatcher(new CreationRetry())
+                .build();
         return context;
     }
 }

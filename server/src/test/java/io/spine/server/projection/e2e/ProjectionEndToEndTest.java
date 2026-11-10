@@ -49,7 +49,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.spine.base.Time.currentTime;
 import static io.spine.protobuf.AnyPacker.pack;
 import static io.spine.server.projection.given.ProjectionRepositoryTestEnv.dispatchedEventId;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -121,7 +120,7 @@ public class ProjectionEndToEndTest {
     @DisplayName("receive entity state updates along with system event context")
     void receiveEntityStateUpdatesAndEventContext() {
         var repository = new GroupProjection.Repository();
-        try (var groups = buildForTests(BoundedContextBuilder.assumingTests())) {
+        try (var groups = BoundedContextBuilder.assumingTests().build()) {
             groups.internalAccess()
                   .register(repository);
             var organizationHead = GivenUserId.newUuid();

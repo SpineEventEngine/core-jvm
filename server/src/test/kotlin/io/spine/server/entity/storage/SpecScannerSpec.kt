@@ -54,7 +54,6 @@ import io.spine.test.storage.StgTaskId
 import io.spine.test.storage.stgTask
 import io.spine.test.storage.stgTaskId
 import io.spine.testing.UtilityClassTest
-import io.spine.testing.server.buildForTests
 import io.spine.type.UnexpectedTypeException
 import java.lang.ref.Reference
 import java.lang.ref.WeakReference
@@ -218,7 +217,7 @@ internal class SpecScannerSpec : UtilityClassTest<SpecScanner>(SpecScanner::clas
 
         private val factory = InMemoryStorageFactory.newInstance()
         private val contextSpec = ContextSpec.singleTenant("`SpecScanner` tests")
-        private val context = BoundedContextBuilder.assumingTests().buildForTests()
+        private val context = BoundedContextBuilder.assumingTests().build()
 
         /**
          * Closes the context, which closes the repositories registered with it.

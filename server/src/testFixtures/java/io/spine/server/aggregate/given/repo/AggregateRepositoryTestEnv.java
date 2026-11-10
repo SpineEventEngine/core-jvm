@@ -21,7 +21,6 @@ import io.spine.test.aggregate.ProjectId;
 import io.spine.testdata.Sample;
 import io.spine.testing.client.TestActorRequestFactory;
 
-import static io.spine.testing.server.TestContexts.buildForTests;
 
 public class AggregateRepositoryTestEnv {
 
@@ -84,7 +83,7 @@ public class AggregateRepositoryTestEnv {
     }
 
     private static BoundedContext newBoundedContext() {
-        var context = buildForTests(BoundedContextBuilder.assumingTests());
+        var context = BoundedContextBuilder.assumingTests().build();
         return context;
     }
 

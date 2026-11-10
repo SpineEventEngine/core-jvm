@@ -18,7 +18,7 @@ import com.google.common.testing.NullPointerTester;
 import io.spine.environment.DefaultMode;
 import io.spine.environment.Environment;
 import io.spine.environment.Tests;
-import io.spine.server.BoundedContext;
+import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ContextSpec;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.event.store.EmptyEventStore;
@@ -34,7 +34,6 @@ import org.junit.jupiter.api.Test;
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.system.server.SystemBoundedContexts.systemOf;
 import static io.spine.testing.DisplayNames.NOT_ACCEPT_NULLS;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -134,8 +133,10 @@ class SystemAwareStorageFactoryTest {
     void createEmptyEventStore() {
         var factory = new MemoizingStorageFactory();
         var systemAware = SystemAwareStorageFactory.wrap(factory);
-        var contextBuilder = BoundedContext.multitenant(CONTEXT.name().getValue());
-        var context = buildForTests(contextBuilder);
+        var name = CONTEXT.name()
+                          .getValue();
+        var context = BoundedContextBuilder.assumingTests(name, /* multitenant = */ true)
+                .build();
         var systemContext = systemOf(context);
         var systemSpec = systemContext.spec();
         assertFalse(systemSpec.storesEvents());

@@ -48,7 +48,6 @@ import io.spine.test.client.tasks.CTask
 import io.spine.test.client.tasks.event.CTaskCreated
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
-import io.spine.testing.server.buildForTests
 import io.spine.type.TypeUrl
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -74,7 +73,7 @@ internal class SubscriptionServiceErrorCaseSpec {
         context = BoundedContextBuilder.assumingTests()
             .add(Given.ProjectAggregateRepository())
             .add(SecretProjectRepository())
-            .buildForTests()
+            .build()
         context.internalAccess().registerEventDispatcher(monitor)
         service = SubscriptionService.withSingle(context)
     }
@@ -296,7 +295,7 @@ internal class SubscriptionServiceErrorCaseSpec {
 
     @Test
     fun `refuse an invalid topic even if the service knows no context`() {
-        BoundedContextBuilder.assumingTests().buildForTests().use { empty ->
+        BoundedContextBuilder.assumingTests().build().use { empty ->
             val noContexts = SubscriptionService.withSingle(empty)
             val invalid = requests.topic().allOf(CTaskCreated::class.java).toBuilder()
                 .clearId()

@@ -24,7 +24,6 @@ import io.spine.server.BoundedContextBuilder
 import io.spine.server.given.organizations.Organization
 import io.spine.server.given.organizations.OrganizationId
 import io.spine.server.given.organizations.organization
-import io.spine.testing.server.buildForTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -38,7 +37,7 @@ internal class DefaultConverterSpec {
 
     @BeforeEach
     fun setUp() {
-        context = BoundedContextBuilder.assumingTests().buildForTests()
+        context = BoundedContextBuilder.assumingTests().build()
         val repo: RecordBasedRepository<OrganizationId, TestEntity, Organization> =
             TestRepository()
         context.internalAccess()

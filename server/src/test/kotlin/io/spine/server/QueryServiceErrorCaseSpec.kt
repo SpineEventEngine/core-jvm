@@ -42,7 +42,6 @@ import io.spine.test.client.tasks.CTask
 import io.spine.test.projection.Project
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
-import io.spine.testing.server.buildForTests
 import io.spine.type.TypeUrl
 import io.spine.validation.NonValidated
 import org.junit.jupiter.api.AfterEach
@@ -201,7 +200,7 @@ internal class QueryServiceErrorCaseSpec {
     private fun serve(repository: Repository<*, *>, multitenant: Boolean = false) {
         val ctx = BoundedContextBuilder.assumingTests(multitenant)
             .add(repository)
-            .buildForTests()
+            .build()
         ctx.internalAccess().registerEventDispatcher(monitor)
         context = ctx
         service = QueryService.withSingle(ctx)

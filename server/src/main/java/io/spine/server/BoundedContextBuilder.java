@@ -58,6 +58,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static io.spine.core.BoundedContextNames.assumingTestsValue;
 import static io.spine.server.ContextSpec.multitenant;
 import static io.spine.server.ContextSpec.singleTenant;
@@ -69,12 +70,15 @@ import static java.lang.String.format;
  * <p>The contexts are built by the {@link Application} to which the builders are
  * {@linkplain Application.Builder#add(BoundedContextBuilder) added}. The application gives
  * each context the technologies of its {@link ServerEnvironment}.
+ *
+ * <p>A builder created for tests, by one of the {@code assumingTests()} methods, can also
+ * {@linkplain #build() build} its context by itself.
  */
 @SuppressWarnings("ClassWithTooManyMethods" /* OK for this central piece. */)
 public final class BoundedContextBuilder implements WithLogging {
 
     /**
-     * Counts the builders of test-only Bounded Contexts created in this JVM.
+     * Counts the builders of test-only Bounded Contexts created in this JVM without a name.
      *
      * <p>Gives each of these contexts a name of its own, because two contexts of one
      * application cannot have one name.
@@ -82,6 +86,13 @@ public final class BoundedContextBuilder implements WithLogging {
     private static final AtomicLong testContextCounter = new AtomicLong();
 
     private final ContextSpec spec;
+
+    /**
+     * Tells if this builder was created for a test-only context.
+     *
+     * <p>Only such a builder can {@linkplain #build() build} a context by itself.
+     */
+    private final boolean forTests;
 
     private final CommandBus.Builder commandBus = CommandBus.newBuilder();
 
@@ -161,7 +172,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * @see BoundedContext#multitenant
      */
     BoundedContextBuilder(ContextSpec spec) {
-        this(spec, SystemSettings.defaults());
+        this(spec, SystemSettings.defaults(), /* forTests = */ false);
     }
 
     /**
@@ -171,38 +182,85 @@ public final class BoundedContextBuilder implements WithLogging {
      *         the context spec for the built context
      * @param systemSettings
      *         settings of the System context; may be changed later via {@link #systemSettings()}
+     * @param forTests
+     *         tells if the builder is for a test-only context, which the builder
+     *         can {@linkplain #build() build} by itself
      * @see BoundedContext#singleTenant
      * @see BoundedContext#multitenant
      */
-    private BoundedContextBuilder(ContextSpec spec, SystemSettings systemSettings) {
+    private BoundedContextBuilder(ContextSpec spec,
+                                  SystemSettings systemSettings,
+                                  boolean forTests) {
         this.spec = checkNotNull(spec);
         this.systemSettings = checkNotNull(systemSettings);
+        this.forTests = forTests;
     }
 
     /**
-     * Creates a new builder for a test-only bounded context.
+     * Creates a new builder for a test-only Bounded Context.
      *
      * <p>The name of the context is {@code AssumingTests} followed by a number, such as
      * {@code AssumingTests-1}. Each call gives a new number, so that several such contexts
      * can be open at once.
+     *
+     * <p>The builder can {@linkplain #build() build} the context by itself.
+     *
+     * @param multitenant
+     *         tells if the context is multitenant
      */
     @Internal
     @VisibleForTesting
     public static BoundedContextBuilder assumingTests(boolean multitenant) {
         var name = assumingTestsValue() + '-' + testContextCounter.incrementAndGet();
-        var spec = multitenant
-                   ? multitenant(name)
-                   : singleTenant(name);
-        return new BoundedContextBuilder(spec);
+        return assumingTests(name, multitenant);
     }
 
     /**
-     * Creates a new builder for a single tenant test-only Bounded Context.
+     * Creates a new builder for a single-tenant test-only Bounded Context.
+     *
+     * <p>The name of the context is {@code AssumingTests} followed by a number, such as
+     * {@code AssumingTests-1}.
+     *
+     * <p>The builder can {@linkplain #build() build} the context by itself.
      */
     @Internal
     @VisibleForTesting
     public static BoundedContextBuilder assumingTests() {
         return assumingTests(/* multitenant = */ false);
+    }
+
+    /**
+     * Creates a new builder for a single-tenant test-only Bounded Context with the given name.
+     *
+     * <p>The builder can {@linkplain #build() build} the context by itself.
+     *
+     * @param name
+     *         the name of the context
+     */
+    @Internal
+    @VisibleForTesting
+    public static BoundedContextBuilder assumingTests(String name) {
+        return assumingTests(name, /* multitenant = */ false);
+    }
+
+    /**
+     * Creates a new builder for a test-only Bounded Context with the given name.
+     *
+     * <p>The builder can {@linkplain #build() build} the context by itself.
+     *
+     * @param name
+     *         the name of the context
+     * @param multitenant
+     *         tells if the context is multitenant
+     */
+    @Internal
+    @VisibleForTesting
+    public static BoundedContextBuilder assumingTests(String name, boolean multitenant) {
+        checkNotNull(name);
+        var spec = multitenant
+                   ? multitenant(name)
+                   : singleTenant(name);
+        return new BoundedContextBuilder(spec, SystemSettings.defaults(), /* forTests = */ true);
     }
 
     /**
@@ -697,6 +755,42 @@ public final class BoundedContextBuilder implements WithLogging {
     }
 
     /**
+     * Builds a test-only Bounded Context.
+     *
+     * <p>Only a builder created by one of the {@code assumingTests()} methods, such as
+     * {@link #assumingTests()}, can build its context by itself. The context is the only
+     * context of a new {@link Application}. The application has a new {@link ServerEnvironment}
+     * with the technologies of the current environment type: in tests, the in-memory storage
+     * and transport, and a local {@code Delivery}. The technologies set on this builder are
+     * used instead of those of the environment.
+     *
+     * <p>Closing the context does not close the environment.
+     *
+     * <p>To build several contexts that work together, or to give a context the technologies
+     * of a particular environment, add the builders to an {@code Application} instead.
+     *
+     * @return new {@code BoundedContext}
+     * @throws IllegalStateException
+     *         if this builder was not created for tests
+     */
+    @Internal
+    @VisibleForTesting
+    public BoundedContext build() {
+        checkState(forTests,
+                   "The context `%s` cannot be built by itself, because its builder was not" +
+                           " created for tests. Add the builder to an `Application` instead.",
+                   name().getValue());
+        var environment = ServerEnvironment.newBuilder()
+                .build();
+        var application = Application.newBuilder()
+                .setServerEnvironment(environment)
+                .add(this)
+                .build();
+        return application.contexts()
+                          .get(0);
+    }
+
+    /**
      * Creates a new instance of {@code BoundedContext} with the set configurations.
      *
      * <p>The {@link Application} calls this method when it is built. The technologies not set
@@ -822,7 +916,8 @@ public final class BoundedContextBuilder implements WithLogging {
     }
 
     private SystemContext buildSystem() {
-        var system = new BoundedContextBuilder(systemSpec(), systemSettings);
+        var system = new BoundedContextBuilder(systemSpec(), systemSettings,
+                                               /* forTests = */ false);
         shareTechnologiesWith(system);
         var result = system.doBuild(SystemContext::newInstance, NoOpSystemClient.INSTANCE);
         return result;

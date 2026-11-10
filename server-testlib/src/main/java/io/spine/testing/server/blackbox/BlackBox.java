@@ -88,9 +88,9 @@ public abstract class BlackBox implements WithLogging, Closeable {
     private final BoundedContext context;
 
     /**
-     * The application built for the context under the test, which this black box closes.
+     * The application of the context under the test, which this black box closes.
      *
-     * <p>{@code null} if the black box is created over a context built elsewhere.
+     * <p>{@code null} if the black box is created over a context alone.
      */
     private @Nullable Application application;
 
@@ -146,7 +146,24 @@ public abstract class BlackBox implements WithLogging, Closeable {
         var application = TestApplications.newBuilder()
                 .add(builder)
                 .build();
-        var box = from(application.contexts().get(0));
+        return from(application);
+    }
+
+    /**
+     * Creates a new instance over the only context of the given application.
+     *
+     * <p>Closing the black box closes the application, together with its server environment.
+     *
+     * @throws IllegalArgumentException
+     *         if the application has more than one context
+     */
+    public static BlackBox from(Application application) {
+        checkNotNull(application);
+        var contexts = application.contexts();
+        checkArgument(contexts.size() == 1,
+                      "A black box needs an application of one context," +
+                              " but the application has %s contexts.", contexts.size());
+        var box = from(contexts.get(0));
         box.application = application;
         return box;
     }
@@ -509,8 +526,8 @@ public abstract class BlackBox implements WithLogging, Closeable {
      *
      * <p>This method performs the following:
      * <ol>
-     *     <li>Closes the tested {@link BoundedContext}, or the {@link Application} built for
-     *         it, if the black box was created from a {@link BoundedContextBuilder}.
+     *     <li>Closes the tested {@link BoundedContext}, or its {@link Application}, if
+     *         the black box was created from an application or a {@link BoundedContextBuilder}.
      *     <li>Closes the associated {@link io.spine.client.Client Client}s.
      * </ol>
      *

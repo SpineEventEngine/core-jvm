@@ -18,6 +18,7 @@ import io.grpc.stub.StreamObserver;
 import io.spine.core.Ack;
 import io.spine.core.Subscribe;
 import io.spine.server.BoundedContext;
+import io.spine.server.BoundedContextBuilder;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.event.AbstractEventSubscriber;
 import io.spine.server.given.context.switchman.Log;
@@ -41,7 +42,6 @@ import static io.spine.base.Identifier.newUuid;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.server.given.context.switchman.SwitchPosition.RIGHT;
 import static io.spine.server.given.context.switchman.SwitchmanBureau.MISSING_SWITCHMAN_NAME;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -60,7 +60,7 @@ class CommandRoutingRejectionTest {
 
     @BeforeEach
     void setUp() {
-        context = buildForTests(BoundedContext.singleTenant("Railway Station"));
+        context = BoundedContextBuilder.assumingTests("Railway Station").build();
         var contextAccess = context.internalAccess();
         contextAccess.register(new SwitchmanBureau());
         switchmanObserver = new SwitchmanObserver();

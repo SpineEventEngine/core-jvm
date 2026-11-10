@@ -16,12 +16,15 @@ package io.spine.server
 
 import com.google.protobuf.Message
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.base.CommandMessage
 import io.spine.core.BoundedContextName
@@ -45,7 +48,6 @@ import io.spine.test.trace.ScheduleFlight
 import io.spine.testing.Assertions.assertNpe
 import io.spine.testing.TestValues.nullRef
 import io.spine.testing.client.TestActorRequestFactory
-import io.spine.testing.server.buildForTests
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.function.Supplier
@@ -57,7 +59,7 @@ import org.opentest4j.AssertionFailedError
 
 /**
  * Checks the technologies of the context, which [BoundedContextBuilder] passes to
- * the built context.
+ * the built context, and building a test-only context by the builder itself.
  *
  * Supplements `BoundedContextBuilderTest`, which checks the other properties of the builder.
  */
@@ -68,11 +70,17 @@ internal class BoundedContextBuilderSpec {
     private var context: BoundedContext? = null
 
     /**
-     * Closes the built context.
+     * The application of the [context], if the case built one.
+     */
+    private var builtApplication: Application? = null
+
+    /**
+     * Closes the built context and its application, if any.
      */
     @AfterEach
     fun closeContext() {
         context?.close()
+        builtApplication?.close()
     }
 
     @Nested inner class
@@ -216,6 +224,64 @@ internal class BoundedContextBuilderSpec {
         }
     }
 
+    @Nested inner class
+    `build a context by itself` {
+
+        @Test
+        fun `with the name and the tenancy given to the test-only builder`() {
+            val builder = BoundedContextBuilder.assumingTests("Tested", /* multitenant = */ true)
+
+            val built = remember(builder.build())
+
+            built.name().value shouldBe "Tested"
+            built.isMultitenant.shouldBeTrue()
+        }
+
+        @Test
+        fun `with a single-tenant context, unless told otherwise`() {
+            val built = remember(BoundedContextBuilder.assumingTests("Tested").build())
+
+            built.isMultitenant.shouldBeFalse()
+        }
+
+        @Test
+        fun `with a new server environment for each context`() {
+            val first = remember(BoundedContextBuilder.assumingTests().build())
+
+            BoundedContextBuilder.assumingTests().build().use { second ->
+                first.internalAccess().delivery() shouldNotBe second.internalAccess().delivery()
+            }
+        }
+
+        @Test
+        fun `with the technologies set on the builder`() {
+            val storageFactory = InMemoryStorageFactory.newInstance()
+            val builder = BoundedContextBuilder.assumingTests()
+                .setStorageFactory(storageFactory)
+
+            val built = remember(builder.build())
+
+            built.internalAccess().storageFactory() shouldBeSameInstanceAs storageFactory
+        }
+
+        @Test
+        fun `only if the builder was created for tests`() {
+            val builder = BoundedContext.singleTenant("NotForTests")
+
+            val exception = shouldThrow<IllegalStateException> {
+                builder.build()
+            }
+
+            exception.message shouldContain "NotForTests"
+            exception.message shouldContain "Application"
+        }
+    }
+
+    private fun remember(built: BoundedContext): BoundedContext {
+        context = built
+        return built
+    }
+
     private fun buildWith(tracing: MemoizingTracerFactory): BoundedContext =
         build(AirportContext.builder().setTracerFactory(tracing))
 
@@ -223,9 +289,12 @@ internal class BoundedContextBuilderSpec {
         builder: BoundedContextBuilder,
         environment: ServerEnvironment = serverEnvironment {}
     ): BoundedContext {
-        val built = builder.buildForTests(environment)
-        context = built
-        return built
+        val application = application {
+            serverEnvironment = environment
+            add(builder)
+        }
+        builtApplication = application
+        return remember(application.contexts().single())
     }
 
     private fun post(context: BoundedContext, command: CommandMessage) {

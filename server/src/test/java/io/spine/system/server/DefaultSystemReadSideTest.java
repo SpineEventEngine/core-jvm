@@ -34,7 +34,6 @@ import java.util.Optional;
 import static com.google.common.testing.NullPointerTester.Visibility.PACKAGE;
 import static io.spine.base.Identifier.newUuid;
 import static io.spine.system.server.SystemBoundedContexts.systemOf;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -50,7 +49,7 @@ class DefaultSystemReadSideTest {
 
     @BeforeEach
     void setUp() {
-        domainContext = buildForTests(BoundedContextBuilder.assumingTests());
+        domainContext = BoundedContextBuilder.assumingTests().build();
         systemReadSide = domainContext.systemClient().readSide();
     }
 

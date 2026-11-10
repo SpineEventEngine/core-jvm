@@ -35,7 +35,6 @@ import static io.spine.grpc.StreamObservers.errorCaseOf;
 import static io.spine.grpc.StreamObservers.memoizingObserver;
 import static io.spine.server.Given.CUSTOMERS_CONTEXT_NAME;
 import static io.spine.server.Given.PROJECTS_CONTEXT_NAME;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -131,7 +130,7 @@ class QueryServiceTest {
         closeContexts();
         responseObserver = memoizingObserver();
         // Create Projects Bounded Context with one repository and one projection.
-        var projectsContext = buildForTests(BoundedContext.singleTenant(PROJECTS_CONTEXT_NAME));
+        var projectsContext = BoundedContextBuilder.assumingTests(PROJECTS_CONTEXT_NAME).build();
         var projectRepo = new Given.ProjectAggregateRepository();
         projectsContext.register(projectRepo);
         projectsContext.register(repository);
@@ -139,7 +138,7 @@ class QueryServiceTest {
         boundedContexts.add(projectsContext);
 
         // Create Customers Bounded Context with one repository.
-        var customersContext = buildForTests(BoundedContext.singleTenant(CUSTOMERS_CONTEXT_NAME));
+        var customersContext = BoundedContextBuilder.assumingTests(CUSTOMERS_CONTEXT_NAME).build();
         var customerRepo = new Given.CustomerAggregateRepository();
         customersContext.register(customerRepo);
         boundedContexts.add(customersContext);

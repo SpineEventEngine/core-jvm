@@ -99,7 +99,6 @@ import static io.spine.server.procman.given.repo.SetTestProcessName.NEW_NAME;
 import static io.spine.testing.TestValues.randomString;
 import static io.spine.testing.server.Assertions.assertCommandClasses;
 import static io.spine.testing.server.Assertions.assertEventClasses;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static java.lang.String.format;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
@@ -191,7 +190,7 @@ class ProcessManagerRepositoryTest
     protected void setUp() {
         super.setUp();
         setCurrentTenant(requestFactory.tenantId());
-        context = buildForTests(BoundedContextBuilder.assumingTests(/* multitenant = */ true));
+        context = BoundedContextBuilder.assumingTests(/* multitenant = */ true).build();
         context.internalAccess()
                .register(repository());
         TestProcessManager.clearMessageDeliveryHistory();
@@ -537,8 +536,9 @@ class ProcessManagerRepositoryTest
     @DisplayName("check that its `ProcessManager` class is subscribed to at least one message")
     void notRegisterIfSubscribedToNothing() {
         var repo = new SensoryDeprivedPmRepository();
-        var context = buildForTests(BoundedContextBuilder
-                .assumingTests());
+        var context = BoundedContextBuilder
+                .assumingTests()
+                .build();
         assertThrows(IllegalStateException.class, () -> repo.registerWith(context));
     }
 

@@ -24,6 +24,7 @@ import io.spine.core.TenantId;
 import io.spine.environment.Tests;
 import io.spine.grpc.MemoizingObserver;
 import io.spine.protobuf.AnyPacker;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ServerEnvironment;
@@ -66,7 +67,6 @@ import static io.spine.server.event.given.EventStoreTestEnv.projectCreated;
 import static io.spine.server.event.given.EventStoreTestEnv.taskAdded;
 import static io.spine.testing.TestValues.random;
 import static io.spine.testing.core.given.GivenEnrichment.withOneAttribute;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static java.time.Duration.ofMillis;
 import static java.util.concurrent.CompletableFuture.allOf;
 import static java.util.concurrent.CompletableFuture.runAsync;
@@ -84,6 +84,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public abstract class DefaultEventStoreTest {
 
     private BoundedContext context;
+
+    /**
+     * The application of the {@link #context}, closed after each test.
+     */
+    private Application application;
     private EventStore eventStore;
     private ExecutorService executor;
 
@@ -99,7 +104,12 @@ public abstract class DefaultEventStoreTest {
         var environment = ServerEnvironment.newBuilder()
                 .under(Tests.class, env -> env.use(storage))
                 .build();
-        context = buildForTests(BoundedContextBuilder.assumingTests(), environment);
+        application = Application.newBuilder()
+                .setServerEnvironment(environment)
+                .add(BoundedContextBuilder.assumingTests())
+                .build();
+        context = application.contexts()
+                             .get(0);
         eventStore = context.eventBus().eventStore();
     }
 
@@ -107,8 +117,8 @@ public abstract class DefaultEventStoreTest {
      * Obtains the storage factory with which the context of the test creates its event store.
      *
      * <p>Returns an in-memory factory by default. Storage implementations override this method
-     * to run the tests over their storages. Closing the context of a test leaves the factory
-     * open.
+     * to run the tests over their storages. The application of a test closes the factory after
+     * the test, together with the server environment that holds it.
      */
     protected StorageFactory storageFactory() {
         if (inMemoryStorage == null) {
@@ -118,8 +128,8 @@ public abstract class DefaultEventStoreTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
-        context.close();
+    void tearDown() {
+        application.close();
         executor.shutdownNow();
     }
 

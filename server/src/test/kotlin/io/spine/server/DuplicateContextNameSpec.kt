@@ -27,7 +27,6 @@ import io.spine.core.BoundedContextNames
 import io.spine.server.bus.BusFilter
 import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.type.CommandEnvelope
-import io.spine.testing.server.buildForTests
 import java.util.Optional
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
@@ -115,10 +114,10 @@ internal class DuplicateContextNameSpec {
 
     @Test
     fun `close the rest of a context whose command bus fails to close`() {
-        val context = BoundedContext.singleTenant(failingName)
+        val context = BoundedContextBuilder.assumingTests(failingName)
             .addCommandFilter(FailingToClose())
             .add(CalculatorRepository())
-            .buildForTests()
+            .build()
 
         shouldThrow<IllegalStateException> {
             context.close()

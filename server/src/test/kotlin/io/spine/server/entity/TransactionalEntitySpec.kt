@@ -39,7 +39,6 @@ import io.spine.test.tryalter.stock
 import io.spine.testing.TestValues.randomString
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.server.TestEventFactory
-import io.spine.testing.server.buildForTests
 import io.spine.validation.NonValidated
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -328,7 +327,7 @@ internal class TransactionalEntitySpec {
         @BeforeEach
         fun registerRepository() {
             repo = StockKeeperRepo()
-            context = BoundedContextBuilder.assumingTests().buildForTests()
+            context = BoundedContextBuilder.assumingTests().build()
             context.internalAccess().register(repo)
         }
 

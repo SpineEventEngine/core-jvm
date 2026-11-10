@@ -31,7 +31,6 @@ import io.spine.test.event.ProjectCreated
 import io.spine.test.event.projectCreated
 import io.spine.test.event.projectId
 import io.spine.testing.server.TestEventFactory
-import io.spine.testing.server.buildForTests
 import io.spine.type.TypeUrl
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -51,7 +50,7 @@ internal class EventBusSpec {
 
     @BeforeEach
     fun createContext() {
-        context = BoundedContextBuilder.assumingTests().buildForTests()
+        context = BoundedContextBuilder.assumingTests().build()
         context.internalAccess().registerEventDispatcher(monitor)
     }
 

@@ -24,6 +24,7 @@ import io.spine.core.ErrorCase;
 import io.spine.core.Status;
 import io.spine.core.TenantId;
 import io.spine.grpc.MemoizingObserver;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.command.AbstractAssignee;
@@ -52,7 +53,6 @@ import static io.spine.grpc.StreamObservers.memoizingObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.commandbus.Given.ACommand.createProject;
 import static io.spine.testing.core.given.GivenTenantId.generate;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -74,6 +74,11 @@ abstract class AbstractCommandBusTestSuite {
     protected MemoizingCommandFlowWatcher watcher;
     protected SystemWriteSide systemWriteSide;
     protected BoundedContext context;
+
+    /**
+     * The application of the {@link #context}, closed after each test.
+     */
+    private Application application;
 
     /**
      * A public constructor for derived test cases.
@@ -128,7 +133,9 @@ abstract class AbstractCommandBusTestSuite {
                 .scheduleCommandsUsing(() -> scheduler)
                 .build();
 
-        context = createContext(environment);
+        application = createApplication(environment);
+        context = application.contexts()
+                             .get(0);
 
         var contextAccess = context.internalAccess();
         systemWriteSide = NoOpSystemWriteSide.INSTANCE;
@@ -151,18 +158,27 @@ abstract class AbstractCommandBusTestSuite {
         observer = memoizingObserver();
     }
 
-    private BoundedContext createContext(ServerEnvironment environment) {
+    /**
+     * Builds the application of the only context of the test.
+     */
+    private Application createApplication(ServerEnvironment environment) {
         var cls = getClass();
         var name = cls.getSimpleName();
         var builder = multitenant
                       ? BoundedContext.multitenant(name)
                       : BoundedContext.singleTenant(name);
-        return buildForTests(builder, environment);
+        return Application.newBuilder()
+                .setServerEnvironment(environment)
+                .add(builder)
+                .build();
     }
 
+    /**
+     * Closes the application, together with its context and its environment.
+     */
     @AfterEach
-    void tearDown() throws Exception {
-        context.close();
+    void tearDown() {
+        application.close();
     }
 
     @Test

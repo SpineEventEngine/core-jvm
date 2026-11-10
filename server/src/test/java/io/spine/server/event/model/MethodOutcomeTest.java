@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
 import static io.spine.base.Identifier.newUuid;
-import static io.spine.testing.server.TestContexts.buildForTests;
 
 @DisplayName("`DispatchOutcome` from a method should")
 class MethodOutcomeTest {
@@ -35,10 +34,11 @@ class MethodOutcomeTest {
     @DisplayName("be an error when the method returns a rejection")
     void returnRejection() {
         var diagnosticSubscriber = new RcHandlerFailedSubscriber();
-        var context = buildForTests(BoundedContextBuilder
+        var context = BoundedContextBuilder
                 .assumingTests()
                 .addEventDispatcher(new RcReactWithRejection())
-                .addEventDispatcher(diagnosticSubscriber));
+                .addEventDispatcher(diagnosticSubscriber)
+                .build();
         var event = ModProjectCreated.newBuilder()
                 .setId(newUuid())
                 .build();

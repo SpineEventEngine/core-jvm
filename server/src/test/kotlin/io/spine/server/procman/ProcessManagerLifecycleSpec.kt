@@ -20,7 +20,6 @@ import io.spine.server.BoundedContextBuilder
 import io.spine.server.entity.given.Given
 import io.spine.server.procman.given.pm.LastSignalMemo
 import io.spine.test.procman.ElephantProcess
-import io.spine.testing.server.buildForTests
 import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -50,8 +49,8 @@ internal class ProcessManagerLifecycleSpec {
 
     @Test
     fun `reject being attached to a Bounded Context twice`() {
-        val context = BoundedContextBuilder.assumingTests().buildForTests()
-        val another = BoundedContextBuilder.assumingTests().buildForTests()
+        val context = BoundedContextBuilder.assumingTests().build()
+        val another = BoundedContextBuilder.assumingTests().build()
         processManager.injectContext(context)
 
         shouldThrow<IllegalStateException> {

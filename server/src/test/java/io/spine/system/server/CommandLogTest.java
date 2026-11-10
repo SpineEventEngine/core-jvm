@@ -27,6 +27,7 @@ import io.spine.core.CommandContext;
 import io.spine.core.CommandId;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.BoundedContext;
+import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
 import io.spine.system.server.event.CommandAcknowledged;
 import io.spine.system.server.event.CommandDispatched;
@@ -54,7 +55,6 @@ import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.system.server.SystemBoundedContexts.systemOf;
 import static io.spine.system.server.given.command.CompanyNameProcman.FAULTY_NAME;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -72,7 +72,7 @@ class CommandLogTest {
         var contextName = BoundedContextName.newBuilder()
                 .setValue(EntityEventsTest.class.getSimpleName())
                 .build();
-        context = buildForTests(BoundedContext.singleTenant(contextName.getValue()));
+        context = BoundedContextBuilder.assumingTests(contextName.getValue()).build();
         system = systemOf(context);
 
         var ctx = context.internalAccess();

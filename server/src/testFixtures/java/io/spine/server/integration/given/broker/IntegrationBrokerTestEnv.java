@@ -15,13 +15,12 @@
 package io.spine.server.integration.given.broker;
 
 import io.spine.environment.Tests;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.transport.TransportFactory;
 import io.spine.testing.server.blackbox.BlackBox;
-
-import static io.spine.testing.server.TestContexts.buildForTests;
 
 /**
  * Test environment for {@link io.spine.server.integration.IntegrationBrokerTest}.
@@ -39,13 +38,18 @@ public class IntegrationBrokerTestEnv {
      *
      * <p>Each context is the only context of an application of its own. The contexts of
      * a test share the transport, so that they receive the external events of each other.
-     * Closing the black box leaves the transport open.
+     * Closing the black box closes its application, whose environment closes the transport.
+     * So a test closes its black boxes after the contexts are done exchanging events.
      */
     private static BlackBox blackBox(TransportFactory transport, BoundedContextBuilder builder) {
         var environment = ServerEnvironment.newBuilder()
                 .under(Tests.class, env -> env.use(transport))
                 .build();
-        return BlackBox.from(buildForTests(builder, environment));
+        var application = Application.newBuilder()
+                .setServerEnvironment(environment)
+                .add(builder)
+                .build();
+        return BlackBox.from(application);
     }
 
     public static BlackBox billingBc(TransportFactory transport) {

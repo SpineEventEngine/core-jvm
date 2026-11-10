@@ -30,7 +30,6 @@ import static io.spine.system.server.SystemBoundedContexts.systemOf;
 import static io.spine.system.server.given.SystemContextSettingsTestEnv.entityCreated;
 import static io.spine.system.server.given.SystemContextSettingsTestEnv.entityStateChanged;
 import static io.spine.system.server.given.SystemContextSettingsTestEnv.postSystemEvent;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static java.time.Duration.ofSeconds;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -45,7 +44,7 @@ class SystemContextSettingsTest {
         @Test
         @DisplayName("not store events")
         void notStoreEvents() {
-            var domain = buildForTests(BoundedContextBuilder.assumingTests());
+            var domain = BoundedContextBuilder.assumingTests().build();
             var system = systemOf(domain);
             var event = entityStateChanged();
             var observer = postSystemEvent(system.eventBus(), event);
@@ -56,7 +55,7 @@ class SystemContextSettingsTest {
         @Test
         @DisplayName("not store domain commands")
         void notStoreDomainCommands() {
-            var domain = buildForTests(BoundedContextBuilder.assumingTests());
+            var domain = BoundedContextBuilder.assumingTests().build();
             var system = systemOf(domain);
             assertFalse(system.hasEntitiesWithState(CommandLog.class));
         }
@@ -64,7 +63,7 @@ class SystemContextSettingsTest {
         @Test
         @DisplayName("post system events in parallel")
         void postEventsInParallel() {
-            var domain = buildForTests(BoundedContextBuilder.assumingTests());
+            var domain = BoundedContextBuilder.assumingTests().build();
             var system = systemOf(domain);
             var watcher = new HistoryEventWatcher();
             system.eventBus().register(watcher);
@@ -89,7 +88,7 @@ class SystemContextSettingsTest {
             var contextBuilder = BoundedContextBuilder.assumingTests();
             contextBuilder.systemSettings()
                           .persistEvents();
-            var domain = buildForTests(contextBuilder);
+            var domain = contextBuilder.build();
             var system = systemOf(domain);
             var event = entityStateChanged();
             var observer = postSystemEvent(system.eventBus(), event);
@@ -103,7 +102,7 @@ class SystemContextSettingsTest {
             var contextBuilder = BoundedContextBuilder.assumingTests();
             contextBuilder.systemSettings()
                           .enableCommandLog();
-            var domain = buildForTests(contextBuilder);
+            var domain = contextBuilder.build();
             var system = systemOf(domain);
             assertTrue(system.hasEntitiesWithState(CommandLog.class));
         }
@@ -113,7 +112,7 @@ class SystemContextSettingsTest {
         void postEventsInCurrentThread() {
             var contextBuilder = BoundedContextBuilder.assumingTests();
             contextBuilder.systemSettings().disableParallelPosting();
-            var domain = buildForTests(contextBuilder);
+            var domain = contextBuilder.build();
             var system = systemOf(domain);
             var watcher = new HistoryEventWatcher();
             system.eventBus().register(watcher);
@@ -140,7 +139,7 @@ class SystemContextSettingsTest {
                           .enableParallelPosting()
                           .useCustomPostingExecutor(executor);
 
-            var domain = buildForTests(contextBuilder);
+            var domain = contextBuilder.build();
             var system = systemOf(domain);
             var watcher = new HistoryEventWatcher();
             system.eventBus().register(watcher);

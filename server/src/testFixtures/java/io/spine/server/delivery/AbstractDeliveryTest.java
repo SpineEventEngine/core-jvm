@@ -17,6 +17,7 @@ package io.spine.server.delivery;
 import com.google.protobuf.util.Durations;
 import io.spine.base.Identifier;
 import io.spine.environment.Tests;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.NodeId;
@@ -30,7 +31,8 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import static io.spine.testing.server.TestContexts.buildForTests;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An abstract base for the tests performing actual delivery.
@@ -41,8 +43,9 @@ import static io.spine.testing.server.TestContexts.buildForTests;
  * of its own. The environments of these applications share the {@linkplain #storageFactory()
  * storage factory}, the {@linkplain #nodeId() node}, and the {@code Delivery} of the test.
  *
- * <p>The environments of a test are not closed with its contexts: closing a context or
- * a black box leaves the storage factory of the test open.
+ * <p>The test closes these applications after it completes, together with their environments,
+ * which close the storage factory of the test. Closing a context or a black box during the test
+ * leaves the storage factory open.
  */
 public abstract class AbstractDeliveryTest {
 
@@ -64,13 +67,26 @@ public abstract class AbstractDeliveryTest {
      */
     private @Nullable Delivery delivery;
 
+    /**
+     * The applications built by the test, closed after it.
+     *
+     * <p>Their environments share the storage factory of the test. So the applications are
+     * closed only when the test completes, rather than with their contexts.
+     */
+    private final List<Application> applications = new ArrayList<>();
+
     @BeforeEach
     public void setUp() {
         delivery = null;
     }
 
+    /**
+     * Closes the applications built by the test.
+     */
     @AfterEach
     public void tearDown() {
+        applications.forEach(Application::closeIfOpen);
+        applications.clear();
         delivery = null;
     }
 
@@ -129,9 +145,17 @@ public abstract class AbstractDeliveryTest {
     /**
      * Builds the context of the given builder as the only context of a new application,
      * with a {@linkplain #newEnvironment() new environment} of the test.
+     *
+     * <p>The test closes the application after it completes.
      */
     public final BoundedContext build(BoundedContextBuilder builder) {
-        return buildForTests(builder, newEnvironment());
+        var application = Application.newBuilder()
+                .setServerEnvironment(newEnvironment())
+                .add(builder)
+                .build();
+        applications.add(application);
+        return application.contexts()
+                          .get(0);
     }
 
     /**

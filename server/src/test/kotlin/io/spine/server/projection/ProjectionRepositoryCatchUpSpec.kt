@@ -23,7 +23,6 @@ import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.projection.given.ProjectionRepositoryTestEnv.TestProjectionRepository
 import io.spine.test.projection.ProjectId
-import io.spine.testing.server.buildForTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -37,7 +36,7 @@ internal class ProjectionRepositoryCatchUpSpec {
 
     @BeforeEach
     fun setUp() {
-        context = BoundedContextBuilder.assumingTests().buildForTests()
+        context = BoundedContextBuilder.assumingTests().build()
         repository = TestProjectionRepository()
         context.internalAccess()
             .register(repository)

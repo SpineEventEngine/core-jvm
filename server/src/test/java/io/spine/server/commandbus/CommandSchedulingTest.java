@@ -30,7 +30,6 @@ import static io.spine.protobuf.Durations2.minutes;
 import static io.spine.protobuf.TypeConverter.toMessage;
 import static io.spine.server.commandbus.CommandScheduler.setSchedule;
 import static io.spine.server.commandbus.Given.ACommand.createProject;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static io.spine.testing.time.Past.minutesAgo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -67,7 +66,7 @@ class CommandSchedulingTest extends AbstractCommandBusTestSuite {
     @DisplayName("not schedule command if no scheduling options are set")
     void notScheduleWithoutOptions() {
         var assignee = new CreateProjectAssignee();
-        assignee.registerWith(buildForTests(BoundedContextBuilder.assumingTests()));
+        assignee.registerWith(BoundedContextBuilder.assumingTests().build());
         commandBus.register(assignee);
 
         var command = createProject();

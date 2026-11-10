@@ -35,8 +35,6 @@ import io.spine.core.External
 import io.spine.logging.Level.Companion.DEBUG
 import io.spine.logging.toJavaLogging
 import io.spine.option.EntityOption.Visibility.FULL
-import io.spine.server.BoundedContext.multitenant
-import io.spine.server.BoundedContext.singleTenant
 import io.spine.server.BoundedContextBuilder.assumingTests
 import io.spine.server.bc.given.FinishedProjectProjection
 import io.spine.server.bc.given.ProjectAggregate
@@ -61,7 +59,6 @@ import io.spine.test.shared.event.SomethingElseHappened
 import io.spine.test.shared.event.SomethingHappened
 import io.spine.testing.TestValues
 import io.spine.testing.logging.Interceptor
-import io.spine.testing.server.buildForTests
 import io.spine.testing.server.model.ModelTests
 import java.util.function.BooleanSupplier
 import java.util.logging.Level
@@ -98,7 +95,7 @@ internal class BoundedContextSpec {
     fun setUp() {
         ModelTests.dropAllModels()
         context = assumingTests(/* multitenant = */ true)
-            .buildForTests()
+            .build()
     }
 
     @AfterEach
@@ -140,7 +137,7 @@ internal class BoundedContextSpec {
         @Test
         fun `multitenancy state`() {
             assumingTests(/* multitenant = */ true)
-                .buildForTests().use {
+                .build().use {
                     it.isMultitenant shouldBe true
                 }
         }
@@ -251,7 +248,7 @@ internal class BoundedContextSpec {
 
     @Test
     fun `propagate registered repositories to 'Stand'`() {
-        assumingTests().buildForTests().use { context ->
+        assumingTests().build().use { context ->
             val stand = context.stand()
 
             val repo = DefaultRepository.of(ProjectAggregate::class.java)
@@ -329,11 +326,11 @@ internal class BoundedContextSpec {
 
         private fun multiTenant(): BoundedContext =
             assumingTests(/* multitenant = */ true)
-                .buildForTests()
+                .build()
 
         private fun singleTenant(): BoundedContext =
             assumingTests(/* multitenant = */ false)
-                .buildForTests()
+                .build()
     }
 
     /**
@@ -390,7 +387,7 @@ internal class BoundedContextSpec {
 
         @BeforeEach
         fun closeContext() {
-            val context = singleTenant(contextName.value).buildForTests()
+            val context = assumingTests(contextName.value).build()
             domainInterceptor = Interceptor(DomainContext::class.java, debugLevel)
             domainInterceptor.intercept()
             systemInterceptor = Interceptor(SystemContext::class.java, debugLevel)
@@ -425,7 +422,7 @@ internal class BoundedContextSpec {
     @Test
     fun `return its name in 'toString()'`() {
         val name = TestValues.randomString()
-        singleTenant(name).buildForTests().use {
+        assumingTests(name).build().use {
             it.toString() shouldBe name
         }
     }
@@ -456,10 +453,10 @@ internal class BoundedContextSpec {
 
     @Test
     fun `be equal to another context by its name`() {
-        val c1 = closedAfterBuild(singleTenant("One"))
-        val c2 = closedAfterBuild(singleTenant("Two"))
-        val c1m = closedAfterBuild(multitenant("One"))
-        val c2m = closedAfterBuild(multitenant("Two"))
+        val c1 = closedAfterBuild(assumingTests("One"))
+        val c2 = closedAfterBuild(assumingTests("Two"))
+        val c1m = closedAfterBuild(assumingTests("One", /* multitenant = */ true))
+        val c2m = closedAfterBuild(assumingTests("Two", /* multitenant = */ true))
         EqualsTester()
             .addEqualityGroup(c1, c1m)
             .addEqualityGroup(c2, c2m)
@@ -468,11 +465,11 @@ internal class BoundedContextSpec {
 
     @Test
     fun `be comparable by its name`() {
-        val c1 = closedAfterBuild(singleTenant("1"))
-        val c2 = closedAfterBuild(singleTenant("2"))
+        val c1 = closedAfterBuild(assumingTests("1"))
+        val c2 = closedAfterBuild(assumingTests("2"))
         c1 shouldBeLessThan c2
         c2 shouldBeGreaterThan c1
-        c1 shouldBe closedAfterBuild(multitenant("1"))
+        c1 shouldBe closedAfterBuild(assumingTests("1", /* multitenant = */ true))
     }
 
     /**
@@ -482,7 +479,7 @@ internal class BoundedContextSpec {
      * So the closed contexts compared here can have equal names.
      */
     private fun closedAfterBuild(builder: BoundedContextBuilder): BoundedContext =
-        builder.buildForTests().also { it.close() }
+        builder.build().also { it.close() }
 
     @Nested
     @DisplayName("support diagnostics via `Probe`")
@@ -543,7 +540,7 @@ internal class BoundedContextSpec {
         var called = false
         val context = assumingTests()
             .setOnBeforeClose { called = true }
-            .buildForTests()
+            .build()
         context.use {
             it.close()
         }

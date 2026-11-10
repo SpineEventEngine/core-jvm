@@ -45,7 +45,6 @@ import io.spine.test.commandbus.command.cmdBusStartProject
 import io.spine.test.commandbus.projectId
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
-import io.spine.testing.server.buildForTests
 import io.spine.type.TypeUrl
 import java.util.Optional
 import org.junit.jupiter.api.AfterEach
@@ -68,7 +67,7 @@ internal class CommandLogProjectionSpec {
             .addCommandFilter(RefusingFilter)
             .addCommandFilter(FailingFilter)
         builder.systemSettings().enableCommandLog()
-        context = builder.buildForTests()
+        context = builder.build()
         context.internalAccess().run {
             register(DefaultRepository.of(CompanyAggregate::class.java))
             register(CompanyNameProcmanRepo())
@@ -169,7 +168,7 @@ internal class CommandLogProjectionSpec {
     fun `record a command without a tenant posted to a multitenant context`() {
         val builder = BoundedContextBuilder.assumingTests(/* multitenant = */ true)
         builder.systemSettings().enableCommandLog()
-        builder.buildForTests().use { multitenant ->
+        builder.build().use { multitenant ->
             // No handler is needed: the tenant is checked before the receivers of the command.
             val log = commandLogOf(multitenant)
             val command = establishing(name = "A company without a tenant")

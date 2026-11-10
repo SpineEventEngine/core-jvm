@@ -21,6 +21,7 @@ import io.spine.base.Identifier.newUuid
 import io.spine.environment.Tests
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.ServerEnvironment
+import io.spine.server.application
 import io.spine.server.delivery.Delivery
 import io.spine.server.delivery.InboxStorage
 import io.spine.server.entity.AbstractEntity
@@ -38,7 +39,6 @@ import io.spine.server.storage.StorageFactory
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.model.modProjectCreated
 import io.spine.testing.server.blackbox.BlackBox
-import io.spine.testing.server.buildForTests
 import io.spine.testing.server.model.ModelTests.dropAllModels
 import java.lang.reflect.InvocationTargetException
 import org.junit.jupiter.api.AfterEach
@@ -129,7 +129,11 @@ internal class FilterSpec {
                 // Not the value expected in `ProjectTasksProjection`.
                 id = newUuid()
             }
-            BlackBox.from(context.buildForTests(environment)).use {
+            val application = application {
+                serverEnvironment = environment
+                add(context)
+            }
+            BlackBox.from(application).use {
                 it.receivesEvent(event)
                 inboxStorage.index().hasNext() shouldBe false
             }

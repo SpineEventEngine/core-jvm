@@ -54,7 +54,6 @@ import static io.spine.server.aggregate.given.query.AggregateQueryingTestEnv.spi
 import static io.spine.server.aggregate.given.query.AggregateQueryingTestEnv.upload;
 import static io.spine.test.aggregate.query.MRPhotoType.CROP_FRAME;
 import static io.spine.test.aggregate.query.MRPhotoType.FULL_FRAME;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -72,8 +71,9 @@ class AggregateQueryingTest {
     @BeforeEach
     void setUp() {
         repository = newPhotosRepository();
-        context = buildForTests(BoundedContextBuilder.assumingTests(/* multitenant = */ false)
-                                       .add(repository));
+        context = BoundedContextBuilder.assumingTests(/* multitenant = */ false)
+                .add(repository)
+                .build();
         var requestFactory = new TestActorRequestFactory(AggregateQueryingTest.class);
         queries = requestFactory.query();
         commands = requestFactory.command();

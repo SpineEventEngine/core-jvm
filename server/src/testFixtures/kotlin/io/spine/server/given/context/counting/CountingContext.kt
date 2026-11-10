@@ -16,7 +16,7 @@ package io.spine.server.given.context.counting
 
 import io.spine.core.Subscribe
 import io.spine.server.BoundedContext
-import io.spine.server.BoundedContext.singleTenant
+import io.spine.server.BoundedContextBuilder.assumingTests
 import io.spine.server.command.Assign
 import io.spine.server.command.SingleCommandAssignee
 import io.spine.server.given.context.counting.command.GenerateNumbers
@@ -26,7 +26,6 @@ import io.spine.server.projection.Projection
 import io.spine.server.projection.ProjectionRepository
 import io.spine.server.route.EventRouting
 import io.spine.testing.TestValues.random
-import io.spine.testing.server.buildForTests
 
 /**
  * The Counting context generates random numbers in a range and accumulates
@@ -130,8 +129,8 @@ private class NumberStatsRepository : ProjectionRepository<Int, NumberStatsView,
 /**
  * Creates Counting bounded context.
  */
-fun createCountingContext(): BoundedContext = singleTenant("Counting").apply {
+fun createCountingContext(): BoundedContext = assumingTests("Counting").apply {
     addAssignee(RandomNumberGenerator())
     add(RangeStatsRepository())
     add(NumberStatsRepository())
-}.buildForTests()
+}.build()

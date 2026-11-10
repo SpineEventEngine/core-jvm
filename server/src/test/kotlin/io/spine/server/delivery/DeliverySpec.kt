@@ -25,6 +25,7 @@ import io.spine.core.TenantId
 import io.spine.environment.Tests
 import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
+import io.spine.server.application
 import io.spine.server.delivery.InboxMessageStatus.TO_DELIVER
 import io.spine.server.delivery.given.CounterView
 import io.spine.server.delivery.given.NoOpEndpoint
@@ -40,7 +41,6 @@ import io.spine.test.delivery.dCreateTask
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.server.blackbox.BlackBox
-import io.spine.testing.server.buildForTests
 import io.spine.type.TypeUrl
 import kotlin.jvm.optionals.getOrNull
 import org.junit.jupiter.api.AfterEach
@@ -75,10 +75,11 @@ internal class DeliverySpec : AbstractDeliveryTest() {
         // The weight is static, and `CatchUpTest` leaves it at 100.
         CounterView.changeWeightTo(1)
         val repository = CounterView.Repository()
-        val context = BoundedContextBuilder.assumingTests()
-            .add(repository)
-            .buildForTests(environment)
-        BlackBox.from(context).use { box ->
+        val application = application {
+            serverEnvironment = environment
+            add(BoundedContextBuilder.assumingTests().add(repository))
+        }
+        BlackBox.from(application).use { box ->
             repeat(MESSAGES) {
                 box.receivesEvent(numberAdded { calculatorId = TARGET; value = 0 })
             }

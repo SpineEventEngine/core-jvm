@@ -45,11 +45,9 @@ import java.util.Optional;
 
 import static io.spine.base.Identifier.newUuid;
 import static io.spine.testing.TestValues.random;
-import static io.spine.testing.server.TestContexts.buildForTests;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SuppressWarnings("OverlyCoupledClass")
 @DisplayName("`AbstractCommander` should")
 class AbstractCommanderTest {
 
@@ -66,10 +64,11 @@ class AbstractCommanderTest {
                                              CmdAssignTask.class,
                                              CmdStartTask.class);
         AbstractCommander commander = new Commendatore();
-        context = buildForTests(BoundedContextBuilder
+        context = BoundedContextBuilder
                 .assumingTests()
                 .addCommandDispatcher(commander)
-                .addCommandDispatcher(interceptor));
+                .addCommandDispatcher(interceptor)
+                .build();
     }
 
     @AfterEach

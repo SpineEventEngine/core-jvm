@@ -41,7 +41,6 @@ import io.spine.test.commandservice.CmdServDontHandle
 import io.spine.test.commandservice.command.CsSuspendProject
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
-import io.spine.testing.server.buildForTests
 import io.spine.type.TypeUrl
 import io.spine.validation.NonValidated
 import java.util.Optional
@@ -69,7 +68,7 @@ internal class CommandServiceErrorCaseSpec {
         context = BoundedContextBuilder.assumingTests()
             .add(Given.ProjectAggregateRepository())
             .addCommandFilter(FailingFilter)
-            .buildForTests()
+            .build()
         context.internalAccess().registerEventDispatcher(monitor)
         service = CommandService.withSingle(context)
     }
