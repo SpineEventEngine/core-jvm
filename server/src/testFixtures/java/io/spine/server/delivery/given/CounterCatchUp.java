@@ -157,7 +157,7 @@ public class CounterCatchUp implements Closeable {
         var record = TestCatchUpJobs.catchUpJob(
                 CounterView.projectionType(), status, target.sinceWhen(), ids);
         TestCatchUpJobs.writeJob(storage, record);
-        var delivery = Delivery.newBuilder()
+        var delivery = Delivery.newBuilder(ServerEnvironment.instance())
                 .setCatchUpStorage(storage)
                 .build();
         delivery.subscribe(new LocalDispatchingObserver());

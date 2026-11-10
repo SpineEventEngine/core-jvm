@@ -30,11 +30,16 @@ import org.junit.jupiter.api.Test
 @DisplayName("`DeliveryBuilder` should")
 internal class DeliveryBuilderSpec {
 
-    private fun builder(): DeliveryBuilder = Delivery.newBuilder()
+    private fun builder(): DeliveryBuilder = Delivery.newBuilder(ServerEnvironment.instance())
 
     @Nested
     @DisplayName("not accept `null`")
     internal inner class NotAcceptNull {
+
+        @Test
+        fun environment() {
+            assertNpe { Delivery.newBuilder(nullRef()) }
+        }
 
         @Test
         fun `delivery strategy`() {

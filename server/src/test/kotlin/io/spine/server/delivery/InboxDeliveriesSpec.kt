@@ -48,7 +48,7 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
      */
     @BeforeEach
     fun useOwnDelivery() {
-        under<Tests> { use(Delivery.local()) }
+        under<Tests> { use(Delivery.local(ServerEnvironment.instance())) }
     }
 
     @AfterEach

@@ -18,6 +18,7 @@ import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
 import io.spine.core.TenantId
 import io.spine.environment.Tests
+import io.spine.server.ServerEnvironment
 import io.spine.server.delivery.InboxMessageStatus.TO_DELIVER
 import io.spine.server.delivery.given.CounterView
 import io.spine.server.tenant.TenantAwareRunner
@@ -40,7 +41,7 @@ internal class DeliverySpec : AbstractDeliveryTest() {
     @Test
     fun `stop delivering a shard once the monitor tells to`() {
         // No shard observer, so the messages wait in the shard until delivered below.
-        val delivery = Delivery.newBuilder()
+        val delivery = Delivery.newBuilder(ServerEnvironment.instance())
             .setStrategy(UniformAcrossAllShards.singleShard())
             .setPageSize(1)
             .setMonitor(StopAfterEachPage())

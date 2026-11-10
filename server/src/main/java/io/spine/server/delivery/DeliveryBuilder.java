@@ -41,6 +41,7 @@ public final class DeliveryBuilder {
      */
     private static final int DEFAULT_CATCH_UP_PAGE_SIZE = 500;
 
+    private final ServerEnvironment environment;
     private @MonotonicNonNull InboxStorage inboxStorage;
     private @MonotonicNonNull CatchUpStorage catchUpStorage;
     private @MonotonicNonNull DeliveryStrategy strategy;
@@ -51,9 +52,19 @@ public final class DeliveryBuilder {
     private @MonotonicNonNull Integer catchUpPageSize;
 
     /**
-     * Prevents a direct instantiation of this class.
+     * Creates a builder of a {@code Delivery} that runs in the given environment.
+     *
+     * <p>Prevents a direct instantiation of this class.
      */
-    DeliveryBuilder() {
+    DeliveryBuilder(ServerEnvironment environment) {
+        this.environment = checkNotNull(environment);
+    }
+
+    /**
+     * Returns the environment in which the built {@code Delivery} runs.
+     */
+    ServerEnvironment environment() {
+        return environment;
     }
 
     /**
@@ -351,9 +362,8 @@ public final class DeliveryBuilder {
         return delivery;
     }
 
-    private static StorageFactory storageFactory() {
-        var serverEnvironment = ServerEnvironment.instance();
-        var currentStorageFactory = serverEnvironment.optionalStorageFactory();
+    private StorageFactory storageFactory() {
+        var currentStorageFactory = environment.optionalStorageFactory();
         return currentStorageFactory.orElseGet(InMemoryStorageFactory::newInstance);
     }
 }
