@@ -215,7 +215,6 @@ public final class Server implements WithLogging {
         /** The application whose contexts the server serves. */
         private @MonotonicNonNull Application application;
 
-        private @MonotonicNonNull ImmutableSet<BoundedContext> contexts;
         private @MonotonicNonNull QueryService queryService;
         private @MonotonicNonNull SubscriptionService subscriptionService;
         private @MonotonicNonNull CommandService commandService;
@@ -262,16 +261,19 @@ public final class Server implements WithLogging {
             return result;
         }
 
+        /**
+         * Obtains the contexts of the application that is set at the moment.
+         *
+         * <p>The builder does not keep them, so a builder that is reused with another
+         * application builds a server of that application.
+         */
         private ImmutableSet<BoundedContext> contexts() {
-            if (contexts == null) {
-                checkState(application != null,
-                           "The application of the server is not set." +
-                                   " Please call `setApplication()`.");
-                checkState(application.isOpen(),
-                           "The application of the server is closed.");
-                contexts = ImmutableSet.copyOf(application.contexts());
-            }
-            return contexts;
+            checkState(application != null,
+                       "The application of the server is not set." +
+                               " Please call `setApplication()`.");
+            checkState(application.isOpen(),
+                       "The application of the server is closed.");
+            return ImmutableSet.copyOf(application.contexts());
         }
 
         /**

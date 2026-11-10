@@ -19,9 +19,13 @@ import io.grpc.ManagedChannelBuilder
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.spine.client.given.ClientTasksTestEnv.createCTask
+import io.spine.core.Ack
+import io.spine.grpc.StreamObservers.memoizingObserver
 import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.given.service.StatusCheckService
 import io.spine.test.client.ClientTestContext.tasks
@@ -29,6 +33,7 @@ import io.spine.test.client.ClientTestContext.users
 import io.spine.test.server.ServerStatus.OK
 import io.spine.test.server.StatusCheckGrpc
 import io.spine.testing.TestValues.randomString
+import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -177,6 +182,28 @@ internal class ServerSpec {
         }
 
         application.contexts().forEach { it.isOpen.shouldBeFalse() }
+    }
+
+    @Test
+    @MuteLogging
+    fun `serve the application set last, when the builder is reused`() {
+        val users = applicationOf(users())
+        val tasks = applicationOf(tasks())
+        val builder = Server.atPort(ANY_FREE_PORT)
+        builder.setApplication(users).build()
+
+        val server = builder.setApplication(tasks).build()
+
+        try {
+            val command = TestActorRequestFactory(ServerSpec::class.java)
+                .createCommand(createCTask("Built by a reused builder"))
+            val observer = memoizingObserver<Ack>()
+            server.commandService().post(command, observer)
+            observer.firstResponse().status.hasOk().shouldBeTrue()
+        } finally {
+            users.close()
+            tasks.close()
+        }
     }
 
     @Test
