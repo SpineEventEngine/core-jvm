@@ -14,16 +14,22 @@
 
 package io.spine.server
 
+import com.google.protobuf.Message
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.environment.Tests
 import io.spine.server.commandbus.CommandScheduler
 import io.spine.server.commandbus.ExecutorCommandScheduler
+import io.spine.server.storage.RecordSpec
+import io.spine.server.storage.RecordStorage
+import io.spine.server.storage.StorageFactory
+import io.spine.server.storage.StorageGroup
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.server.storage.system.SystemAwareStorageFactory
 import io.spine.server.transport.memory.InMemoryTransportFactory
@@ -125,5 +131,62 @@ internal class ServerEnvironmentSpec {
         environment.isOpen.shouldBeFalse()
         storage.isOpen.shouldBeFalse()
         transport.isOpen.shouldBeFalse()
+    }
+
+    @Test
+    fun `close the factories of its technologies once`() {
+        val storage = StorageFactoryCountingClosings()
+        val environment = serverEnvironment {
+            under<Tests> { use(storage) }
+        }
+
+        environment.close()
+        environment.close()
+
+        storage.closings shouldBe 1
+    }
+
+    @Test
+    fun `name the factory that failed to close`() {
+        val storage = StorageFactoryCountingClosings(failure = "The factory failed to close.")
+        val environment = serverEnvironment {
+            under<Tests> { use(storage) }
+        }
+
+        val error = shouldThrow<IllegalStateException> {
+            environment.close()
+        }
+
+        error.message shouldContain "StorageFactory"
+        error.cause?.message shouldContain "The factory failed to close."
+    }
+}
+
+/**
+ * An in-memory storage factory that counts the calls to [close].
+ *
+ * @param failure The message of the error that each call to [close] throws, if any.
+ */
+private class StorageFactoryCountingClosings(
+    private val failure: String? = null
+) : StorageFactory {
+
+    private val delegate = InMemoryStorageFactory.newInstance()
+
+    var closings = 0
+        private set
+
+    override fun <I : Any, R : Message> createRecordStorage(
+        context: ContextSpec,
+        recordSpec: RecordSpec<I, R>,
+        group: StorageGroup?
+    ): RecordStorage<I, R> = delegate.createRecordStorage(context, recordSpec, group)
+
+    override fun isOpen(): Boolean = delegate.isOpen
+
+    override fun close() {
+        closings++
+        failure?.let { error(it) }
+        delegate.close()
     }
 }

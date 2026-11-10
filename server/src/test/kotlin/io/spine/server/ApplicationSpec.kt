@@ -19,6 +19,7 @@ import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
@@ -135,6 +136,54 @@ internal class ApplicationSpec {
         }
 
         closings shouldBe listOf("first")
+    }
+
+    @Test
+    fun `keep the build failure, if closing the contexts built before it fails`() {
+        val failing = BoundedContextBuilder.assumingTests()
+            .add(CalculatorsFailingOnRegistration())
+
+        val error = shouldThrow<IllegalStateException> {
+            applicationOf(
+                serverEnvironment {},
+                context { error("The context failed to close.") },
+                failing
+            )
+        }
+
+        error.message shouldBe "The repository failed on registration."
+        error.suppressed shouldHaveSize 1
+    }
+
+    @Nested inner class
+    `have a builder, whose Kotlin DSL properties` {
+
+        @Test
+        fun `give the server environment and the tenant index once set`() {
+            val environment = serverEnvironment {}
+            val index = InMemoryTenantIndex()
+            val builder = Application.newBuilder()
+            builder.serverEnvironment shouldBe null
+            builder.tenantIndex shouldBe null
+
+            builder.serverEnvironment = environment
+            builder.tenantIndex = index
+
+            builder.serverEnvironment shouldBeSameInstanceAs environment
+            builder.tenantIndex shouldBeSameInstanceAs index
+        }
+
+        @Test
+        fun `cannot be set to 'null'`() {
+            val builder = Application.newBuilder()
+
+            shouldThrow<IllegalArgumentException> {
+                builder.serverEnvironment = null
+            }
+            shouldThrow<IllegalArgumentException> {
+                builder.tenantIndex = null
+            }
+        }
     }
 
     @Test

@@ -27,6 +27,7 @@ import io.kotest.matchers.optional.shouldBeEmpty
 import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.annotation.Internal
 import io.spine.base.EventMessage
 import io.spine.core.BoundedContextName
@@ -52,6 +53,7 @@ import io.spine.server.type.CommandEnvelope
 import io.spine.server.type.EventEnvelope
 import io.spine.system.server.ConstraintViolated
 import io.spine.system.server.SystemClient
+import io.spine.system.server.SystemBoundedContexts.systemOf
 import io.spine.system.server.SystemContext
 import io.spine.test.bc.Project
 import io.spine.test.bc.SecretProject
@@ -371,6 +373,38 @@ internal class BoundedContextSpec {
                 override fun systemClient(): SystemClient = TestValues.nullRef()
 
                 override fun isSystem(): Boolean = false
+            }
+        }
+    }
+
+    @Nested inner class
+    `know its domain context` {
+
+        @Test
+        fun `being the domain context itself`() {
+            context.internalAccess().domainContext() shouldBeSameInstanceAs context
+        }
+
+        @Test
+        fun `through its System context`() {
+            systemOf(context).internalAccess().domainContext() shouldBeSameInstanceAs context
+        }
+
+        @Test
+        fun `refusing a domain context for a domain context`() {
+            assumingTests().build().use { another ->
+                assertThrows<IllegalStateException> {
+                    context.attachDomain(another)
+                }
+            }
+        }
+
+        @Test
+        fun `refusing a second domain context for a System context`() {
+            assumingTests().build().use { another ->
+                assertThrows<IllegalStateException> {
+                    systemOf(context).attachDomain(another)
+                }
             }
         }
     }
