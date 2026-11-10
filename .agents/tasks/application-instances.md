@@ -396,7 +396,7 @@ Added after the pre-PR review:
   with no application to close them.
 - `Application.contexts()` gives an immutable list, so Java callers cannot change it.
 - The `internal` settings of `ServerEnvironment.Builder` end with `Setting`
-  (`deliverySetting`, …, and `schedulerFactory`), so that inside `serverEnvironment {}` they do
+  (`deliverySetting`, …, `schedulerFactorySetting`), so that inside `serverEnvironment {}` they do
   not hide the properties of the enclosing code.
 - The `@ServerDsl` marker on `Application.Builder`, `ServerEnvironment.Builder`, and
   `TypeConfigurator` keeps a nested DSL block from calling the outer builder implicitly.

@@ -1,6 +1,6 @@
 # `ServerEnvironment` and `Application` as instances
 
-This guide tells you what changes when you upgrade to `2.0.0-SNAPSHOT.680`. `ServerEnvironment`
+This guide tells you what changes when you upgrade to `2.0.0-SNAPSHOT.690`. `ServerEnvironment`
 and `Application` are no longer singletons: an application builds its server environment, and
 then its application, which builds its Bounded Contexts. Every server-side application needs
 code changes, and so do the tests that build contexts or configure the server environment.

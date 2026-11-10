@@ -138,7 +138,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
     /**
      * Provides schedulers used by all `CommandBus` instances of this environment.
      */
-    private val commandScheduler: Supplier<CommandScheduler> = builder.schedulerFactory
+    private val commandScheduler: Supplier<CommandScheduler> = builder.schedulerFactorySetting
 
     /**
      * Tells if an [Application] owns this environment.
@@ -260,15 +260,15 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
      *
      * Takes the technologies for each [type of environment][EnvironmentType] with [under].
      * A builder builds one environment.
+     *
+     * The names of the internal settings of the builder end with `Setting`, so that inside
+     * the block of [serverEnvironment] they do not hide the properties of the enclosing code.
      */
     @ServerDsl
     public class Builder internal constructor() {
 
         /**
          * The setting of the `Delivery` for each type of environment.
-         *
-         * The names of the settings end with `Setting`, so that inside the block of
-         * [serverEnvironment] they do not hide the properties of the enclosing code.
          */
         internal val deliverySetting = EnvSetting<Delivery>()
 
@@ -299,7 +299,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         /**
          * Creates a scheduler of the commands for the `CommandBus` of each context.
          */
-        internal var schedulerFactory: Supplier<CommandScheduler> =
+        internal var schedulerFactorySetting: Supplier<CommandScheduler> =
             Supplier { ExecutorCommandScheduler() }
             private set
 
@@ -356,7 +356,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         @CanIgnoreReturnValue
         public fun scheduleCommandsUsing(factory: Supplier<CommandScheduler>): Builder {
             checkNotBuilt()
-            schedulerFactory = factory
+            schedulerFactorySetting = factory
             return this
         }
 

@@ -189,9 +189,33 @@ internal class ApplicationSpec {
 
     @Test
     fun `give its contexts in a list that Java callers cannot change`() {
-        applicationOf(InMemoryTenantIndex()).use {
+        // Two contexts, because a copied list of one element cannot be changed anyway.
+        val app = applicationOf(
+            serverEnvironment {},
+            BoundedContextBuilder.assumingTests(),
+            BoundedContextBuilder.assumingTests()
+        )
+
+        app.use {
             shouldThrow<UnsupportedOperationException> {
                 (it.contexts() as MutableList<BoundedContext>).clear()
+            }
+        }
+    }
+
+    @Test
+    fun `refuse to build with a third-party context that another builder has built`() {
+        val calendar = ThirdPartyContext.singleTenant("Calendar")
+        val first = Application.newBuilder()
+            .setServerEnvironment(serverEnvironment {})
+            .add(calendar)
+        val second = Application.newBuilder()
+            .setServerEnvironment(serverEnvironment {})
+            .add(calendar)
+
+        first.build().use {
+            shouldThrow<IllegalStateException> {
+                second.build()
             }
         }
     }
