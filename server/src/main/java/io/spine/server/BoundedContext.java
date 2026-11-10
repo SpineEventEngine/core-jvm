@@ -153,11 +153,10 @@ public abstract class BoundedContext
         super();
         checkInheritance();
         this.spec = builder.spec();
-        var environment = ServerEnvironment.instance();
-        this.storageFactory = environment.storageFactory();
-        this.delivery = environment.delivery();
-        this.commandScheduler = environment.newCommandScheduler();
-        this.transportFactory = environment.transportFactory();
+        this.storageFactory = checkNotNull(builder.getStorageFactory());
+        this.delivery = checkNotNull(builder.getDelivery());
+        this.commandScheduler = checkNotNull(builder.getCommandSchedulerFactory()).get();
+        this.transportFactory = checkNotNull(builder.getTransportFactory());
         this.eventBus = builder.buildEventBus(this);
         this.stand = builder.stand();
         this.broker = new IntegrationBroker();

@@ -28,6 +28,8 @@ import io.spine.server.bus.MessageDispatcher;
 import io.spine.server.command.AbstractAssignee;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcher;
+import io.spine.server.commandbus.CommandScheduler;
+import io.spine.server.delivery.Delivery;
 import io.spine.server.enrich.Enricher;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.Repository;
@@ -35,6 +37,9 @@ import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcher;
 import io.spine.server.event.EventEnricher;
 import io.spine.server.stand.Stand;
+import io.spine.server.storage.StorageFactory;
+import io.spine.server.trace.TracerFactory;
+import io.spine.server.transport.TransportFactory;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.NoOpSystemClient;
@@ -92,6 +97,46 @@ public final class BoundedContextBuilder implements WithLogging {
     private final Collection<EventDispatcher> eventDispatchers = new ArrayList<>();
 
     private final SystemSettings systemSettings;
+
+    /**
+     * The factory with which the repositories of the built context create their storages.
+     *
+     * <p>If not set, the factory {@linkplain ServerEnvironment#storageFactory() configured} in
+     * the server environment is used.
+     */
+    private @Nullable StorageFactory storageFactory;
+
+    /**
+     * The delivery in which the repositories of the built context register their inboxes.
+     *
+     * <p>If not set, the delivery {@linkplain ServerEnvironment#delivery() of} the server
+     * environment is used.
+     */
+    private @Nullable Delivery delivery;
+
+    /**
+     * Creates the scheduler of the commands posted to the built context.
+     *
+     * <p>If not set, the context obtains its scheduler
+     * {@linkplain ServerEnvironment#newCommandScheduler() from} the server environment.
+     */
+    private @Nullable Supplier<CommandScheduler> commandSchedulerFactory;
+
+    /**
+     * The transport through which the built context exchanges messages with other contexts.
+     *
+     * <p>If not set, the factory {@linkplain ServerEnvironment#transportFactory() configured} in
+     * the server environment is used.
+     */
+    private @Nullable TransportFactory transportFactory;
+
+    /**
+     * The factory of the tracers for the messages of the built context.
+     *
+     * <p>If not set, the factory {@linkplain ServerEnvironment#tracing() configured} in
+     * the server environment is used, if any.
+     */
+    private @Nullable TracerFactory tracerFactory;
 
     private @MonotonicNonNull Stand stand;
     @SuppressWarnings("deprecation") // The `AggregateRootDirectory` API is deprecated.
@@ -498,6 +543,152 @@ public final class BoundedContextBuilder implements WithLogging {
     }
 
     /**
+     * Sets the factory with which the repositories of the built context create their storages.
+     *
+     * <p>If not set, the factory {@linkplain ServerEnvironment#storageFactory() configured} in
+     * the server environment is used.
+     *
+     * <p>The System context of the built context uses the same factory.
+     *
+     * @param factory
+     *         the factory of the storages
+     */
+    @CanIgnoreReturnValue
+    public BoundedContextBuilder setStorageFactory(StorageFactory factory) {
+        this.storageFactory = checkNotNull(factory);
+        return this;
+    }
+
+    /**
+     * Obtains the factory with which the repositories of the built context create
+     * their storages.
+     *
+     * @return the factory, or {@code null} if it was not
+     *         {@linkplain #setStorageFactory(StorageFactory) set} and the context
+     *         was not built yet
+     */
+    public @Nullable StorageFactory getStorageFactory() {
+        return storageFactory;
+    }
+
+    /**
+     * Sets the delivery in which the repositories of the built context register their inboxes.
+     *
+     * <p>If not set, the delivery {@linkplain ServerEnvironment#delivery() of} the server
+     * environment is used.
+     *
+     * <p>The System context of the built context uses the same delivery.
+     *
+     * @param delivery
+     *         the delivery of the messages to the entities of the context
+     */
+    @CanIgnoreReturnValue
+    public BoundedContextBuilder setDelivery(Delivery delivery) {
+        this.delivery = checkNotNull(delivery);
+        return this;
+    }
+
+    /**
+     * Obtains the delivery in which the repositories of the built context register
+     * their inboxes.
+     *
+     * @return the delivery, or {@code null} if it was not
+     *         {@linkplain #setDelivery(Delivery) set} and the context was not built yet
+     */
+    public @Nullable Delivery getDelivery() {
+        return delivery;
+    }
+
+    /**
+     * Sets the factory of the scheduler of the commands posted to the built context.
+     *
+     * <p>A scheduler serves the {@code CommandBus} of a single context, and is closed with it.
+     * So, the built context and its System context each obtain their own scheduler from
+     * the factory.
+     *
+     * <p>If not set, the contexts obtain their schedulers
+     * {@linkplain ServerEnvironment#newCommandScheduler() from} the server environment.
+     *
+     * @param factory
+     *         creates a new scheduler on each call
+     */
+    @CanIgnoreReturnValue
+    public BoundedContextBuilder setCommandSchedulerFactory(Supplier<CommandScheduler> factory) {
+        this.commandSchedulerFactory = checkNotNull(factory);
+        return this;
+    }
+
+    /**
+     * Obtains the factory of the scheduler of the commands posted to the built context.
+     *
+     * @return the factory, or {@code null} if it was not
+     *         {@linkplain #setCommandSchedulerFactory(Supplier) set} and the context
+     *         was not built yet
+     */
+    public @Nullable Supplier<CommandScheduler> getCommandSchedulerFactory() {
+        return commandSchedulerFactory;
+    }
+
+    /**
+     * Sets the transport through which the built context exchanges messages with
+     * other contexts.
+     *
+     * <p>If not set, the factory {@linkplain ServerEnvironment#transportFactory() configured} in
+     * the server environment is used.
+     *
+     * <p>The System context of the built context uses the same factory.
+     *
+     * @param factory
+     *         the factory of the transport
+     */
+    @CanIgnoreReturnValue
+    public BoundedContextBuilder setTransportFactory(TransportFactory factory) {
+        this.transportFactory = checkNotNull(factory);
+        return this;
+    }
+
+    /**
+     * Obtains the transport through which the built context exchanges messages with
+     * other contexts.
+     *
+     * @return the factory, or {@code null} if it was not
+     *         {@linkplain #setTransportFactory(TransportFactory) set} and the context
+     *         was not built yet
+     */
+    public @Nullable TransportFactory getTransportFactory() {
+        return transportFactory;
+    }
+
+    /**
+     * Sets the factory of the tracers for the messages of the built context.
+     *
+     * <p>If not set, the factory {@linkplain ServerEnvironment#tracing() configured} in
+     * the server environment is used, if any.
+     *
+     * <p>The System context of the built context, which traces the messages, uses
+     * this factory.
+     *
+     * @param factory
+     *         the factory of the tracers
+     */
+    @CanIgnoreReturnValue
+    public BoundedContextBuilder setTracerFactory(TracerFactory factory) {
+        this.tracerFactory = checkNotNull(factory);
+        return this;
+    }
+
+    /**
+     * Obtains the factory of the tracers for the messages of the built context.
+     *
+     * @return the factory, or {@code null} if it was not
+     *         {@linkplain #setTracerFactory(TracerFactory) set} and the context was not
+     *         built yet, or if the server environment has no tracing configured
+     */
+    public @Nullable TracerFactory getTracerFactory() {
+        return tracerFactory;
+    }
+
+    /**
      * Creates a new instance of {@code BoundedContext} with the set configurations.
      *
      * <p>The new context becomes a part of the {@link Application}, which closes it when
@@ -511,10 +702,17 @@ public final class BoundedContextBuilder implements WithLogging {
      * such as:
      * <ul>
      *     <li>tenancy;
-     *     <li>{@linkplain ServerEnvironment#transportFactory()} transport facilities.
+     *     <li>the {@linkplain #setStorageFactory(StorageFactory) storage factory};
+     *     <li>the {@linkplain #setDelivery(Delivery) delivery};
+     *     <li>the {@linkplain #setCommandSchedulerFactory(Supplier) factory of command schedulers},
+     *         from which each context obtains its own scheduler;
+     *     <li>the {@linkplain #setTransportFactory(TransportFactory) transport factory};
+     *     <li>the {@linkplain #setTracerFactory(TracerFactory) tracer factory}.
      * </ul>
      *
      * <p>All the other configuration is NOT shared.
+     *
+     * <p>The technologies not set on this builder are taken from the {@link ServerEnvironment}.
      *
      * <p>The name of the System Bounded Context is derived from the name of the Domain Bounded
      * Context.
@@ -620,14 +818,49 @@ public final class BoundedContextBuilder implements WithLogging {
         var systemClient = system.createClient();
         Function<BoundedContextBuilder, DomainContext> instanceFactory =
                 builder -> DomainContext.newInstance(builder, systemClient);
-        BoundedContext result = buildPartial(instanceFactory, systemClient, system.stand());
+        BoundedContext result = doBuild(instanceFactory, systemClient, system.stand());
         return result;
     }
 
     private SystemContext buildSystem() {
         var system = new BoundedContextBuilder(systemSpec(), systemSettings);
-        var result = system.buildPartial(SystemContext::newInstance, NoOpSystemClient.INSTANCE);
+        shareTechnologiesWith(system);
+        var result = system.doBuild(SystemContext::newInstance, NoOpSystemClient.INSTANCE);
         return result;
+    }
+
+    /**
+     * Passes the technologies set on this builder to the builder of the System context.
+     */
+    private void shareTechnologiesWith(BoundedContextBuilder system) {
+        system.storageFactory = storageFactory;
+        system.delivery = delivery;
+        system.commandSchedulerFactory = commandSchedulerFactory;
+        system.transportFactory = transportFactory;
+        system.tracerFactory = tracerFactory;
+    }
+
+    /**
+     * Takes the technologies not set on this builder from the {@link ServerEnvironment}.
+     */
+    private void useEnvironmentForUnset() {
+        var environment = ServerEnvironment.instance();
+        if (storageFactory == null) {
+            storageFactory = environment.storageFactory();
+        }
+        if (delivery == null) {
+            delivery = environment.delivery();
+        }
+        if (commandSchedulerFactory == null) {
+            commandSchedulerFactory = environment::newCommandScheduler;
+        }
+        if (transportFactory == null) {
+            transportFactory = environment.transportFactory();
+        }
+        if (tracerFactory == null) {
+            tracerFactory = environment.tracing()
+                                       .orElse(null);
+        }
     }
 
     private ContextSpec systemSpec() {
@@ -639,14 +872,15 @@ public final class BoundedContextBuilder implements WithLogging {
     }
 
     private <B extends BoundedContext>
-    B buildPartial(Function<BoundedContextBuilder, B> instanceFactory, SystemClient client) {
-        return buildPartial(instanceFactory, client, null);
+    B doBuild(Function<BoundedContextBuilder, B> instanceFactory, SystemClient client) {
+        return doBuild(instanceFactory, client, null);
     }
 
     private <B extends BoundedContext>
-    B buildPartial(Function<BoundedContextBuilder, B> instanceFactory,
-                   SystemClient client,
-                   @Nullable Stand systemStand) {
+    B doBuild(Function<BoundedContextBuilder, B> instanceFactory,
+              SystemClient client,
+              @Nullable Stand systemStand) {
+        useEnvironmentForUnset();
         initCommandBus(client.writeSide());
         this.stand = createStand(systemStand);
         var result = instanceFactory.apply(this);
