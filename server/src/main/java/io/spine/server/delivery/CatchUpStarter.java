@@ -20,7 +20,6 @@ import io.spine.annotation.Internal;
 import io.spine.base.Identifier;
 import io.spine.core.TenantId;
 import io.spine.server.BoundedContext;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.event.CatchUpRequested;
 import io.spine.server.projection.ProjectionRepository;
 import io.spine.server.tenant.TenantFunction;
@@ -57,9 +56,9 @@ public final class CatchUpStarter<I> {
         this.context = context;
         this.projectionStateType = repository.entityStateType();
         this.eventClasses = repository.messageClasses();
-        this.storage = ServerEnvironment.instance()
-                                        .delivery()
-                                        .catchUpStorage();
+        this.storage = context.internalAccess()
+                              .delivery()
+                              .catchUpStorage();
     }
 
     /**
