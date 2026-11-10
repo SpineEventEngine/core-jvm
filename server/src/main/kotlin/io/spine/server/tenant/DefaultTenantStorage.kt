@@ -44,7 +44,6 @@ internal class DefaultTenantStorage(factory: StorageFactory) :
         /**
          * A name of a Bounded Context in scope of which the tenant data is stored.
          */
-        @Suppress("TestOnlyProblems") // The called API is not test-only.
         val contextSpec: ContextSpec = ContextSpec.singleTenant("__SYSTEM_TENANTS__")
 
         fun spec(): RecordSpec<TenantId, Tenant> =
