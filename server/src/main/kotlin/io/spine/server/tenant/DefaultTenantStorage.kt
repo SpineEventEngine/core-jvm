@@ -14,7 +14,7 @@
 
 package io.spine.server.tenant
 
-import io.spine.base.Time
+import io.spine.base.Time.currentTime
 import io.spine.core.TenantId
 import io.spine.server.ContextSpec
 import io.spine.server.storage.RecordSpec
@@ -33,11 +33,10 @@ import io.spine.server.storage.StorageFactory
 internal class DefaultTenantStorage(factory: StorageFactory) :
     TenantStorage<Tenant>(contextSpec, factory.createRecordStorage(contextSpec, spec())) {
 
-    override fun create(id: TenantId): Tenant =
-        Tenant.newBuilder()
-            .setId(id)
-            .setWhenCreated(Time.currentTime())
-            .build()
+    override fun create(id: TenantId): Tenant = tenant {
+        this.id = id
+        whenCreated = currentTime()
+    }
 
     private companion object {
 
