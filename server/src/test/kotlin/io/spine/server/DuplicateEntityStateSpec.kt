@@ -190,6 +190,21 @@ internal class DuplicateEntityStateSpec {
     }
 
     @Test
+    fun `close a context that failed to build, even if closing throws the failure itself`() {
+        val failure = IllegalStateException(REPOSITORY_FAILURE)
+
+        val error = shouldThrow<IllegalStateException> {
+            BoundedContext.singleTenant("Failing")
+                .setOnBeforeClose { throw failure }
+                .add(CalculatorsFailingOnRegistration(failure))
+                .build()
+                .also(built::add)
+        }
+        error shouldBeSameInstanceAs failure
+        contextServing(calc).shouldBeNull()
+    }
+
+    @Test
     fun `close every repository and forget the context, even if closing them fails`() {
         val calculators = FailingCalculatorRepository()
         val receptionists = FailingReceptionistRepository()
@@ -199,6 +214,24 @@ internal class DuplicateEntityStateSpec {
             first.close()
         }
         error.suppressed.map { it.message } shouldContainExactly listOf(REPOSITORY_FAILURE)
+        calculators.isOpen shouldBe false
+        receptionists.isOpen shouldBe false
+        contextServing(calc).shouldBeNull()
+        contextServing(receptionist).shouldBeNull()
+    }
+
+    @Test
+    fun `close every repository and forget the context, even if they throw one exception`() {
+        val failure = IllegalStateException(REPOSITORY_FAILURE)
+        val calculators = FailingCalculatorRepository { failure }
+        val receptionists = FailingReceptionistRepository { failure }
+        val first = context("First", calculators, receptionists)
+
+        val error = shouldThrow<IllegalStateException> {
+            first.close()
+        }
+        error shouldBeSameInstanceAs failure
+        error.suppressed.toList() shouldBe emptyList()
         calculators.isOpen shouldBe false
         receptionists.isOpen shouldBe false
         contextServing(calc).shouldBeNull()
@@ -287,24 +320,44 @@ internal class DuplicateEntityStateSpec {
 
     /**
      * A repository of calculators that throws from `close()` after closing its resources.
+     *
+     * @param failure Creates the failure to throw.
      */
-    private class FailingCalculatorRepository : CalculatorRepository() {
+    private class FailingCalculatorRepository(
+        private val failure: () -> RuntimeException = { IllegalStateException(REPOSITORY_FAILURE) }
+    ) : CalculatorRepository() {
 
         override fun close() {
             super.close()
-            error(REPOSITORY_FAILURE)
+            throw failure()
         }
     }
 
     /**
      * A repository of receptionists that throws from `close()` after closing its resources.
+     *
+     * @param failure Creates the failure to throw.
      */
-    private class FailingReceptionistRepository :
-        AggregateRepository<String, ReceptionistAggregate, Receptionist>() {
+    private class FailingReceptionistRepository(
+        private val failure: () -> RuntimeException = { IllegalStateException(REPOSITORY_FAILURE) }
+    ) : AggregateRepository<String, ReceptionistAggregate, Receptionist>() {
 
         override fun close() {
             super.close()
-            error(REPOSITORY_FAILURE)
+            throw failure()
+        }
+    }
+
+    /**
+     * A repository of calculators that throws the given failure once it is registered.
+     */
+    private class CalculatorsFailingOnRegistration(
+        private val failure: RuntimeException
+    ) : CalculatorRepository() {
+
+        override fun onRegistered() {
+            super.onRegistered()
+            throw failure
         }
     }
 

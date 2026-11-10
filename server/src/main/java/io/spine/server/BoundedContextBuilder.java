@@ -763,13 +763,17 @@ public final class BoundedContextBuilder implements WithLogging {
      *         the context to close
      * @param failure
      *         the error that failed the build; whatever closing throws, even an
-     *         {@code Error}, is added to it as suppressed, so it does not replace the failure
+     *         {@code Error}, is added to it as suppressed, so it does not replace the failure,
+     *         unless closing throws the failure itself
      */
     private static void closeAfterFailure(BoundedContext context, Throwable failure) {
         try {
             context.close();
         } catch (Throwable e) {
-            failure.addSuppressed(e);
+            // Closing may throw the very failure, which cannot suppress itself.
+            if (e != failure) {
+                failure.addSuppressed(e);
+            }
         }
     }
 

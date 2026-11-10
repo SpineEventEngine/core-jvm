@@ -160,7 +160,8 @@ final class VisibilityGuard {
      * Closes all registered repositories and clears the registration list.
      *
      * <p>Closes every repository even if closing some of them fails. Then throws the first
-     * failure, with the other failures added to it as suppressed.
+     * failure, with the other failures added to it as suppressed. A failure thrown again
+     * as the very same instance is not added, since an exception cannot suppress itself.
      */
     void shutDownRepositories() {
         RuntimeException failure = null;
@@ -170,7 +171,7 @@ final class VisibilityGuard {
             } catch (RuntimeException e) {
                 if (failure == null) {
                     failure = e;
-                } else {
+                } else if (failure != e) {
                     failure.addSuppressed(e);
                 }
             }

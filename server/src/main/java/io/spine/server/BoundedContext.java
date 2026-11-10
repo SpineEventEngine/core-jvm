@@ -569,13 +569,18 @@ public abstract class BoundedContext
     /**
      * Returns the first failure, adding the passed one to it as suppressed,
      * or the passed failure if it is the first one.
+     *
+     * <p>If the passed failure is the first one itself, it is not added: an exception
+     * cannot suppress itself.
      */
     private static RuntimeException
     withSuppressed(@Nullable RuntimeException first, RuntimeException next) {
         if (first == null) {
             return next;
         }
-        first.addSuppressed(next);
+        if (first != next) {
+            first.addSuppressed(next);
+        }
         return first;
     }
 

@@ -129,6 +129,43 @@ internal class ApplicationSpec {
         }
 
         @Test
+        fun `keep closing the contexts after two of them throw one exception instance`() {
+            val failure = IllegalStateException("Closing failed.")
+            val waiting = context()
+            val second = context { throw failure }
+            val first = context { throw failure }
+            // Closed in the reverse order: `first`, `second`, and then `waiting`.
+            application.contexts.register(waiting)
+            application.contexts.register(second)
+            application.contexts.register(first)
+
+            val error = shouldThrow<IllegalStateException> {
+                application.close()
+            }
+
+            error shouldBeSameInstanceAs failure
+            error.suppressed.shouldBeEmpty()
+            waiting.isOpen.shouldBeFalse()
+        }
+
+        @Test
+        fun `add a later failure to the first one as suppressed`() {
+            val earlier = IllegalStateException("The first closing failed.")
+            val later = IllegalStateException("The second closing failed.")
+            val second = context { throw later }
+            val first = context { throw earlier }
+            application.contexts.register(second)
+            application.contexts.register(first)
+
+            val error = shouldThrow<IllegalStateException> {
+                application.close()
+            }
+
+            error shouldBeSameInstanceAs earlier
+            error.suppressed.toList() shouldBe listOf(later)
+        }
+
+        @Test
         fun `refuse to register a context built while it was closing`() {
             val context = context()
             try {

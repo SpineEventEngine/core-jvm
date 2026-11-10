@@ -189,11 +189,16 @@ internal class ContextRegistry {
 /**
  * Returns this failure with the given one added to it as suppressed,
  * or the given failure if this one is `null`.
+ *
+ * If the given failure is this very instance, as when two closings throw one exception
+ * object, it is not added: a [Throwable] cannot suppress itself.
  */
 internal fun Throwable?.withSuppressed(next: Throwable): Throwable {
     if (this == null) {
         return next
     }
-    addSuppressed(next)
+    if (this !== next) {
+        addSuppressed(next)
+    }
     return this
 }
