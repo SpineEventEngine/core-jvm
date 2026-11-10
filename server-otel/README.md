@@ -60,6 +60,18 @@ val se = serverEnvironment {
 }
 ```
 
+In Java, which does not check the opt-in:
+
+```java
+import io.spine.environment.Production;
+import io.spine.server.ServerEnvironment;
+import io.spine.server.trace.otel.OtelTracerFactory;
+
+var se = ServerEnvironment.newBuilder()
+        .under(Production.class, env -> env.use(new OtelTracerFactory(openTelemetry)))
+        .build();
+```
+
 `openTelemetry` is a configured `OpenTelemetry` instance — with a span processor and an
 exporter — that **you** create and own; see the [Kotlin OpenTelemetry documentation][otel-kotlin]
 for SDK and exporter setup. Closing the factory does not shut that instance down.

@@ -38,13 +38,19 @@ import io.spine.server.trace.TracerFactory
  * not shut it down.
  *
  * The factory is set for an environment type when the server environment of
- * the application is configured:
- * ```
+ * the application is configured. In Kotlin:
+ * ```kotlin
  * val se = serverEnvironment {
  *     under<Production> {
  *         use(@OptIn(ExperimentalOtelTracing::class) OtelTracerFactory(openTelemetry))
  *     }
  * }
+ * ```
+ * In Java:
+ * ```java
+ * var se = ServerEnvironment.newBuilder()
+ *         .under(Production.class, env -> env.use(new OtelTracerFactory(openTelemetry)))
+ *         .build();
  * ```
  *
  * @param openTelemetry
