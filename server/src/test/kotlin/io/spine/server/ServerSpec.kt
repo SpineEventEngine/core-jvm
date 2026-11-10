@@ -90,7 +90,7 @@ internal class ServerSpec {
     fun `refuse to be built if the application has no contexts`() {
         shouldThrow<IllegalStateException> {
             Server.atPort(ANY_FREE_PORT)
-                .exposing(Application())
+                .serving(Application())
                 .build()
         }
     }

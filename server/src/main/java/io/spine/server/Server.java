@@ -212,7 +212,7 @@ public final class Server implements WithLogging {
 
         private final Set<BindableService> extraServices = new HashSet<>();
 
-        /** The application whose contexts the server exposes. */
+        /** The application whose contexts the server serves. */
         private Application application = Application.instance();
 
         private @MonotonicNonNull ImmutableSet<BoundedContext> contexts;
@@ -225,12 +225,12 @@ public final class Server implements WithLogging {
         }
 
         /**
-         * Makes the server expose the contexts of the given application, instead of
+         * Makes the server serve the contexts of the given application, instead of
          * the {@linkplain Application#instance() application} of the JVM.
          */
         @VisibleForTesting
         @CanIgnoreReturnValue
-        Builder exposing(Application application) {
+        Builder serving(Application application) {
             this.application = checkNotNull(application);
             return this;
         }

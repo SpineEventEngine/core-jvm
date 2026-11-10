@@ -830,7 +830,7 @@ server serves them instead of building contexts of its own.
   is closed: closing it closes and unregisters the contexts.
   `BoundedContextBuilder.build()` is `@CanIgnoreReturnValue`: the application keeps the built
   context, so the caller does not need to. A package-private
-  `Server.Builder.exposing(Application)` lets a test give the server an application of its own,
+  `Server.Builder.serving(Application)` lets a test give the server an application of its own,
   for example, one with no contexts.
 - **Shutting down.** `Server.shutdown()` and `shutdownAndWait()` close the contexts the server
   serves, as before (Q22). The application stays open.
