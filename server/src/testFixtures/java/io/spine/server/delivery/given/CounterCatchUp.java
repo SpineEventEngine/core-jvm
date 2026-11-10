@@ -160,7 +160,7 @@ public class CounterCatchUp implements Closeable {
         var delivery = Delivery.newBuilder(ServerEnvironment.instance())
                 .setCatchUpStorage(storage)
                 .build();
-        delivery.subscribe(new LocalDispatchingObserver());
+        delivery.subscribe(new LocalDispatchingObserver(delivery));
         ServerEnvironment.under(Tests.class)
                          .use(delivery);
     }

@@ -372,7 +372,7 @@ public final class Delivery implements WithLogging {
         var delivery = newBuilder(environment)
                 .setStrategy(UniformAcrossAllShards.singleShard())
                 .build();
-        delivery.subscribe(new LocalDispatchingObserver(true));
+        delivery.subscribe(new LocalDispatchingObserver(delivery, true));
         return delivery;
     }
 
@@ -399,7 +399,7 @@ public final class Delivery implements WithLogging {
                 .setDeduplicationWindow(deduplicationWindow)
                 .setStrategy(strategy)
                 .build();
-        delivery.subscribe(new LocalDispatchingObserver());
+        delivery.subscribe(new LocalDispatchingObserver(delivery));
         return delivery;
     }
 

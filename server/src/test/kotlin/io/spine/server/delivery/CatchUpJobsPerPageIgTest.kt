@@ -291,13 +291,17 @@ internal class CatchUpJobsPerPageIgTest : AbstractCatchUpIgTest() {
     }
 
     /**
-     * Delivers synchronously through `LocalDispatchingObserver`.
+     * Delivers synchronously through `LocalDispatchingObserver` of the test's [delivery].
      *
      * Runs a one-off hook once a matching message is written, before delivering it.
      */
-    private class HookedObserver : ShardObserver {
+    private inner class HookedObserver : ShardObserver {
 
-        private val dispatching = LocalDispatchingObserver()
+        /**
+         * Is created on the first message, since the observer is created before
+         * the test installs its [delivery].
+         */
+        private val dispatching by lazy { LocalDispatchingObserver(delivery) }
         private val hooks = CopyOnWriteArrayList<Hook>()
 
         fun onceWritten(matches: (InboxMessage) -> Boolean, action: () -> Unit) {

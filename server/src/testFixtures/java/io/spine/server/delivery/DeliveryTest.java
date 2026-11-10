@@ -243,7 +243,7 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
                 .build();
         var rawMessageMemoizer = new RawMessageMemoizer();
         delivery.subscribe(rawMessageMemoizer);
-        delivery.subscribe(new LocalDispatchingObserver());
+        delivery.subscribe(new LocalDispatchingObserver(delivery));
         ServerEnvironment.under(Tests.class)
                          .use(delivery);
 
