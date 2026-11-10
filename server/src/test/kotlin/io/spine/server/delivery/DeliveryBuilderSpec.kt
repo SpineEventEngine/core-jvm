@@ -146,6 +146,81 @@ internal class DeliveryBuilderSpec {
         }
     }
 
+    @Nested internal inner class
+    `tell if it has` {
+
+        private lateinit var factory: StorageFactory
+
+        @BeforeEach
+        fun createStorageFactory() {
+            factory = ServerEnvironment.instance().storageFactory()
+        }
+
+        @Test
+        fun `delivery strategy`() {
+            val builder = builder()
+            builder.hasStrategy() shouldBe false
+            builder.setStrategy(UniformAcrossAllShards.singleShard())
+            builder.hasStrategy() shouldBe true
+        }
+
+        @Test
+        fun `Inbox storage`() {
+            val builder = builder()
+            builder.hasInboxStorage() shouldBe false
+            builder.setInboxStorage(InboxStorage(factory, /* multitenant = */ false))
+            builder.hasInboxStorage() shouldBe true
+        }
+
+        @Test
+        fun `Catch-up storage`() {
+            val builder = builder()
+            builder.hasCatchUpStorage() shouldBe false
+            builder.setCatchUpStorage(CatchUpStorage(factory, /* multitenant = */ false))
+            builder.hasCatchUpStorage() shouldBe true
+        }
+
+        @Test
+        fun `work registry`() {
+            val builder = builder()
+            builder.hasWorkRegistry() shouldBe false
+            builder.setWorkRegistry(InMemoryShardedWorkRegistry())
+            builder.hasWorkRegistry() shouldBe true
+        }
+
+        @Test
+        fun `deduplication window`() {
+            val builder = builder()
+            builder.hasDeduplicationWindow() shouldBe false
+            builder.setDeduplicationWindow(fromMinutes(1))
+            builder.hasDeduplicationWindow() shouldBe true
+        }
+
+        @Test
+        fun `delivery monitor`() {
+            val builder = builder()
+            builder.hasDeliveryMonitor() shouldBe false
+            builder.setMonitor(DeliveryMonitor.alwaysContinue())
+            builder.hasDeliveryMonitor() shouldBe true
+        }
+
+        @Test
+        fun `page size`() {
+            val builder = builder()
+            builder.hasPageSize() shouldBe false
+            builder.setPageSize(42)
+            builder.hasPageSize() shouldBe true
+        }
+
+        @Test
+        fun `catch-up page size`() {
+            val builder = builder()
+            builder.hasCatchUpPageSize() shouldBe false
+            builder.setCatchUpPageSize(42)
+            builder.hasCatchUpPageSize() shouldBe true
+        }
+    }
+
     @Nested
     @DisplayName("throw `NullPointerException` if attempting to get the unset value of")
     internal inner class ThrowNpe {
@@ -183,6 +258,11 @@ internal class DeliveryBuilderSpec {
         @Test
         fun `page size`() {
             assertNpe { builder().pageSize }
+        }
+
+        @Test
+        fun `catch-up page size`() {
+            assertNpe { builder().catchUpPageSize }
         }
     }
 }

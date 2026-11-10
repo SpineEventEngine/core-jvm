@@ -15,15 +15,12 @@
 package io.spine.server.delivery;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.errorprone.annotations.InlineMe;
 import com.google.protobuf.Duration;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.memory.InMemoryShardedWorkRegistry;
 import io.spine.server.storage.StorageFactory;
 import io.spine.server.storage.memory.InMemoryStorageFactory;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -60,17 +57,6 @@ public final class DeliveryBuilder {
     }
 
     /**
-     * Returns the value of the configured {@code InboxStorage} or {@code Optional.empty()} if no
-     * such value was configured.
-     *
-     * @deprecated Use {@link #getInboxStorage()} and {@link #hasInboxStorage()} instead.
-     */
-    @Deprecated
-    public Optional<InboxStorage> inboxStorage() {
-        return Optional.ofNullable(inboxStorage);
-    }
-
-    /**
      * Checks whether the {@code InboxStorage} has been configured.
      *
      * @return {@code true} if the inbox storage was set, {@code false} otherwise
@@ -87,17 +73,6 @@ public final class DeliveryBuilder {
      */
     public InboxStorage getInboxStorage() {
         return checkNotNull(inboxStorage);
-    }
-
-    /**
-     * Returns the value of the configured {@code CatchUpStorage} or {@code Optional.empty()} if no
-     * such value was configured.
-     *
-     * @deprecated Use {@link #getCatchUpStorage()} and {@link #hasCatchUpStorage()} instead.
-     */
-    @Deprecated
-    public Optional<CatchUpStorage> catchUpStorage() {
-        return Optional.ofNullable(catchUpStorage);
     }
 
     /**
@@ -120,17 +95,6 @@ public final class DeliveryBuilder {
     }
 
     /**
-     * Returns the value of the configured {@code DeliveryStrategy} or {@code Optional.empty()}
-     * if no such value was configured.
-     *
-     * @deprecated Use {@link #getStrategy()} and {@link #hasStrategy()} instead.
-     */
-    @Deprecated
-    public Optional<DeliveryStrategy> strategy() {
-        return Optional.ofNullable(strategy);
-    }
-
-    /**
      * Checks whether the {@code DeliveryStrategy} has been configured.
      *
      * @return {@code true} if the strategy was set, {@code false} otherwise
@@ -147,17 +111,6 @@ public final class DeliveryBuilder {
      */
     public DeliveryStrategy getStrategy() {
         return checkNotNull(strategy);
-    }
-
-    /**
-     * Returns the value of the configured {@code ShardedWorkRegistry} or {@code Optional.empty()}
-     * if no such value was configured.
-     *
-     * @deprecated Use {@link #getWorkRegistry()} and {@link #hasWorkRegistry()} instead.
-     */
-    @Deprecated
-    public Optional<ShardedWorkRegistry> workRegistry() {
-        return Optional.ofNullable(workRegistry);
     }
 
     /**
@@ -180,17 +133,6 @@ public final class DeliveryBuilder {
     }
 
     /**
-     * Returns the value of the configured deduplication window or {@code Optional.empty()}
-     * if no such value was configured.
-     *
-     * @deprecated Use {@link #getDeduplicationWindow()} and {@link #hasDeduplicationWindow()} instead.
-     */
-    @Deprecated
-    public Optional<Duration> deduplicationWindow() {
-        return Optional.ofNullable(deduplicationWindow);
-    }
-
-    /**
      * Checks whether the deduplication window has been configured.
      *
      * @return {@code true} if the deduplication window was set, {@code false} otherwise
@@ -207,17 +149,6 @@ public final class DeliveryBuilder {
      */
     public Duration getDeduplicationWindow() {
         return checkNotNull(deduplicationWindow);
-    }
-
-    /**
-     * Returns the value of the configured {@code DeliveryMonitor} or {@code Optional.empty()}
-     * if no such value was configured.
-     *
-     * @deprecated Use {@link #getDeliveryMonitor()} and {@link #hasDeliveryMonitor()} instead.
-     */
-    @Deprecated
-    public Optional<DeliveryMonitor> deliveryMonitor() {
-        return Optional.ofNullable(deliveryMonitor);
     }
 
     /**
@@ -240,30 +171,6 @@ public final class DeliveryBuilder {
     }
 
     /**
-     * Returns the configured {@code DeliveryMonitor}.
-     *
-     * @return the delivery monitor
-     * @throws NullPointerException if the delivery monitor was not set
-     * @deprecated Use {@link #getDeliveryMonitor()} instead.
-     */
-    @Deprecated
-    @InlineMe(replacement = "this.getDeliveryMonitor()")
-    DeliveryMonitor getMonitor() {
-        return getDeliveryMonitor();
-    }
-
-    /**
-     * Returns the value of the configured page size or {@code Optional.empty()}
-     * if no such value was configured.
-     *
-     * @deprecated Use {@link #getPageSize()} and {@link #hasPageSize()} instead.
-     */
-    @Deprecated
-    public Optional<Integer> pageSize() {
-        return Optional.ofNullable(pageSize);
-    }
-
-    /**
      * Checks whether the page size has been configured.
      *
      * @return {@code true} if the page size was set, {@code false} otherwise
@@ -280,17 +187,6 @@ public final class DeliveryBuilder {
      */
     public Integer getPageSize() {
         return checkNotNull(pageSize);
-    }
-
-    /**
-     * Returns the value of the configured catch-up page size or {@code Optional.empty()}
-     * if no such value was configured.
-     *
-     * @deprecated Use {@link #getCatchUpPageSize()} and {@link #hasCatchUpPageSize()} instead.
-     */
-    @Deprecated
-    public Optional<Integer> catchUpPageSize() {
-        return Optional.ofNullable(catchUpPageSize);
     }
 
     /**
