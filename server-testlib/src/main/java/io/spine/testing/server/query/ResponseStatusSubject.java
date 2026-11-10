@@ -24,9 +24,8 @@ import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.truth.Truth.assertAbout;
-import static io.spine.core.Status.StatusCase.ERROR;
+import static io.spine.core.Status.StatusCase.ERROR_CASE;
 import static io.spine.core.Status.StatusCase.OK;
-import static io.spine.core.Status.StatusCase.REJECTION;
 
 /**
  * A set of checks for the {@linkplain io.spine.client.QueryResponse query response} status.
@@ -53,20 +52,10 @@ public final class ResponseStatusSubject extends ProtoSubject {
     }
 
     /**
-     * Verifies that the response status is {@link StatusCase#ERROR ERROR}.
+     * Verifies that the response status is {@link StatusCase#ERROR_CASE ERROR_CASE}.
      */
     public void isError() {
-        hasStatusCase(ERROR);
-    }
-
-    /**
-     * Verifies that the response status is {@link StatusCase#REJECTION REJECTION}.
-     *
-     * @deprecated {@code Status.rejection}, which this method checks, is going to be removed.
-     */
-    @Deprecated
-    public void isRejection() {
-        hasStatusCase(REJECTION);
+        hasStatusCase(ERROR_CASE);
     }
 
     void hasStatusCase(StatusCase statusCase) {

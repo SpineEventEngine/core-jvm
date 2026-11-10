@@ -155,28 +155,11 @@ internal class SignalExtrasSpec {
     `ResponseMixin` {
 
         @Test
-        fun `return error from an error response`() {
-            val error = io.spine.base.Error.newBuilder()
-                .setMessage("oops")
-                .build()
-            val status = Responses.errorWith(error)
-            val response = Response.newBuilder()
-                .setStatus(status)
-                .build()
-            response.error() shouldBe error
-        }
-    }
-
-    @Nested inner class
-    `Responses utility` {
-
-        @Test
-        // Reason: covers the deprecated `Responses.rejectedBecauseOf()` until it is removed.
-        @Suppress("DEPRECATION")
-        fun `create rejection status containing the rejection event`() {
-            val event = stubEvent()
-            val status = Responses.rejectedBecauseOf(event)
-            status.rejection shouldBe event
+        fun `return the error case of an error response`() {
+            val response = response {
+                status = Responses.errorWith(ErrorCase.REQUEST_DENIED)
+            }
+            response.errorCase() shouldBe ErrorCase.REQUEST_DENIED
         }
     }
 

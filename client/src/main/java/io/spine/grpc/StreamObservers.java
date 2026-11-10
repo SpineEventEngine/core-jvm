@@ -14,12 +14,9 @@
 
 package io.spine.grpc;
 
-import io.grpc.StatusException;
-import io.grpc.StatusRuntimeException;
 import io.grpc.protobuf.StatusProto;
 import io.grpc.stub.StreamObserver;
 import io.spine.annotation.Internal;
-import io.spine.base.Error;
 import io.spine.core.ErrorCase;
 import io.spine.core.Response;
 import io.spine.core.Responses;
@@ -114,40 +111,6 @@ public final class StreamObservers {
                      .filter(errorCase -> errorCase != ERROR_CASE_UNSPECIFIED
                              && errorCase != UNRECOGNIZED)
                      .findFirst();
-    }
-
-    /**
-     * Extracts a {@linkplain Error system error} from the
-     * {@linkplain StreamObserver#onError(Throwable) Throwable}
-     * received on a client-side as a result of a failed gRPC call to server-side routines.
-     *
-     * <p>The {@code Error} is extracted from the trailer metadata of
-     * either {@link StatusRuntimeException} or {@link StatusException} only.
-     *
-     * <p>If any other type of {@code Throwable} is passed, {@code Optional.empty()} is returned.
-     *
-     * @param throwable the {@code Throwable} to extract an {@link Error} from
-     * @return the extracted error or {@code Optional.empty()} if the extraction failed
-     * @deprecated The server sends only the kind of an error; please use
-     *         {@link #errorCaseOf(Throwable)}.
-     */
-    @Deprecated
-    @SuppressWarnings("ChainOfInstanceofChecks") // Only way to check an exact throwable type.
-    public static Optional<Error> fromStreamError(Throwable throwable) {
-        checkNotNull(throwable);
-        if (throwable instanceof StatusRuntimeException statusRuntimeException) {
-            var metadata = statusRuntimeException.getTrailers();
-            return metadata == null
-                   ? Optional.empty()
-                   : MetadataConverter.toError(metadata);
-        }
-        if (throwable instanceof StatusException statusException) {
-            var metadata = statusException.getTrailers();
-            return metadata == null
-                ? Optional.empty()
-                : MetadataConverter.toError(metadata);
-        }
-        return Optional.empty();
     }
 
     /**

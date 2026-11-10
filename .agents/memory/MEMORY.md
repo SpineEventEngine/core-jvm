@@ -26,3 +26,4 @@ Each entry is a memory file with YAML frontmatter and a body. Types: `feedback`,
 - [Docs cover only their own scope](feedback_doc_only_own_scope.md) — no restating what a field's type implies; no notes on what an element does NOT do or on other parts of the system
 - [Filters are an anti-corruption layer](feedback_filters_are_anti_corruption_layer.md) — bus filters only validate messages before posting; no permissions or business rules in filters (`deny()` was removed for this); `Error` is technical, not domain
 - [`@VisibleForTesting` meaning](feedback_visible_for_testing_meaning.md) — marks code more visible than production needs because tests ALSO call it; production callers are expected — never remove it for that reason
+- [`Exceptions.new…Exception()` throws](spine-exceptions-new-throws.md) — the `base` helpers throw what they build; use them only after `throw`, never to pass an exception to a handler

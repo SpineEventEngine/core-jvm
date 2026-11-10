@@ -17,7 +17,6 @@ package io.spine.core
 import com.google.common.truth.extensions.proto.ProtoTruth
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.spine.base.Error
 import io.spine.core.Responses.ok
 import io.spine.testing.UtilityClassTest
 import io.spine.validation.NonValidated
@@ -40,26 +39,24 @@ internal class ResponsesTest : UtilityClassTest<Responses>(Responses::class.java
         ok.isError shouldBe false
     }
 
-    /**
-     * This test uses partially built values even though the [Status]
-     * does not set validation on the [Status.error][Status.getError] field.
-     * This is so because the `base` subproject is built without using the Validation SDK.
-     *
-     * We want to make it future-compatible, should we decide validating
-     * the types provided by `base`.
-     */
     @Test
-    fun `recognize not OK response`() {
-        val asIfError: @NonValidated Status = Status.newBuilder()
-            .setError(Error.getDefaultInstance())
-            .buildPartial()
+    fun `recognize a response with an error case`() {
+        val response = response {
+            status = Responses.errorWith(ErrorCase.INVALID_REQUEST)
+        }
 
-        val error: @NonValidated Response = Response.newBuilder()
-            .setStatus(asIfError)
-            .buildPartial()
+        response.isOk shouldBe false
+        response.isError shouldBe true
+        response.errorCase() shouldBe ErrorCase.INVALID_REQUEST
+    }
 
-        error.isOk shouldBe false
-        error.isError shouldBe true
+    @Test
+    fun `tell no error case of a response without a status`() {
+        val response: @NonValidated Response = Response.newBuilder().buildPartial()
+
+        response.isOk shouldBe false
+        response.isError shouldBe false
+        response.errorCase() shouldBe ErrorCase.ERROR_CASE_UNSPECIFIED
     }
 
     @Test
