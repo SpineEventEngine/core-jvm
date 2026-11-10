@@ -250,6 +250,10 @@ public final class Inbox<I> {
             return writer;
         }
 
+        Delivery delivery() {
+            return delivery;
+        }
+
         TypeUrl entityStateType() {
             return entityStateType;
         }
