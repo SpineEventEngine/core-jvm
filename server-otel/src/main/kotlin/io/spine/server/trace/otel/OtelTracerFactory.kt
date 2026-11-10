@@ -37,14 +37,14 @@ import io.spine.server.trace.TracerFactory
  * The [openTelemetry] instance is owned by the caller. Closing this factory does
  * not shut it down.
  *
+ * The factory is set for an environment type when the server environment of
+ * the application is configured:
  * ```
- * @OptIn(ExperimentalOtelTracing::class)
- * fun tracedEnvironment(openTelemetry: OpenTelemetry): ServerEnvironment =
- *     serverEnvironment {
- *         under<Production> {
- *             use(OtelTracerFactory(openTelemetry))
- *         }
+ * val se = serverEnvironment {
+ *     under<Production> {
+ *         use(@OptIn(ExperimentalOtelTracing::class) OtelTracerFactory(openTelemetry))
  *     }
+ * }
  * ```
  *
  * @param openTelemetry
