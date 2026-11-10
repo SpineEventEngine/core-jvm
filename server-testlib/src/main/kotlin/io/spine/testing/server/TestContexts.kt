@@ -48,6 +48,7 @@ import io.spine.server.serverEnvironment
  * ```
  *
  * @param environment The environment that provides the technologies to the context.
+ *   The new application owns it, so it cannot be given to another application.
  * @return The built context.
  */
 @JvmOverloads
@@ -63,6 +64,7 @@ public fun BoundedContextBuilder.buildForTests(
  * its context and its environment.
  *
  * @param environment The environment that provides the technologies to the context.
+ *   The new application owns it, and closes it when the application is closed.
  * @return The built application.
  */
 @JvmOverloads

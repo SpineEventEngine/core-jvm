@@ -30,16 +30,16 @@ import io.spine.server.tenant.TenantIndex
  * ```
  * var application = Application.newBuilder()
  *         .setServerEnvironment(environment)
- *         .add(BoundedContext.singleTenant("Users").add(UserRepository.class))
- *         .add(BoundedContext.singleTenant("Tasks").add(TaskRepository.class))
+ *         .add(BoundedContext.singleTenant("Users").add(new UserRepository()))
+ *         .add(BoundedContext.singleTenant("Tasks").add(new TaskRepository()))
  *         .build();
  * ```
  * In Kotlin:
  * ```
  * val application = application {
  *     serverEnvironment = environment
- *     add(BoundedContext.singleTenant("Users").add(UserRepository::class.java))
- *     add(BoundedContext.singleTenant("Tasks").add(TaskRepository::class.java))
+ *     add(BoundedContext.singleTenant("Users").add(UserRepository()))
+ *     add(BoundedContext.singleTenant("Tasks").add(TaskRepository()))
  * }
  * ```
  *
@@ -48,9 +48,8 @@ import io.spine.server.tenant.TenantIndex
  * The Bounded Contexts of an application work together: they share one `Delivery`, one
  * transport, and one storage factory. So each context of the application must have a name
  * of its own, and serve entity state types of its own. The [Builder] checks both before
- * building any context: a name of another context throws [DuplicateContextNameException],
- * and a repository of a state type that another context serves throws
- * [DuplicateEntityStateException].
+ * building any context: it throws [DuplicateContextNameException] on a repeated name, and
+ * [DuplicateEntityStateException] on a state type that two contexts serve.
  *
  * The contexts of an application are the ones given to its builder. A context cannot join
  * an application afterwards.
@@ -156,6 +155,7 @@ public class Application private constructor(
      *
      * An application needs a [ServerEnvironment], and at least one Bounded Context.
      */
+    @ServerDsl
     public class Builder internal constructor() {
 
         private var environment: ServerEnvironment? = null
@@ -260,9 +260,11 @@ public class Application private constructor(
          * events into the other contexts of the application.
          *
          * @return This builder, for call chaining.
+         * @throws IllegalStateException If another application has built the context.
          */
         @CanIgnoreReturnValue
         public fun add(context: ThirdPartyContext): Builder {
+            checkNotAttached(context)
             add(context.builder)
             thirdParty.add(context)
             return this
@@ -276,7 +278,8 @@ public class Application private constructor(
          * state type. If building a context fails, closes the contexts built before it.
          *
          * @throws IllegalStateException If the server environment is not set, if no context
-         *   is added, if the environment is closed, or if another application owns it.
+         *   is added, if the environment is closed, if another application owns it, or if
+         *   another application has built one of the third-party contexts.
          * @throws DuplicateContextNameException If two contexts have one name, or a context
          *   has the name of the System context of another one.
          * @throws DuplicateEntityStateException If two contexts have repositories of one
@@ -293,6 +296,7 @@ public class Application private constructor(
             check(environment.isOpen) {
                 "The server environment of the application is closed."
             }
+            thirdParty.forEach { checkNotAttached(it) }
             checkUnique(contexts)
             check(environment.owned.compareAndSet(false, true)) {
                 "The server environment belongs to another application."
@@ -323,11 +327,24 @@ public class Application private constructor(
                 try {
                     ContextRegistry(built).closeAll()
                 } catch (closing: Throwable) {
-                    e.withSuppressed(closing)
+                    e.addSuppressed(closing)
                 }
                 throw e
             }
             return ContextRegistry(built)
+        }
+
+        /**
+         * Throws if another application has built the given third-party context.
+         *
+         * Building its context again would leave the contexts of this application open,
+         * with no application to close them.
+         */
+        private fun checkNotAttached(context: ThirdPartyContext) {
+            check(!context.isAttached) {
+                "The third-party context `${context.builder.name().value}` already belongs" +
+                        " to another application."
+            }
         }
 
         /**
@@ -349,4 +366,3 @@ public class Application private constructor(
         public fun newBuilder(): Builder = Builder()
     }
 }
-

@@ -688,8 +688,8 @@ public final class BoundedContextBuilder implements WithLogging {
      *
      * @return the factory, or {@code null} if it was not
      *         {@linkplain #setTracerFactory(TracerFactory) set} and the context was not
-     *         built yet, or if the server environment of the application has no tracing
-     *         configured
+     *         built yet, or if the server environment of the application
+     *         has no tracing configured
      */
     @Internal
     public @Nullable TracerFactory getTracerFactory() {

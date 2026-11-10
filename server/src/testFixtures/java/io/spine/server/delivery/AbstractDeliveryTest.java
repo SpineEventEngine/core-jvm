@@ -41,7 +41,7 @@ import static io.spine.testing.server.TestContexts.buildForTests;
  * of its own. The environments of these applications share the {@linkplain #storageFactory()
  * storage factory}, the {@linkplain #nodeId() node}, and the {@code Delivery} of the test.
  *
- * <p>The contexts of a test are not closed with their environments: closing a context or
+ * <p>The environments of a test are not closed with its contexts: closing a context or
  * a black box leaves the storage factory of the test open.
  */
 public abstract class AbstractDeliveryTest {

@@ -114,31 +114,31 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
      *
      * Differs between [environment types][EnvironmentType].
      */
-    private val delivery: EnvSetting<Delivery> = builder.delivery
+    private val delivery: EnvSetting<Delivery> = builder.deliverySetting
 
     /**
      * Storage factory setting.
      *
      * Defaults to an `InMemoryStorageFactory` for tests.
      */
-    private val storageFactory: EnvSetting<StorageFactory> = builder.storageFactory
+    private val storageFactory: EnvSetting<StorageFactory> = builder.storageFactorySetting
 
     /**
      * The setting for the factory of `Tracer`s.
      */
-    private val tracerFactory: EnvSetting<TracerFactory> = builder.tracerFactory
+    private val tracerFactory: EnvSetting<TracerFactory> = builder.tracerFactorySetting
 
     /**
      * The setting for the factory for channel-based transport.
      *
      * Defaults to an `InMemoryTransportFactory` for tests.
      */
-    private val transportFactory: EnvSetting<TransportFactory> = builder.transportFactory
+    private val transportFactory: EnvSetting<TransportFactory> = builder.transportFactorySetting
 
     /**
      * Provides schedulers used by all `CommandBus` instances of this environment.
      */
-    private val commandScheduler: Supplier<CommandScheduler> = builder.commandScheduler
+    private val commandScheduler: Supplier<CommandScheduler> = builder.schedulerFactory
 
     /**
      * Tells if an [Application] owns this environment.
@@ -198,7 +198,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
      *
      * For tests, if the value was not set, defaults to a new `InMemoryStorageFactory`.
      *
-     * For other environments, if the value was not set, throws a `IllegalStateException`.
+     * For other environments, if the value was not set, throws an `IllegalStateException`.
      *
      * @return `StorageFactory` instance for the storage for the current environment.
      * @throws IllegalStateException If the value `StorageFactory` was not
@@ -261,21 +261,45 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
      * Takes the technologies for each [type of environment][EnvironmentType] with [under].
      * A builder builds one environment.
      */
+    @ServerDsl
     public class Builder internal constructor() {
 
-        internal val delivery = EnvSetting<Delivery>()
+        /**
+         * The setting of the `Delivery` for each type of environment.
+         *
+         * The names of the settings end with `Setting`, so that inside the block of
+         * [serverEnvironment] they do not hide the properties of the enclosing code.
+         */
+        internal val deliverySetting = EnvSetting<Delivery>()
 
-        internal val storageFactory = EnvSetting<StorageFactory>(Tests::class.java) {
+        /**
+         * The setting of the storage factory for each type of environment.
+         *
+         * Defaults to an `InMemoryStorageFactory` for tests.
+         */
+        internal val storageFactorySetting = EnvSetting<StorageFactory>(Tests::class.java) {
             wrap(InMemoryStorageFactory.newInstance())
         }
 
-        internal val tracerFactory = EnvSetting<TracerFactory>()
+        /**
+         * The setting of the factory of `Tracer`s for each type of environment.
+         */
+        internal val tracerFactorySetting = EnvSetting<TracerFactory>()
 
-        internal val transportFactory = EnvSetting<TransportFactory>(Tests::class.java) {
+        /**
+         * The setting of the factory of the channel-based transport for each type
+         * of environment.
+         *
+         * Defaults to an `InMemoryTransportFactory` for tests.
+         */
+        internal val transportFactorySetting = EnvSetting<TransportFactory>(Tests::class.java) {
             InMemoryTransportFactory.newInstance()
         }
 
-        internal var commandScheduler: Supplier<CommandScheduler> =
+        /**
+         * Creates a scheduler of the commands for the `CommandBus` of each context.
+         */
+        internal var schedulerFactory: Supplier<CommandScheduler> =
             Supplier { ExecutorCommandScheduler() }
             private set
 
@@ -332,7 +356,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         @CanIgnoreReturnValue
         public fun scheduleCommandsUsing(factory: Supplier<CommandScheduler>): Builder {
             checkNotBuilt()
-            commandScheduler = factory
+            schedulerFactory = factory
             return this
         }
 
@@ -362,6 +386,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
      * Allows configuring the technologies of a [ServerEnvironment] for the given type
      * of environment.
      */
+    @ServerDsl
     public class TypeConfigurator internal constructor(
         private val builder: Builder,
 
@@ -386,7 +411,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         @CanIgnoreReturnValue
         public fun use(delivery: Delivery): TypeConfigurator {
             builder.checkNotBuilt()
-            builder.delivery.use(delivery, type)
+            builder.deliverySetting.use(delivery, type)
             return this
         }
 
@@ -394,7 +419,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
          * Assigns a `Delivery` obtained from the passed function.
          *
          * In case the `Delivery` is never requested for the current server
-         * environment type, the passed function will be not invoked.
+         * environment type, the passed function will not be invoked.
          *
          * @param fn The function to provide the `Delivery` in response to
          *   the currently configured server environment type.
@@ -403,7 +428,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         @CanIgnoreReturnValue
         public fun useDelivery(fn: Fn<Delivery>): TypeConfigurator {
             builder.checkNotBuilt()
-            builder.delivery.lazyUse({ fn.apply(type) }, type)
+            builder.deliverySetting.lazyUse({ fn.apply(type) }, type)
             return this
         }
 
@@ -415,7 +440,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         @CanIgnoreReturnValue
         public fun use(factory: TracerFactory): TypeConfigurator {
             builder.checkNotBuilt()
-            builder.tracerFactory.use(factory, type)
+            builder.tracerFactorySetting.use(factory, type)
             return this
         }
 
@@ -423,7 +448,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
          * Lazily uses the `TracerFactory` obtained from the passed function.
          *
          * In case the `TracerFactory` is never requested for the current server
-         * environment type, the passed function will be not invoked.
+         * environment type, the passed function will not be invoked.
          *
          * @param fn The function to provide the `TracerFactory` in response to
          *   the currently configured server environment type.
@@ -432,7 +457,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         @CanIgnoreReturnValue
         public fun useTracerFactory(fn: Fn<TracerFactory>): TypeConfigurator {
             builder.checkNotBuilt()
-            builder.tracerFactory.lazyUse({ fn.apply(type) }, type)
+            builder.tracerFactorySetting.lazyUse({ fn.apply(type) }, type)
             return this
         }
 
@@ -444,7 +469,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         @CanIgnoreReturnValue
         public fun use(factory: TransportFactory): TypeConfigurator {
             builder.checkNotBuilt()
-            builder.transportFactory.use(factory, type)
+            builder.transportFactorySetting.use(factory, type)
             return this
         }
 
@@ -452,7 +477,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
          * Assigns a `TransportFactory` obtained from the passed function.
          *
          * In case the `TransportFactory` is never requested for the current server
-         * environment type, the passed function will be not invoked.
+         * environment type, the passed function will not be invoked.
          *
          * @param fn The function to provide the `TransportFactory` in response to
          *   the currently configured server environment type.
@@ -461,7 +486,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         @CanIgnoreReturnValue
         public fun useTransportFactory(fn: Fn<TransportFactory>): TypeConfigurator {
             builder.checkNotBuilt()
-            builder.transportFactory.lazyUse({ fn.apply(type) }, type)
+            builder.transportFactorySetting.lazyUse({ fn.apply(type) }, type)
             return this
         }
 
@@ -473,7 +498,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         @CanIgnoreReturnValue
         public fun use(factory: StorageFactory): TypeConfigurator {
             builder.checkNotBuilt()
-            builder.storageFactory.use(wrap(factory), type)
+            builder.storageFactorySetting.use(wrap(factory), type)
             return this
         }
 
@@ -481,7 +506,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
          * Assigns a `StorageFactory` obtained from the passed function.
          *
          * In case the `StorageFactory` is never requested for the current server
-         * environment type, the passed function will be not invoked.
+         * environment type, the passed function will not be invoked.
          *
          * @param fn The function to provide the `StorageFactory` in response to
          *   the currently configured server environment type.
@@ -490,7 +515,7 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         @CanIgnoreReturnValue
         public fun useStorageFactory(fn: Fn<StorageFactory>): TypeConfigurator {
             builder.checkNotBuilt()
-            builder.storageFactory.lazyUse({ wrap(fn.apply(type)) }, type)
+            builder.storageFactorySetting.lazyUse({ wrap(fn.apply(type)) }, type)
             return this
         }
 
@@ -574,4 +599,3 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         }
     }
 }
-

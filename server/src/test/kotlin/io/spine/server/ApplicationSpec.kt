@@ -125,6 +125,19 @@ internal class ApplicationSpec {
     }
 
     @Test
+    fun `close the contexts built before a context that fails to build`() {
+        val closings = mutableListOf<String>()
+        val failing = BoundedContextBuilder.assumingTests()
+            .add(CalculatorsFailingOnRegistration())
+
+        shouldThrow<IllegalStateException> {
+            applicationOf(serverEnvironment {}, context { closings.add("first") }, failing)
+        }
+
+        closings shouldBe listOf("first")
+    }
+
+    @Test
     fun `be built with the Kotlin DSL`() {
         val index = InMemoryTenantIndex()
         val builder = BoundedContextBuilder.assumingTests()
@@ -154,6 +167,33 @@ internal class ApplicationSpec {
         calendar.isOpen.shouldBeTrue()
         app.close()
         calendar.isOpen.shouldBeFalse()
+    }
+
+    @Test
+    fun `refuse a third-party context that another application has built`() {
+        val calendar = ThirdPartyContext.singleTenant("Calendar")
+        val first = application {
+            serverEnvironment = serverEnvironment {}
+            add(calendar)
+        }
+
+        first.use {
+            shouldThrow<IllegalStateException> {
+                application {
+                    serverEnvironment = serverEnvironment {}
+                    add(calendar)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `give its contexts in a list that Java callers cannot change`() {
+        applicationOf(InMemoryTenantIndex()).use {
+            shouldThrow<UnsupportedOperationException> {
+                (it.contexts() as MutableList<BoundedContext>).clear()
+            }
+        }
     }
 
     @Nested inner class

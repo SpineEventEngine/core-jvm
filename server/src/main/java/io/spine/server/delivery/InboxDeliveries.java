@@ -144,7 +144,7 @@ final class InboxDeliveries {
         var projectionType = TypeUrl.parse(job.getProjectionType());
         var registered = byType.get(projectionType);
         checkState(registered != null,
-                   "No open Bounded Context serves the projection type `%s`" +
+                   "No inbox is registered for the projection type `%s`" +
                            " of the catch-up job `%s`.",
                    projectionType, job.getUuid());
         var context = registered.inbox.contextName();

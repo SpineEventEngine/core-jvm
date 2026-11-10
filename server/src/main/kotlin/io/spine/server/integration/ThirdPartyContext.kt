@@ -33,7 +33,7 @@ import io.spine.util.Preconditions2.checkNotEmptyOrBlank
  *
  * `ThirdPartyContext` helps to represent an external system as a Bounded Context. Events
  * that occur in the external system are converted into domain events of the user's
- * Bounded Contexts and dispatched via [IntegrationBroker].
+ * Bounded Contexts and dispatched to them.
  *
  * A `ThirdPartyContext` is [added][Application.Builder.add] to an [Application] like any other
  * Bounded Context, and can emit events once the application is built:
@@ -75,6 +75,15 @@ public class ThirdPartyContext private constructor(
     private var context: BoundedContext? = null
 
     /**
+     * Tells if an [Application] has built the context of this third-party context.
+     *
+     * A third-party context belongs to the application that built it.
+     */
+    @get:JvmSynthetic
+    internal val isAttached: Boolean
+        get() = context != null
+
+    /**
      * Gives this third-party context the Bounded Context that the [Application] built
      * from its [builder].
      *
@@ -91,9 +100,8 @@ public class ThirdPartyContext private constructor(
     /**
      * Emits an event from the third-party system.
      *
-     * If the event is required by another Context, posts the event into
-     * the [IntegrationBroker] of the respective Context. Does nothing if the event is not
-     * required by any Context.
+     * If another Context needs the event, posts it to that Context. Does nothing if
+     * no Context needs it.
      *
      * The caller is required to supply the tenant ID via the `ActorContext.tenant_id` if
      * this Context is multitenant.
@@ -116,9 +124,8 @@ public class ThirdPartyContext private constructor(
     /**
      * Emits an event from the third-party system.
      *
-     * If the event is required by another Context, posts the event into
-     * the [IntegrationBroker] of the respective Context. Does nothing if the event is not
-     * required by any Context.
+     * If another Context needs the event, posts it to that Context. Does nothing if
+     * no Context needs it.
      *
      * This overload may only be used for single-tenant third-party contexts. If this Context is
      * multitenant, this method throws an exception.

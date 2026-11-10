@@ -2,11 +2,11 @@
 
 ## Status
 
-**In progress.** Continues the work of #1717 (`claude/application-tenant-index`,
+**Implemented, in review.** Continues the work of #1717 (`claude/application-tenant-index`,
 `2.0.0-SNAPSHOT.670`), which was merged into `master` on 2026-11-10 while this work started, so
 the PR targets `master`. The design was discussed on 2026-11-10 (questions 1–8), and the owner
-asked to start implementing it the same day. See "As implemented" for what the implementation
-added to the design.
+asked to implement it the same day. See "As implemented" for what the implementation and its
+pre-PR review added to the design.
 
 Decisions:
 
@@ -51,8 +51,8 @@ To confirm (assumed while writing, not asked):
 5. A repository registered after the context is built, through the `@Internal`
    `InternalAccess.register()`, is not checked against the other contexts (section 4). Only
    tests do it (33 files); production code does not.
-6. The work goes into one PR, stacked on #1717: `ServerEnvironment` cannot lose its singleton
-   while `Application`, which needs an environment, still is one, and vice versa.
+6. The work goes into one PR: `ServerEnvironment` cannot lose its singleton while
+   `Application`, which needs an environment, still is one, and vice versa.
 
 ## Problem
 
@@ -68,9 +68,8 @@ After #1717, the framework reaches for two JVM-wide objects:
   `TenantAwareTest` call it.
 
 So the contexts of every test share one environment and one application. A context that a test
-leaves open breaks later tests (see `server-test-order-varies-global-state` in personal
-memory). An application cannot run two groups of contexts with different technologies in
-one JVM.
+leaves open breaks later tests. An application cannot run two groups of contexts with different
+technologies in one JVM.
 
 Applications should build these objects themselves, and pass them where they are needed:
 
@@ -339,7 +338,7 @@ Effects on PR 2 of #1709 (`reject-unregistered-tenants.md`), for that PR to appl
 
 ## Implementation plan
 
-One PR, stacked on #1717 (item 6 of "To confirm"). Bump the version (`bump-version`; breaking),
+One PR, against `master` (item 6 of "To confirm"). Bump the version (`bump-version`; breaking),
 regenerate the dependency reports with a full build, and pass
 `./gradlew clean build dokkaGenerate`. Read the test count after every run.
 
@@ -387,6 +386,20 @@ Added while implementing, within the decisions above:
 - `ServedStateTypes` and its spec are removed: the state types are checked once, in
   `checkUnique()` next to `ContextRegistry`.
 - The migration guide is `docs/migration/server-environment-and-application-instances.md`.
+- `BoundedContextBuilder.getTracerFactory()` stays public with `@Internal`: `SystemContext`, in
+  another package, needs it. The other technology accessors are package-private (Q5).
+
+Added after the pre-PR review:
+
+- `Application.Builder` refuses a `ThirdPartyContext` that another application has built,
+  before building anything. Otherwise the contexts of the second application would stay open,
+  with no application to close them.
+- `Application.contexts()` gives an immutable list, so Java callers cannot change it.
+- The `internal` settings of `ServerEnvironment.Builder` end with `Setting`
+  (`deliverySetting`, …, and `schedulerFactory`), so that inside `serverEnvironment {}` they do
+  not hide the properties of the enclosing code.
+- The `@ServerDsl` marker on `Application.Builder`, `ServerEnvironment.Builder`, and
+  `TypeConfigurator` keeps a nested DSL block from calling the outer builder implicitly.
 
 ## Questions and the options considered
 

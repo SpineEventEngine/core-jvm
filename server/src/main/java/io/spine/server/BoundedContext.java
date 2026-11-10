@@ -430,7 +430,7 @@ public abstract class BoundedContext
      * Obtains an ID of the Bounded Context.
      *
      * <p>The ID allows identifying a Bounded Context in a multi-context application.
-     * Two open Bounded Contexts of a JVM cannot have the same ID.
+     * Two Bounded Contexts of an application cannot have the same ID.
      *
      * @return the ID of this {@code BoundedContext}
      */

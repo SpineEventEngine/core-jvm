@@ -82,7 +82,6 @@ import static io.spine.server.delivery.CatchUpStatus.IN_PROGRESS;
 import static io.spine.server.delivery.CatchUpStatus.STARTED;
 import static io.spine.server.delivery.DeliveryStrategy.newIndex;
 import static io.spine.server.route.EventRoute.noTargets;
-import static io.spine.util.Exceptions.newIllegalStateException;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 

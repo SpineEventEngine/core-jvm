@@ -34,9 +34,8 @@ the contexts of the application it is given, and closes the application when it 
 
 ## 1. Build the server environment
 
-Configure the technologies for each type of environment on the builder. The values not set
-have the defaults of before: in-memory storage and transport under `Tests`, and a local
-`Delivery`.
+Configure the technologies for each type of environment on the builder. The values you do not
+set keep their defaults: in-memory storage and transport under `Tests`, and a local `Delivery`.
 
 ```java
 var environment = ServerEnvironment.newBuilder()
@@ -69,16 +68,16 @@ and that no two contexts serve one entity state type.
 ```java
 var application = Application.newBuilder()
         .setServerEnvironment(environment)
-        .add(BoundedContext.singleTenant("Users").add(UserRepository.class))
-        .add(BoundedContext.singleTenant("Tasks").add(TaskRepository.class))
+        .add(BoundedContext.singleTenant("Users").add(new UserRepository()))
+        .add(BoundedContext.singleTenant("Tasks").add(new TaskRepository()))
         .build();
 ```
 
 ```kotlin
 val application = application {
     serverEnvironment = environment
-    add(BoundedContext.singleTenant("Users").add(UserRepository::class.java))
-    add(BoundedContext.singleTenant("Tasks").add(TaskRepository::class.java))
+    add(BoundedContext.singleTenant("Users").add(UserRepository()))
+    add(BoundedContext.singleTenant("Tasks").add(TaskRepository()))
 }
 ```
 

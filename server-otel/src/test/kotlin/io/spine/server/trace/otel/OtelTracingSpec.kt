@@ -23,6 +23,7 @@ import io.opentelemetry.kotlin.ExperimentalApi
 import io.spine.base.CommandMessage
 import io.spine.environment.Tests
 import io.spine.grpc.StreamObservers.noOpObserver
+import io.spine.server.Application
 import io.spine.server.BoundedContext
 import io.spine.server.application
 import io.spine.server.serverEnvironment
@@ -42,6 +43,7 @@ internal class OtelTracingSpec {
     private val requests = TestActorRequestFactory(OtelTracingSpec::class.java)
 
     private lateinit var spans: RecordingSpanProcessor
+    private lateinit var application: Application
     private lateinit var context: BoundedContext
 
     @BeforeEach
@@ -53,16 +55,20 @@ internal class OtelTracingSpec {
                 use(factory)
             }
         }
-        context = application {
+        application = application {
             serverEnvironment = environment
             add(AirportContext.builder())
-        }.contexts().single()
+        }
+        context = application.contexts().single()
     }
 
+    /**
+     * Closes the application, together with its environment, which holds the tracer factory.
+     */
     @AfterEach
     fun tearDown() {
-        if (::context.isInitialized) {
-            context.close()
+        if (::application.isInitialized) {
+            application.close()
         }
     }
 

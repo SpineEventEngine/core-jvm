@@ -23,8 +23,8 @@ package io.spine.server
  * ```kotlin
  * val application = application {
  *     serverEnvironment = environment
- *     add(BoundedContext.singleTenant("Users").add(UserRepository::class.java))
- *     add(BoundedContext.singleTenant("Tasks").add(TaskRepository::class.java))
+ *     add(BoundedContext.singleTenant("Users").add(UserRepository()))
+ *     add(BoundedContext.singleTenant("Tasks").add(TaskRepository()))
  * }
  * ```
  *

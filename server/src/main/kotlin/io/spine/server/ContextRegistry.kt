@@ -14,6 +14,7 @@
 
 package io.spine.server
 
+import com.google.common.collect.ImmutableList
 import io.spine.core.BoundedContextName
 import io.spine.type.TypeUrl
 
@@ -33,10 +34,12 @@ internal class ContextRegistry(contexts: List<BoundedContext>) {
     /**
      * The registered contexts, in the order of their building.
      */
-    private val contexts: List<BoundedContext> = contexts.toList()
+    private val contexts: List<BoundedContext> = ImmutableList.copyOf(contexts)
 
     /**
      * Obtains the registered contexts, in the order of their building.
+     *
+     * The returned list cannot be changed, Java callers included.
      */
     fun all(): List<BoundedContext> = contexts
 

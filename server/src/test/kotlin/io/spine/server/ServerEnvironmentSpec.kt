@@ -18,6 +18,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.environment.Tests
@@ -81,7 +82,7 @@ internal class ServerEnvironmentSpec {
         val first = serverEnvironment {}
         val second = serverEnvironment {}
 
-        (first.nodeId == second.nodeId).shouldBeFalse()
+        first.nodeId shouldNotBe second.nodeId
     }
 
     @Test
