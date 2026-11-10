@@ -1,34 +1,23 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.delivery;
 
 import io.spine.annotation.VisibleForTesting;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.tenant.TenantAwareRunner;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * An observer of changes to the shard contents, which triggers immediate delivery of the
@@ -42,39 +31,44 @@ import io.spine.server.tenant.TenantAwareRunner;
 @VisibleForTesting
 public final class LocalDispatchingObserver implements ShardObserver {
 
+    private final Delivery delivery;
     private final boolean async;
 
     /**
      * Creates a new observer performing the delivery in either synchronous manner or in
      * a new {@code Thread} for each received {@code InboxMessage}.
      *
+     * @param delivery
+     *         the delivery which delivers the messages from the observed shards
      * @param asynchronous
-     *         whether the delivery should be performed synchronously
+     *         whether the delivery should be performed asynchronously
      */
-    LocalDispatchingObserver(boolean asynchronous) {
+    LocalDispatchingObserver(Delivery delivery, boolean asynchronous) {
+        this.delivery = checkNotNull(delivery);
         this.async = asynchronous;
     }
 
     /**
      * Creates a new observer instance that performs the delivery synchronously.
+     *
+     * @param delivery
+     *         the delivery which delivers the messages from the observed shards
      */
-    public LocalDispatchingObserver() {
-        this(false);
+    public LocalDispatchingObserver(Delivery delivery) {
+        this(delivery, false);
     }
 
     @Override
     public void onMessage(InboxMessage update) {
-        var delivery = ServerEnvironment.instance()
-                                        .delivery();
         var index = update.shardIndex();
         if (async) {
-            new Thread(() -> runDelivery(update, delivery, index)).start();
+            new Thread(() -> runDelivery(update, index)).start();
         } else {
-            runDelivery(update, delivery, index);
+            runDelivery(update, index);
         }
     }
 
-    private static void runDelivery(InboxMessage message, Delivery delivery, ShardIndex index) {
+    private void runDelivery(InboxMessage message, ShardIndex index) {
         var tenant = message.tenant();
         TenantAwareRunner.with(tenant)
                          .run(() -> delivery.deliverMessagesFrom(index));

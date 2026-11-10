@@ -35,7 +35,6 @@ import io.spine.server.entity.Repository;
 import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcher;
 import io.spine.server.event.EventEnricher;
-import io.spine.server.tenant.TenantIndex;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
@@ -61,7 +60,6 @@ import io.spine.testing.server.blackbox.given.BbProjectViewProjection;
 import io.spine.testing.server.blackbox.given.BbReportRepository;
 import io.spine.testing.server.blackbox.given.Given;
 import io.spine.testing.server.blackbox.given.RepositoryThrowingExceptionOnClose;
-import io.spine.testing.server.blackbox.given.StubTenantIndex;
 import io.spine.testing.server.blackbox.rejection.Rejections;
 import io.spine.testing.server.entity.EntitySubject;
 import io.spine.time.ZoneIds;
@@ -265,8 +263,10 @@ abstract class BlackBoxTest<T extends BlackBox> {
          */
         @AfterEach
         void cleanInbox() {
+            var environment = ServerEnvironment.instance();
+            var delivery = Delivery.local(environment.nodeId(), environment.storageFactory());
             ServerEnvironment.under(Tests.class)
-                             .use(Delivery.local());
+                             .use(delivery);
         }
 
         @Test
@@ -303,8 +303,10 @@ abstract class BlackBoxTest<T extends BlackBox> {
          */
         @AfterEach
         void cleanInbox() {
+            var environment = ServerEnvironment.instance();
+            var delivery = Delivery.local(environment.nodeId(), environment.storageFactory());
             ServerEnvironment.under(Tests.class)
-                             .use(Delivery.local());
+                             .use(delivery);
         }
 
         @Test
@@ -336,8 +338,10 @@ abstract class BlackBoxTest<T extends BlackBox> {
          */
         @AfterEach
         void cleanInbox() {
+            var environment = ServerEnvironment.instance();
+            var delivery = Delivery.local(environment.nodeId(), environment.storageFactory());
             ServerEnvironment.under(Tests.class)
-                             .use(Delivery.local());
+                             .use(delivery);
         }
 
         @Test
@@ -501,7 +505,6 @@ abstract class BlackBoxTest<T extends BlackBox> {
         private final Listener<CommandEnvelope> commandListener = commandListener();
         private final Listener<EventEnvelope> eventListener = eventListener();
         private final Set<TypeName> types = toTypes(repositories);
-        private final TenantIndex tenantIndex = new StubTenantIndex();
 
         private BlackBox blackBox;
         private EventEnricher enricher;
@@ -533,7 +536,6 @@ abstract class BlackBoxTest<T extends BlackBox> {
         @Test
         void multiTenant() {
             var builder = BoundedContextBuilder.assumingTests(/* multitenant = */ true)
-                    .setTenantIndex(tenantIndex)
                     .enrichEventsUsing(enricher);
             assertBlackBox(builder, MtBlackBox.class);
         }
@@ -554,7 +556,6 @@ abstract class BlackBoxTest<T extends BlackBox> {
             assertDispatchers();
             assertListeners();
             assertEnricher();
-            assertTenantIndex();
             assertDisabledPosting();
         }
 
@@ -597,20 +598,9 @@ abstract class BlackBoxTest<T extends BlackBox> {
             return context().commandBus();
         }
 
-        private TenantIndex tenantIndex() {
-            return context().internalAccess().tenantIndex();
-        }
-
         private void assertEnricher() {
             assertThat(eventBus().getEnricher())
                   .isEqualTo(enricher);
-        }
-
-        private void assertTenantIndex() {
-            if (context().isMultitenant()) {
-                assertThat(tenantIndex())
-                        .isSameInstanceAs(tenantIndex);
-            }
         }
 
         private boolean postsEventsInParallel() {

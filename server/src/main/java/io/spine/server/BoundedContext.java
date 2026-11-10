@@ -25,7 +25,9 @@ import io.spine.server.bus.Listener;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.commandbus.CommandDispatcherDelegate;
+import io.spine.server.commandbus.CommandScheduler;
 import io.spine.server.commandbus.DelegatingCommandDispatcher;
+import io.spine.server.delivery.Delivery;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.Repository;
 import io.spine.server.entity.model.EntityClass;
@@ -35,7 +37,8 @@ import io.spine.server.event.EventDispatcher;
 import io.spine.server.event.EventDispatcherDelegate;
 import io.spine.server.integration.IntegrationBroker;
 import io.spine.server.stand.Stand;
-import io.spine.server.tenant.TenantIndex;
+import io.spine.server.storage.StorageFactory;
+import io.spine.server.transport.TransportFactory;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.SystemClient;
@@ -94,6 +97,18 @@ public abstract class BoundedContext
     /** Basic features of the context. */
     private final ContextSpec spec;
 
+    /** The factory with which the repositories of the context create their storages. */
+    private final StorageFactory storageFactory;
+
+    /** The delivery in which the repositories of the context register their inboxes. */
+    private final Delivery delivery;
+
+    /** The scheduler of the commands posted to the context. */
+    private final CommandScheduler commandScheduler;
+
+    /** The transport through which the context exchanges messages with other contexts. */
+    private final TransportFactory transportFactory;
+
     /** The Command Bus of this context. */
     private final CommandBus commandBus;
 
@@ -112,9 +127,6 @@ public abstract class BoundedContext
     /** Provides access to data parts of aggregate roots of this context. */
     @SuppressWarnings("deprecation") // The `AggregateRootDirectory` API is deprecated.
     private final AggregateRootDirectory aggregateRootDirectory;
-
-    /** The index of tenants having data in this context. */
-    private final TenantIndex tenantIndex;
 
     /** Provides access to internally used features of the context. */
     private final InternalAccess internalAccess;
@@ -141,9 +153,12 @@ public abstract class BoundedContext
         super();
         checkInheritance();
         this.spec = builder.spec();
+        this.storageFactory = checkNotNull(builder.getStorageFactory());
+        this.delivery = checkNotNull(builder.getDelivery());
+        this.commandScheduler = checkNotNull(builder.getCommandSchedulerFactory()).get();
+        this.transportFactory = checkNotNull(builder.getTransportFactory());
         this.eventBus = builder.buildEventBus(this);
         this.stand = builder.stand();
-        this.tenantIndex = builder.buildTenantIndex();
         this.broker = new IntegrationBroker();
         this.commandBus = builder.buildCommandBus();
         this.aggregateRootDirectory = builder.aggregateRootDirectory();
@@ -159,6 +174,7 @@ public abstract class BoundedContext
      */
     protected final void init() {
         eventBus.registerWith(this);
+        commandBus.registerWith(this);
         broker.registerWith(this);
     }
 
@@ -203,6 +219,13 @@ public abstract class BoundedContext
     }
 
     /**
+     * Obtains the registry of the Bounded Contexts of the {@link Application}.
+     */
+    static ContextRegistry registry() {
+        return Application.instance().contexts();
+    }
+
+    /**
      * Adds the passed repository to the context.
      *
      * @throws IllegalStateException
@@ -210,6 +233,7 @@ public abstract class BoundedContext
      * @throws DuplicateEntityStateException
      *         if another open context already serves entities with the same state type
      */
+    @SuppressWarnings("ProhibitedExceptionThrown") // Re-throwing what was caught.
     protected final void register(Repository<?, ?> repository) {
         checkNotNull(repository);
         checkOpen();
@@ -219,7 +243,7 @@ public abstract class BoundedContext
             guard.register(repository);
         } catch (Throwable t) {
             if (newlyServed) {
-                OpenContexts.forget(repository.entityStateType(), this);
+                registry().forget(repository.entityStateType(), this);
             }
             throw t;
         }
@@ -241,7 +265,7 @@ public abstract class BoundedContext
      */
     private boolean serveStateOf(Repository<?, ?> repository) {
         return !isSystem()
-                && OpenContexts.serve(repository.entityStateType(), this);
+                && registry().serve(repository.entityStateType(), this);
     }
 
     /**
@@ -517,7 +541,7 @@ public abstract class BoundedContext
      */
     private void closeComponents(boolean wasOpen) {
         RuntimeException failure = null;
-        for (var component : List.<Closeable>of(commandBus, eventBus, broker, stand)) {
+        for (var component : List.of(commandBus, eventBus, broker, stand)) {
             try {
                 component.closeIfOpen();
             } catch (RuntimeException e) {
@@ -545,13 +569,18 @@ public abstract class BoundedContext
     /**
      * Returns the first failure, adding the passed one to it as suppressed,
      * or the passed failure if it is the first one.
+     *
+     * <p>If the passed failure is the first one itself, it is not added: an exception
+     * cannot suppress itself.
      */
     private static RuntimeException
     withSuppressed(@Nullable RuntimeException first, RuntimeException next) {
         if (first == null) {
             return next;
         }
-        first.addSuppressed(next);
+        if (first != next) {
+            first.addSuppressed(next);
+        }
         return first;
     }
 
@@ -572,18 +601,18 @@ public abstract class BoundedContext
     }
 
     /**
-     * Closes all repositories and clears {@link TenantIndex}.
+     * Closes all repositories, and records that the context is no longer open.
      *
-     * <p>Does both even if closing some of the repositories fails, and then throws. After that,
-     * another context may have the name of this one and serve the entity state types of these
-     * repositories. This context cannot be closed again to retry, because it is no longer open.
+     * <p>Records it even if closing some of the repositories fails, and then throws.
+     * After that, another context may have the name of this one and serve the entity state
+     * types of these repositories. This context cannot be closed again to retry, because it is
+     * no longer open.
      */
     private void shutDownRepositories() {
         try {
             guard.shutDownRepositories();
         } finally {
-            OpenContexts.closed(this);
-            tenantIndex.close();
+            registry().unregister(this);
         }
     }
 
@@ -803,13 +832,34 @@ public abstract class BoundedContext
         }
 
         /**
-         * Obtains a tenant index of this Bounded Context.
-         *
-         * <p>If the context is single-tenant returns
-         * {@linkplain TenantIndex#singleTenant() null-object} implementation.
+         * Obtains the storage factory with which the repositories of this
+         * {@code BoundedContext} create their storages.
          */
-        public TenantIndex tenantIndex() {
-            return tenantIndex;
+        public StorageFactory storageFactory() {
+            return self().storageFactory;
+        }
+
+        /**
+         * Obtains the {@code Delivery} in which the repositories of this
+         * {@code BoundedContext} register their inboxes.
+         */
+        public Delivery delivery() {
+            return self().delivery;
+        }
+
+        /**
+         * Obtains the scheduler of the commands posted to this {@code BoundedContext}.
+         */
+        public CommandScheduler commandScheduler() {
+            return self().commandScheduler;
+        }
+
+        /**
+         * Obtains the transport through which the {@code IntegrationBroker} of this
+         * {@code BoundedContext} exchanges messages with other contexts.
+         */
+        public TransportFactory transportFactory() {
+            return self().transportFactory;
         }
 
         /**

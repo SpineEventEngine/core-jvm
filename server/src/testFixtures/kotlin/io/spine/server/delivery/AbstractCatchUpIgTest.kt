@@ -88,8 +88,9 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
      * the `Delivery` in use when it is registered.
      *
      * @param strategy The strategy of the delivery.
-     * @param observer The observer that delivers each message sent to an inbox,
-     *   `LocalDispatchingObserver` by default.
+     * @param observer The observer that delivers each message sent to an inbox.
+     *   If `null`, which is the default, a `LocalDispatchingObserver` of the installed
+     *   delivery is used.
      * @param onePagePerRun If `true`, each delivery run ends after the first page in which it
      *   delivers a message. A test that delivers the shards in turn uses it, so that the work
      *   of one shard does not run to its end before the other shards are delivered.
@@ -103,24 +104,26 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
      */
     protected fun useDelivery(
         strategy: DeliveryStrategy,
-        observer: ShardObserver = LocalDispatchingObserver(),
+        observer: ShardObserver? = null,
         onePagePerRun: Boolean = false,
         configure: (DeliveryBuilder) -> Unit = {}
     ): Delivery {
         val watchdog = Watchdog(onePagePerRun)
-        val builder = Delivery.newBuilder()
+        val environment = ServerEnvironment.instance()
+        val builder = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
             .setStrategy(strategy)
             .setDeduplicationWindow(Durations.ZERO)
         configure(builder)
         val delivery = builder
             .setMonitor(watchdog)
             .build()
+        val dispatching = observer ?: LocalDispatchingObserver(delivery)
         delivery.subscribe { message ->
             if (watchdog.timeIsUp()) {
                 return@subscribe
             }
             try {
-                observer.onMessage(message)
+                dispatching.onMessage(message)
             } catch (e: Exception) {
                 recordedFailures.add("Delivery run: $e")
                 throw e

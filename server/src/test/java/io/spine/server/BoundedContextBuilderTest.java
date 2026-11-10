@@ -14,9 +14,7 @@
 
 package io.spine.server;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.testing.NullPointerTester;
-import io.spine.core.TenantId;
 import io.spine.server.aggregate.AggregateRootDirectory;
 import io.spine.server.aggregate.InMemoryRootDirectory;
 import io.spine.server.bc.given.Given.CommandDispatchingRepository;
@@ -30,7 +28,6 @@ import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.entity.Repository;
 import io.spine.server.event.EventDispatcher;
 import io.spine.server.projection.ProjectionRepository;
-import io.spine.server.tenant.TenantIndex;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
 import io.spine.test.bc.ProjectId;
@@ -43,9 +40,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
-import java.util.Set;
 
-import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -96,15 +91,6 @@ class BoundedContextBuilderTest {
     class CreateDefault {
 
         @Test
-        @DisplayName("`TenantIndex`")
-        void tenantIndex() {
-            assertNotNull(BoundedContextBuilder.assumingTests(/* multitenant = */ true)
-                                               .build()
-                                               .internalAccess()
-                                               .tenantIndex());
-        }
-
-        @Test
         @DisplayName("`CommandBus` and `EventBus` simultaneously")
         void commandBusAndEventBus() {
             var boundedContext = builder.build();
@@ -126,57 +112,6 @@ class BoundedContextBuilderTest {
     void supportMultitenancy() {
         var builder = BoundedContextBuilder.assumingTests(/* multitenant = */ true);
         assertTrue(builder.isMultitenant());
-    }
-
-    @Test
-    @DisplayName("allow `TenantIndex` configuration")
-    void setTenantIndex() {
-        TenantIndex tenantIndex = new StubTenantIndex();
-
-        var builder = BoundedContextBuilder
-                .assumingTests()
-                .setTenantIndex(tenantIndex);
-
-        assertThat(builder.getTenantIndex())
-                .isEqualTo(tenantIndex);
-    }
-
-    @Test
-    @DisplayName("tell whether a `TenantIndex` was configured")
-    void hasTenantIndex() {
-        var builder = BoundedContextBuilder.assumingTests();
-        assertFalse(builder.hasTenantIndex());
-
-        builder.setTenantIndex(new StubTenantIndex());
-        assertTrue(builder.hasTenantIndex());
-    }
-
-    /**
-     * Stub implementation of {@code TenantIndex}.
-     */
-    private static class StubTenantIndex implements TenantIndex {
-
-        private boolean closed = false;
-
-        @Override
-        public void keep(TenantId id) {
-            // Do nothing.
-        }
-
-        @Override
-        public Set<TenantId> all() {
-            return ImmutableSet.of();
-        }
-
-        @Override
-        public boolean isOpen() {
-            return !closed;
-        }
-
-        @Override
-        public void close() {
-            closed = true;
-        }
     }
 
     @Nested

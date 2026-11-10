@@ -17,10 +17,10 @@ package io.spine.server.storage
 import com.google.protobuf.fieldMask
 import io.kotest.matchers.shouldBe
 import io.spine.server.ContextSpec
-import io.spine.server.ServerEnvironment
 import io.spine.server.storage.given.GivenStorageProject.messageSpec
 import io.spine.server.storage.given.GivenStorageProject.newId
 import io.spine.server.storage.given.GivenStorageProject.newState
+import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.storage.StgProject
 import io.spine.test.storage.StgProjectId
 import java.util.Optional
@@ -33,8 +33,7 @@ internal class RecordStorageSpec {
     private val idOnly = fieldMask { paths += "id" }
 
     private val storage: RecordStorage<StgProjectId, StgProject> =
-        ServerEnvironment.instance()
-            .storageFactory()
+        InMemoryStorageFactory.newInstance()
             .createRecordStorage(
                 ContextSpec.singleTenant(RecordStorageSpec::class.java.name),
                 messageSpec()

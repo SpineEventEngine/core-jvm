@@ -114,7 +114,7 @@ internal class DuplicateContextNameSpec {
             context(sameName, rejected)
         }
         rejected.isRegistered shouldBe false
-        OpenContexts.findContextServing(calc) shouldBeSameInstanceAs first
+        Application.instance().contexts.contextServing(calc) shouldBeSameInstanceAs first
     }
 
     @Test
@@ -157,7 +157,7 @@ internal class DuplicateContextNameSpec {
             first.internalAccess().broker().isOpen shouldBe false
             first.stand().isOpen shouldBe false
         }
-        OpenContexts.findContextServing(calc).shouldBeNull()
+        Application.instance().contexts.contextServing(calc).shouldBeNull()
         shouldNotThrowAny {
             context(failingName, CalculatorRepository())
         }

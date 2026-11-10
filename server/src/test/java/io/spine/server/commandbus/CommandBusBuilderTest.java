@@ -15,19 +15,14 @@
 package io.spine.server.commandbus;
 
 import io.spine.core.Command;
-import io.spine.server.BoundedContext;
 import io.spine.server.bus.BusBuilderTest;
-import io.spine.server.tenant.TenantIndex;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.system.server.NoOpSystemWriteSide;
 import io.spine.system.server.SystemWriteSide;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static io.spine.testing.TestValues.nullRef;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -41,53 +36,19 @@ class CommandBusBuilderTest
 
     private static final SystemWriteSide SYSTEM_WRITE_SIDE = NoOpSystemWriteSide.INSTANCE;
 
-    private BoundedContext context;
-    private TenantIndex tenantIndex;
-
     @Override
     protected CommandBus.Builder builder() {
         return CommandBus.newBuilder()
-                         .injectSystem(SYSTEM_WRITE_SIDE)
-                         .injectTenantIndex(tenantIndex);
-    }
-
-    @BeforeEach
-    void setUp() {
-        context = BoundedContext.multitenant(getClass().getSimpleName())
-                                .build();
-        tenantIndex = context.internalAccess()
-                             .tenantIndex();
-    }
-
-    @AfterEach
-    void closeContext() {
-        context.close();
+                         .injectSystem(SYSTEM_WRITE_SIDE);
     }
 
     @Test
     @DisplayName("create new `CommandBus` instance")
     void createNewInstance() {
         var commandBus = CommandBus.newBuilder()
-                .injectTenantIndex(tenantIndex)
                 .injectSystem(SYSTEM_WRITE_SIDE)
                 .build();
         assertNotNull(commandBus);
-    }
-
-    @Test
-    @DisplayName("not accept `null` `CommandStore`")
-    void notAcceptNullCommandStore() {
-        assertThrows(NullPointerException.class,
-                     () -> builder().injectTenantIndex(nullRef()));
-    }
-
-    @Test
-    @DisplayName("not allow to omit setting `CommandStore`")
-    void neverOmitCommandStore() {
-        assertThrows(IllegalStateException.class,
-                     () -> CommandBus.newBuilder()
-                             .injectSystem(SYSTEM_WRITE_SIDE)
-                             .build());
     }
 
     @Test
@@ -95,7 +56,6 @@ class CommandBusBuilderTest
     void neverOmitSystem() {
         assertThrows(IllegalStateException.class,
                      () -> CommandBus.newBuilder()
-                             .injectTenantIndex(tenantIndex)
                              .build());
     }
 
@@ -121,15 +81,6 @@ class CommandBusBuilderTest
             var builder = builder().injectSystem(systemWriteSide);
             assertTrue(builder.hasSystem());
             assertSame(systemWriteSide, builder.getSystem());
-        }
-
-        @Test
-        @DisplayName("tenant index")
-        void tenantIndex() {
-            var index = TenantIndex.singleTenant();
-            var builder = builder().injectTenantIndex(index);
-            assertTrue(builder.hasTenantIndex());
-            assertSame(index, builder.getTenantIndex());
         }
     }
 }

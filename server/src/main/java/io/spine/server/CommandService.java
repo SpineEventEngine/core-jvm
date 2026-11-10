@@ -14,6 +14,7 @@
 
 package io.spine.server;
 
+import com.google.common.collect.ImmutableSet;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
 import io.spine.base.Error;
@@ -30,10 +31,14 @@ import io.spine.type.MessageClass;
 import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static io.spine.core.ErrorCase.INTERNAL_ERROR;
 import static io.spine.server.bus.MessageIdExtensions.causedError;
+import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
  * The {@code CommandService} provides a synchronous way to post commands
@@ -184,23 +189,49 @@ public final class CommandService
 
         /**
          * Builds a new {@link CommandService}.
+         *
+         * @throws IllegalStateException
+         *         if two of the added Bounded Contexts handle commands of one type
          */
         @Override
         public CommandService build() {
             var dictionary = TypeDictionary.newBuilder();
-            contexts().forEach(
-                    context -> dictionary.putAll(context, (c) ->
-                            c.commandBus()
-                             .registeredCommandClasses()
-                                    .stream()
-                                    .map(MessageClass::typeUrl)
-                                    .collect(toImmutableSet())
-                    )
-            );
+            Map<TypeUrl, BoundedContext> handlers = new HashMap<>();
+            contexts().forEach(context -> {
+                var types = commandTypes(context);
+                types.forEach(type -> recordHandler(type, context, handlers));
+                dictionary.putAll(context, c -> types);
+            });
 
             var result = new CommandService(dictionary.build());
             warnIfEmpty(result);
             return result;
+        }
+
+        private static ImmutableSet<TypeUrl> commandTypes(BoundedContext context) {
+            return context.commandBus()
+                          .registeredCommandClasses()
+                          .stream()
+                          .map(MessageClass::typeUrl)
+                          .collect(toImmutableSet());
+        }
+
+        /**
+         * Records that the given context handles commands of the given type.
+         *
+         * @throws IllegalStateException
+         *         if another context handles commands of the type
+         */
+        private static void recordHandler(TypeUrl type,
+                                          BoundedContext context,
+                                          Map<TypeUrl, BoundedContext> handlers) {
+            var other = handlers.putIfAbsent(type, context);
+            if (other != null) {
+                throw newIllegalStateException(
+                        "Commands of the type `%s` are handled by two Bounded Contexts:" +
+                                " `%s` and `%s`.",
+                        type, other.name().getValue(), context.name().getValue());
+            }
         }
 
         @Override

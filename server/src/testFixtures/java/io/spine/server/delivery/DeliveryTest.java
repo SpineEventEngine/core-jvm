@@ -134,7 +134,10 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
             "in a multi-threaded env with the custom strategy")
     public void withCustomStrategy() {
         var strategy = new FixedShardStrategy(13);
-        var newDelivery = Delivery.localWithStrategyAndWindow(strategy, Durations.ZERO);
+        var environment = ServerEnvironment.instance();
+        var newDelivery = Delivery.localWithStrategyAndWindow(environment.nodeId(),
+                                                              environment.storageFactory(),
+                                                              strategy, Durations.ZERO);
         var memoizer = new ShardIndexMemoizer();
         newDelivery.subscribe(memoizer);
         ServerEnvironment.under(Tests.class)
@@ -154,7 +157,8 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
     @DisplayName("multiple shards to multiple targets in a single-threaded env " +
             "and calculate the statistics properly")
     public void calculateStats() {
-        var delivery = Delivery.newBuilder()
+        var environment = ServerEnvironment.instance();
+        var delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
                                     .setStrategy(UniformAcrossAllShards.forNumber(7))
                                     .build();
         ServerEnvironment.under(Tests.class)
@@ -185,7 +189,8 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         ShardedWorkRegistry registry = new InMemoryShardedWorkRegistry();
         var strategy = new FixedShardStrategy(shardCount);
         var monitor = new MonitorUnderTest();
-        var delivery = Delivery.newBuilder()
+        var environment = ServerEnvironment.instance();
+        var delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
                 .setStrategy(strategy)
                 .setWorkRegistry(registry)
                 .setMonitor(monitor)
@@ -212,7 +217,8 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         var registry = new ThrowingWorkRegistry();
         var strategy = new FixedShardStrategy(shardCount);
         var monitor = new MonitorUnderTest();
-        var delivery = Delivery.newBuilder()
+        var environment = ServerEnvironment.instance();
+        var delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
                 .setStrategy(strategy)
                 .setWorkRegistry(registry)
                 .setMonitor(monitor)
@@ -236,13 +242,14 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         var shardCount = 1;
         var strategy = new FixedShardStrategy(shardCount);
         var theOnlyIndex = strategy.nonEmptyShard();
-        var delivery = Delivery.newBuilder()
+        var environment = ServerEnvironment.instance();
+        var delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
                 .setStrategy(strategy)
                 .setMonitor(monitor)
                 .build();
         var rawMessageMemoizer = new RawMessageMemoizer();
         delivery.subscribe(rawMessageMemoizer);
-        delivery.subscribe(new LocalDispatchingObserver());
+        delivery.subscribe(new LocalDispatchingObserver(delivery));
         ServerEnvironment.under(Tests.class)
                          .use(delivery);
 
@@ -274,7 +281,10 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         var strategy = new FixedShardStrategy(3);
 
         // Set a very long window to keep the messages non-deleted from the `InboxStorage`.
-        var newDelivery = Delivery.localWithStrategyAndWindow(strategy, Durations.fromDays(1));
+        var environment = ServerEnvironment.instance();
+        var newDelivery = Delivery.localWithStrategyAndWindow(environment.nodeId(),
+                                                              environment.storageFactory(),
+                                                              strategy, Durations.fromDays(1));
         var memoizer = new RawMessageMemoizer();
         newDelivery.subscribe(memoizer);
         ServerEnvironment.under(Tests.class)
@@ -303,7 +313,8 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
         var strategy = new FixedShardStrategy(1);
         var monitor = new MemoizingDeliveryMonitor();
         var pageSize = 20;
-        var delivery = Delivery.newBuilder()
+        var environment = ServerEnvironment.instance();
+        var delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
                 .setStrategy(strategy)
                 .setDeduplicationWindow(Durations.ZERO)
                 .setMonitor(monitor)
@@ -369,7 +380,8 @@ public abstract class DeliveryTest extends AbstractDeliveryTest {
 
         TaskView.disableStrictMode();
         TaskView.clearCache();
-        var directDelivery = Delivery.direct();
+        var environment = ServerEnvironment.instance();
+        var directDelivery = Delivery.direct(environment.nodeId(), environment.storageFactory());
         ServerEnvironment.under(Tests.class)
                          .use(directDelivery);
         try (var context = BlackBox.singleTenantWith(

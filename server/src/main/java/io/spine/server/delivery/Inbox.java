@@ -17,7 +17,6 @@ package io.spine.server.delivery;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
 import io.spine.core.BoundedContextName;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
 import io.spine.type.TypeUrl;
@@ -50,11 +49,11 @@ public final class Inbox<I> {
     private final @Nullable BatchDeliveryListener<I> batchDispatcher;
     private final @Nullable BoundedContextName contextName;
 
-    private Inbox(Builder<I> builder, Delivery delivery) {
+    private Inbox(Builder<I> builder) {
         this.entityStateType = builder.entityStateType;
         this.commandPart = new InboxOfCommands<>(builder);
         this.eventPart = new InboxOfEvents<>(builder);
-        this.delivery = delivery;
+        this.delivery = builder.delivery;
         this.batchDispatcher = builder.batchDispatcher;
         this.contextName = builder.contextName;
     }
@@ -64,9 +63,13 @@ public final class Inbox<I> {
      *
      * @param typeUrl
      *         the type URL of a consumer
+     * @param delivery
+     *         the delivery in which the built inbox is registered
+     * @param writer
+     *         the writer to use when messages are sent via the inbox being built
      */
-    static <I> Builder<I> newBuilder(TypeUrl typeUrl, InboxWriter writer) {
-        return new Builder<>(typeUrl, writer);
+    static <I> Builder<I> newBuilder(TypeUrl typeUrl, Delivery delivery, InboxWriter writer) {
+        return new Builder<>(typeUrl, delivery, writer);
     }
 
     /**
@@ -137,6 +140,7 @@ public final class Inbox<I> {
     public static final class Builder<I> {
 
         private final TypeUrl entityStateType;
+        private final Delivery delivery;
         private final InboxWriter writer;
         private final Endpoints<I, EventEnvelope> eventEndpoints = new Endpoints<>();
         private final Endpoints<I, CommandEnvelope> commandEndpoints = new Endpoints<>();
@@ -148,11 +152,14 @@ public final class Inbox<I> {
          *
          * @param type
          *         the type URL of the entity, to which belongs the {@code Inbox} being built
+         * @param delivery
+         *         the delivery in which the built inbox is registered
          * @param writer
          *         the writer to use when messages are sent via the inbox being built
          */
-        private Builder(TypeUrl type, InboxWriter writer) {
+        private Builder(TypeUrl type, Delivery delivery, InboxWriter writer) {
             this.entityStateType = type;
+            this.delivery = delivery;
             this.writer = writer;
         }
 
@@ -215,20 +222,18 @@ public final class Inbox<I> {
         }
 
         /**
-         * Creates an instance of {@code Inbox} and registers it in the
-         * server-wide {@code Delivery}.
+         * Creates an instance of {@code Inbox} and registers it in the {@code Delivery}
+         * that created this builder.
          *
          * @throws IllegalArgumentException
          *         if neither an event nor a command endpoint was added; use
          *         {@link #hasEndpoints()} to tell in advance
          */
         public Inbox<I> build() {
-            var delivery = ServerEnvironment.instance()
-                                            .delivery();
             checkNotNull(entityStateType, "Entity state type must be set.");
             checkArgument(hasEndpoints(),
                           "There must be at least one event or command endpoint.");
-            var inbox = new Inbox<>(this, delivery);
+            var inbox = new Inbox<>(this);
             delivery.register(inbox);
             return inbox;
         }
@@ -243,6 +248,10 @@ public final class Inbox<I> {
 
         InboxWriter writer() {
             return writer;
+        }
+
+        Delivery delivery() {
+            return delivery;
         }
 
         TypeUrl entityStateType() {

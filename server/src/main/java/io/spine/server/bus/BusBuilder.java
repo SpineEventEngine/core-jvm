@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.bus;
@@ -34,7 +22,6 @@ import com.google.protobuf.Message;
 import io.spine.annotation.Internal;
 import io.spine.core.Signal;
 import io.spine.server.BoundedContext;
-import io.spine.server.tenant.TenantIndex;
 import io.spine.server.type.SignalEnvelope;
 import io.spine.system.server.SystemWriteSide;
 import io.spine.type.MessageClass;
@@ -77,7 +64,6 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     private final Set<Listener<E>> listeners = new HashSet<>();
 
     private @Nullable SystemWriteSide systemWriteSide;
-    private @Nullable TenantIndex tenantIndex;
     private @MonotonicNonNull BoundedContext context;
 
     /**
@@ -173,31 +159,6 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     }
 
     /**
-     * Injects the {@link TenantIndex} of the Bounded Context to which the built bus belongs.
-     *
-     * @apiNote This method is {@link Internal} to the framework. The name of the method starts
-     *          with the {@code inject} prefix so that this method does not appear in an
-     *          auto-complete hint for the {@code set} prefix.
-     */
-    @Internal
-    @CanIgnoreReturnValue
-    public B injectTenantIndex(TenantIndex index) {
-        this.tenantIndex = checkNotNull(index);
-        return self();
-    }
-
-    /**
-     * Similar to {@link #getTenantIndex} but throws a custom exception, instead
-     * of the {@code NullPointerException}, if the tenant index is not set.
-     */
-    public TenantIndex ensureTenantIndex() {
-        if (!hasTenantIndex()) {
-            throw Exceptions.tenantIndexNotSet();
-        }
-        return getTenantIndex();
-    }
-
-    /**
      * Checks whether the {@link SystemWriteSide} has been set.
      *
      * @return {@code true} if the system write side was set, {@code false} otherwise
@@ -241,38 +202,6 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
         return ofNullable(systemWriteSide);
     }
 
-    /**
-     * Checks whether the {@link TenantIndex} has been set.
-     *
-     * @return {@code true} if the tenant index was set, {@code false} otherwise
-     */
-    @Internal
-    public boolean hasTenantIndex() {
-        return tenantIndex != null;
-    }
-
-    /**
-     * Obtains the {@link TenantIndex} set in the builder.
-     *
-     * @return the tenant index
-     * @throws NullPointerException if the tenant index was not set
-     */
-    @Internal
-    public TenantIndex getTenantIndex() {
-        return checkNotNull(tenantIndex);
-    }
-
-    /**
-     * Obtains a {@link TenantIndex} set in the builder.
-     *
-     * @deprecated Use {@link #getTenantIndex()} and {@link #hasTenantIndex()} instead.
-     */
-    @Deprecated
-    @Internal
-    public Optional<TenantIndex> tenantIndex() {
-        return ofNullable(tenantIndex);
-    }
-
     protected abstract DispatcherRegistry<C, E, D> newRegistry();
 
     /**
@@ -295,7 +224,6 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
     private static final class Exceptions {
 
         private static final String SYSTEM_METHOD = "injectSystem";
-        private static final String TENANT_INDEX_METHOD = "injectTenantIndex";
 
         /** Prevents instantiation of this utility class. */
         private Exceptions() {
@@ -303,10 +231,6 @@ public abstract class BusBuilder<B extends BusBuilder<B, T, E, C, D>,
 
         private static IllegalStateException systemNotSet() {
             return newException(SystemWriteSide.class, SYSTEM_METHOD);
-        }
-
-        private static IllegalStateException tenantIndexNotSet() {
-            return newException(TenantIndex.class, TENANT_INDEX_METHOD);
         }
 
         private static IllegalStateException newException(Class<?> fieldClass, String setterName) {

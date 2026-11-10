@@ -27,8 +27,10 @@ import java.util.Optional;
 /**
  * An {@code InboxStorage} that does nothing.
  *
- * <p>To be used strictly in a {@linkplain Delivery#direct() direct} delivery mode,
- * which assumes that dispatched signals should skip their corresponding {@code Inbox}es.
+ * <p>To be used strictly in a
+ * {@linkplain Delivery#direct(io.spine.server.NodeId, io.spine.server.storage.StorageFactory)
+ * direct} delivery mode, which assumes that dispatched signals should skip their
+ * corresponding {@code Inbox}es.
  */
 final class NoOpInboxStorage extends InboxStorage {
 

@@ -15,15 +15,13 @@
 package io.spine.server.delivery;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.errorprone.annotations.InlineMe;
 import com.google.protobuf.Duration;
-import io.spine.server.ServerEnvironment;
+import io.spine.server.NodeId;
 import io.spine.server.delivery.memory.InMemoryShardedWorkRegistry;
 import io.spine.server.storage.StorageFactory;
 import io.spine.server.storage.memory.InMemoryStorageFactory;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-
-import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -44,6 +42,15 @@ public final class DeliveryBuilder {
      */
     private static final int DEFAULT_CATCH_UP_PAGE_SIZE = 500;
 
+    /** The identifier of the server node on which the built {@code Delivery} runs. */
+    private final NodeId nodeId;
+
+    /**
+     * The factory of the storages which are not set,
+     * or {@code null} to use a new {@code InMemoryStorageFactory}.
+     */
+    private final @Nullable StorageFactory storageFactory;
+
     private @MonotonicNonNull InboxStorage inboxStorage;
     private @MonotonicNonNull CatchUpStorage catchUpStorage;
     private @MonotonicNonNull DeliveryStrategy strategy;
@@ -54,20 +61,26 @@ public final class DeliveryBuilder {
     private @MonotonicNonNull Integer catchUpPageSize;
 
     /**
-     * Prevents a direct instantiation of this class.
+     * Creates a builder of a {@code Delivery} that runs on the given server node.
+     *
+     * <p>Prevents a direct instantiation of this class.
+     *
+     * @param nodeId
+     *         the identifier of the server node on which the built {@code Delivery} runs
+     * @param storageFactory
+     *         the factory of the {@code InboxStorage} and the {@code CatchUpStorage},
+     *         if they are not set, or {@code null} to use a new {@code InMemoryStorageFactory}
      */
-    DeliveryBuilder() {
+    DeliveryBuilder(NodeId nodeId, @Nullable StorageFactory storageFactory) {
+        this.nodeId = checkNotNull(nodeId);
+        this.storageFactory = storageFactory;
     }
 
     /**
-     * Returns the value of the configured {@code InboxStorage} or {@code Optional.empty()} if no
-     * such value was configured.
-     *
-     * @deprecated Use {@link #getInboxStorage()} and {@link #hasInboxStorage()} instead.
+     * Returns the identifier of the server node on which the built {@code Delivery} runs.
      */
-    @Deprecated
-    public Optional<InboxStorage> inboxStorage() {
-        return Optional.ofNullable(inboxStorage);
+    NodeId nodeId() {
+        return nodeId;
     }
 
     /**
@@ -90,17 +103,6 @@ public final class DeliveryBuilder {
     }
 
     /**
-     * Returns the value of the configured {@code CatchUpStorage} or {@code Optional.empty()} if no
-     * such value was configured.
-     *
-     * @deprecated Use {@link #getCatchUpStorage()} and {@link #hasCatchUpStorage()} instead.
-     */
-    @Deprecated
-    public Optional<CatchUpStorage> catchUpStorage() {
-        return Optional.ofNullable(catchUpStorage);
-    }
-
-    /**
      * Checks whether the {@code CatchUpStorage} has been configured.
      *
      * @return {@code true} if the catch-up storage was set, {@code false} otherwise
@@ -117,17 +119,6 @@ public final class DeliveryBuilder {
      */
     public CatchUpStorage getCatchUpStorage() {
         return checkNotNull(catchUpStorage);
-    }
-
-    /**
-     * Returns the value of the configured {@code DeliveryStrategy} or {@code Optional.empty()}
-     * if no such value was configured.
-     *
-     * @deprecated Use {@link #getStrategy()} and {@link #hasStrategy()} instead.
-     */
-    @Deprecated
-    public Optional<DeliveryStrategy> strategy() {
-        return Optional.ofNullable(strategy);
     }
 
     /**
@@ -150,17 +141,6 @@ public final class DeliveryBuilder {
     }
 
     /**
-     * Returns the value of the configured {@code ShardedWorkRegistry} or {@code Optional.empty()}
-     * if no such value was configured.
-     *
-     * @deprecated Use {@link #getWorkRegistry()} and {@link #hasWorkRegistry()} instead.
-     */
-    @Deprecated
-    public Optional<ShardedWorkRegistry> workRegistry() {
-        return Optional.ofNullable(workRegistry);
-    }
-
-    /**
      * Checks whether the {@code ShardedWorkRegistry} has been configured.
      *
      * @return {@code true} if the work registry was set, {@code false} otherwise
@@ -177,17 +157,6 @@ public final class DeliveryBuilder {
      */
     public ShardedWorkRegistry getWorkRegistry() {
         return checkNotNull(workRegistry);
-    }
-
-    /**
-     * Returns the value of the configured deduplication window or {@code Optional.empty()}
-     * if no such value was configured.
-     *
-     * @deprecated Use {@link #getDeduplicationWindow()} and {@link #hasDeduplicationWindow()} instead.
-     */
-    @Deprecated
-    public Optional<Duration> deduplicationWindow() {
-        return Optional.ofNullable(deduplicationWindow);
     }
 
     /**
@@ -210,17 +179,6 @@ public final class DeliveryBuilder {
     }
 
     /**
-     * Returns the value of the configured {@code DeliveryMonitor} or {@code Optional.empty()}
-     * if no such value was configured.
-     *
-     * @deprecated Use {@link #getDeliveryMonitor()} and {@link #hasDeliveryMonitor()} instead.
-     */
-    @Deprecated
-    public Optional<DeliveryMonitor> deliveryMonitor() {
-        return Optional.ofNullable(deliveryMonitor);
-    }
-
-    /**
      * Checks whether the {@code DeliveryMonitor} has been configured.
      *
      * @return {@code true} if the delivery monitor was set, {@code false} otherwise
@@ -240,30 +198,6 @@ public final class DeliveryBuilder {
     }
 
     /**
-     * Returns the configured {@code DeliveryMonitor}.
-     *
-     * @return the delivery monitor
-     * @throws NullPointerException if the delivery monitor was not set
-     * @deprecated Use {@link #getDeliveryMonitor()} instead.
-     */
-    @Deprecated
-    @InlineMe(replacement = "this.getDeliveryMonitor()")
-    DeliveryMonitor getMonitor() {
-        return getDeliveryMonitor();
-    }
-
-    /**
-     * Returns the value of the configured page size or {@code Optional.empty()}
-     * if no such value was configured.
-     *
-     * @deprecated Use {@link #getPageSize()} and {@link #hasPageSize()} instead.
-     */
-    @Deprecated
-    public Optional<Integer> pageSize() {
-        return Optional.ofNullable(pageSize);
-    }
-
-    /**
      * Checks whether the page size has been configured.
      *
      * @return {@code true} if the page size was set, {@code false} otherwise
@@ -280,17 +214,6 @@ public final class DeliveryBuilder {
      */
     public Integer getPageSize() {
         return checkNotNull(pageSize);
-    }
-
-    /**
-     * Returns the value of the configured catch-up page size or {@code Optional.empty()}
-     * if no such value was configured.
-     *
-     * @deprecated Use {@link #getCatchUpPageSize()} and {@link #hasCatchUpPageSize()} instead.
-     */
-    @Deprecated
-    public Optional<Integer> catchUpPageSize() {
-        return Optional.ofNullable(catchUpPageSize);
     }
 
     /**
@@ -345,11 +268,10 @@ public final class DeliveryBuilder {
     /**
      * Sets the custom {@code InboxStorage}.
      *
-     * <p>If none set, the storage is initialized by the {@code StorageFactory} specific for
-     * this {@code ServerEnvironment}.
+     * <p>If none set, the storage is created by the {@code StorageFactory} passed to
+     * {@link Delivery#newBuilder(NodeId, StorageFactory) Delivery.newBuilder()}.
      *
-     * <p>If no {@code StorageFactory} is present in the {@code ServerEnvironment}, a new
-     * {@code InMemoryStorageFactory} is used.
+     * <p>If no {@code StorageFactory} was passed, a new {@code InMemoryStorageFactory} is used.
      */
     @CanIgnoreReturnValue
     public DeliveryBuilder setInboxStorage(InboxStorage inboxStorage) {
@@ -362,11 +284,10 @@ public final class DeliveryBuilder {
      *
      * <p>The storage must be single-tenant, as the catch-ups of all tenants share it.
      *
-     * <p>If none set, the storage is initialized by the {@code StorageFactory} specific for
-     * this {@code ServerEnvironment}.
+     * <p>If none set, the storage is created by the {@code StorageFactory} passed to
+     * {@link Delivery#newBuilder(NodeId, StorageFactory) Delivery.newBuilder()}.
      *
-     * <p>If no {@code StorageFactory} is present in the {@code ServerEnvironment}, a new
-     * {@code InMemoryStorageFactory} is used.
+     * <p>If no {@code StorageFactory} was passed, a new {@code InMemoryStorageFactory} is used.
      *
      * @throws IllegalArgumentException
      *         if the passed storage is multi-tenant
@@ -455,9 +376,9 @@ public final class DeliveryBuilder {
         return delivery;
     }
 
-    private static StorageFactory storageFactory() {
-        var serverEnvironment = ServerEnvironment.instance();
-        var currentStorageFactory = serverEnvironment.optionalStorageFactory();
-        return currentStorageFactory.orElseGet(InMemoryStorageFactory::newInstance);
+    private StorageFactory storageFactory() {
+        return storageFactory != null
+               ? storageFactory
+               : InMemoryStorageFactory.newInstance();
     }
 }

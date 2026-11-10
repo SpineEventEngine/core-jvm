@@ -108,19 +108,6 @@ class ProjectionRepositoryTest
         return newEventFactory(tenantId, PRODUCER_ID).createEvent(eventMessage, version, when);
     }
 
-    /**
-     * Simulates updating TenantIndex, which occurs during command processing
-     * in multi-tenant context.
-     */
-    private static void keepTenantIdFromEvent(BoundedContext context, Event event) {
-        var tenantId = event.tenant();
-        if (context.isMultitenant()) {
-            context.internalAccess()
-                   .tenantIndex()
-                   .keep(tenantId);
-        }
-    }
-
     @Override
     protected TestProjectionRepository repository() {
         return (TestProjectionRepository) super.repository();
@@ -319,8 +306,6 @@ class ProjectionRepositoryTest
             assertFalse(addedTasks.isEmpty());
         }
 
-        @SuppressWarnings("OverlyCoupledMethod")
-            // A complex test case with many test domain messages.
         @Test
         @DisplayName("entity state update")
         void entityState() throws Exception {
@@ -365,8 +350,6 @@ class ProjectionRepositoryTest
         private void checkDispatchesEvent(EventMessage eventMessage) {
             var eventFactory = newEventFactory(tenantId(), PRODUCER_ID);
             var event = eventFactory.createEvent(eventMessage);
-
-            keepTenantIdFromEvent(context, event);
 
             dispatchEvent(event);
             assertTrue(TestProjection.processed(eventMessage));

@@ -29,8 +29,6 @@ import io.spine.core.Origin;
 import io.spine.core.Signal;
 import io.spine.core.TenantId;
 import io.spine.server.BoundedContext;
-import io.spine.server.ContextAware;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.bus.BusBuilder;
 import io.spine.server.bus.DeadMessageHandler;
 import io.spine.server.bus.DispatcherRegistry;
@@ -93,8 +91,7 @@ import static java.util.Objects.requireNonNull;
  */
 @Internal
 public final class EventBus
-        extends MulticastBus<Event, EventEnvelope, EventClass, EventDispatcher>
-        implements ContextAware {
+        extends MulticastBus<Event, EventEnvelope, EventClass, EventDispatcher> {
 
     /**
      * The {@code EventStore} to store events before they get handled.
@@ -345,11 +342,12 @@ public final class EventBus
     @Override
     @Internal
     public void registerWith(BoundedContext context) {
+        super.registerWith(context);
         this.context = context;
         eventStore =
-                ServerEnvironment.instance()
-                                 .storageFactory()
-                                 .createEventStore(context.spec());
+                context.internalAccess()
+                       .storageFactory()
+                       .createEventStore(context.spec());
     }
 
     @Override

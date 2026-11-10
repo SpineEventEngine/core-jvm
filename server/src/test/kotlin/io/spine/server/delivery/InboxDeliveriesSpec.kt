@@ -22,6 +22,7 @@ import io.spine.core.BoundedContextName
 import io.spine.core.BoundedContextNames.newName
 import io.spine.environment.Tests
 import io.spine.server.BoundedContext
+import io.spine.server.ServerEnvironment
 import io.spine.server.delivery.given.NoOpEndpoint
 import io.spine.server.delivery.given.TallyA1Repository
 import io.spine.server.delivery.given.closeAll
@@ -47,7 +48,8 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
      */
     @BeforeEach
     fun useOwnDelivery() {
-        under<Tests> { use(Delivery.local()) }
+        val environment = ServerEnvironment.instance()
+        under<Tests> { use(Delivery.local(environment.nodeId(), environment.storageFactory())) }
     }
 
     @AfterEach
@@ -184,6 +186,7 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
         val TASKS: BoundedContextName = newName("Tasks")
         val BILLING: BoundedContextName = newName("Billing")
         val TALLY_TYPE: TypeUrl = TypeUrl.of(TallyA1::class.java)
+        val instance = ServerEnvironment.instance()
 
         /**
          * Creates an inbox of the given type, which belongs to the given context.
@@ -192,7 +195,8 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
          * which the test uses for nothing else.
          */
         fun inbox(type: TypeUrl, context: BoundedContextName? = null): Inbox<String> {
-            val builder = Inbox.newBuilder<String>(type) { }
+            val builder = instance.delivery()
+                .newInbox<String>(type)
             context?.let { builder.withContext(it) }
             return builder
                 .addCommandEndpoint(InboxLabel.HANDLE_COMMAND) { NoOpEndpoint() }

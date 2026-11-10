@@ -219,7 +219,8 @@ public abstract class CatchUpTest extends AbstractDeliveryTest {
             }
         }
 
-        private void assertCatchUpAlreadyStarted(CounterCatchUp counterCatchUp, String target) {
+        private static void assertCatchUpAlreadyStarted(CounterCatchUp counterCatchUp,
+                                                        String target) {
             try {
                 counterCatchUp.catchUp(catchUpOf(target, aMinuteAgo()));
                 fail(format("Simultaneous catch-up was somehow started for ID `%s`.", target));

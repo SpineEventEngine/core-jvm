@@ -17,10 +17,10 @@ package io.spine.system.server;
 import io.spine.annotation.Internal;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.CatchUpRepository;
 import io.spine.server.delivery.ShardMaintenanceRepository;
 import io.spine.server.event.EventDispatcher;
+import io.spine.server.trace.TracerFactory;
 
 /**
  * An implementation of {@link BoundedContext} used for the System domain.
@@ -63,9 +63,14 @@ public final class SystemContext extends BoundedContext {
         var enricher = SystemEnricher.create(commandLog);
         builder.enrichEventsUsing(enricher);
         var result = new SystemContext(builder);
-        result.registerRepositories(commandLog);
-        result.registerTracing();
+        // Registers the buses with the context, as a domain context does,
+        // before the repositories are added.
         result.init();
+        result.registerRepositories(commandLog);
+        var tracerFactory = builder.getTracerFactory();
+        if (tracerFactory != null) {
+            result.registerTracing(tracerFactory);
+        }
         return result;
     }
 
@@ -85,12 +90,9 @@ public final class SystemContext extends BoundedContext {
         }
     }
 
-    private void registerTracing() {
-        var tracing = ServerEnvironment.instance().tracing();
-        tracing.ifPresent(factory -> {
-            EventDispatcher observer = new TraceEventObserver(spec(), factory);
-            registerEventDispatcher(observer);
-        });
+    private void registerTracing(TracerFactory factory) {
+        EventDispatcher observer = new TraceEventObserver(spec(), factory);
+        registerEventDispatcher(observer);
     }
 
     /**

@@ -23,19 +23,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.spine.util.Exceptions.newIllegalStateException;
 import static io.spine.util.Preconditions2.checkNotEmptyOrBlank;
 import static java.lang.String.format;
 
 /**
- * Exposes one or more Bounded Contexts via gRPC.
+ * Exposes the Bounded Contexts of the {@link Application} via gRPC.
  *
  * <p>The exposed services are
  * <ul>
@@ -43,6 +40,17 @@ import static java.lang.String.format;
  *     <li>{@link QueryService},
  *     <li>{@link SubscriptionService}.
  * </ul>
+ *
+ * <p>The server exposes the contexts that are built when the server is
+ * {@linkplain Builder#build() built}, so build the contexts first:
+ * <pre>{@code
+ * BoundedContext.singleTenant("Users").add(new UserRepository()).build();
+ * BoundedContext.singleTenant("Tasks").add(new TaskRepository()).build();
+ * var server = Server.atPort(8484).build();
+ * server.start();
+ * }</pre>
+ *
+ * <p>{@linkplain #shutdown() Shutting down} the server closes the contexts it exposes.
  */
 public final class Server implements WithLogging {
 
@@ -95,12 +103,12 @@ public final class Server implements WithLogging {
         grpcContainer.addShutdownHook();
         var info = logger().atInfo();
         if (grpcContainer.hasPort()) {
-            var p = grpcContainer.getBoundPort();
-            info.log(() -> format("Server started, listening to the port %d.", p));
+            var port = grpcContainer.getBoundPort();
+            info.log(() -> format("Server started, listening to the port %d.", port));
         }
         if (grpcContainer.hasServerName()) {
-            var n = grpcContainer.getServerName();
-            info.log(() -> format("In-process server started with the name `%s`.", n));
+            var name = grpcContainer.getServerName();
+            info.log(() -> format("In-process server started with the name `%s`.", name));
         }
     }
 
@@ -203,7 +211,10 @@ public final class Server implements WithLogging {
     public static final class Builder extends ConnectionBuilder {
 
         private final Set<BindableService> extraServices = new HashSet<>();
-        private final Set<BoundedContextBuilder> contextBuilders = new HashSet<>();
+
+        /** The application whose contexts the server serves. */
+        private Application application = Application.instance();
+
         private @MonotonicNonNull ImmutableSet<BoundedContext> contexts;
         private @MonotonicNonNull QueryService queryService;
         private @MonotonicNonNull SubscriptionService subscriptionService;
@@ -214,12 +225,13 @@ public final class Server implements WithLogging {
         }
 
         /**
-         * Adds a builder for a {@code BoundedContext} to be added to the server.
+         * Makes the server serve the contexts of the given application, instead of
+         * the {@linkplain Application#instance() application} of the JVM.
          */
+        @VisibleForTesting
         @CanIgnoreReturnValue
-        public Builder add(BoundedContextBuilder context) {
-            checkNotNull(context);
-            contextBuilders.add(context);
+        Builder serving(Application application) {
+            this.application = checkNotNull(application);
             return this;
         }
 
@@ -239,10 +251,14 @@ public final class Server implements WithLogging {
         }
 
         /**
-         * Creates a new instance of the server.
+         * Creates a new instance of the server, which exposes the Bounded Contexts
+         * of the {@link Application} built so far.
          *
-         * <p>If building one of the Bounded Contexts fails, the method closes the contexts
-         * built before it, and then throws.
+         * <p>A context built after this call is not exposed by the server.
+         *
+         * @throws IllegalStateException
+         *         if the application has no Bounded Contexts, for example, because they are
+         *         not built yet, or because the application is closed
          */
         public Server build() {
             var result = new Server(this);
@@ -251,52 +267,17 @@ public final class Server implements WithLogging {
 
         private ImmutableSet<BoundedContext> contexts() {
             if (contexts == null) {
-                contexts = buildContexts();
+                var built = application.contexts().all();
+                checkState(!built.isEmpty(),
+                           "The application has no Bounded Contexts for the server to expose." +
+                                   " Please build the contexts before the server.");
+                contexts = ImmutableSet.copyOf(built);
             }
             return contexts;
         }
 
         /**
-         * Builds the Bounded Contexts of the server.
-         *
-         * <p>If building one of them fails, closes the contexts built before it, and then
-         * throws. The caller never gets these contexts, so nobody else can close them.
-         * Left open, they would keep serving their entity state types.
-         */
-        private ImmutableSet<BoundedContext> buildContexts() {
-            List<BoundedContext> built = new ArrayList<>();
-            try {
-                for (var builder : contextBuilders) {
-                    built.add(builder.build());
-                }
-            } catch (Throwable t) {
-                closeAfterFailure(built, t);
-                throw t;
-            }
-            return ImmutableSet.copyOf(built);
-        }
-
-        /**
-         * Closes the contexts built before the build of the server failed.
-         *
-         * @param built
-         *         the contexts to close
-         * @param failure
-         *         the error that failed the build; whatever closing throws, even an
-         *         {@code Error}, is added to it as suppressed, so the rest still close
-         */
-        private static void closeAfterFailure(List<BoundedContext> built, Throwable failure) {
-            for (var context : built) {
-                try {
-                    context.close();
-                } catch (Throwable e) {
-                    failure.addSuppressed(e);
-                }
-            }
-        }
-
-        /**
-         * Creates a container for the passed Bounded Contexts.
+         * Creates a container for the Bounded Contexts of the server.
          */
         private GrpcContainer createContainer() {
             var commandService = CommandService.newBuilder();

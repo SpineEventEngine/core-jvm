@@ -14,7 +14,7 @@
 
 package io.spine.server.delivery
 
-import io.spine.server.ServerEnvironment
+import io.spine.server.storage.memory.InMemoryStorageFactory
 import org.junit.jupiter.api.DisplayName
 
 /**
@@ -25,7 +25,6 @@ import org.junit.jupiter.api.DisplayName
 internal class InMemoryCatchUpStorageSpec : CatchUpStorageTest() {
 
     override fun newStorage(): CatchUpStorage =
-        ServerEnvironment.instance()
-            .storageFactory()
+        InMemoryStorageFactory.newInstance()
             .createCatchUpStorage(false)
 }

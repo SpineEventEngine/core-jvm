@@ -206,7 +206,7 @@ public abstract class RecordBasedRepository<I, E extends Entity<I, S>, S extends
 
     @Override
     protected EntityRecordStorage<I, S> createStorage() {
-        var sf = defaultStorageFactory();
+        var sf = storageFactory();
         var result = sf.createEntityRecordStorage(context().spec(), entityClass());
         return result;
     }
