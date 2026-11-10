@@ -59,8 +59,10 @@ internal class ContextRegistry {
 
     /**
      * Tells if new contexts may be registered.
+     *
+     * Guarded by the lock of [contexts], so that no context is registered after
+     * [closeAll] takes the contexts to close.
      */
-    @Volatile
     private var accepting = true
 
     /**
@@ -73,10 +75,8 @@ internal class ContextRegistry {
      * @throws DuplicateContextNameException If a registered context has one of the names.
      */
     fun checkNameFree(name: BoundedContextName) {
-        check(accepting) {
-            "The application is closed, so the context `${name.value}` cannot be built."
-        }
         synchronized(contexts) {
+            checkAccepting(name)
             val taken = contexts.flatMap { listOf(it.name(), it.name().toSystem()) }
             listOf(name, name.toSystem())
                 .firstOrNull { it in taken }
@@ -86,10 +86,26 @@ internal class ContextRegistry {
 
     /**
      * Registers the given context, which has just been built.
+     *
+     * @throws IllegalStateException If the application started closing after the context
+     *   passed [checkNameFree]. The builder of the context then closes it.
      */
     fun register(context: BoundedContext) {
         synchronized(contexts) {
+            checkAccepting(context.name())
             contexts.add(context)
+        }
+    }
+
+    /**
+     * Throws if the application is closed, so that the context with the given name
+     * cannot be built.
+     *
+     * Must be called holding the lock of [contexts].
+     */
+    private fun checkAccepting(name: BoundedContextName) {
+        check(accepting) {
+            "The application is closed, so the context `${name.value}` cannot be built."
         }
     }
 
@@ -146,17 +162,23 @@ internal class ContextRegistry {
      * Closes the registered contexts, in the reverse order of their registration,
      * and refuses to register new ones afterwards.
      *
-     * Closes each context even if closing another one fails; then throws the first failure,
-     * with the later ones suppressed.
+     * Stops accepting contexts and takes the contexts to close at once, so a context
+     * built meanwhile is either closed here, or refused by [register].
+     *
+     * Closes each context even if closing another one fails, even with an [Error];
+     * then throws the first failure, with the later ones suppressed.
      */
-    @Suppress("TooGenericExceptionCaught") // Accumulates any failure of closing a context.
+    @Suppress("TooGenericExceptionCaught") // Closes the other contexts, then rethrows.
     fun closeAll() {
-        accepting = false
-        var failure: RuntimeException? = null
-        for (context in all().asReversed()) {
+        val closing = synchronized(contexts) {
+            accepting = false
+            contexts.toList()
+        }
+        var failure: Throwable? = null
+        for (context in closing.asReversed()) {
             try {
                 context.closeIfOpen()
-            } catch (e: RuntimeException) {
+            } catch (e: Throwable) {
                 failure = failure.withSuppressed(e)
             }
         }
@@ -168,7 +190,7 @@ internal class ContextRegistry {
  * Returns this failure with the given one added to it as suppressed,
  * or the given failure if this one is `null`.
  */
-internal fun RuntimeException?.withSuppressed(next: RuntimeException): RuntimeException {
+internal fun Throwable?.withSuppressed(next: Throwable): Throwable {
     if (this == null) {
         return next
     }

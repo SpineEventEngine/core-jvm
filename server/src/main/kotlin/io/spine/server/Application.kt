@@ -124,8 +124,8 @@ public class Application internal constructor() : Closeable {
      * Closes the Bounded Contexts of the application, and then its tenant index.
      *
      * The contexts are closed in the reverse order of their building. Each part is closed even
-     * if closing another one fails; then the first failure is thrown, with the later ones
-     * suppressed.
+     * if closing another one fails, even with an [Error]; then the first failure is thrown,
+     * with the later ones suppressed.
      *
      * The application stays closed: no Bounded Context can be built afterwards,
      * and [tenantIndex] and [use] throw.
@@ -138,15 +138,15 @@ public class Application internal constructor() : Closeable {
         synchronized(this) {
             open = false
         }
-        var failure: RuntimeException? = null
+        var failure: Throwable? = null
         try {
             contexts.closeAll()
-        } catch (e: RuntimeException) {
+        } catch (e: Throwable) {
             failure = e
         }
         try {
             closeIndex()
-        } catch (e: RuntimeException) {
+        } catch (e: Throwable) {
             failure = failure.withSuppressed(e)
         }
         failure?.let { throw it }

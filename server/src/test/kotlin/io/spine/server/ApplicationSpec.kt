@@ -17,6 +17,7 @@ package io.spine.server
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
@@ -106,6 +107,40 @@ internal class ApplicationSpec {
             closings shouldBe listOf("second", "first", "index")
             first.isOpen.shouldBeFalse()
             second.isOpen.shouldBeFalse()
+        }
+
+        @Test
+        fun `keep closing the contexts and the tenant index after an error`() {
+            val index = InMemoryTenantIndex()
+            application.use(index)
+            val first = context()
+            val second = context { throw AssertionError("Closing `second` failed.") }
+            application.contexts.register(first)
+            application.contexts.register(second)
+
+            val error = shouldThrow<AssertionError> {
+                application.close()
+            }
+
+            error.message shouldBe "Closing `second` failed."
+            first.isOpen.shouldBeFalse()
+            second.isOpen.shouldBeFalse()
+            index.isOpen.shouldBeFalse()
+        }
+
+        @Test
+        fun `refuse to register a context built while it was closing`() {
+            val context = context()
+            try {
+                application.close()
+
+                shouldThrow<IllegalStateException> {
+                    application.contexts.register(context)
+                }
+                application.contexts.all().shouldBeEmpty()
+            } finally {
+                context.close()
+            }
         }
 
         @Test

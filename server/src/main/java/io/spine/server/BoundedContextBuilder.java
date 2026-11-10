@@ -719,12 +719,13 @@ public final class BoundedContextBuilder implements WithLogging {
      *
      * <p>If another open Bounded Context has the name of the new context or of its System
      * context, the method throws before building anything. If registering the repositories
-     * or the dispatchers fails, the method closes
-     * the context before throwing.
+     * or the dispatchers fails, or if the {@link Application} starts closing while the context
+     * is being built, the method closes the context before throwing.
      *
      * @return new {@code BoundedContext}
      * @throws IllegalStateException
-     *         if the {@link Application} is closed
+     *         if the {@link Application} is closed, or starts closing while the context
+     *         is being built
      * @throws DuplicateContextNameException
      *         if another open Bounded Context has the name of the new context or of its
      *         System context
@@ -739,10 +740,10 @@ public final class BoundedContextBuilder implements WithLogging {
         registry.checkNameFree(spec.name());
         var system = buildSystem();
         var result = buildDomain(system);
-        registry.register(result);
-        logger().atDebug()
-                .log(() -> format("%s created.", result.nameForLogging()));
         try {
+            registry.register(result);
+            logger().atDebug()
+                    .log(() -> format("%s created.", result.nameForLogging()));
             registerRepositories(result);
             registerDispatchers(result);
         } catch (Throwable t) {
