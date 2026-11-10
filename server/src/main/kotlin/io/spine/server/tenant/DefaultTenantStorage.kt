@@ -12,48 +12,42 @@
  * and limitations under the License.
  */
 
-package io.spine.server.tenant;
+package io.spine.server.tenant
 
-import io.spine.annotation.Internal;
-import io.spine.base.Time;
-import io.spine.core.TenantId;
-import io.spine.server.ContextSpec;
-import io.spine.server.storage.RecordSpec;
-import io.spine.server.storage.StorageFactory;
+import io.spine.base.Time
+import io.spine.core.TenantId
+import io.spine.server.ContextSpec
+import io.spine.server.storage.RecordSpec
+import io.spine.server.storage.StorageFactory
 
 /**
- * Default implementation of {@code TenantStorage} that stores timestamps of tenant ID registration.
+ * Default implementation of `TenantStorage` that stores timestamps of tenant ID registration.
  *
- * <p>This storage is not multi-tenant, as it stores the data across all tenants.
+ * This storage is not multi-tenant, as it stores the data across all tenants.
  *
- * <p>{@link io.spine.server.Application Application} uses it as the default index
+ * [Application][io.spine.server.Application] uses it as the default index
  * of the tenants of multitenant contexts.
+ *
+ * @constructor Creates the storage with the given factory.
  */
-@Internal
-public final class DefaultTenantStorage extends TenantStorage<Tenant> {
+internal class DefaultTenantStorage(factory: StorageFactory) :
+    TenantStorage<Tenant>(contextSpec, factory.createRecordStorage(contextSpec, spec())) {
 
-    /**
-     * A name of a Bounded Context in scope of which the tenant data is stored.
-     */
-    @SuppressWarnings("TestOnlyProblems")   // The called API is not test-only.
-    private static final ContextSpec contextSpec = ContextSpec.singleTenant("__SYSTEM_TENANTS__");
+    override fun create(id: TenantId): Tenant =
+        Tenant.newBuilder()
+            .setId(id)
+            .setWhenCreated(Time.currentTime())
+            .build()
 
-    /**
-     * Creates the storage with the given factory.
-     */
-    public DefaultTenantStorage(StorageFactory factory) {
-        super(contextSpec, factory.createRecordStorage(contextSpec, spec()));
-    }
+    private companion object {
 
-    private static RecordSpec<TenantId, Tenant> spec() {
-        return new RecordSpec<>(TenantId.class, Tenant.class, Tenant::getId);
-    }
+        /**
+         * A name of a Bounded Context in scope of which the tenant data is stored.
+         */
+        @Suppress("TestOnlyProblems") // The called API is not test-only.
+        val contextSpec: ContextSpec = ContextSpec.singleTenant("__SYSTEM_TENANTS__")
 
-    @Override
-    protected Tenant create(TenantId id) {
-        return Tenant.newBuilder()
-                     .setId(id)
-                     .setWhenCreated(Time.currentTime())
-                     .build();
+        fun spec(): RecordSpec<TenantId, Tenant> =
+            RecordSpec(TenantId::class.java, Tenant::class.java) { it.id }
     }
 }

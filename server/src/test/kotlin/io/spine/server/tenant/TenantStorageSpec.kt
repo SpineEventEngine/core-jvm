@@ -17,6 +17,7 @@ package io.spine.server.tenant
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.spine.base.Time.currentTime
 import io.spine.core.TenantId
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.testing.core.given.GivenTenantId.generate
@@ -94,7 +95,11 @@ internal class TenantStorageSpec {
      * Stores the record of the tenant the way another server node would,
      * bypassing the cache of the storage under the test.
      */
-    private fun storeRecordOf(tenant: TenantId) {
-        storage.write(tenant, storage.create(tenant))
+    private fun storeRecordOf(tenantId: TenantId) {
+        val record = tenant {
+            id = tenantId
+            whenCreated = currentTime()
+        }
+        storage.write(tenantId, record)
     }
 }
