@@ -141,3 +141,14 @@ All three reviewers found nothing blocking. Applied:
 
 Not applied: a shared helper for the "no shard observer" `Delivery` in `DeliverySpec`
 (optional, would touch an existing test).
+
+## PR review: deduplication
+
+Codex and Copilot both flagged that `DispatchingId` (signal + `InboxId`) ignored
+the context. So two messages of one signal for one target in two contexts were dropped
+as duplicates: on one page by `LiveDeliveryStation`, and on later pages through
+`DeliveredMessagesCache`. In one application this cannot happen today (one open context
+per domain type; each System context creates its own signals), but the dedup key now
+matches the routing key. `DispatchingId` includes the context. `DispatchingIdSpec` and
+the `DeliverySpec` case "deliver one signal to the same target in each of two contexts"
+(pages of 1 and 2) fail without it.
