@@ -21,19 +21,24 @@ import io.spine.core.Event;
 import io.spine.core.EventContext;
 import io.spine.core.Origin;
 import io.spine.core.TenantId;
+import io.spine.environment.Tests;
 import io.spine.grpc.MemoizingObserver;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
+import io.spine.server.ServerEnvironment;
 import io.spine.server.event.EventFilter;
 import io.spine.server.event.EventStore;
 import io.spine.server.event.EventStreamQuery;
 import io.spine.server.event.given.EventStoreTestEnv.ResponseObserver;
+import io.spine.server.storage.StorageFactory;
+import io.spine.server.storage.memory.InMemoryStorageFactory;
 import io.spine.server.type.given.GivenEvent;
 import io.spine.test.event.TaskAdded;
 import io.spine.testing.SlowTest;
 import io.spine.testing.TestValues;
 import io.spine.type.TypeName;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -69,6 +74,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * An abstract base for the tests of the {@link EventStore} of a Bounded Context.
+ *
+ * <p>Storage implementations override {@link #storageFactory()} to run the tests over
+ * their storages.
+ */
 @DisplayName("`EventStore` should")
 public abstract class DefaultEventStoreTest {
 
@@ -76,11 +87,34 @@ public abstract class DefaultEventStoreTest {
     private EventStore eventStore;
     private ExecutorService executor;
 
+    /**
+     * The storage factory of the test, created on the first call to {@link #storageFactory()}.
+     */
+    private @MonotonicNonNull StorageFactory inMemoryStorage;
+
     @BeforeEach
     void setUp() {
         executor = Executors.newFixedThreadPool(64);
-        context = buildForTests(BoundedContextBuilder.assumingTests());
+        var storage = storageFactory();
+        var environment = ServerEnvironment.newBuilder()
+                .under(Tests.class, env -> env.use(storage))
+                .build();
+        context = buildForTests(BoundedContextBuilder.assumingTests(), environment);
         eventStore = context.eventBus().eventStore();
+    }
+
+    /**
+     * Obtains the storage factory with which the context of the test creates its event store.
+     *
+     * <p>Returns an in-memory factory by default. Storage implementations override this method
+     * to run the tests over their storages. Closing the context of a test leaves the factory
+     * open.
+     */
+    protected StorageFactory storageFactory() {
+        if (inMemoryStorage == null) {
+            inMemoryStorage = InMemoryStorageFactory.newInstance();
+        }
+        return inMemoryStorage;
     }
 
     @AfterEach
