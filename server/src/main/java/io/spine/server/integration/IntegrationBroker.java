@@ -1,27 +1,15 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.integration;
@@ -118,25 +106,26 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @Internal
 public final class IntegrationBroker implements ContextAware, Closeable {
 
-    private final SubscriberHub subscriberHub;
-    private final PublisherHub publisherHub;
+    private @MonotonicNonNull SubscriberHub subscriberHub;
+    private @MonotonicNonNull PublisherHub publisherHub;
 
     private @MonotonicNonNull BoundedContextName contextName;
 
     private @MonotonicNonNull ConfigExchange config;
     private @MonotonicNonNull EventsExchange events;
 
-    public IntegrationBroker() {
-        var transportFactory = ServerEnvironment
-                .instance()
-                .transportFactory();
-        this.subscriberHub = new SubscriberHub(transportFactory);
-        this.publisherHub = new PublisherHub(transportFactory);
-    }
-
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Connects the broker to the transport of the context.
+     */
     @Override
     public void registerWith(BoundedContext context) {
         checkNotRegistered();
+        var transportFactory = context.internalAccess()
+                                      .transportFactory();
+        this.subscriberHub = new SubscriberHub(transportFactory);
+        this.publisherHub = new PublisherHub(transportFactory);
         this.contextName = context.name();
 
         var bus = new BusAdapter(this, context.eventBus());
@@ -194,19 +183,29 @@ public final class IntegrationBroker implements ContextAware, Closeable {
 
     /**
      * Removes all subscriptions and closes all the underlying transport channels.
+     *
+     * <p>Does nothing if the broker is not registered with a context, as it has
+     * no channels then.
      */
     @Override
     public void close() {
         if (config != null) {
             config.close();
         }
-        subscriberHub.close();
-        publisherHub.close();
+        if (subscriberHub != null) {
+            subscriberHub.close();
+        }
+        if (publisherHub != null) {
+            publisherHub.close();
+        }
     }
 
+    /**
+     * Tells if the broker is registered with a context and is not closed yet.
+     */
     @Override
     public boolean isOpen() {
-        return subscriberHub.isOpen();
+        return subscriberHub != null && subscriberHub.isOpen();
     }
 
     @Override

@@ -38,6 +38,7 @@ import io.spine.server.event.EventDispatcherDelegate;
 import io.spine.server.integration.IntegrationBroker;
 import io.spine.server.stand.Stand;
 import io.spine.server.storage.StorageFactory;
+import io.spine.server.transport.TransportFactory;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.SystemClient;
@@ -833,6 +834,14 @@ public abstract class BoundedContext
          */
         public CommandScheduler newCommandScheduler() {
             return self().environment.newCommandScheduler();
+        }
+
+        /**
+         * Obtains the transport through which the {@code IntegrationBroker} of this
+         * {@code BoundedContext} exchanges messages with other contexts.
+         */
+        public TransportFactory transportFactory() {
+            return self().environment.transportFactory();
         }
 
         /**
