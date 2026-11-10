@@ -20,6 +20,8 @@ import com.google.common.collect.Lists;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Timestamp;
 import io.spine.base.Time;
+import io.spine.core.BoundedContextName;
+import io.spine.core.BoundedContextNames;
 import io.spine.server.storage.AbstractStorageTest;
 import io.spine.test.delivery.AddNumber;
 import io.spine.test.delivery.Calc;
@@ -56,6 +58,12 @@ public abstract class InboxStorageTest
         extends AbstractStorageTest<InboxMessageId, InboxMessage, InboxStorage> {
 
     private static final String TARGET_ID = "the-storage-calc";
+
+    /**
+     * The name of the Bounded Context of the inbox that stores the messages of this test.
+     */
+    private static final BoundedContextName CONTEXT =
+            BoundedContextNames.newName(InboxStorageTest.class.getSimpleName());
 
     private final TestActorRequestFactory factory =
             new TestActorRequestFactory(InboxStorageTest.class);
@@ -257,6 +265,7 @@ public abstract class InboxStorageTest
                 .setId(id)
                 .setSignalId(signalId)
                 .setInboxId(inboxId)
+                .setContext(CONTEXT)
                 .setLabel(InboxLabel.HANDLE_COMMAND)
                 .setStatus(TO_DELIVER)
                 .setCommand(command)

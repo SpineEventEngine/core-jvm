@@ -22,20 +22,24 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Maps.newConcurrentMap;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static java.util.stream.Collectors.joining;
 
 /**
  * The container for the {@linkplain ShardedMessageDelivery message deliveries} for each
  * {@link Inbox} registered.
  *
- * <p>The state type of the target of a message tells its inbox. One open Bounded Context
- * serves the entities of a state type, so there is one inbox per type.
+ * <p>An inbox is registered by the state type of its entities and by its Bounded Context.
+ * Several contexts may have inboxes of one type: for example, every System context has
+ * the same repositories. A message carries the context of the inbox that stored it.
+ * It is delivered to the inbox of its target's type in that context.
  *
  * <p>The two types of the catch-up machinery, {@link CatchUpProcess} and
- * {@link ShardMaintenanceProcess}, are an exception. Every System context has a repository
- * of each, so each of these types has an inbox in every System context. The catch-up job
- * of a message tells which inbox to use:
+ * {@link ShardMaintenanceProcess}, are an exception: the System context of a catch-up message
+ * is taken from its catch-up job, not from the message itself.
+ * The job tells the System context this way:
  *
  * <ol>
  *     <li>the job tells the type of the projection it catches up;
@@ -46,78 +50,55 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 final class InboxDeliveries {
 
     /**
-     * The inboxes of the types other than those of the catch-up machinery,
-     * by the type URL.
+     * The registered inboxes, by the state type of their entities and their context.
      */
-    private final Map<TypeUrl, Registered> byType = newConcurrentMap();
-
-    /**
-     * The inboxes of the catch-up machinery, by the type URL and the System context.
-     */
-    private final Map<CatchUpInbox, Registered> bySystemContext = newConcurrentMap();
+    private final Map<InboxKey, Registered> inboxes = newConcurrentMap();
 
     /**
      * Obtains the proper delivery for the message passed according to its target.
      *
      * @throws IllegalStateException
-     *         if there is no delivery found, or the message is addressed in the form of
+     *         if there is no delivery found, or a catch-up message is addressed in the form of
      *         an earlier version of the framework
      */
     ShardedMessageDelivery<InboxMessage> get(InboxMessage message) {
         var inboxId = message.getInboxId();
         var type = TypeUrl.parse(inboxId.getTypeUrl());
-        if (!isCatchUpType(type)) {
-            var registered = byType.get(type);
-            checkState(registered != null,
-                       "Cannot find the registered Inbox for the type URL `%s`.", type);
-            return registered.delivery;
-        }
-        var systemContext = systemContextOf(inboxId);
-        var registered = bySystemContext.get(new CatchUpInbox(type, systemContext));
+        var context = isCatchUpType(type)
+                      ? systemContextOf(inboxId)
+                      : message.getContext();
+        var registered = inboxes.get(new InboxKey(type, context));
         checkState(registered != null,
                    "Cannot find the registered Inbox for the type URL `%s` in the context `%s`.",
-                   type, systemContext.getValue());
+                   type, context.getValue());
         return registered.delivery;
     }
 
     /**
      * Registers the given {@code Inbox}.
      *
-     * <p>If an inbox for the same target is registered already, replaces it.
+     * <p>If an inbox of the same type in the same context is registered already, replaces it.
      */
     void register(Inbox<?> inbox) {
-        var registered = new Registered(inbox);
-        var type = inbox.entityStateType();
-        if (isCatchUpType(type)) {
-            bySystemContext.put(catchUpInboxOf(inbox), registered);
-        } else {
-            byType.put(type, registered);
-        }
+        inboxes.put(keyOf(inbox), new Registered(inbox));
     }
 
     /**
      * Unregisters the given {@code Inbox}.
      *
      * <p>Does nothing if this {@code Inbox} is not registered. In particular, it does not
-     * unregister an inbox of the same target, which replaced this one.
+     * unregister an inbox of the same type in the same context, which replaced this one.
      */
     void unregister(Inbox<?> inbox) {
-        var type = inbox.entityStateType();
-        if (isCatchUpType(type)) {
-            removeIfOf(inbox, catchUpInboxOf(inbox), bySystemContext);
-        } else {
-            removeIfOf(inbox, type, byType);
+        var key = keyOf(inbox);
+        var registered = inboxes.get(key);
+        if (registered != null && registered.inbox == inbox) {
+            inboxes.remove(key, registered);
         }
     }
 
-    /**
-     * Removes the entry with the passed key, if it is the registration of the passed inbox.
-     */
-    private static <K> void removeIfOf(Inbox<?> inbox, K key, Map<K, Registered> registrations) {
-        var registered = registrations.get(key);
-        if (registered != null && registered.inbox == inbox) {
-            registrations.remove(key, registered);
-        }
+    private static InboxKey keyOf(Inbox<?> inbox) {
+        return new InboxKey(inbox.entityStateType(), inbox.contextName());
     }
 
     private static boolean isCatchUpType(TypeUrl type) {
@@ -125,32 +106,37 @@ final class InboxDeliveries {
                 || ShardMaintenanceProcess.TYPE.equals(type);
     }
 
-    private static CatchUpInbox catchUpInboxOf(Inbox<?> inbox) {
-        var type = inbox.entityStateType();
-        var context = inbox.contextName();
-        checkState(context != null,
-                   "The inbox of `%s` must belong to a System context.", type);
-        return new CatchUpInbox(type, context);
-    }
-
     /**
      * Finds the System context, to which the catch-up message with the passed address goes.
      *
+     * <p>It is the System context of the domain context, which registered the inbox of
+     * the projection type of the job.
+     *
      * @throws IllegalStateException
-     *         if no inbox is registered for the projection type of the job
+     *         if no inbox, or more than one, is registered for the projection type of the job
      */
     private BoundedContextName systemContextOf(InboxId inboxId) {
         var job = jobOf(inboxId);
         var projectionType = TypeUrl.parse(job.getProjectionType());
-        var registered = byType.get(projectionType);
-        checkState(registered != null,
+        var contexts = inboxes.keySet()
+                .stream()
+                .filter(key -> key.type.equals(projectionType))
+                .map(key -> key.context)
+                .collect(toImmutableSet());
+        checkState(!contexts.isEmpty(),
                    "No inbox is registered for the projection type `%s`" +
                            " of the catch-up job `%s`.",
                    projectionType, job.getUuid());
-        var context = registered.inbox.contextName();
-        checkState(context != null,
-                   "The inbox of `%s` does not tell its Bounded Context.", projectionType);
-        return context.toSystem();
+        checkState(contexts.size() == 1,
+                   "The projection type `%s` of the catch-up job `%s` has inboxes" +
+                           " in several Bounded Contexts: %s.",
+                   projectionType, job.getUuid(),
+                   contexts.stream()
+                           .map(BoundedContextName::getValue)
+                           .collect(joining(", ")));
+        return contexts.iterator()
+                       .next()
+                       .toSystem();
     }
 
     /**
@@ -192,16 +178,16 @@ final class InboxDeliveries {
     }
 
     /**
-     * The key of an inbox of the catch-up machinery.
+     * The key of a registered inbox.
      */
-    private static final class CatchUpInbox {
+    private static final class InboxKey {
 
         private final TypeUrl type;
-        private final BoundedContextName systemContext;
+        private final BoundedContextName context;
 
-        private CatchUpInbox(TypeUrl type, BoundedContextName systemContext) {
+        private InboxKey(TypeUrl type, BoundedContextName context) {
             this.type = type;
-            this.systemContext = systemContext;
+            this.context = context;
         }
 
         @Override
@@ -209,16 +195,16 @@ final class InboxDeliveries {
             if (this == o) {
                 return true;
             }
-            if (!(o instanceof CatchUpInbox other)) {
+            if (!(o instanceof InboxKey other)) {
                 return false;
             }
             return type.equals(other.type)
-                    && systemContext.equals(other.systemContext);
+                    && context.equals(other.context);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(type, systemContext);
+            return Objects.hash(type, context);
         }
     }
 }

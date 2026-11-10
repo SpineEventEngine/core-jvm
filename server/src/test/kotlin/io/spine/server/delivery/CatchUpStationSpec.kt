@@ -24,6 +24,8 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.spine.base.Time.currentTime
+import io.spine.core.BoundedContextName
+import io.spine.core.BoundedContextNames
 import io.spine.server.delivery.CatchUpStatus.COMPLETED
 import io.spine.server.delivery.CatchUpStatus.CUS_UNDEFINED
 import io.spine.server.delivery.CatchUpStatus.FINALIZING
@@ -238,6 +240,7 @@ internal class CatchUpStationSpec {
             id = InboxMessageMixin.generateIdWith(DeliveryStrategy.newIndex(0, 1))
             signalId = inboxSignalId { value = signal.id.value }
             inboxId = target
+            context = CONTEXT
             label = InboxLabel.CATCH_UP
             status = TO_CATCH_UP
             whenReceived = currentTime()
@@ -273,6 +276,7 @@ internal class CatchUpStationSpec {
     private companion object {
         const val TARGET = "target"
         const val ANOTHER_TARGET = "another-target"
+        val CONTEXT: BoundedContextName = BoundedContextNames.newName("CatchUpStationSpec")
 
         /**
          * The name of a test parameterized with [JobOrder].
