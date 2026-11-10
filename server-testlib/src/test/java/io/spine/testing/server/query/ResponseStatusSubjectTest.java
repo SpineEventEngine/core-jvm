@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import static io.spine.testing.DisplayNames.NOT_ACCEPT_NULLS;
 import static io.spine.testing.server.query.GivenResponseStatus.error;
 import static io.spine.testing.server.query.GivenResponseStatus.ok;
-import static io.spine.testing.server.query.GivenResponseStatus.rejection;
 import static io.spine.testing.server.query.ResponseStatusSubject.assertResponseStatus;
 import static io.spine.testing.server.query.ResponseStatusSubject.responseStatus;
 
@@ -49,23 +48,12 @@ class ResponseStatusSubjectTest extends SubjectTest<ResponseStatusSubject, Statu
     }
 
     @Test
-    @DisplayName("check if status is `ERROR`")
+    @DisplayName("check if status is `ERROR_CASE`")
     void checkError() {
         assertWithSubjectThat(error())
                 .isError();
 
         expectSomeFailure(whenTesting -> whenTesting.that(error())
-                                                    .isOk());
-    }
-
-    @Test
-    @DisplayName("check if status is `REJECTION`")
-    @SuppressWarnings("deprecation") // Covers the deprecated `isRejection()` until it is removed.
-    void checkRejection() {
-        assertWithSubjectThat(rejection())
-                .isRejection();
-
-        expectSomeFailure(whenTesting -> whenTesting.that(rejection())
                                                     .isOk());
     }
 

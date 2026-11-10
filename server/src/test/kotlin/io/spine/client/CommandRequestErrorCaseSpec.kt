@@ -17,13 +17,12 @@ package io.spine.client
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.spine.base.Error
 import io.spine.core.Ack
 import io.spine.core.Command
+import io.spine.core.ErrorCase
 import io.spine.core.ErrorCase.INVALID_REQUEST
 import io.spine.core.ack
 import io.spine.core.status
-import io.spine.core.toError
 import io.spine.protobuf.pack
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.commandbus.CommandFilter
@@ -43,20 +42,20 @@ internal class CommandRequestErrorCaseSpec : AbstractClientTest() {
         listOf(ClientTestContext.users().addCommandFilter(AnsweringInvalidRequest))
 
     @Test
-    fun `pass an error that tells only the error case to the server error handler`() {
+    fun `pass the command and the error case to the server error handler`() {
         var postedMessage: Any? = null
-        var receivedError: Error? = null
+        var receivedErrorCase: ErrorCase? = null
 
         client().asGuest()
             .command(logInUser())
-            .onServerError { message, error ->
+            .onServerError { message, errorCase ->
                 postedMessage = message
-                receivedError = error
+                receivedErrorCase = errorCase
             }
             .postAndForget()
 
         postedMessage.shouldBeInstanceOf<Command>()
-        receivedError shouldBe INVALID_REQUEST.toError()
+        receivedErrorCase shouldBe INVALID_REQUEST
     }
 
     @Test

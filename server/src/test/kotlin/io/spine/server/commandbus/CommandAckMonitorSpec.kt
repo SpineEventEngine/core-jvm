@@ -17,27 +17,27 @@ package io.spine.server.commandbus
 import com.google.common.collect.ImmutableSet
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.spine.base.Identifier.newUuid
-import io.spine.base.error
 import io.spine.core.Ack
 import io.spine.core.Command
 import io.spine.core.ErrorCase.INVALID_REQUEST
-import io.spine.core.Event
 import io.spine.core.StatusKt
 import io.spine.core.TenantId
 import io.spine.core.ack
 import io.spine.core.status
 import io.spine.protobuf.pack
-import io.spine.server.bus.causedError
 import io.spine.system.server.MemoizingWriteSide
 import io.spine.test.commandbus.ProjectId
 import io.spine.test.commandbus.command.CmdBusStartProject
 import io.spine.testing.client.TestActorRequestFactory
+import io.spine.validation.NonValidated
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 /**
- * Supplements the Java suite `CommandAckMonitorTest` with the specs of error cases.
+ * Supplements the Java suite `CommandAckMonitorTest` with the specs of error cases and of
+ * acknowledgements without a status.
  */
 @DisplayName("`CommandAckMonitor` should")
 internal class CommandAckMonitorSpec {
@@ -55,18 +55,6 @@ internal class CommandAckMonitorSpec {
         .build()
 
     @Test
-    fun `post nothing for an error, which an application filter may still give`() {
-        val error = error {
-            type = CommandAckMonitorSpec::class.java.canonicalName
-            message = "A test error."
-        }
-
-        monitor.onNext(command.id().causedError(error))
-
-        writeSide.hasSeenEvents() shouldBe false
-    }
-
-    @Test
     fun `post nothing for an error case, since the refusing filter recorded the reason`() {
         monitor.onNext(ackWith { errorCase = INVALID_REQUEST })
 
@@ -74,14 +62,16 @@ internal class CommandAckMonitorSpec {
     }
 
     @Test
-    // Reason: builds an ack with the deprecated `Status.rejection`, until the field is removed.
-    @Suppress("DEPRECATION")
-    fun `refuse an acknowledgement with a rejection`() {
-        val ack = ackWith { rejection = Event.getDefaultInstance() }
+    fun `refuse an acknowledgement without a status`() {
+        val ack: @NonValidated Ack = Ack.newBuilder()
+            .setMessageId(command.id().pack())
+            .buildPartial()
 
-        shouldThrow<IllegalArgumentException> {
+        val failure = shouldThrow<IllegalArgumentException> {
             monitor.onNext(ack)
         }
+
+        failure.message shouldContain "`STATUS_NOT_SET`"
     }
 
     private fun ackWith(configure: StatusKt.Dsl.() -> Unit): Ack {

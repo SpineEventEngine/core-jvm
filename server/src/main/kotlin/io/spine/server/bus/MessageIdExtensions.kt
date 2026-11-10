@@ -17,8 +17,6 @@
 package io.spine.server.bus
 
 import com.google.protobuf.Message
-import io.spine.annotation.VisibleForTesting
-import io.spine.base.Error
 import io.spine.core.Ack
 import io.spine.core.ErrorCase
 import io.spine.core.MessageId
@@ -46,16 +44,6 @@ public fun Message.acknowledge(): Ack = ackWithStatus(statusOk())
  */
 public fun Message.causedError(errorCase: ErrorCase): Ack =
     ackWithStatus(errorWith(errorCase))
-
-/**
- * Rejects a message with this ID (e.g. [MessageId] or [SignalId]) because the passed
- * error occurred.
- *
- * @param cause the error that prevented the message from being handled
- * @receiver the ID of the message that caused the error
- */
-@VisibleForTesting
-public fun Message.causedError(cause: Error): Ack = ackWithStatus(errorWith(cause))
 
 /**
  * Creates an acknowledgement with the passed status.

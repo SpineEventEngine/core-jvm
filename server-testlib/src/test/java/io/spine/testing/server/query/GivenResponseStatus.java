@@ -15,9 +15,9 @@
 package io.spine.testing.server.query;
 
 import com.google.protobuf.Empty;
-import io.spine.base.Error;
-import io.spine.core.Event;
 import io.spine.core.Status;
+
+import static io.spine.core.ErrorCase.INVALID_REQUEST;
 
 final class GivenResponseStatus {
 
@@ -34,15 +34,7 @@ final class GivenResponseStatus {
 
     static Status error() {
         var status = Status.newBuilder()
-                .setError(Error.getDefaultInstance())
-                .build();
-        return status;
-    }
-
-    @SuppressWarnings("deprecation") // Builds the deprecated `Status.rejection` until its removal.
-    static Status rejection() {
-        var status = Status.newBuilder()
-                .setRejection(Event.getDefaultInstance())
+                .setErrorCase(INVALID_REQUEST)
                 .build();
         return status;
     }
