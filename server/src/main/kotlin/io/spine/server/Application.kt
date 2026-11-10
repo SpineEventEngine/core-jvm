@@ -15,6 +15,7 @@
 package io.spine.server
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue
+import io.spine.server.tenant.DefaultTenantStorage
 import io.spine.server.tenant.TenantIndex
 
 /**
@@ -54,6 +55,12 @@ public class Application internal constructor() : Closeable {
     internal val contexts: ContextRegistry = ContextRegistry()
 
     /**
+     * The environment that provides the technologies to the contexts of the application.
+     */
+    @get:JvmName("environment")
+    internal val environment: ServerEnvironment = ServerEnvironment.instance()
+
+    /**
      * The index of tenants of the multitenant contexts, or `null` until it is created or set.
      */
     private var index: TenantIndex? = null
@@ -68,17 +75,26 @@ public class Application internal constructor() : Closeable {
      * Obtains the index of tenants served by the multitenant Bounded Contexts
      * of the application.
      *
-     * Unless another index is [set][use], the default one is created on the first call.
-     * It keeps the tenants with the storage factory of [ServerEnvironment], so the storage
-     * factory must be configured before the first multitenant context is built.
+     * Unless another index is [set][use], the [default one][defaultMultitenantIndex] is
+     * created on the first call. It keeps the tenants with the storage factory of
+     * [ServerEnvironment], so the storage factory must be configured before the first
+     * multitenant context is built.
      *
      * @throws IllegalStateException If the application is closed.
      */
     @Synchronized
     public fun tenantIndex(): TenantIndex {
         checkOpen()
-        return index ?: TenantIndex.defaultMultitenant().also { index = it }
+        return index ?: defaultMultitenantIndex().also { index = it }
     }
+
+    /**
+     * Creates a default implementation of [TenantIndex] for a multitenant context.
+     *
+     * The created index keeps the tenants with the storage factory of [ServerEnvironment].
+     */
+    public fun defaultMultitenantIndex(): TenantIndex =
+        DefaultTenantStorage(environment.storageFactory())
 
     /**
      * Sets the index of tenants served by the multitenant Bounded Contexts

@@ -174,7 +174,7 @@ Further observations:
 
 | Place | Role |
 |---|---|
-| [`TenantIndex`](../../server/src/main/java/io/spine/server/tenant/TenantIndex.java) | The SPI: `keep`, `all`, `close`; factories `defaultMultitenant()`, `singleTenant()`. |
+| [`TenantIndex`](../../server/src/main/java/io/spine/server/tenant/TenantIndex.java) | The SPI: `keep`, `all`, `close`; factory `singleTenant()`; the default multitenant index comes from `Application.defaultMultitenantIndex()`. |
 | [`TenantStorage`](../../server/src/main/java/io/spine/server/tenant/TenantStorage.java) | Abstract storage-backed index with an in-memory cache of known IDs. |
 | [`DefaultTenantStorage`](../../server/src/main/java/io/spine/server/tenant/DefaultTenantStorage.java) | Default index; stores `Tenant` records under `__SYSTEM_TENANTS__`. |
 | [`SingleTenantIndex`](../../server/src/main/java/io/spine/server/tenant/SingleTenantIndex.java) | Null-object for single-tenant contexts; `keep` does nothing. |
@@ -251,7 +251,7 @@ public interface TenantIndex extends Closeable {
 
     Set<TenantId> all();
 
-    // `close()`, `defaultMultitenant()`, `singleTenant()` stay as they are.
+    // `close()` and `singleTenant()` stay as they are.
 }
 ```
 
@@ -588,7 +588,7 @@ public class Application private constructor() : Closeable {
      */
     @Synchronized
     public fun tenantIndex(): TenantIndex =
-        tenantIndex ?: TenantIndex.defaultMultitenant().also { tenantIndex = it }
+        tenantIndex ?: defaultMultitenantIndex().also { tenantIndex = it }
 
     /**
      * Sets the index of tenants of the application.

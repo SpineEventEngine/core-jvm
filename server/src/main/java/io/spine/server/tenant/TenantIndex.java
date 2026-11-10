@@ -16,7 +16,6 @@ package io.spine.server.tenant;
 
 import io.spine.core.TenantId;
 import io.spine.server.Closeable;
-import io.spine.server.ServerEnvironment;
 
 import java.util.Set;
 
@@ -66,20 +65,6 @@ public interface TenantIndex extends Closeable {
      */
     @Override
     void close();
-
-    /**
-     * Creates a default implementation of {@code TenantIndex} for a multi-tenant context.
-     *
-     * <p>The created index keeps the tenants with the storage factory
-     * of {@link ServerEnvironment}.
-     */
-    static TenantIndex defaultMultitenant() {
-        var factory = ServerEnvironment.instance()
-                                       .storageFactory();
-        @SuppressWarnings("ClassReferencesSubclass") // OK for this default impl.
-        var tenantRepo = new DefaultTenantStorage(factory);
-        return tenantRepo;
-    }
 
     /**
      * Obtains a {@code TenantIndex} to be used in a single-tenant context.
