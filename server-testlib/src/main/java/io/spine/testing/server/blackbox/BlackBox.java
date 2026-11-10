@@ -144,8 +144,8 @@ public abstract class BlackBox implements WithLogging, Closeable {
      */
     public static BlackBox from(BoundedContextBuilder builder) {
         var application = TestApplications.newBuilder()
-                                          .add(builder)
-                                          .build();
+                .add(builder)
+                .build();
         var box = from(application.contexts().get(0));
         box.application = application;
         return box;
