@@ -26,11 +26,12 @@ import io.spine.core.BoundedContextNames;
 import io.spine.logging.WithLogging;
 import io.spine.server.ContextSpec;
 import io.spine.server.NodeId;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.bus.MulticastDispatchListener;
 import io.spine.server.delivery.memory.InMemoryShardedWorkRegistry;
+import io.spine.server.storage.StorageFactory;
 import io.spine.string.Stringifiers;
 import io.spine.type.TypeUrl;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +89,7 @@ import static java.util.Collections.synchronizedList;
  * <p>{@code Delivery} is responsible for providing the {@link InboxStorage} for every inbox
  * registered. Framework users may {@linkplain DeliveryBuilder#setInboxStorage(InboxStorage)
  * configure} the storage. By default, the {@code InboxStorage} for the delivery is provided
- * by the environment-specific {@linkplain ServerEnvironment#storageFactory() storage factory}
+ * by the storage factory passed to {@link #newBuilder(NodeId, StorageFactory) newBuilder()}
  * and is single-tenant. In case there is at least one multi-tenant {@code BoundedContext}
  * served by the {@code Delivery}, the {@code InboxStorage} should be configured
  * to support the multi-tenancy.
@@ -191,7 +192,7 @@ import static java.util.Collections.synchronizedList;
  * <h3>Local environment</h3>
  *
  * <p>By default, the delivery is configured to
- * {@linkplain Delivery#local(ServerEnvironment) run locally}. It
+ * {@linkplain Delivery#local(NodeId, StorageFactory) run locally}. It
  * uses a {@linkplain LocalDispatchingObserver see-and-dispatch observer}, which delivers the
  * messages from the observed shard once a message is passed to its
  * {@link LocalDispatchingObserver#onMessage(InboxMessage) onMessage(InboxMessage)} method. This
@@ -314,8 +315,7 @@ public final class Delivery implements WithLogging {
         this.catchUpPageSize = builder.getCatchUpPageSize();
         this.monitor = builder.getDeliveryMonitor();
         this.pageSize = builder.getPageSize();
-        this.nodeId = builder.environment()
-                             .nodeId();
+        this.nodeId = builder.nodeId();
         this.deliveries = new InboxDeliveries();
         this.shardObservers = synchronizedList(new ArrayList<>());
         this.deliveredMessagesCache = new DeliveredMessagesCache();
@@ -324,11 +324,15 @@ public final class Delivery implements WithLogging {
     /**
      * Creates an instance of new {@code Builder} of {@code Delivery}.
      *
-     * @param environment
-     *         the environment in which the built {@code Delivery} runs
+     * @param nodeId
+     *         the identifier of the server node on which the built {@code Delivery} runs
+     * @param storageFactory
+     *         the factory of the storages of the built {@code Delivery},
+     *         or {@code null} to use a new {@code InMemoryStorageFactory}
      */
-    public static DeliveryBuilder newBuilder(ServerEnvironment environment) {
-        return new DeliveryBuilder(environment);
+    public static DeliveryBuilder newBuilder(NodeId nodeId,
+                                             @Nullable StorageFactory storageFactory) {
+        return new DeliveryBuilder(nodeId, storageFactory);
     }
 
     /**
@@ -338,17 +342,16 @@ public final class Delivery implements WithLogging {
      *
      * <p>Uses a {@linkplain UniformAcrossAllShards#singleShard() single-shard} splitting.
      *
-     * <p>To construct a {@code Delivery} instance, a {@code StorageFactory} is needed.
-     * If it was not configured in the given environment, uses a new {@code
-     * InMemoryStorageFactory}.
-     *
-     * @param environment
-     *         the environment in which the created {@code Delivery} runs
-     * @see #localAsync(ServerEnvironment) to create an asynchronous version of
+     * @param nodeId
+     *         the identifier of the server node on which the created {@code Delivery} runs
+     * @param storageFactory
+     *         the factory of the storages of the created {@code Delivery},
+     *         or {@code null} to use a new {@code InMemoryStorageFactory}
+     * @see #localAsync(NodeId, StorageFactory) to create an asynchronous version of
      *         the local {@code Delivery}
      */
-    public static Delivery local(ServerEnvironment environment) {
-        return localWithShardsAndWindow(environment, 1, LOCAL_DEDUPLICATION_WINDOW);
+    public static Delivery local(NodeId nodeId, @Nullable StorageFactory storageFactory) {
+        return localWithShardsAndWindow(nodeId, storageFactory, 1, LOCAL_DEDUPLICATION_WINDOW);
     }
 
     /**
@@ -359,17 +362,16 @@ public final class Delivery implements WithLogging {
      * <p>The returned instance of {@code Delivery} is configured to use
      * {@linkplain UniformAcrossAllShards#singleShard() the single shard}.
      *
-     * <p>To construct a {@code Delivery} instance, a {@code StorageFactory} is needed.
-     * If it was not configured in the given environment, a new {@code
-     * InMemoryStorageFactory} is used.
-     *
-     * @param environment
-     *         the environment in which the created {@code Delivery} runs
-     * @see #local(ServerEnvironment) to create a synchronous version of
+     * @param nodeId
+     *         the identifier of the server node on which the created {@code Delivery} runs
+     * @param storageFactory
+     *         the factory of the storages of the created {@code Delivery},
+     *         or {@code null} to use a new {@code InMemoryStorageFactory}
+     * @see #local(NodeId, StorageFactory) to create a synchronous version of
      *         the local {@code Delivery}
      */
-    public static Delivery localAsync(ServerEnvironment environment) {
-        var delivery = newBuilder(environment)
+    public static Delivery localAsync(NodeId nodeId, @Nullable StorageFactory storageFactory) {
+        var delivery = newBuilder(nodeId, storageFactory)
                 .setStrategy(UniformAcrossAllShards.singleShard())
                 .build();
         delivery.subscribe(new LocalDispatchingObserver(delivery, true));
@@ -381,21 +383,23 @@ public final class Delivery implements WithLogging {
      * with the given number of shards.
      */
     @VisibleForTesting
-    static Delivery localWithShardsAndWindow(ServerEnvironment environment,
+    static Delivery localWithShardsAndWindow(NodeId nodeId,
+                                             @Nullable StorageFactory storageFactory,
                                              int shardCount,
                                              Duration deduplicationWindow) {
         checkArgument(shardCount > 0, "Shard count must be positive");
         checkNotNull(deduplicationWindow);
 
         var strategy = UniformAcrossAllShards.forNumber(shardCount);
-        return localWithStrategyAndWindow(environment, strategy, deduplicationWindow);
+        return localWithStrategyAndWindow(nodeId, storageFactory, strategy, deduplicationWindow);
     }
 
     @VisibleForTesting
-    static Delivery localWithStrategyAndWindow(ServerEnvironment environment,
+    static Delivery localWithStrategyAndWindow(NodeId nodeId,
+                                               @Nullable StorageFactory storageFactory,
                                                DeliveryStrategy strategy,
                                                Duration deduplicationWindow) {
-        var delivery = newBuilder(environment)
+        var delivery = newBuilder(nodeId, storageFactory)
                 .setDeduplicationWindow(deduplicationWindow)
                 .setStrategy(strategy)
                 .build();
@@ -420,13 +424,16 @@ public final class Delivery implements WithLogging {
      *
      * <p>This API is experimental. Use with caution.
      *
-     * @param environment
-     *         the environment in which the created {@code Delivery} runs
+     * @param nodeId
+     *         the identifier of the server node on which the created {@code Delivery} runs
+     * @param storageFactory
+     *         the factory of the storages of the created {@code Delivery},
+     *         or {@code null} to use a new {@code InMemoryStorageFactory}
      * @return a new instance of {@code Delivery}
      */
     @Experimental
-    public static Delivery direct(ServerEnvironment environment) {
-        var delivery = newBuilder(environment)
+    public static Delivery direct(NodeId nodeId, @Nullable StorageFactory storageFactory) {
+        var delivery = newBuilder(nodeId, storageFactory)
                 .setStrategy(UniformAcrossAllShards.singleShard())
                 .setInboxStorage(NoOpInboxStorage.instance())
                 .build();

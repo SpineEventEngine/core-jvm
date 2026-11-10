@@ -263,8 +263,10 @@ abstract class BlackBoxTest<T extends BlackBox> {
          */
         @AfterEach
         void cleanInbox() {
+            var environment = ServerEnvironment.instance();
+            var delivery = Delivery.local(environment.nodeId(), environment.storageFactory());
             ServerEnvironment.under(Tests.class)
-                             .use(Delivery.local(ServerEnvironment.instance()));
+                             .use(delivery);
         }
 
         @Test
@@ -301,8 +303,10 @@ abstract class BlackBoxTest<T extends BlackBox> {
          */
         @AfterEach
         void cleanInbox() {
+            var environment = ServerEnvironment.instance();
+            var delivery = Delivery.local(environment.nodeId(), environment.storageFactory());
             ServerEnvironment.under(Tests.class)
-                             .use(Delivery.local(ServerEnvironment.instance()));
+                             .use(delivery);
         }
 
         @Test
@@ -334,8 +338,10 @@ abstract class BlackBoxTest<T extends BlackBox> {
          */
         @AfterEach
         void cleanInbox() {
+            var environment = ServerEnvironment.instance();
+            var delivery = Delivery.local(environment.nodeId(), environment.storageFactory());
             ServerEnvironment.under(Tests.class)
-                             .use(Delivery.local(ServerEnvironment.instance()));
+                             .use(delivery);
         }
 
         @Test

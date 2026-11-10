@@ -52,7 +52,8 @@ public final class ReceptionFailureTestEnv {
     }
 
     public static void configureDelivery(DeliveryMonitor monitor) {
-        var delivery = Delivery.newBuilder(ServerEnvironment.instance())
+        var environment = ServerEnvironment.instance();
+        var delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
                 .setMonitor(monitor)
                 .build();
         delivery.subscribe(new IgnoringObserver());

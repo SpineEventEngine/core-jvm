@@ -160,7 +160,8 @@ internal class BoundedContextBuilderSpec {
         @Test
         fun `are used by the built context once set`() {
             val storageFactory = InMemoryStorageFactory.newInstance()
-            val delivery = Delivery.local(ServerEnvironment.instance())
+            val environment = ServerEnvironment.instance()
+            val delivery = Delivery.local(environment.nodeId(), environment.storageFactory())
             val schedulers = RecordingSchedulerFactory()
             val transportFactory = InMemoryTransportFactory.newInstance()
             val builder = BoundedContextBuilder.assumingTests()

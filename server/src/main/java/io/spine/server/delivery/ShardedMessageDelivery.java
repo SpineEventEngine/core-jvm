@@ -47,9 +47,9 @@ interface ShardedMessageDelivery<M extends ShardedRecord> {
     /**
      * Delivers a single message to its target directly, omitting any delivery monitoring etc.
      *
-     * <p>This method is experimental,
-     * and is a part of
-     * {@linkplain Delivery#direct(io.spine.server.ServerEnvironment) direct delivery} feature.
+     * <p>This method is experimental, and is a part of
+     * {@linkplain Delivery#direct(io.spine.server.NodeId, io.spine.server.storage.StorageFactory)
+     * direct delivery} feature.
      *
      * @param message
      *         the incoming message to deliver

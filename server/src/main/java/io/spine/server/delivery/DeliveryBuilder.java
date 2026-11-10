@@ -16,11 +16,12 @@ package io.spine.server.delivery;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.protobuf.Duration;
-import io.spine.server.ServerEnvironment;
+import io.spine.server.NodeId;
 import io.spine.server.delivery.memory.InMemoryShardedWorkRegistry;
 import io.spine.server.storage.StorageFactory;
 import io.spine.server.storage.memory.InMemoryStorageFactory;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.jspecify.annotations.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -41,7 +42,15 @@ public final class DeliveryBuilder {
      */
     private static final int DEFAULT_CATCH_UP_PAGE_SIZE = 500;
 
-    private final ServerEnvironment environment;
+    /** The identifier of the server node on which the built {@code Delivery} runs. */
+    private final NodeId nodeId;
+
+    /**
+     * The factory of the storages which are not set,
+     * or {@code null} to use a new {@code InMemoryStorageFactory}.
+     */
+    private final @Nullable StorageFactory storageFactory;
+
     private @MonotonicNonNull InboxStorage inboxStorage;
     private @MonotonicNonNull CatchUpStorage catchUpStorage;
     private @MonotonicNonNull DeliveryStrategy strategy;
@@ -52,19 +61,26 @@ public final class DeliveryBuilder {
     private @MonotonicNonNull Integer catchUpPageSize;
 
     /**
-     * Creates a builder of a {@code Delivery} that runs in the given environment.
+     * Creates a builder of a {@code Delivery} that runs on the given server node.
      *
      * <p>Prevents a direct instantiation of this class.
+     *
+     * @param nodeId
+     *         the identifier of the server node on which the built {@code Delivery} runs
+     * @param storageFactory
+     *         the factory of the {@code InboxStorage} and the {@code CatchUpStorage},
+     *         if they are not set, or {@code null} to use a new {@code InMemoryStorageFactory}
      */
-    DeliveryBuilder(ServerEnvironment environment) {
-        this.environment = checkNotNull(environment);
+    DeliveryBuilder(NodeId nodeId, @Nullable StorageFactory storageFactory) {
+        this.nodeId = checkNotNull(nodeId);
+        this.storageFactory = storageFactory;
     }
 
     /**
-     * Returns the environment in which the built {@code Delivery} runs.
+     * Returns the identifier of the server node on which the built {@code Delivery} runs.
      */
-    ServerEnvironment environment() {
-        return environment;
+    NodeId nodeId() {
+        return nodeId;
     }
 
     /**
@@ -252,11 +268,10 @@ public final class DeliveryBuilder {
     /**
      * Sets the custom {@code InboxStorage}.
      *
-     * <p>If none set, the storage is initialized by the {@code StorageFactory} specific for
-     * this {@code ServerEnvironment}.
+     * <p>If none set, the storage is created by the {@code StorageFactory} passed to
+     * {@link Delivery#newBuilder(NodeId, StorageFactory) Delivery.newBuilder()}.
      *
-     * <p>If no {@code StorageFactory} is present in the {@code ServerEnvironment}, a new
-     * {@code InMemoryStorageFactory} is used.
+     * <p>If no {@code StorageFactory} was passed, a new {@code InMemoryStorageFactory} is used.
      */
     @CanIgnoreReturnValue
     public DeliveryBuilder setInboxStorage(InboxStorage inboxStorage) {
@@ -269,11 +284,10 @@ public final class DeliveryBuilder {
      *
      * <p>The storage must be single-tenant, as the catch-ups of all tenants share it.
      *
-     * <p>If none set, the storage is initialized by the {@code StorageFactory} specific for
-     * this {@code ServerEnvironment}.
+     * <p>If none set, the storage is created by the {@code StorageFactory} passed to
+     * {@link Delivery#newBuilder(NodeId, StorageFactory) Delivery.newBuilder()}.
      *
-     * <p>If no {@code StorageFactory} is present in the {@code ServerEnvironment}, a new
-     * {@code InMemoryStorageFactory} is used.
+     * <p>If no {@code StorageFactory} was passed, a new {@code InMemoryStorageFactory} is used.
      *
      * @throws IllegalArgumentException
      *         if the passed storage is multi-tenant
@@ -363,7 +377,8 @@ public final class DeliveryBuilder {
     }
 
     private StorageFactory storageFactory() {
-        var currentStorageFactory = environment.optionalStorageFactory();
-        return currentStorageFactory.orElseGet(InMemoryStorageFactory::newInstance);
+        return storageFactory != null
+               ? storageFactory
+               : InMemoryStorageFactory.newInstance();
     }
 }

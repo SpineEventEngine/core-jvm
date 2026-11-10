@@ -40,7 +40,9 @@ public abstract class AbstractDeliveryTest {
     }
 
     static void changeShardCountTo(int shards) {
-        var newDelivery = Delivery.localWithShardsAndWindow(ServerEnvironment.instance(),
+        var environment = ServerEnvironment.instance();
+        var newDelivery = Delivery.localWithShardsAndWindow(environment.nodeId(),
+                                                            environment.storageFactory(),
                                                             shards, Durations.ZERO);
         ServerEnvironment.under(Tests.class)
                          .use(newDelivery);

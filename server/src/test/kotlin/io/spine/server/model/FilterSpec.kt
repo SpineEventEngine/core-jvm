@@ -101,7 +101,8 @@ internal class FilterSpec {
         fun prepareEnv() {
             storageFactory = ModelTestStorageFactory(InMemoryStorageFactory.newInstance())
             inboxStorage = storageFactory.createInboxStorage(false)
-            val delivery = Delivery.newBuilder(ServerEnvironment.instance())
+            val environment = ServerEnvironment.instance()
+            val delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
                 .setInboxStorage(inboxStorage)
                 .build()
             under<Tests> {

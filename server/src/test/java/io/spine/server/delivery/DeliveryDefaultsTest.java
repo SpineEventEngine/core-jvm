@@ -42,7 +42,8 @@ class DeliveryDefaultsTest {
     }
 
     private static Delivery defaultDelivery() {
-        return Delivery.newBuilder(ServerEnvironment.instance())
+        var environment = ServerEnvironment.instance();
+        return Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
                 .build();
     }
 

@@ -213,7 +213,8 @@ class ServerEnvironmentConfigTest {
         }
 
         private Delivery customDelivery() {
-            return Delivery.newBuilder(ServerEnvironment.instance())
+            return Delivery.newBuilder(serverEnvironment.nodeId(),
+                                       serverEnvironment.storageFactory())
                     .setStrategy(UniformAcrossAllShards.forNumber(42))
                     .build();
         }

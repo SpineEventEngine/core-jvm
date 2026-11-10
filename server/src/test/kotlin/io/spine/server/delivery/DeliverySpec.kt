@@ -41,7 +41,8 @@ internal class DeliverySpec : AbstractDeliveryTest() {
     @Test
     fun `stop delivering a shard once the monitor tells to`() {
         // No shard observer, so the messages wait in the shard until delivered below.
-        val delivery = Delivery.newBuilder(ServerEnvironment.instance())
+        val environment = ServerEnvironment.instance()
+        val delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
             .setStrategy(UniformAcrossAllShards.singleShard())
             .setPageSize(1)
             .setMonitor(StopAfterEachPage())

@@ -14,11 +14,18 @@
 
 package io.spine.server.delivery
 
+import com.google.protobuf.Message
 import com.google.protobuf.util.Durations.fromMinutes
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.spine.server.ServerEnvironment
+import io.spine.server.ContextSpec
+import io.spine.server.NodeId
 import io.spine.server.delivery.memory.InMemoryShardedWorkRegistry
+import io.spine.server.nodeId
+import io.spine.server.storage.RecordSpec
+import io.spine.server.storage.RecordStorage
 import io.spine.server.storage.StorageFactory
+import io.spine.server.storage.StorageGroup
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.testing.Assertions.assertIllegalArgument
 import io.spine.testing.Assertions.assertNpe
@@ -31,15 +38,17 @@ import org.junit.jupiter.api.Test
 @DisplayName("`DeliveryBuilder` should")
 internal class DeliveryBuilderSpec {
 
-    private fun builder(): DeliveryBuilder = Delivery.newBuilder(ServerEnvironment.instance())
+    private val node: NodeId = nodeId { value = "DeliveryBuilderSpec" }
+
+    private fun builder(): DeliveryBuilder = Delivery.newBuilder(node, null)
 
     @Nested
     @DisplayName("not accept `null`")
     internal inner class NotAcceptNull {
 
         @Test
-        fun environment() {
-            assertNpe { Delivery.newBuilder(nullRef()) }
+        fun `node ID`() {
+            assertNpe { Delivery.newBuilder(nullRef(), null) }
         }
 
         @Test
@@ -90,6 +99,44 @@ internal class DeliveryBuilderSpec {
         val factory = InMemoryStorageFactory.newInstance()
         val multitenant = CatchUpStorage(factory, /* multitenant = */ true)
         assertIllegalArgument { builder().setCatchUpStorage(multitenant) }
+    }
+
+    @Nested internal inner class
+    `create the storages that are not set` {
+
+        @Test
+        fun `with the given storage factory`() {
+            val factory = CountingStorageFactory()
+
+            Delivery.newBuilder(node, factory).build()
+
+            factory.inboxStorages shouldBe 1
+            factory.catchUpStorages shouldBe 1
+        }
+
+        @Test
+        fun `with a new in-memory storage factory, if none is given`() {
+            val builder = Delivery.newBuilder(node, null)
+
+            builder.build()
+
+            builder.inboxStorage.shouldNotBeNull()
+            builder.catchUpStorage.shouldNotBeNull()
+        }
+
+        @Test
+        fun `but not the ones that are set`() {
+            val factory = CountingStorageFactory()
+            val storages = InMemoryStorageFactory.newInstance()
+
+            Delivery.newBuilder(node, factory)
+                .setInboxStorage(storages.createInboxStorage(/* multitenant = */ false))
+                .setCatchUpStorage(storages.createCatchUpStorage(/* multitenant = */ false))
+                .build()
+
+            factory.inboxStorages shouldBe 0
+            factory.catchUpStorages shouldBe 0
+        }
     }
 
     @Nested
@@ -271,4 +318,38 @@ internal class DeliveryBuilderSpec {
             assertNpe { builder().catchUpPageSize }
         }
     }
+}
+
+/**
+ * Creates in-memory storages, counting the inbox and catch-up storages it creates.
+ */
+private class CountingStorageFactory : StorageFactory {
+
+    private val delegate = InMemoryStorageFactory.newInstance()
+
+    var inboxStorages = 0
+        private set
+
+    var catchUpStorages = 0
+        private set
+
+    override fun <I : Any, R : Message> createRecordStorage(
+        context: ContextSpec,
+        recordSpec: RecordSpec<I, R>,
+        group: StorageGroup?
+    ): RecordStorage<I, R> = delegate.createRecordStorage(context, recordSpec, group)
+
+    override fun createInboxStorage(multitenant: Boolean): InboxStorage {
+        inboxStorages++
+        return delegate.createInboxStorage(multitenant)
+    }
+
+    override fun createCatchUpStorage(multitenant: Boolean): CatchUpStorage {
+        catchUpStorages++
+        return delegate.createCatchUpStorage(multitenant)
+    }
+
+    override fun isOpen(): Boolean = delegate.isOpen
+
+    override fun close() = delegate.close()
 }

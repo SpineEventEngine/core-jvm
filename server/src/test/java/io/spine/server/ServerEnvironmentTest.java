@@ -54,10 +54,10 @@ class ServerEnvironmentTest {
     @Test
     @DisplayName("allow to customize delivery mechanism")
     void allowToCustomizeDeliveryStrategy() {
-        var newDelivery = Delivery.newBuilder(ServerEnvironment.instance())
+        var environment = serverEnvironment;
+        var newDelivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
                 .setStrategy(UniformAcrossAllShards.forNumber(42))
                 .build();
-        var environment = serverEnvironment;
         var defaultValue = environment.delivery();
         ServerEnvironment.under(Tests.class)
                          .use(newDelivery);

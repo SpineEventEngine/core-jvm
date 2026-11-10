@@ -27,7 +27,8 @@ class DeliveryFactoryTest {
     @DisplayName("create an instance of `Delivery` " +
             "which delivers the messages from their shards asynchronously")
     void createLocalAsync(){
-        var delivery = Delivery.localAsync(ServerEnvironment.instance());
+        var environment = ServerEnvironment.instance();
+        var delivery = Delivery.localAsync(environment.nodeId(), environment.storageFactory());
 
         var observers = delivery.shardObservers();
         assertThat(observers).hasSize(1);

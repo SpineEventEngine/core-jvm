@@ -104,7 +104,7 @@ public final class ServerEnvironment implements Closeable {
      * to the entity instances.
      *
      * <p>If not {@linkplain TypeConfigurator#use(Delivery) configured by the end-user},
-     * initialized with the {@linkplain Delivery#local(ServerEnvironment) local} delivery
+     * initialized with the {@linkplain Delivery#local(NodeId, StorageFactory) local} delivery
      * by default.
      *
      * <p>Differs between {@linkplain EnvironmentType environment types}.
@@ -170,7 +170,8 @@ public final class ServerEnvironment implements Closeable {
      * Returns the delivery mechanism specific to this environment.
      *
      * <p>Unless {@linkplain TypeConfigurator#use(Delivery) updated manually}, returns
-     * a {@linkplain Delivery#local(ServerEnvironment) local implementation} of {@code Delivery}.
+     * a {@linkplain Delivery#local(NodeId, StorageFactory) local implementation}
+     * of {@code Delivery}.
      */
     public synchronized Delivery delivery() {
         var currentEnv = environment().type();
@@ -178,9 +179,18 @@ public final class ServerEnvironment implements Closeable {
         if (currentDelivery.isPresent()) {
             return currentDelivery.get();
         }
-        var localDelivery = Delivery.local(this);
+        var localDelivery = newLocalDelivery();
         this.delivery.use(localDelivery, currentEnv);
         return localDelivery;
+    }
+
+    /**
+     * Creates a local {@code Delivery} that runs on this node and creates its storages with
+     * the storage factory of the current environment, if it is configured.
+     */
+    private Delivery newLocalDelivery() {
+        var factory = optionalStorageFactory().orElse(null);
+        return Delivery.local(nodeId, factory);
     }
 
     /**
@@ -281,7 +291,7 @@ public final class ServerEnvironment implements Closeable {
         storageFactory.reset();
         delivery.reset();
         var currentEnv = environment().type();
-        delivery.use(Delivery.local(this), currentEnv);
+        delivery.use(newLocalDelivery(), currentEnv);
     }
 
     /**
