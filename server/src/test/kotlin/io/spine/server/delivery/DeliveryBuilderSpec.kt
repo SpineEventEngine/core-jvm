@@ -19,6 +19,7 @@ import io.kotest.matchers.shouldBe
 import io.spine.server.ServerEnvironment
 import io.spine.server.delivery.memory.InMemoryShardedWorkRegistry
 import io.spine.server.storage.StorageFactory
+import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.testing.Assertions.assertIllegalArgument
 import io.spine.testing.Assertions.assertNpe
 import io.spine.testing.TestValues.nullRef
@@ -86,7 +87,7 @@ internal class DeliveryBuilderSpec {
 
     @Test
     fun `accept only a single-tenant catch-up storage`() {
-        val factory = ServerEnvironment.instance().storageFactory()
+        val factory = InMemoryStorageFactory.newInstance()
         val multitenant = CatchUpStorage(factory, /* multitenant = */ true)
         assertIllegalArgument { builder().setCatchUpStorage(multitenant) }
     }
@@ -99,7 +100,7 @@ internal class DeliveryBuilderSpec {
 
         @BeforeEach
         fun createStorageFactory() {
-            factory = ServerEnvironment.instance().storageFactory()
+            factory = InMemoryStorageFactory.newInstance()
         }
 
         @Test
@@ -158,7 +159,7 @@ internal class DeliveryBuilderSpec {
 
         @BeforeEach
         fun createStorageFactory() {
-            factory = ServerEnvironment.instance().storageFactory()
+            factory = InMemoryStorageFactory.newInstance()
         }
 
         @Test

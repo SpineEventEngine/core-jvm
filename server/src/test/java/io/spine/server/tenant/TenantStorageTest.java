@@ -14,7 +14,7 @@
 
 package io.spine.server.tenant;
 
-import io.spine.server.ServerEnvironment;
+import io.spine.server.storage.memory.InMemoryStorageFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ class TenantStorageTest {
 
     @BeforeEach
     void setUp() {
-        var storageFactory = ServerEnvironment.instance().storageFactory();
+        var storageFactory = InMemoryStorageFactory.newInstance();
         storage = new DefaultTenantStorage(storageFactory);
     }
 
