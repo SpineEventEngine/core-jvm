@@ -97,8 +97,17 @@ public abstract class BoundedContext
     /** Basic features of the context. */
     private final ContextSpec spec;
 
-    /** The environment that provides the technologies of the context. */
-    private final ServerEnvironment environment = ServerEnvironment.instance();
+    /** The factory with which the repositories of the context create their storages. */
+    private final StorageFactory storageFactory;
+
+    /** The delivery in which the repositories of the context register their inboxes. */
+    private final Delivery delivery;
+
+    /** The scheduler of the commands posted to the context. */
+    private final CommandScheduler commandScheduler;
+
+    /** The transport through which the context exchanges messages with other contexts. */
+    private final TransportFactory transportFactory;
 
     /** The Command Bus of this context. */
     private final CommandBus commandBus;
@@ -144,6 +153,11 @@ public abstract class BoundedContext
         super();
         checkInheritance();
         this.spec = builder.spec();
+        var environment = ServerEnvironment.instance();
+        this.storageFactory = environment.storageFactory();
+        this.delivery = environment.delivery();
+        this.commandScheduler = environment.newCommandScheduler();
+        this.transportFactory = environment.transportFactory();
         this.eventBus = builder.buildEventBus(this);
         this.stand = builder.stand();
         this.broker = new IntegrationBroker();
@@ -818,7 +832,7 @@ public abstract class BoundedContext
          * {@code BoundedContext} create their storages.
          */
         public StorageFactory storageFactory() {
-            return self().environment.storageFactory();
+            return self().storageFactory;
         }
 
         /**
@@ -826,14 +840,14 @@ public abstract class BoundedContext
          * {@code BoundedContext} register their inboxes.
          */
         public Delivery delivery() {
-            return self().environment.delivery();
+            return self().delivery;
         }
 
         /**
-         * Creates a new scheduler for the commands posted to this {@code BoundedContext}.
+         * Obtains the scheduler of the commands posted to this {@code BoundedContext}.
          */
-        public CommandScheduler newCommandScheduler() {
-            return self().environment.newCommandScheduler();
+        public CommandScheduler commandScheduler() {
+            return self().commandScheduler;
         }
 
         /**
@@ -841,7 +855,7 @@ public abstract class BoundedContext
          * {@code BoundedContext} exchanges messages with other contexts.
          */
         public TransportFactory transportFactory() {
-            return self().environment.transportFactory();
+            return self().transportFactory;
         }
 
         /**

@@ -61,8 +61,8 @@ public final class CommandBus
     private final CommandFlowWatcher watcher;
 
     /**
-     * The scheduler of the commands, created when the bus is
-     * {@linkplain #registerWith(BoundedContext) registered} with a context.
+     * The scheduler of the commands, which the bus obtains from the context when it is
+     * {@linkplain #registerWith(BoundedContext) registered} with it.
      */
     private @MonotonicNonNull CommandScheduler scheduler;
 
@@ -127,7 +127,7 @@ public final class CommandBus
         checkState(!isRegistered(),
                    "The `CommandBus` is already registered with a Bounded Context.");
         var scheduler = context.internalAccess()
-                               .newCommandScheduler();
+                               .commandScheduler();
         scheduler.setWatcher(watcher);
         scheduler.setCommandBus(this);
         this.scheduler = scheduler;
