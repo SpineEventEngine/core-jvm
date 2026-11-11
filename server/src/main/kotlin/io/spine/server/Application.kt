@@ -97,7 +97,7 @@ public class Application private constructor(
     public fun contexts(): List<BoundedContext> = registry.all()
 
     /**
-     * Obtains the index of tenants served by the multitenant Bounded Contexts
+     * Obtains the index of tenants served by the multi-tenant Bounded Contexts
      * of the application.
      *
      * Unless the index is [set][Builder.setTenantIndex] when the application is built,
@@ -220,7 +220,7 @@ public class Application private constructor(
         }
 
         /**
-         * Sets the index of tenants served by the multitenant Bounded Contexts
+         * Sets the index of tenants served by the multi-tenant Bounded Contexts
          * of the application.
          *
          * If not set, the application creates the default index, which keeps the tenants

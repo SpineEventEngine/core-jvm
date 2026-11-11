@@ -138,7 +138,7 @@ internal class BoundedContextSpec {
         }
 
         @Test
-        fun `multitenancy state`() {
+        fun `multi-tenancy state`() {
             assumingTests(/* multiTenant = */ true)
                 .build().use {
                     it.isMultiTenant shouldBe true
@@ -286,7 +286,7 @@ internal class BoundedContextSpec {
     }
 
     @Nested
-    @DisplayName("assign own multitenancy state to")
+    @DisplayName("assign own multi-tenancy state to")
     internal inner class AssignMultiTenancyState {
 
         private lateinit var context: BoundedContext

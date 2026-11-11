@@ -50,7 +50,7 @@ public final class ContextSpec {
     }
 
     /**
-     * Creates a spec of a multitenant context with the given name.
+     * Creates a spec of a multi-tenant context with the given name.
      */
     @VisibleForTesting
     public static ContextSpec multiTenant(String name) {
@@ -71,7 +71,7 @@ public final class ContextSpec {
     }
 
     /**
-     * Checks if the context is multitenant or not.
+     * Checks if the context is multi-tenant or not.
      */
     public boolean isMultiTenant() {
         return multiTenant;
@@ -106,7 +106,7 @@ public final class ContextSpec {
     }
 
     /**
-     * Returns a single-tenant version of this instance, if it is multitenant, or
+     * Returns a single-tenant version of this instance, if it is multi-tenant, or
      * this instance if it is single-tenant.
      */
     public ContextSpec toSingleTenant() {
@@ -138,7 +138,7 @@ public final class ContextSpec {
     @Override
     public String toString() {
         var tenancy = multiTenant
-                      ? "Multitenant"
+                      ? "Multi-tenant"
                       : "Single tenant";
         return String.format("%s context %s", tenancy, name.getValue());
     }

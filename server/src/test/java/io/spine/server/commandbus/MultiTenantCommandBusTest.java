@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DisplayName("Multitenant `CommandBus` should")
+@DisplayName("Multi-tenant `CommandBus` should")
 @SuppressWarnings("DuplicateStringLiteralInspection") // Common test display names.
 class MultiTenantCommandBusTest extends AbstractCommandBusTestSuite {
 
@@ -62,7 +62,7 @@ class MultiTenantCommandBusTest extends AbstractCommandBusTestSuite {
     }
 
     @Test
-    @DisplayName("verify tenant ID attribute if is multitenant")
+    @DisplayName("verify tenant ID attribute if is multi-tenant")
     void requireTenantId() {
         commandBus.register(createProjectAssignee);
         var cmd = newCommandWithoutTenantId();

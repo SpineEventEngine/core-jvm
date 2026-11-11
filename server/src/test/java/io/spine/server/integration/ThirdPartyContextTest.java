@@ -99,7 +99,7 @@ class ThirdPartyContextTest {
     }
 
     @Test
-    @DisplayName("if multitenant, require a tenant ID for each event")
+    @DisplayName("if multi-tenant, require a tenant ID for each event")
     void requireTenant() {
         var noTenantContext = ActorContext.newBuilder()
                 .setActor(GivenUserId.of("42"))
@@ -201,7 +201,7 @@ class ThirdPartyContextTest {
     }
 
     @Test
-    @DisplayName("in a multitenant environment")
+    @DisplayName("in a multi-tenant environment")
     void multiTenant() {
         /* Getting rid of the class-level repositories and bounded contexts. */
         application.close();

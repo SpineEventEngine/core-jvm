@@ -105,7 +105,7 @@ public class ThirdPartyContext private constructor(
      * no Context needs it.
      *
      * The caller is required to supply the tenant ID via the `ActorContext.tenant_id` if
-     * this Context is multitenant.
+     * this Context is multi-tenant.
      *
      * @param eventMessage The event.
      * @param actorContext The info about the actor, a user or a software component,
@@ -129,7 +129,7 @@ public class ThirdPartyContext private constructor(
      * no Context needs it.
      *
      * This overload may only be used for single-tenant third-party contexts. If this Context is
-     * multitenant, this method throws an exception.
+     * multi-tenant, this method throws an exception.
      *
      * @param eventMessage The event.
      * @param userId The ID of the actor, a user or a software component, who emits the event.
@@ -179,7 +179,7 @@ public class ThirdPartyContext private constructor(
         public fun singleTenant(name: String): ThirdPartyContext = newContext(name, false)
 
         /**
-         * Creates a new multitenant instance of `ThirdPartyContext` with the given name.
+         * Creates a new multi-tenant instance of `ThirdPartyContext` with the given name.
          *
          * The context is built when the [Application] to which it is
          * [added][Application.Builder.add] is built.
@@ -213,7 +213,7 @@ public class ThirdPartyContext private constructor(
             val eventType = event.javaClass.name
             if (context.isMultiTenant) {
                 require(tenantSupplied) {
-                    "Cannot post `$eventType` into a third-party multitenant context" +
+                    "Cannot post `$eventType` into a third-party multi-tenant context" +
                             " `$contextName`. No tenant ID supplied."
                 }
             } else {

@@ -35,7 +35,7 @@ public interface SystemWriteSide {
      * Posts a system event with the given origin.
      *
      * <p>If the associated bounded context is
-     * {@linkplain io.spine.server.BoundedContext#isMultiTenant() multitenant}, the event is
+     * {@linkplain io.spine.server.BoundedContext#isMultiTenant() multi-tenant}, the event is
      * posted for the {@linkplain io.spine.server.tenant.TenantAwareOperation current tenant}.
      *
      * @param systemEvent
@@ -51,7 +51,7 @@ public interface SystemWriteSide {
      * Posts a system event.
      *
      * <p>If the associated bounded context is
-     * {@linkplain io.spine.server.BoundedContext#isMultiTenant() multitenant}, the event is
+     * {@linkplain io.spine.server.BoundedContext#isMultiTenant() multi-tenant}, the event is
      * posted for the {@linkplain TenantAwareOperation current tenant}.
      *
      * @param systemEvent

@@ -39,7 +39,7 @@ import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.requireNonNull;
 
 /**
- * The multitenant storage.
+ * The multi-tenant storage.
  *
  * @param <S> the type of the storage "slice" for each tenant
  */

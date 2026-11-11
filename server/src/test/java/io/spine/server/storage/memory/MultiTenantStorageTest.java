@@ -62,7 +62,7 @@ class MultiTenantStorageTest {
     }
 
     @Test
-    @DisplayName("return same slice within single tenant and multitenant environment")
+    @DisplayName("return same slice within single tenant and multi-tenant environment")
     void returnSameSlice()
             throws InterruptedException, ExecutionException {
         var numberOfTasks = 1000;

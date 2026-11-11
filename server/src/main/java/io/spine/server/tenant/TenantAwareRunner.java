@@ -51,7 +51,7 @@ public final class TenantAwareRunner {
      * {@code tenant}.
      *
      * @param multiTenant
-     *         if the current environment is multitenant
+     *         if the current environment is multi-tenant
      * @return new instance of {@code TenantAwareRunner}
      */
     public static TenantAwareRunner withCurrentTenant(boolean multiTenant) {

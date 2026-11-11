@@ -35,7 +35,7 @@ internal class TenantFilterSpec {
     private val writeSide = MemoizingWriteSide.singleTenant()
 
     @Nested inner class
-    `in a multitenant bus` {
+    `in a multi-tenant bus` {
 
         private val filter = TenantFilter(multiTenant = true, delegatingTo(writeSide))
 

@@ -165,7 +165,7 @@ internal class CommandLogProjectionSpec {
     }
 
     @Test
-    fun `record a command without a tenant posted to a multitenant context`() {
+    fun `record a command without a tenant posted to a multi-tenant context`() {
         val builder = BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
         builder.systemSettings().enableCommandLog()
         builder.build().use { multiTenant ->

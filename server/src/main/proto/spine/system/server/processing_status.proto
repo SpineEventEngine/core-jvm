@@ -58,7 +58,7 @@ message ProcessingStatus {
         // Context handles commands of its type.
         google.protobuf.Empty unsupported = 5;
 
-        // The multitenant `CommandBus` did not accept the command because the command has
+        // The multi-tenant `CommandBus` did not accept the command because the command has
         // no tenant.
         google.protobuf.Empty tenant_not_specified = 6;
 

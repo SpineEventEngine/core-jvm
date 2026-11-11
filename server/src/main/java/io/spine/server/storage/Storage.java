@@ -31,9 +31,9 @@ import java.util.Optional;
 public interface Storage<I, M extends Message> extends Closeable {
 
     /**
-     * Verifies whether the storage is multitenant.
+     * Verifies whether the storage is multi-tenant.
      *
-     * @return {@code true} if the storage was created with multitenancy support,
+     * @return {@code true} if the storage was created with multi-tenancy support,
      *         {@code false} otherwise
      */
     boolean isMultiTenant();

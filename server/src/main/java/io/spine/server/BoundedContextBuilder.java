@@ -207,7 +207,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * <p>The builder can {@linkplain #build() build} the context by itself.
      *
      * @param multiTenant
-     *         tells if the context is multitenant
+     *         tells if the context is multi-tenant
      */
     @Internal
     @VisibleForTesting
@@ -252,7 +252,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * @param name
      *         the name of the context
      * @param multiTenant
-     *         tells if the context is multitenant
+     *         tells if the context is multi-tenant
      */
     @Internal
     @VisibleForTesting

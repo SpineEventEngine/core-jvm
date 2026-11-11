@@ -28,13 +28,13 @@ import java.util.Optional
 /**
  * A [CommandBus] filter that checks the tenant of a command.
  *
- * A multitenant bus does not accept a command without a tenant, and a single-tenant bus
+ * A multi-tenant bus does not accept a command without a tenant, and a single-tenant bus
  * does not accept a command with a tenant. Such a command is recorded in the System context
  * as [CommandTenantNotSpecified][io.spine.system.server.event.CommandTenantNotSpecified] or
  * [CommandTenantNotExpected][io.spine.system.server.event.CommandTenantNotExpected], and
  * refused with [TENANT_ERROR].
  *
- * @param multiTenant Tells if the bus is multitenant.
+ * @param multiTenant Tells if the bus is multi-tenant.
  * @param writeSideFunction Obtains the System write side for a tenant.
  */
 internal class TenantFilter(

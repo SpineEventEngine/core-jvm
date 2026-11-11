@@ -591,7 +591,7 @@ abstract class BlackBoxTest<T extends BlackBox> {
     class CreateWith {
 
         @Test
-        @DisplayName("multitenant")
+        @DisplayName("multi-tenant")
         void multiTenant() {
             closeSetUpContext();
             try(var ctx = BlackBox.multiTenantWith(new BbProjectRepository())) {

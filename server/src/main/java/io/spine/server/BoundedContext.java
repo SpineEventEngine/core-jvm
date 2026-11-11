@@ -208,7 +208,7 @@ public abstract class BoundedContext
     }
 
     /**
-     * Creates a new builder for a multitenant {@code BoundedContext}.
+     * Creates a new builder for a multi-tenant {@code BoundedContext}.
      *
      * <p>Add the returned builder to an {@link Application}, which builds the context with
      * the technologies of its {@link ServerEnvironment}.

@@ -108,7 +108,7 @@ class BoundedContextBuilderTest {
     }
 
     @Test
-    @DisplayName("support multitenancy")
+    @DisplayName("support multi-tenancy")
     void supportMultiTenancy() {
         var builder = BoundedContextBuilder.assumingTests(/* multiTenant = */ true);
         assertTrue(builder.isMultiTenant());

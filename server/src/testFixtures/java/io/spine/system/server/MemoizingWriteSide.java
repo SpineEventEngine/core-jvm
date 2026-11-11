@@ -52,7 +52,7 @@ public final class MemoizingWriteSide implements SystemWriteSide {
     }
 
     /**
-     * Creates a new instance of {@code MemoizingWriteSide} for a multitenant execution environment.
+     * Creates a new instance of {@code MemoizingWriteSide} for a multi-tenant execution environment.
      *
      * @return new {@code MemoizingWriteSide}
      */

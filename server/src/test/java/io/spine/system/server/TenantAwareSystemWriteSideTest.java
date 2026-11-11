@@ -51,7 +51,7 @@ class TenantAwareSystemWriteSideTest {
     }
 
     @Nested
-    @DisplayName("in multitenant env")
+    @DisplayName("in multi-tenant env")
     class MultiTenant {
 
         private TenantId tenantId;

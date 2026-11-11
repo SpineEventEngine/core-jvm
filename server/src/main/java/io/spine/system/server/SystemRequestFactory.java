@@ -35,10 +35,10 @@ final class SystemRequestFactory {
     }
 
     /**
-     * Obtains the instance depending on the multitenancy context.
+     * Obtains the instance depending on the multi-tenancy context.
      *
      * <p>In single-tenant context the same instance is returned.
-     * In multitenant context, a new request factory is created with
+     * In multi-tenant context, a new request factory is created with
      * the ID of the current tenant.
      */
     static ActorRequestFactory instance(boolean multiTenant) {

@@ -205,7 +205,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * {@link BoundedContextBuilder} and then {@link #from(BoundedContext)}.
      *
      * @param multiTenant
-     *         whether the context under test is multitenant
+     *         whether the context under test is multi-tenant
      * @param components
      *         repositories or entity classes to be added to the context under test
      */

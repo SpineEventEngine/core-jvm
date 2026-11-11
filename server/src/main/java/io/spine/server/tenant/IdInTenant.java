@@ -41,7 +41,7 @@ public final class IdInTenant<I> {
 
     /**
      * Creates a new instance of {@code IdInTenant} with the given identifier value and
-     * selected multitenancy mode.
+     * selected multi-tenancy mode.
      *
      * <p>Uses the current {@code Tenant}.
      */

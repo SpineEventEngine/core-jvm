@@ -35,7 +35,7 @@ import static io.spine.server.stand.given.StandTestEnv.subscribeAndActivate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-@DisplayName("Multitenant `Stand` should")
+@DisplayName("Multi-tenant `Stand` should")
 class MultiTenantStandTest extends StandTest {
 
     @Override

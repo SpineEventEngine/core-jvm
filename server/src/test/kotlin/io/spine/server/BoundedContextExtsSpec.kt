@@ -50,7 +50,7 @@ internal class BoundedContextExtsSpec {
     }
 
     @Nested inner class
-    `create a builder of a multitenant context` {
+    `create a builder of a multi-tenant context` {
 
         @Test
         fun `with the given name`() {
