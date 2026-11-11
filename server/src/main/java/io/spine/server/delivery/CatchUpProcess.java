@@ -331,7 +331,8 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
      *         if the passed context is a System context, which serves no projections
      *         of its own to catch up
      */
-    @SuppressWarnings("ObjectEquality") // A domain context is its own domain context.
+    // A domain context is its own domain context, the very same instance.
+    @SuppressWarnings({"ObjectEquality", "ReferenceEquality"})
     void injectDomainContext(BoundedContext context) {
         checkNotNull(context);
         var domain = context.internalAccess()
