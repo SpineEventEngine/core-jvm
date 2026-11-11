@@ -155,6 +155,20 @@ internal class ApplicationSpec {
         error.suppressed shouldHaveSize 1
     }
 
+    @Test
+    fun `keep the build failure, if closing an earlier context throws that very failure`() {
+        val failure = IllegalStateException("The context failed.")
+        val failing = BoundedContextBuilder.assumingTests()
+            .add(CalculatorsFailingOnRegistration(failure))
+
+        val error = shouldThrow<IllegalStateException> {
+            applicationOf(serverEnvironment {}, context { throw failure }, failing)
+        }
+
+        error shouldBeSameInstanceAs failure
+        error.suppressed.shouldBeEmpty()
+    }
+
     @Nested inner class
     `have a builder, whose Kotlin DSL properties` {
 
@@ -448,13 +462,16 @@ internal class ApplicationSpec {
             .setOnBeforeClose { onClose() }
 
     /**
-     * A repository of calculators that throws once it is registered.
+     * A repository of calculators that throws the given failure once it is registered.
      */
-    private class CalculatorsFailingOnRegistration : CalculatorRepository() {
+    private class CalculatorsFailingOnRegistration(
+        private val failure: RuntimeException =
+            IllegalStateException("The repository failed on registration.")
+    ) : CalculatorRepository() {
 
         override fun onRegistered() {
             super.onRegistered()
-            error("The repository failed on registration.")
+            throw failure
         }
     }
 }

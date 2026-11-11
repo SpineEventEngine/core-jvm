@@ -19,6 +19,7 @@ import io.spine.server.integration.ThirdPartyContext
 import io.spine.server.tenant.DefaultTenantStorage
 import io.spine.server.tenant.TenantIndex
 import io.spine.util.runAll
+import io.spine.util.withSuppressed
 
 /**
  * The application made of Bounded Contexts that run on the technologies
@@ -322,12 +323,13 @@ public class Application private constructor(
                 }
             } catch (e: Throwable) {
                 environment.owned.set(false)
+                var failure = e
                 try {
                     ContextRegistry(built).closeAll()
                 } catch (closing: Throwable) {
-                    e.addSuppressed(closing)
+                    failure = failure.withSuppressed(closing)
                 }
-                throw e
+                throw failure
             }
             return ContextRegistry(built)
         }
