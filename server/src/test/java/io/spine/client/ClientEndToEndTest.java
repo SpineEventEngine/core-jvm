@@ -16,6 +16,7 @@ package io.spine.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
+import io.spine.server.Application;
 import io.spine.server.Server;
 import io.spine.test.client.billing.PaymentReceived;
 import io.spine.test.client.tasks.event.CTaskCreated;
@@ -52,13 +53,14 @@ class ClientEndToEndTest {
     @SuppressWarnings("DuplicateStringLiteralInspection")
     private static final String ADDRESS = "localhost";
 
+    private Application application;
     private Client client;
     private Server server;
     private ManagedChannel channel;
 
     @BeforeEach
     void startAndConnect() throws IOException {
-        var application = TestApplications.newBuilder()
+        application = TestApplications.newBuilder()
                 .add(users())
                 .add(tasks())
                 .build();
@@ -86,6 +88,7 @@ class ClientEndToEndTest {
         server.shutdown();
         channel.shutdown();
         channel.awaitTermination(1, SECONDS);
+        application.close();
     }
 
     @Test

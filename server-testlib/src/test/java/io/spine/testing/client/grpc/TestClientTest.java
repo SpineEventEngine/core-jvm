@@ -17,6 +17,7 @@ package io.spine.testing.client.grpc;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.core.Ack;
 import io.spine.core.UserId;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.Server;
 import io.spine.testing.client.grpc.command.Ping;
@@ -47,12 +48,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @MuteLogging
 class TestClientTest {
 
+    private Application application;
     private Server server;
     private TestClient client;
 
     @BeforeEach
     void setUpAll() throws IOException {
-        var application = TestApplications.newBuilder()
+        application = TestApplications.newBuilder()
                 .add(BoundedContext.singleTenant("Tennis")
                                    .add(new GameRepository()))
                 .build();
@@ -76,6 +78,7 @@ class TestClientTest {
             client.shutdown();
         }
         server.shutdownAndWait();
+        application.close();
     }
 
     @Test

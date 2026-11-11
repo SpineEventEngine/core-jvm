@@ -15,6 +15,7 @@
 package io.spine.client
 
 import io.grpc.inprocess.InProcessServerBuilder
+import io.spine.server.Application
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.Server
 import io.spine.testing.server.testApplication
@@ -30,10 +31,12 @@ import org.junit.jupiter.api.BeforeEach
  * by [.generateServerName]. In order to configure the `Server` derived test suites
  * must implement the [.contexts] providing builders of contexts of the backend services.
  *
- * Both client and server instances are shut down after each test.
+ * The client and the server are shut down after each test, and then their application
+ * is closed.
  */
 internal abstract class AbstractClientTest {
 
+    private lateinit var application: Application
     private lateinit var server: Server
     private lateinit var client: Client
 
@@ -58,7 +61,7 @@ internal abstract class AbstractClientTest {
     @Throws(IOException::class)
     fun createServerAndClient() {
         val serverName = generateServerName()
-        val application = testApplication {
+        application = testApplication {
             contexts().forEach { add(it) }
         }
         server = Server.inProcess(serverName)
@@ -76,10 +79,14 @@ internal abstract class AbstractClientTest {
             .shutdownTimeout(0, TimeUnit.SECONDS)
     }
 
+    /**
+     * Shuts down the client and the server, and then closes the application they work with.
+     */
     @AfterEach
-    fun shutdownClientAndServer() {
+    fun shutdownAndClose() {
         client.shutdown()
         server.shutdown()
+        application.close()
     }
 
     /** Obtains the reference to the client.  */

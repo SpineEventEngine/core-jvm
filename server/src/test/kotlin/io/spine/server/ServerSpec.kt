@@ -44,32 +44,36 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `allow registering custom gRPC services`() {
-        val server = Server.atPort(ANY_FREE_PORT)
-            .setApplication(applicationOf(users(), tasks()))
-            .include(StatusCheckService())
-            .build()
-        server.start()
-        val channel = ManagedChannelBuilder.forAddress(ADDRESS, server.boundPort)
-            .usePlaintext()
-            .build()
-        try {
-            val client = StatusCheckGrpc.newBlockingStub(channel)
-            val response = client.check(Empty.getDefaultInstance())
-            response.status shouldBe OK
-        } finally {
-            channel.shutdownNow()
-            server.shutdown()
+        applicationOf(users(), tasks()).use { application ->
+            val server = Server.atPort(ANY_FREE_PORT)
+                .setApplication(application)
+                .include(StatusCheckService())
+                .build()
+            server.start()
+            val channel = ManagedChannelBuilder.forAddress(ADDRESS, server.boundPort)
+                .usePlaintext()
+                .build()
+            try {
+                val client = StatusCheckGrpc.newBlockingStub(channel)
+                val response = client.check(Empty.getDefaultInstance())
+                response.status shouldBe OK
+            } finally {
+                channel.shutdownNow()
+                server.shutdown()
+            }
         }
     }
 
     @Test
     @MuteLogging
     fun `provide 'CommandService', 'QueryService', and 'SubscriptionService'`() {
-        val server = server(applicationOf(users(), tasks()))
+        applicationOf(users(), tasks()).use {
+            val server = server(it)
 
-        server.subscriptionService() shouldNotBe null
-        server.queryService() shouldNotBe null
-        server.commandService() shouldNotBe null
+            server.subscriptionService() shouldNotBe null
+            server.queryService() shouldNotBe null
+            server.commandService() shouldNotBe null
+        }
     }
 
     @Test
@@ -92,12 +96,14 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `expose the port assigned by the operating system`() {
-        val server = server(applicationOf(users()))
-        server.start()
-        try {
-            server.boundPort shouldBeGreaterThan 0
-        } finally {
-            server.shutdown()
+        applicationOf(users()).use {
+            val server = server(it)
+            server.start()
+            try {
+                server.boundPort shouldBeGreaterThan 0
+            } finally {
+                server.shutdown()
+            }
         }
     }
 
@@ -110,14 +116,16 @@ internal class ServerSpec {
     @Test
     @MuteLogging
     fun `assign a distinct port to each server started at the port 0`() {
+        val applications = List(2) { applicationOf(users()) }
         val servers = mutableListOf<Server>()
         try {
-            repeat(2) {
-                servers.add(server(applicationOf(users())).apply { start() })
+            applications.forEach {
+                servers.add(server(it).apply { start() })
             }
             servers[0].boundPort shouldNotBe servers[1].boundPort
         } finally {
             servers.forEach { it.shutdown() }
+            applications.forEach { it.close() }
         }
     }
 
