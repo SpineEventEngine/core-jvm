@@ -22,9 +22,16 @@ package io.spine.server
  * naming their receiver. So a call meant for the inner builder cannot reach the outer one
  * by mistake.
  *
+ * The annotation marks either a builder class, or the type of the receiver of a DSL function.
+ * [singleTenantContext] and [multiTenantContext] mark the receiver type, since
+ * [BoundedContextBuilder] is written in Java and so cannot carry a Kotlin annotation.
+ * Hence [AnnotationTarget.TYPE] among the targets.
+ *
  * @see application
  * @see serverEnvironment
+ * @see singleTenantContext
+ * @see multiTenantContext
  */
 @DslMarker
-@Target(AnnotationTarget.CLASS)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
 public annotation class ServerDsl

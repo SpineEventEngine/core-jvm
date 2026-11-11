@@ -42,7 +42,7 @@ import io.spine.util.Preconditions2.checkNotEmptyOrBlank
  * val calendar = ThirdPartyContext.singleTenant("Calendar")
  * val application = application {
  *     serverEnvironment = environment
- *     add(BoundedContext.singleTenant("Scheduling").add(MeetingRepository()))
+ *     add(singleTenantContext("Scheduling") { add(MeetingRepository()) })
  *     add(calendar)
  * }
  * calendar.emittedEvent(event, actor)

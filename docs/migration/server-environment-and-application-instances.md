@@ -73,11 +73,20 @@ var application = Application.newBuilder()
         .build();
 ```
 
+In Kotlin, `singleTenantContext(name) {}` and `multiTenantContext(name) {}` configure a context
+builder in a block and return it, so a context with several repositories does not need a chain
+of calls. `BoundedContext.singleTenant(name)` and `multitenant(name)` stay, and Java uses them.
+
 ```kotlin
 val application = application {
     serverEnvironment = environment
-    add(BoundedContext.singleTenant("Users").add(UserRepository()))
-    add(BoundedContext.singleTenant("Tasks").add(TaskRepository()))
+    add(singleTenantContext("Users") {
+        add(UserRepository())
+    })
+    add(singleTenantContext("Tasks") {
+        add(TaskRepository())
+        add(TaskViewRepository())
+    })
 }
 ```
 

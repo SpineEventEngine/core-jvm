@@ -38,8 +38,8 @@ import io.spine.server.tenant.TenantIndex
  * ```
  * val application = application {
  *     serverEnvironment = environment
- *     add(BoundedContext.singleTenant("Users").add(UserRepository()))
- *     add(BoundedContext.singleTenant("Tasks").add(TaskRepository()))
+ *     add(singleTenantContext("Users") { add(UserRepository()) })
+ *     add(singleTenantContext("Tasks") { add(TaskRepository()) })
  * }
  * ```
  *
