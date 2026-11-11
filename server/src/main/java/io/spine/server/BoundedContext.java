@@ -192,6 +192,9 @@ public abstract class BoundedContext
     /**
      * Creates a new builder for a single tenant {@code BoundedContext}.
      *
+     * <p>Add the returned builder to an {@link Application}, which builds the context with
+     * the technologies of its {@link ServerEnvironment}.
+     *
      * @param name
      *         the name of the built context
      * @return new builder instance
@@ -204,6 +207,9 @@ public abstract class BoundedContext
 
     /**
      * Creates a new builder for a multitenant {@code BoundedContext}.
+     *
+     * <p>Add the returned builder to an {@link Application}, which builds the context with
+     * the technologies of its {@link ServerEnvironment}.
      *
      * @param name
      *         the name of the built context
