@@ -12,7 +12,7 @@
  * and limitations under the License.
  */
 
-@file:JvmName("ServerEnvironmentExtensions")
+@file:JvmName("ServerEnvironments")
 
 package io.spine.server
 
