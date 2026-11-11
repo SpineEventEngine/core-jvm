@@ -63,9 +63,9 @@ import io.spine.util.Exceptions.newIllegalStateException
  * ```
  * val repository = TaskViewRepository()
  *
- * val context = BoundedContext.singleTenant("Tasks")
+ * // Add the repository to a context, which the application then builds:
+ * val tasks = BoundedContext.singleTenant("Tasks")
  *     .add(repository)
- *     .build()
  * // ...
  *
  * // Start the catch-up when needed:

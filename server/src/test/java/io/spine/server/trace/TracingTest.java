@@ -17,6 +17,7 @@ package io.spine.server.trace;
 import com.google.protobuf.Message;
 import io.spine.base.CommandMessage;
 import io.spine.environment.Tests;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.ContextSpec;
 import io.spine.server.ServerEnvironment;
@@ -49,31 +50,37 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DisplayName("Message tracing should")
 class TracingTest {
 
-    private static final ServerEnvironment serverEnvironment = ServerEnvironment.instance();
     private static final TestActorRequestFactory requests =
             new TestActorRequestFactory(TracingTest.class);
 
     private MemoizingTracerFactory tracing;
     private BoundedContext context;
+
+    /**
+     * The application of the {@link #context}, closed after each test.
+     */
+    private Application application;
     private ContextSpec spec;
 
     @BeforeEach
     void setUp() {
         tracing = new MemoizingTracerFactory();
-        ServerEnvironment.under(Tests.class)
-                         .use(tracing);
-        context = AirportContext.builder().build();
+        var environment = ServerEnvironment.newBuilder()
+                .under(Tests.class, env -> env.use(tracing))
+                .build();
+        application = Application.newBuilder()
+                .setServerEnvironment(environment)
+                .add(AirportContext.builder())
+                .build();
+        context = application.contexts()
+                             .get(0);
         spec = context.spec();
     }
 
     @AfterEach
     void tearDown() {
-        try {
-            if (context != null) {
-                context.close();
-            }
-        } finally {
-            serverEnvironment.reset();
+        if (application != null) {
+            application.close();
         }
     }
 

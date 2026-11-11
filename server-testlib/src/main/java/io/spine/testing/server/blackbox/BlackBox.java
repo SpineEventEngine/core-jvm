@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.testing.server.blackbox;
@@ -45,6 +33,7 @@ import io.spine.core.TenantId;
 import io.spine.core.UserId;
 import io.spine.grpc.MemoizingObserver;
 import io.spine.logging.WithLogging;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
 import io.spine.server.Closeable;
@@ -55,6 +44,7 @@ import io.spine.server.event.EventBus;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.server.CommandSubject;
 import io.spine.testing.server.EventSubject;
+import io.spine.testing.server.TestApplications;
 import io.spine.testing.server.blackbox.probe.BlackboxProbe;
 import io.spine.testing.server.blackbox.probe.CommandCollector;
 import io.spine.testing.server.blackbox.probe.EventCollector;
@@ -96,6 +86,13 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * The context under test.
      */
     private final BoundedContext context;
+
+    /**
+     * The application of the context under the test, which this black box closes.
+     *
+     * <p>{@code null} if the black box is created over a context alone.
+     */
+    private @Nullable Application application;
 
     /**
      * The probe inserted into the context under test.
@@ -140,10 +137,35 @@ public abstract class BlackBox implements WithLogging, Closeable {
 
     /**
      * Creates a new instance obtaining configuration parameters from the passed builder.
+     *
+     * <p>The context is the only context of a new {@link Application}, whose server
+     * environment has the technologies of the {@link io.spine.environment.Tests Tests}
+     * environment. Closing the black box closes the application.
      */
     public static BlackBox from(BoundedContextBuilder builder) {
-        var context = builder.build();
-        return from(context);
+        var application = TestApplications.newBuilder()
+                .add(builder)
+                .build();
+        return from(application);
+    }
+
+    /**
+     * Creates a new instance over the only context of the given application.
+     *
+     * <p>Closing the black box closes the application, together with its server environment.
+     *
+     * @throws IllegalArgumentException
+     *         if the application has more than one context
+     */
+    public static BlackBox from(Application application) {
+        checkNotNull(application);
+        var contexts = application.contexts();
+        checkArgument(contexts.size() == 1,
+                      "A black box needs an application of one context," +
+                              " but the application has %s contexts.", contexts.size());
+        var box = from(contexts.get(0));
+        box.application = application;
+        return box;
     }
 
     /**
@@ -504,7 +526,8 @@ public abstract class BlackBox implements WithLogging, Closeable {
      *
      * <p>This method performs the following:
      * <ol>
-     *     <li>Closes the tested {@link BoundedContext}.
+     *     <li>Closes the tested {@link BoundedContext}, or its {@link Application}, if
+     *         the black box was created from an application or a {@link BoundedContextBuilder}.
      *     <li>Closes the associated {@link io.spine.client.Client Client}s.
      * </ol>
      *
@@ -513,7 +536,11 @@ public abstract class BlackBox implements WithLogging, Closeable {
      */
     @Override
     public final void close() {
-        context.closeIfOpen();
+        if (application != null) {
+            application.closeIfOpen();
+        } else {
+            context.closeIfOpen();
+        }
         clientFactory.closeIfOpen();
     }
 

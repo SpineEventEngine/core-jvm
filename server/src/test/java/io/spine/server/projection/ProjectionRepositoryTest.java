@@ -198,8 +198,8 @@ class ProjectionRepositoryTest
     @Override
     @BeforeEach
     protected void setUp() {
-        context = BoundedContext
-                .multitenant(getClass().getSimpleName())
+        context = BoundedContextBuilder
+                .assumingTests(getClass().getSimpleName(), /* multitenant = */ true)
                 .build();
         super.setUp();
         context.internalAccess()

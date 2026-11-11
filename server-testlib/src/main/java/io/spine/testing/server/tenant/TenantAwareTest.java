@@ -19,10 +19,8 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.core.TenantId;
 import io.spine.environment.Environment;
 import io.spine.environment.Tests;
-import io.spine.server.Application;
 import io.spine.server.tenant.TenantAwareTestSupport;
 import io.spine.server.tenant.TenantFunction;
-import io.spine.server.tenant.TenantIndex;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -37,19 +35,6 @@ import static java.util.Objects.requireNonNull;
 @Internal
 @VisibleForTesting
 public abstract class TenantAwareTest {
-
-    /**
-     * Creates a default implementation of {@link TenantIndex} for this test suite.
-     *
-     * @param multitenant
-     *  set to {@code true} when a suite tests a multi-tenant context, {@code false} otherwise
-     * @return a new tenant index
-     */
-    public static TenantIndex createTenantIndex(boolean multitenant) {
-        return multitenant
-               ? Application.instance().defaultMultitenantIndex()
-               : TenantIndex.singleTenant();
-    }
 
     /**
      * Sets the current tenant ID to the passed value.

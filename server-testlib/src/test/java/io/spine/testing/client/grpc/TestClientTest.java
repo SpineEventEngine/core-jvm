@@ -17,11 +17,13 @@ package io.spine.testing.client.grpc;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.core.Ack;
 import io.spine.core.UserId;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.Server;
 import io.spine.testing.client.grpc.command.Ping;
 import io.spine.testing.client.grpc.given.GameRepository;
 import io.spine.testing.logging.mute.MuteLogging;
+import io.spine.testing.server.TestApplications;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,19 +48,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @MuteLogging
 class TestClientTest {
 
+    private Application application;
     private Server server;
     private TestClient client;
 
     @BeforeEach
     void setUpAll() throws IOException {
-        BoundedContext.singleTenant("Tennis")
-                      .add(new GameRepository())
-                      .build();
+        application = TestApplications.newBuilder()
+                .add(BoundedContext.singleTenant("Tennis")
+                                   .add(new GameRepository()))
+                .build();
         // Bind to the port `0` so that the OS assigns a free port at the time of binding.
         // Unlike a fixed or randomly guessed port, this cannot fail with "address already
         // in use" (notably under Windows).
         server = Server
                 .atPort(0)
+                .setApplication(application)
                 .build();
         server.start();
         var userId = UserId.newBuilder()
@@ -73,6 +78,7 @@ class TestClientTest {
             client.shutdown();
         }
         server.shutdownAndWait();
+        application.close();
     }
 
     @Test

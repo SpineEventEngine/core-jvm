@@ -22,18 +22,10 @@ import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import io.spine.base.Identifier
 import io.spine.core.BoundedContextName
 import io.spine.core.BoundedContextNames.newName
-import io.spine.environment.Tests
-import io.spine.server.BoundedContext
-import io.spine.server.ServerEnvironment
 import io.spine.server.delivery.given.NoOpEndpoint
-import io.spine.server.delivery.given.TallyA1Repository
-import io.spine.server.delivery.given.closeAll
-import io.spine.server.under
 import io.spine.test.delivery.TallyA1
 import io.spine.type.TypeUrl
 import io.spine.validation.NonValidated
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -42,22 +34,6 @@ import org.junit.jupiter.api.Test
 internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
 
     private val deliveries = InboxDeliveries()
-    private val contexts = mutableListOf<BoundedContext>()
-
-    /**
-     * Uses a `Delivery` of this test, as the inboxes the test creates are registered
-     * in the `Delivery` of the environment too.
-     */
-    @BeforeEach
-    fun useOwnDelivery() {
-        val environment = ServerEnvironment.instance()
-        under<Tests> { use(Delivery.local(environment.nodeId(), environment.storageFactory())) }
-    }
-
-    @AfterEach
-    fun closeContexts() {
-        closeAll(contexts)
-    }
 
     @Nested inner class
     `find the inbox of an entity type in the context of the message` {
@@ -207,13 +183,25 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
     `fail to find the inbox of a catch-up message` {
 
         @Test
-        fun `if no open context serves the projection type`() {
+        fun `if no inbox is registered for the projection type`() {
             deliveries.register(inbox(CatchUpProcess.TYPE, TASKS.toSystem()))
 
             val error = shouldThrow<IllegalStateException> {
                 deliveries.get(messageTo(CatchUpProcess.TYPE, job(), context = TASKS.toSystem()))
             }
             error.message shouldContain TALLY_TYPE.value()
+        }
+
+        @Test
+        fun `if the projection type has inboxes in several contexts`() {
+            serveTallies(TASKS)
+            serveTallies(BILLING)
+            deliveries.register(inbox(CatchUpProcess.TYPE, TASKS.toSystem()))
+
+            val error = shouldThrow<IllegalStateException> {
+                deliveries.get(messageTo(CatchUpProcess.TYPE, job(), context = TASKS.toSystem()))
+            }
+            error.message shouldContain "several Bounded Contexts"
         }
 
         @Test
@@ -231,33 +219,30 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
     }
 
     /**
-     * Builds a domain context with the given name, which serves the tallies.
+     * Registers an inbox of the tallies, which belongs to the domain context
+     * with the given name.
      */
     private fun serveTallies(name: BoundedContextName) {
-        val context = BoundedContext.singleTenant(name.value)
-            .add(TallyA1Repository())
-            .build()
-        contexts.add(context)
+        deliveries.register(inbox(TALLY_TYPE, name))
     }
+
+    /**
+     * Creates an inbox of the given type, which belongs to the given context.
+     *
+     * The inbox is also registered in the `Delivery` of this test, which the test uses
+     * for nothing else.
+     */
+    private fun inbox(type: TypeUrl, context: BoundedContextName): Inbox<String> =
+        delivery()
+            .newInbox<String>(type, context)
+            .addCommandEndpoint(InboxLabel.HANDLE_COMMAND) { NoOpEndpoint() }
+            .build()
 
     private companion object {
 
         val TASKS: BoundedContextName = newName("Tasks")
         val BILLING: BoundedContextName = newName("Billing")
         val TALLY_TYPE: TypeUrl = TypeUrl.of(TallyA1::class.java)
-        val instance = ServerEnvironment.instance()
-
-        /**
-         * Creates an inbox of the given type, which belongs to the given context.
-         *
-         * The inbox is also registered in the `Delivery` of the environment,
-         * which the test uses for nothing else.
-         */
-        fun inbox(type: TypeUrl, context: BoundedContextName): Inbox<String> =
-            instance.delivery()
-                .newInbox<String>(type, context)
-                .addCommandEndpoint(InboxLabel.HANDLE_COMMAND) { NoOpEndpoint() }
-                .build()
 
         fun job(): CatchUpId = catchUpId {
             uuid = Identifier.newUuid()

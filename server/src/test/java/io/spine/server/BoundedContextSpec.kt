@@ -27,6 +27,8 @@ import io.kotest.matchers.optional.shouldBeEmpty
 import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.annotation.Internal
 import io.spine.base.EventMessage
 import io.spine.core.BoundedContextName
@@ -35,8 +37,6 @@ import io.spine.core.External
 import io.spine.logging.Level.Companion.DEBUG
 import io.spine.logging.toJavaLogging
 import io.spine.option.EntityOption.Visibility.FULL
-import io.spine.server.BoundedContext.multitenant
-import io.spine.server.BoundedContext.singleTenant
 import io.spine.server.BoundedContextBuilder.assumingTests
 import io.spine.server.bc.given.FinishedProjectProjection
 import io.spine.server.bc.given.ProjectAggregate
@@ -54,6 +54,7 @@ import io.spine.server.type.CommandEnvelope
 import io.spine.server.type.EventEnvelope
 import io.spine.system.server.ConstraintViolated
 import io.spine.system.server.SystemClient
+import io.spine.system.server.SystemBoundedContexts.systemOf
 import io.spine.system.server.SystemContext
 import io.spine.test.bc.Project
 import io.spine.test.bc.SecretProject
@@ -372,7 +373,35 @@ internal class BoundedContextSpec {
                 @Internal
                 override fun systemClient(): SystemClient = TestValues.nullRef()
 
-                override fun isSystem(): Boolean = false
+                @Internal
+                override fun domainContext(): BoundedContext = TestValues.nullRef()
+            }
+        }
+    }
+
+    @Nested inner class
+    `know its domain context` {
+
+        @Test
+        fun `being the domain context itself`() {
+            context.internalAccess().domainContext() shouldBeSameInstanceAs context
+        }
+
+        @Test
+        fun `through its System context`() {
+            systemOf(context).internalAccess().domainContext() shouldBeSameInstanceAs context
+        }
+
+        @Test
+        fun `refusing a second domain context for a System context`() {
+            assumingTests().build().use { another ->
+                val system = systemOf(context)
+                val error = assertThrows<IllegalStateException> {
+                    system.attachDomain(another)
+                }
+                error.message shouldContain "`$system`"
+                error.message shouldContain "`$context`"
+                error.message shouldContain "`$another`"
             }
         }
     }
@@ -389,7 +418,7 @@ internal class BoundedContextSpec {
 
         @BeforeEach
         fun closeContext() {
-            val context = singleTenant(contextName.value).build()
+            val context = assumingTests(contextName.value).build()
             domainInterceptor = Interceptor(DomainContext::class.java, debugLevel)
             domainInterceptor.intercept()
             systemInterceptor = Interceptor(SystemContext::class.java, debugLevel)
@@ -424,7 +453,7 @@ internal class BoundedContextSpec {
     @Test
     fun `return its name in 'toString()'`() {
         val name = TestValues.randomString()
-        singleTenant(name).build().use {
+        assumingTests(name).build().use {
             it.toString() shouldBe name
         }
     }
@@ -455,10 +484,10 @@ internal class BoundedContextSpec {
 
     @Test
     fun `be equal to another context by its name`() {
-        val c1 = closedAfterBuild(singleTenant("One"))
-        val c2 = closedAfterBuild(singleTenant("Two"))
-        val c1m = closedAfterBuild(multitenant("One"))
-        val c2m = closedAfterBuild(multitenant("Two"))
+        val c1 = closedAfterBuild(assumingTests("One"))
+        val c2 = closedAfterBuild(assumingTests("Two"))
+        val c1m = closedAfterBuild(assumingTests("One", /* multitenant = */ true))
+        val c2m = closedAfterBuild(assumingTests("Two", /* multitenant = */ true))
         EqualsTester()
             .addEqualityGroup(c1, c1m)
             .addEqualityGroup(c2, c2m)
@@ -467,11 +496,11 @@ internal class BoundedContextSpec {
 
     @Test
     fun `be comparable by its name`() {
-        val c1 = closedAfterBuild(singleTenant("1"))
-        val c2 = closedAfterBuild(singleTenant("2"))
+        val c1 = closedAfterBuild(assumingTests("1"))
+        val c2 = closedAfterBuild(assumingTests("2"))
         c1 shouldBeLessThan c2
         c2 shouldBeGreaterThan c1
-        c1 shouldBe closedAfterBuild(multitenant("1"))
+        c1 shouldBe closedAfterBuild(assumingTests("1", /* multitenant = */ true))
     }
 
     /**

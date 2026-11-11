@@ -41,21 +41,28 @@ import static java.lang.String.format;
  *     <li>{@link SubscriptionService}.
  * </ul>
  *
- * <p>The server exposes the contexts that are built when the server is
- * {@linkplain Builder#build() built}, so build the contexts first:
+ * <p>The server exposes the contexts of the application given to its builder:
  * <pre>{@code
- * BoundedContext.singleTenant("Users").add(new UserRepository()).build();
- * BoundedContext.singleTenant("Tasks").add(new TaskRepository()).build();
- * var server = Server.atPort(8484).build();
+ * var application = Application.newBuilder()
+ *         .setServerEnvironment(environment)
+ *         .add(BoundedContext.singleTenant("Users").add(new UserRepository()))
+ *         .add(BoundedContext.singleTenant("Tasks").add(new TaskRepository()))
+ *         .build();
+ * var server = Server.atPort(8484)
+ *         .setApplication(application)
+ *         .build();
  * server.start();
  * }</pre>
  *
- * <p>{@linkplain #shutdown() Shutting down} the server closes the contexts it exposes.
+ * <p>{@linkplain #shutdown() Shutting down} the server leaves the application open, since
+ * several servers may expose one application. Shut down the servers first, and then close
+ * the application:
+ * <pre>{@code
+ * server.shutdown();
+ * application.close();
+ * }</pre>
  */
 public final class Server implements WithLogging {
-
-    /** Bounded Contexts exposed by the server. */
-    private final ImmutableSet<BoundedContext> contexts;
 
     /** The container for Command- and Query- services. */
     private final GrpcContainer grpcContainer;
@@ -86,7 +93,6 @@ public final class Server implements WithLogging {
     }
 
     private Server(Builder builder) {
-        this.contexts = builder.contexts();
         this.grpcContainer = builder.createContainer();
         this.queryService = checkNotNull(builder.queryService);
         this.subscriptionService = checkNotNull(builder.subscriptionService);
@@ -123,49 +129,27 @@ public final class Server implements WithLogging {
     /**
      * Initiates an orderly shutdown in which existing calls continue but new calls are rejected.
      *
-     * <p>Also closes the Bounded Contexts of the server, logging an error for each one
-     * that fails to close.
+     * <p>The {@link Application} of the server stays open. Close it once all the servers that
+     * expose it are shut down.
      */
     public void shutdown() {
         logger().atInfo().log(() -> "Shutting down the server...");
         grpcContainer.shutdown();
-        closeContexts();
         logger().atInfo().log(() -> "Server shut down.");
     }
 
     /**
      * Initiates a forceful shutdown in which preexisting and new calls are rejected.
      *
-     * <p>The method returns when the server becomes terminated and its Bounded Contexts
-     * are closed, as {@link #shutdown()} closes them.
+     * <p>The method returns when the server becomes terminated. The {@link Application} of
+     * the server stays open, as it does after {@link #shutdown()}.
      *
      * <p>The most common usage scenario for this method is clean-up in unit tests
      * (e.g. {@literal @}{@code AfterEach} in JUnit5) that involve client-server communications.
      */
     @VisibleForTesting
     public void shutdownAndWait() {
-        try {
-            grpcContainer.shutdownNowAndWait();
-        } finally {
-            closeContexts();
-        }
-    }
-
-    /**
-     * Closes the Bounded Contexts of the server, logging an error for each one that fails
-     * to close.
-     */
-    private void closeContexts() {
-        contexts.forEach(context -> {
-            try {
-                context.close();
-            } catch (Exception e) {
-                var contextName = context.name()
-                                         .getValue();
-                logger().atError().withCause(e).log(() -> format(
-                        "Unable to close the `%s` Context.", contextName));
-            }
-        });
+        grpcContainer.shutdownNowAndWait();
     }
 
     /**
@@ -213,9 +197,8 @@ public final class Server implements WithLogging {
         private final Set<BindableService> extraServices = new HashSet<>();
 
         /** The application whose contexts the server serves. */
-        private Application application = Application.instance();
+        private @MonotonicNonNull Application application;
 
-        private @MonotonicNonNull ImmutableSet<BoundedContext> contexts;
         private @MonotonicNonNull QueryService queryService;
         private @MonotonicNonNull SubscriptionService subscriptionService;
         private @MonotonicNonNull CommandService commandService;
@@ -225,12 +208,13 @@ public final class Server implements WithLogging {
         }
 
         /**
-         * Makes the server serve the contexts of the given application, instead of
-         * the {@linkplain Application#instance() application} of the JVM.
+         * Sets the application whose Bounded Contexts the server exposes.
+         *
+         * <p>The server does not close the application when it shuts down, since several
+         * servers may expose one application. Close the application after the servers.
          */
-        @VisibleForTesting
         @CanIgnoreReturnValue
-        Builder serving(Application application) {
+        public Builder setApplication(Application application) {
             this.application = checkNotNull(application);
             return this;
         }
@@ -252,28 +236,29 @@ public final class Server implements WithLogging {
 
         /**
          * Creates a new instance of the server, which exposes the Bounded Contexts
-         * of the {@link Application} built so far.
-         *
-         * <p>A context built after this call is not exposed by the server.
+         * of the {@linkplain #setApplication(Application) application}.
          *
          * @throws IllegalStateException
-         *         if the application has no Bounded Contexts, for example, because they are
-         *         not built yet, or because the application is closed
+         *         if the application is not set, or is closed
          */
         public Server build() {
             var result = new Server(this);
             return result;
         }
 
+        /**
+         * Obtains the contexts of the application that is set at the moment.
+         *
+         * <p>The builder does not keep them, so a builder that is reused with another
+         * application builds a server of that application.
+         */
         private ImmutableSet<BoundedContext> contexts() {
-            if (contexts == null) {
-                var built = application.contexts().all();
-                checkState(!built.isEmpty(),
-                           "The application has no Bounded Contexts for the server to expose." +
-                                   " Please build the contexts before the server.");
-                contexts = ImmutableSet.copyOf(built);
-            }
-            return contexts;
+            checkState(application != null,
+                       "The application of the server is not set." +
+                               " Please call `setApplication()`.");
+            checkState(application.isOpen(),
+                       "The application of the server is closed.");
+            return ImmutableSet.copyOf(application.contexts());
         }
 
         /**

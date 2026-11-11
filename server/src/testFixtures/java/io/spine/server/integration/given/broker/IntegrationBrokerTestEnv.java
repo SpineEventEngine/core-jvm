@@ -1,32 +1,25 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.integration.given.broker;
 
+import io.spine.environment.Tests;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
+import io.spine.server.BoundedContextBuilder;
+import io.spine.server.ServerEnvironment;
+import io.spine.server.transport.TransportFactory;
 import io.spine.testing.server.blackbox.BlackBox;
 
 /**
@@ -39,50 +32,70 @@ public class IntegrationBrokerTestEnv {
     private IntegrationBrokerTestEnv() {
     }
 
-    public static BlackBox billingBc() {
-        return BlackBox.from(
+    /**
+     * Creates a black box over the context of the given builder, which exchanges messages
+     * with other contexts through the given transport.
+     *
+     * <p>Each context is the only context of an application of its own. The contexts of
+     * a test share the transport, so that they receive the external events of each other.
+     * Closing the black box closes its application, whose environment closes the transport.
+     * So a test closes its black boxes after the contexts are done exchanging events.
+     */
+    private static BlackBox blackBox(TransportFactory transport, BoundedContextBuilder builder) {
+        var environment = ServerEnvironment.newBuilder()
+                .under(Tests.class, env -> env.use(transport))
+                .build();
+        var application = Application.newBuilder()
+                .setServerEnvironment(environment)
+                .add(builder)
+                .build();
+        return BlackBox.from(application);
+    }
+
+    public static BlackBox billingBc(TransportFactory transport) {
+        return blackBox(transport,
                 BoundedContext.singleTenant("BillingBc-" + testClassName)
                               .add(BillingAggregate.class)
         );
     }
 
-    public static BlackBox subscribedBillingBc() {
-        return BlackBox.from(
+    public static BlackBox subscribedBillingBc(TransportFactory transport) {
+        return blackBox(transport,
                 BoundedContext.singleTenant("SubscribedBillingBc-" + testClassName)
                               .add(SubscribedBillingAggregate.class)
         );
     }
 
-    public static BlackBox photosBc() {
-        return BlackBox.from(
+    public static BlackBox photosBc(TransportFactory transport) {
+        return blackBox(transport,
                 BoundedContext.singleTenant("PhotosBc-" + testClassName)
                               .add(PhotosAggregate.class)
         );
     }
 
-    public static BlackBox subscribedPhotosBc() {
-        return BlackBox.from(
+    public static BlackBox subscribedPhotosBc(TransportFactory transport) {
+        return blackBox(transport,
                 BoundedContext.singleTenant("SubscribedPhotosBc-" + testClassName)
                               .add(SubscribedPhotosAggregate.class)
         );
     }
 
-    public static BlackBox subscribedWarehouseBc() {
-        return BlackBox.from(
+    public static BlackBox subscribedWarehouseBc(TransportFactory transport) {
+        return blackBox(transport,
                 BoundedContext.singleTenant("SubscribedWarehouseBc-" + testClassName)
                               .add(SubscribedWarehouseAggregate.class)
         );
     }
 
-    public static BlackBox subscribedStatisticsBc() {
-        return BlackBox.from(
+    public static BlackBox subscribedStatisticsBc(TransportFactory transport) {
+        return blackBox(transport,
                 BoundedContext.singleTenant("SubscribedStatisticsBc-" + testClassName)
                               .add(SubscribedStatisticsAggregate.class)
         );
     }
 
-    public static BlackBox photosBcAndSubscribedBillingBc() {
-        return BlackBox.from(
+    public static BlackBox photosBcAndSubscribedBillingBc(TransportFactory transport) {
+        return blackBox(transport,
                 BoundedContext.singleTenant("photosBcAndSubscribedBillingBc-" + testClassName)
                               .add(PhotosAggregate.class)
                               .add(SubscribedBillingAggregate.class)

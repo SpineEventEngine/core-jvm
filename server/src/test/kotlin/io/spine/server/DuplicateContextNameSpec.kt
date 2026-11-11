@@ -17,19 +17,16 @@ package io.spine.server
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
-import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
-import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.core.Ack
 import io.spine.core.BoundedContextNames
 import io.spine.server.bus.BusFilter
 import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.type.CommandEnvelope
-import io.spine.test.delivery.Calc
-import io.spine.type.TypeUrl
 import java.util.Optional
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
@@ -39,57 +36,52 @@ import org.junit.jupiter.api.Test
 internal class DuplicateContextNameSpec {
 
     /**
-     * The contexts built by the current case.
-     *
-     * They are closed after each case, so that their names are free for the cases and
-     * the test classes that run later.
+     * The applications built by the current case, closed after it.
      */
-    private val built = mutableListOf<BoundedContext>()
+    private val built = mutableListOf<Application>()
 
     @AfterEach
-    fun closeContexts() {
-        built.forEach(BoundedContext::closeIfOpen)
+    fun closeApplications() {
+        built.forEach(Application::closeIfOpen)
         built.clear()
     }
 
     @Test
-    fun `reject a context with the name of another open context, naming it`() {
-        context(sameName)
-
+    fun `reject two contexts with one name, naming it`() {
         val error = shouldThrow<DuplicateContextNameException> {
-            context(sameName)
+            applicationOf(context(sameName), context(sameName))
         }
-        error.message shouldBe "A Bounded Context named `$sameName` is already open." +
-                " Close it, or give the new context another name."
+
+        error.message shouldBe "Another Bounded Context of the application is named" +
+                " `$sameName`. Please give each context a name of its own."
     }
 
     @Test
-    fun `reject a context with the name of the System context of an open context`() {
-        context(ownerName)
-
+    fun `reject a context with the name of the System context of another one`() {
         val error = shouldThrow<DuplicateContextNameException> {
-            context(ownerSystemName)
+            applicationOf(context(ownerName), context(ownerSystemName))
         }
+
         error.message shouldContain "`$ownerSystemName`"
     }
 
     @Test
-    fun `reject a context whose System context would have the name of an open context`() {
-        context(ownerSystemName)
-
+    fun `reject a context whose System context would have the name of another one`() {
         val error = shouldThrow<DuplicateContextNameException> {
-            context(ownerName)
+            applicationOf(context(ownerSystemName), context(ownerName))
         }
+
         error.message shouldContain "`$ownerSystemName`"
     }
 
     @Test
-    fun `allow several open contexts built by 'assumingTests()', each with a name of its own`() {
-        val first = BoundedContextBuilder.assumingTests().build().also(built::add)
-        val second = shouldNotThrowAny {
-            BoundedContextBuilder.assumingTests(/* multitenant = */ true).build().also(built::add)
-        }
+    fun `allow several contexts built by 'assumingTests()', each with a name of its own`() {
+        val app = applicationOf(
+            BoundedContextBuilder.assumingTests(),
+            BoundedContextBuilder.assumingTests(/* multitenant = */ true)
+        )
 
+        val (first, second) = app.contexts()
         first.name() shouldNotBe second.name()
         listOf(first, second).forEach {
             it.name().value shouldStartWith BoundedContextNames.assumingTestsValue() + "-"
@@ -97,91 +89,64 @@ internal class DuplicateContextNameSpec {
     }
 
     @Test
-    fun `allow the name once the context with it is closed`() {
-        context(reusedName).close()
+    fun `allow one name in two applications`() {
+        applicationOf(context(sameName))
 
         shouldNotThrowAny {
-            context(reusedName)
+            applicationOf(context(sameName))
         }
     }
 
     @Test
-    fun `build nothing for a rejected name`() {
-        val first = context(sameName, CalculatorRepository())
-        val rejected = CalculatorRepository()
+    fun `build no context, if a name is rejected`() {
+        val repository = CalculatorRepository()
+        val environment = serverEnvironment {}
 
         shouldThrow<DuplicateContextNameException> {
-            context(sameName, rejected)
+            applicationOf(environment, context(sameName, repository), context(sameName))
         }
-        rejected.isRegistered shouldBe false
-        Application.instance().contexts.contextServing(calc) shouldBeSameInstanceAs first
-    }
 
-    @Test
-    fun `free the name of a context that fails to build for another reason`() {
-        context(firstName, CalculatorRepository())
-
-        shouldThrow<DuplicateEntityStateException> {
-            context(secondName, CalculatorRepository())
-        }
+        repository.isRegistered.shouldBeFalse()
         shouldNotThrowAny {
-            context(secondName)
+            applicationOf(environment, context(sameName))
         }
     }
 
     @Test
-    fun `count the name of a context while its repositories are registered`() {
-        val nested = BuildingContextOnRegistration(sameName)
-
-        shouldThrow<DuplicateContextNameException> {
-            context(sameName, nested)
-        }
-        shouldNotThrowAny {
-            context(sameName)
-        }
-    }
-
-    @Test
-    fun `close the rest of a context whose command bus fails to close, and free its name`() {
-        val first = BoundedContext.singleTenant(failingName)
+    fun `close the rest of a context whose command bus fails to close`() {
+        val context = BoundedContextBuilder.assumingTests(failingName)
             .addCommandFilter(FailingToClose())
             .add(CalculatorRepository())
             .build()
-            .also(built::add)
 
         shouldThrow<IllegalStateException> {
-            first.close()
+            context.close()
         }
         withClue("The parts closed after the failing command bus") {
-            first.eventBus().isOpen shouldBe false
-            first.internalAccess().broker().isOpen shouldBe false
-            first.stand().isOpen shouldBe false
-        }
-        Application.instance().contexts.contextServing(calc).shouldBeNull()
-        shouldNotThrowAny {
-            context(failingName, CalculatorRepository())
+            context.eventBus().isOpen shouldBe false
+            context.internalAccess().broker().isOpen shouldBe false
+            context.stand().isOpen shouldBe false
         }
     }
 
-    private fun context(name: String, vararg repositories: CalculatorRepository): BoundedContext {
+    private fun applicationOf(vararg contexts: BoundedContextBuilder): Application =
+        applicationOf(serverEnvironment {}, *contexts)
+
+    private fun applicationOf(
+        environment: ServerEnvironment,
+        vararg contexts: BoundedContextBuilder
+    ): Application = application {
+        serverEnvironment = environment
+        contexts.forEach { add(it) }
+    }.also(built::add)
+
+    private fun context(
+        name: String,
+        vararg repositories: CalculatorRepository
+    ): BoundedContextBuilder {
         val builder = BoundedContext.singleTenant(name)
         repositories.forEach { builder.add(it) }
-        return builder.build().also(built::add)
-    }
-
-    /**
-     * A repository that builds a context with the given name when it is registered.
-     *
-     * The context of the repository is open under its name by then, so this build fails.
-     */
-    private inner class BuildingContextOnRegistration(
-        private val name: String
-    ) : CalculatorRepository() {
-
-        override fun onRegistered() {
-            super.onRegistered()
-            context(name)
-        }
+        return builder
     }
 
     /**
@@ -196,16 +161,7 @@ internal class DuplicateContextNameSpec {
 
     private companion object {
 
-        val calc: TypeUrl = TypeUrl.of(Calc::class.java)
-
-        /*
-         * The names of the contexts of this spec, which no other test uses. So a context left
-         * open by another test cannot fail these cases for a misleading reason.
-         */
         const val sameName = "DuplicateContextNameSpec.Same"
-        const val reusedName = "DuplicateContextNameSpec.Reused"
-        const val firstName = "DuplicateContextNameSpec.First"
-        const val secondName = "DuplicateContextNameSpec.Second"
         const val failingName = "DuplicateContextNameSpec.Failing"
         const val ownerName = "DuplicateContextNameSpec.Owner"
 

@@ -40,6 +40,7 @@ import io.spine.server.delivery.event.ShardProcessingRequested
 import io.spine.server.event.AbstractEventSubscriber
 import io.spine.server.event.EventStore
 import io.spine.server.event.EventStreamQuery
+import io.spine.server.singleTenantContext
 import io.spine.system.server.SystemBoundedContexts.systemOf
 import io.spine.testing.SlowTest
 import io.spine.testing.server.blackbox.BlackBox
@@ -63,7 +64,7 @@ internal class CatchUpEventsIgTest : AbstractCatchUpIgTest() {
         useDelivery(UniformAcrossAllShards.forNumber(1))
         val context = BoundedContextBuilder.assumingTests()
             .add(repository)
-            .build()
+            .let { build(it) }
         BlackBox.from(context).use { box ->
             val since = emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND)
             repository.catchUpAll(since)
@@ -86,7 +87,7 @@ internal class CatchUpEventsIgTest : AbstractCatchUpIgTest() {
         useDelivery(UniformAcrossAllShards.forNumber(1))
         val builder = BoundedContextBuilder.assumingTests().add(repository)
         builder.systemSettings().persistEvents()
-        val context = builder.build()
+        val context = build(builder)
         BlackBox.from(context).use { box ->
             val since = emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND)
             repository.catchUpAll(since)
@@ -109,10 +110,10 @@ internal class CatchUpEventsIgTest : AbstractCatchUpIgTest() {
     fun `pass its completion to a subscriber in the context of the projections`() {
         useDelivery(UniformAcrossAllShards.forNumber(1))
         val subscriber = CompletionSubscriber()
-        val context = BoundedContext.singleTenant("CatchUpCompletion")
-            .add(repository)
-            .addEventDispatcher(subscriber)
-            .build()
+        val context = build(singleTenantContext("CatchUpCompletion") {
+            add(repository)
+            addEventDispatcher(subscriber)
+        })
         BlackBox.from(context).use { box ->
             val since = emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND)
             val job = repository.catchUpAll(since)

@@ -26,6 +26,8 @@ import io.spine.server.route.setup.CommandRoutingSetup
 import io.spine.server.tenant.TenantAwareRunner
 import io.spine.server.type.CommandEnvelope
 import io.spine.util.Exceptions.newIllegalStateException
+import io.spine.util.runKeepingFailure
+import io.spine.util.throwIfAny
 import java.util.Optional
 
 /**
@@ -353,16 +355,14 @@ protected constructor() :
         // the primary exception and the later ones are attached to it as suppressed, so none of
         // them is lost. `super.close()` is called directly (not via the helper) so that the
         // `@OverridingMethodsMustInvokeSuper` check recognizes the super-call.
-        var failure: RuntimeException? = null
+        var failure: Throwable? = null
         try {
             super.close()
-        } catch (e: RuntimeException) {
+        } catch (e: Throwable) {
             failure = e
         }
-        failure = attemptClose(failure) { closeEventStorage() }
-        if (failure != null) {
-            throw failure
-        }
+        failure = runKeepingFailure(failure) { closeEventStorage() }
+        throwIfAny(failure)
     }
 
     /**

@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.delivery;
@@ -31,7 +19,6 @@ import com.google.common.collect.Iterators;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Durations;
 import io.spine.base.Time;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.delivery.given.ConsecutiveNumberProcess;
 import io.spine.server.delivery.given.ConsecutiveProjection;
 import io.spine.server.delivery.given.CounterCatchUp;
@@ -88,16 +75,14 @@ public abstract class CatchUpTest extends AbstractDeliveryTest {
     @Override
     @AfterEach
     public void tearDown() {
+        clearCatchUps();
         super.tearDown();
         Time.resetProvider();
-        clearCatchUps();
     }
 
-    private static void clearCatchUps() {
-        ServerEnvironment.instance()
-                         .delivery()
-                         .catchUpStorage()
-                         .clear();
+    private void clearCatchUps() {
+        delivery().catchUpStorage()
+                  .clear();
     }
 
     /**
@@ -173,7 +158,9 @@ public abstract class CatchUpTest extends AbstractDeliveryTest {
         @Test
         @DisplayName("of the same instance, if the previous catch-up is already completed")
         void ifPreviousCatchUpCompleted() {
-            CounterCatchUp.addOngoingCatchUpRecord(catchUpAll(aMinuteAgo()), COMPLETED);
+            CounterCatchUp.addOngoingCatchUpRecord(CatchUpTest.this,
+                                                   catchUpAll(aMinuteAgo()),
+                                                   COMPLETED);
             try (var counterCatchUp = catchUpForCounter()) {
                 counterCatchUp.catchUp(WhatToCatchUp.catchUpAll(aMinuteAgo()));
             }
@@ -189,7 +176,7 @@ public abstract class CatchUpTest extends AbstractDeliveryTest {
         @Test
         @DisplayName("if catching up of all repository instances has started previously")
         void ifCatchUpAllStartedPreviously() {
-            CounterCatchUp.addOngoingCatchUpRecord(catchUpAll(aMinuteAgo()));
+            CounterCatchUp.addOngoingCatchUpRecord(CatchUpTest.this, catchUpAll(aMinuteAgo()));
             try (var counterCatchUp = catchUpForCounter()) {
                 for (var target : counterCatchUp.targets()) {
                     assertCatchUpAlreadyStarted(counterCatchUp, target);
@@ -200,8 +187,9 @@ public abstract class CatchUpTest extends AbstractDeliveryTest {
         @Test
         @DisplayName("of the same repository instances")
         void ofSameInstances() {
-            CounterCatchUp.addOngoingCatchUpRecord(catchUpOf(TARGET_ID, aMinuteAgo()));
-            try (var counterCatchUp = new CounterCatchUp(TARGET_ID)) {
+            CounterCatchUp.addOngoingCatchUpRecord(CatchUpTest.this,
+                                                   catchUpOf(TARGET_ID, aMinuteAgo()));
+            try (var counterCatchUp = new CounterCatchUp(CatchUpTest.this, TARGET_ID)) {
                 assertCatchUpAlreadyStarted(counterCatchUp, TARGET_ID);
             }
         }
@@ -209,8 +197,9 @@ public abstract class CatchUpTest extends AbstractDeliveryTest {
         @Test
         @DisplayName("of all instances if at least one catch-up of an instance is in progress")
         void ofAllIfOneAlreadyStarted() {
-            CounterCatchUp.addOngoingCatchUpRecord(catchUpOf(TARGET_ID, aMinuteAgo()));
-            try(var counterCatchUp = new CounterCatchUp(TARGET_ID)) {
+            CounterCatchUp.addOngoingCatchUpRecord(CatchUpTest.this,
+                                                   catchUpOf(TARGET_ID, aMinuteAgo()));
+            try(var counterCatchUp = new CounterCatchUp(CatchUpTest.this, TARGET_ID)) {
                 counterCatchUp.catchUp(catchUpAll(aMinuteAgo()));
                 fail("It must not be possible to start catching up all the instances," +
                              " while some instance is already catching up.");
@@ -231,11 +220,11 @@ public abstract class CatchUpTest extends AbstractDeliveryTest {
         }
     }
 
-    private static CounterCatchUp catchUpForCounter() {
-        return new CounterCatchUp("first", "second", "third", "fourth");
+    private CounterCatchUp catchUpForCounter() {
+        return new CounterCatchUp(CatchUpTest.this, "first", "second", "third", "fourth");
     }
 
-    private static void testCatchUpEmpty() {
+    private void testCatchUpEmpty() {
         changeShardCountTo(17);
         try (var counterCatchUp = catchUpForCounter()) {
             var aWhileAgo = subtract(currentTime(), Durations.fromHours(1));
@@ -247,7 +236,7 @@ public abstract class CatchUpTest extends AbstractDeliveryTest {
         }
     }
 
-    private static void testCatchUpByIds() throws InterruptedException {
+    private void testCatchUpByIds() throws InterruptedException {
         changeShardCountTo(2);
         try(var counterCatchUp = catchUpForCounter()) {
 
@@ -293,7 +282,7 @@ public abstract class CatchUpTest extends AbstractDeliveryTest {
         }
     }
 
-    private static void testCatchUpAll() throws InterruptedException {
+    private void testCatchUpAll() throws InterruptedException {
         ConsecutiveProjection.usePositives();
 
         var ids = new String[]{"erste", "zweite", "dritte", "vierte"};
@@ -302,7 +291,7 @@ public abstract class CatchUpTest extends AbstractDeliveryTest {
 
         changeShardCountTo(3);
         var projectionRepo = new ConsecutiveProjection.Repo();
-        var ctx = BlackBox.singleTenantWith(
+        var ctx = blackBoxWith(
                 projectionRepo,
                 ConsecutiveNumberProcess.class
         );

@@ -14,8 +14,10 @@
 
 package io.spine.server.delivery;
 
-import io.spine.server.ServerEnvironment;
+import io.spine.base.Identifier;
+import io.spine.server.NodeId;
 import io.spine.server.storage.Storage;
+import io.spine.server.storage.memory.InMemoryStorageFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -42,8 +44,10 @@ class DeliveryDefaultsTest {
     }
 
     private static Delivery defaultDelivery() {
-        var environment = ServerEnvironment.instance();
-        return Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
+        var nodeId = NodeId.newBuilder()
+                .setValue(Identifier.newUuid())
+                .build();
+        return Delivery.newBuilder(nodeId, InMemoryStorageFactory.newInstance())
                 .build();
     }
 

@@ -22,7 +22,6 @@ import com.google.protobuf.Timestamp;
 import io.spine.base.Time;
 import io.spine.core.BoundedContextName;
 import io.spine.core.BoundedContextNames;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.storage.AbstractStorageTest;
 import io.spine.test.delivery.AddNumber;
 import io.spine.test.delivery.Calc;
@@ -72,9 +71,7 @@ public abstract class InboxStorageTest
 
     @Override
     protected InboxStorage newStorage() {
-        return ServerEnvironment.instance()
-                                .storageFactory()
-                                .createInboxStorage(false);
+        return storageFactory().createInboxStorage(false);
     }
 
     @Override

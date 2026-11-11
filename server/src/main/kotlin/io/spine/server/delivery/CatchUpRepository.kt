@@ -36,11 +36,16 @@ public class CatchUpRepository :
         delivery().catchUpStorage()
 
     /**
-     * Gives the process the `Delivery` of the context.
+     * Gives the process the `Delivery` of the context, and the domain context,
+     * whose projections the process catches up.
      */
     override fun configure(processManager: CatchUpProcess) {
         super.configure(processManager)
         processManager.injectDelivery(delivery())
+        processManager.injectDomainContext(
+            context().internalAccess()
+                .domainContext()
+        )
     }
 
     /**

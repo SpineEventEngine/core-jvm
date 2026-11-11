@@ -54,6 +54,8 @@ import java.util.function.Consumer;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.spine.server.security.Security.allowOnlyFrameworkServer;
+import static io.spine.util.Cleanup.runKeepingFailure;
+import static io.spine.util.Cleanup.throwIfAny;
 import static io.spine.util.Exceptions.newIllegalStateException;
 import static java.lang.String.format;
 
@@ -75,20 +77,17 @@ import static java.lang.String.format;
  * <p>An instance of {@code BoundedContext} acts as a major point of configuration for all
  * the model elements that belong to it.
  *
- * <p>Within a JVM, an open Bounded Context has a name of its own and serves entity state types
- * of its own. {@linkplain BoundedContextBuilder#build() Building} a context fails with
- * {@link DuplicateContextNameException} if another open context has the same name. Adding
- * a repository fails with {@link DuplicateEntityStateException} if another open context already
- * serves its entity state type. This holds in tests too.
- *
- * <p>A closed context is no longer open, so another context may have its name and serve its
- * entity state types. A test should therefore close the contexts it builds. Otherwise,
- * the contexts that later tests build cannot have those names or serve those types.
+ * <p>Bounded Contexts are built by an {@link Application}, which gives them the technologies of
+ * its {@link ServerEnvironment}. Within an application, a Bounded Context has a name of its own
+ * and serves entity state types of its own. {@linkplain Application.Builder#build() Building}
+ * the application fails with {@link DuplicateContextNameException} if two of its contexts have
+ * the same name, and with {@link DuplicateEntityStateException} if two of its contexts serve
+ * one entity state type.
  *
  * @see <a href="https://martinfowler.com/bliki/BoundedContext.html">
  *         Martin Fowler on Bounded Contexts</a>
  */
-@SuppressWarnings({"ClassWithTooManyMethods", "NotJavadoc"})
+@SuppressWarnings("ClassWithTooManyMethods")
 public abstract class BoundedContext
         implements Comparable<BoundedContext>,
                    Closeable,
@@ -195,6 +194,9 @@ public abstract class BoundedContext
     /**
      * Creates a new builder for a single tenant {@code BoundedContext}.
      *
+     * <p>Add the returned builder to an {@link Application}, which builds the context with
+     * the technologies of its {@link ServerEnvironment}.
+     *
      * @param name
      *         the name of the built context
      * @return new builder instance
@@ -208,6 +210,9 @@ public abstract class BoundedContext
     /**
      * Creates a new builder for a multitenant {@code BoundedContext}.
      *
+     * <p>Add the returned builder to an {@link Application}, which builds the context with
+     * the technologies of its {@link ServerEnvironment}.
+     *
      * @param name
      *         the name of the built context
      * @return new builder instance
@@ -219,53 +224,19 @@ public abstract class BoundedContext
     }
 
     /**
-     * Obtains the registry of the Bounded Contexts of the {@link Application}.
-     */
-    static ContextRegistry registry() {
-        return Application.instance().contexts();
-    }
-
-    /**
      * Adds the passed repository to the context.
      *
      * @throws IllegalStateException
      *         if this context is closed
-     * @throws DuplicateEntityStateException
-     *         if another open context already serves entities with the same state type
      */
-    @SuppressWarnings("ProhibitedExceptionThrown") // Re-throwing what was caught.
     protected final void register(Repository<?, ?> repository) {
         checkNotNull(repository);
         checkOpen();
-        var newlyServed = serveStateOf(repository);
-        try {
-            registerIfAware(repository);
-            guard.register(repository);
-        } catch (Throwable t) {
-            if (newlyServed) {
-                registry().forget(repository.entityStateType(), this);
-            }
-            throw t;
-        }
+        registerIfAware(repository);
+        guard.register(repository);
         // The guard holds the repository now, so this context serves its entities
         // even if the callback fails.
         repository.onRegistered();
-    }
-
-    /**
-     * Records that this context serves the entities of the passed repository,
-     * unless this is a System context.
-     *
-     * <p>Must run before the repository is registered with this context, because registering
-     * it also adds its inbox to the {@code Delivery} shared by all contexts. If the check
-     * fails, the inbox of the context that already serves the type stays in place.
-     *
-     * @return {@code true} if this call recorded that this context serves the type,
-     *         {@code false} if this is a System context, or if the type was recorded before
-     */
-    private boolean serveStateOf(Repository<?, ?> repository) {
-        return !isSystem()
-                && registry().serve(repository.entityStateType(), this);
     }
 
     /**
@@ -459,7 +430,7 @@ public abstract class BoundedContext
      * Obtains an ID of the Bounded Context.
      *
      * <p>The ID allows identifying a Bounded Context in a multi-context application.
-     * Two open Bounded Contexts of a JVM cannot have the same ID.
+     * Two Bounded Contexts of an application cannot have the same ID.
      *
      * @return the ID of this {@code BoundedContext}
      */
@@ -489,10 +460,11 @@ public abstract class BoundedContext
     public abstract SystemClient systemClient();
 
     /**
-     * Tells if this is a System context, which keeps the meta information
-     * about the entities of another Bounded Context.
+     * Returns {@code this} if it is a domain context, or the domain context
+     * associated with a system context.
      */
-    protected abstract boolean isSystem();
+    @Internal
+    protected abstract BoundedContext domainContext();
 
     /**
      * Closes the {@code BoundedContext} performing all necessary clean-ups.
@@ -540,20 +512,12 @@ public abstract class BoundedContext
      *         tells if the context was open when the closing started
      */
     private void closeComponents(boolean wasOpen) {
-        RuntimeException failure = null;
+        Throwable failure = null;
         for (var component : List.of(commandBus, eventBus, broker, stand)) {
-            try {
-                component.closeIfOpen();
-            } catch (RuntimeException e) {
-                failure = withSuppressed(failure, e);
-            }
+            failure = runKeepingFailure(failure, component::closeIfOpen);
         }
         if (wasOpen) {
-            try {
-                shutDownRepositories();
-            } catch (RuntimeException e) {
-                failure = withSuppressed(failure, e);
-            }
+            failure = runKeepingFailure(failure, this::shutDownRepositories);
         }
         if (hasProbe()) {
             removeProbe();
@@ -561,27 +525,7 @@ public abstract class BoundedContext
         if (wasOpen) {
             logger().atDebug().log(() -> format("%s", closed(nameForLogging())));
         }
-        if (failure != null) {
-            throw failure;
-        }
-    }
-
-    /**
-     * Returns the first failure, adding the passed one to it as suppressed,
-     * or the passed failure if it is the first one.
-     *
-     * <p>If the passed failure is the first one itself, it is not added: an exception
-     * cannot suppress itself.
-     */
-    private static RuntimeException
-    withSuppressed(@Nullable RuntimeException first, RuntimeException next) {
-        if (first == null) {
-            return next;
-        }
-        if (first != next) {
-            first.addSuppressed(next);
-        }
-        return first;
+        throwIfAny(failure);
     }
 
     @Override
@@ -601,19 +545,10 @@ public abstract class BoundedContext
     }
 
     /**
-     * Closes all repositories, and records that the context is no longer open.
-     *
-     * <p>Records it even if closing some of the repositories fails, and then throws.
-     * After that, another context may have the name of this one and serve the entity state
-     * types of these repositories. This context cannot be closed again to retry, because it is
-     * no longer open.
+     * Closes all repositories.
      */
     private void shutDownRepositories() {
-        try {
-            guard.shutDownRepositories();
-        } finally {
-            registry().unregister(this);
-        }
+        guard.shutDownRepositories();
     }
 
     /**
@@ -837,6 +772,17 @@ public abstract class BoundedContext
          */
         public StorageFactory storageFactory() {
             return self().storageFactory;
+        }
+
+        /**
+         * Obtains the domain context: this context, if it is a domain context,
+         * or the domain context of this System context.
+         *
+         * @throws IllegalStateException
+         *         if this System context does not know its domain context yet
+         */
+        public BoundedContext domainContext() {
+            return self().domainContext();
         }
 
         /**

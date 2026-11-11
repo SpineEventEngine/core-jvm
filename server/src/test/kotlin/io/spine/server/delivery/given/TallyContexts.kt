@@ -14,11 +14,13 @@
 
 package io.spine.server.delivery.given
 
-import io.spine.server.BoundedContext
+import io.spine.server.BoundedContextBuilder
 import io.spine.server.entity.Repository
 import io.spine.server.event.EventDispatcher
+import io.spine.server.singleTenantContext
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.server.blackbox.BlackBox
+import io.spine.util.closeAll
 
 /**
  * The single-tenant Bounded Contexts of a test with tallies, and the values posted
@@ -26,8 +28,13 @@ import io.spine.testing.server.blackbox.BlackBox
  *
  * Each value posted is new, so a tally that applies a value twice, or misses one,
  * holds other values than [caughtUp] or [notCaughtUp] tell.
+ *
+ * @param blackBox Creates a black box over the context of the given builder, with
+ *   the `Delivery` of the test.
  */
-internal class TallyContexts : AutoCloseable {
+internal class TallyContexts(
+    private val blackBox: (BoundedContextBuilder) -> BlackBox
+) : AutoCloseable {
 
     private val boxes = mutableMapOf<String, BlackBox>()
     private val posted = mutableMapOf<Pair<String, String>, MutableList<Posted>>()
@@ -41,10 +48,11 @@ internal class TallyContexts : AutoCloseable {
         vararg repositories: Repository<*, *>,
         dispatcher: EventDispatcher? = null
     ): BlackBox {
-        val builder = BoundedContext.singleTenant(name)
-        repositories.forEach { builder.add(it) }
-        dispatcher?.let { builder.addEventDispatcher(it) }
-        return add(name, BlackBox.from(builder))
+        val builder = singleTenantContext(name) {
+            repositories.forEach { add(it) }
+            dispatcher?.let { addEventDispatcher(it) }
+        }
+        return add(name, blackBox(builder))
     }
 
     /**
@@ -106,9 +114,14 @@ internal class TallyContexts : AutoCloseable {
             .close()
     }
 
+    /**
+     * Closes all the contexts, even if closing one of them fails.
+     *
+     * @throws Throwable The first failure, with the later ones suppressed.
+     */
     override fun close() {
         try {
-            closeAll(boxes.values)
+            boxes.values.closeAll()
         } finally {
             boxes.clear()
         }
@@ -123,29 +136,4 @@ internal class TallyContexts : AutoCloseable {
          */
         const val EVENTS_PER_TALLY = 3
     }
-}
-
-/**
- * Closes each of the given resources, even if closing one of them fails.
- *
- * A context left open would keep serving its entity state types for the rest
- * of the test run.
- *
- * @throws Exception The first failure, with the later ones suppressed.
- */
-internal fun closeAll(resources: Iterable<AutoCloseable>) {
-    var failure: Exception? = null
-    resources.forEach { resource ->
-        try {
-            resource.close()
-        } catch (e: Exception) {
-            val first = failure
-            if (first == null) {
-                failure = e
-            } else {
-                first.addSuppressed(e)
-            }
-        }
-    }
-    failure?.let { throw it }
 }

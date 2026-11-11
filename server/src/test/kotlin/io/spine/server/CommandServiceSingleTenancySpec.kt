@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test
 internal class CommandServiceSingleTenancySpec : CommandServiceTenancyTest() {
 
     override fun createContext(): BoundedContext {
-        val ctx = BoundedContext.singleTenant("Projects").build()
+        val ctx = BoundedContextBuilder.assumingTests("Projects").build()
         ctx.register(Given.ProjectAggregateRepository())
         return ctx
     }

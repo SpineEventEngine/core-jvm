@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.event.store;
@@ -33,19 +21,25 @@ import io.spine.core.Event;
 import io.spine.core.EventContext;
 import io.spine.core.Origin;
 import io.spine.core.TenantId;
+import io.spine.environment.Tests;
 import io.spine.grpc.MemoizingObserver;
 import io.spine.protobuf.AnyPacker;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
+import io.spine.server.ServerEnvironment;
 import io.spine.server.event.EventFilter;
 import io.spine.server.event.EventStore;
 import io.spine.server.event.EventStreamQuery;
 import io.spine.server.event.given.EventStoreTestEnv.ResponseObserver;
+import io.spine.server.storage.StorageFactory;
+import io.spine.server.storage.memory.InMemoryStorageFactory;
 import io.spine.server.type.given.GivenEvent;
 import io.spine.test.event.TaskAdded;
 import io.spine.testing.SlowTest;
 import io.spine.testing.TestValues;
 import io.spine.type.TypeName;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -80,23 +74,62 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * An abstract base for the tests of the {@link EventStore} of a Bounded Context.
+ *
+ * <p>Storage implementations override {@link #storageFactory()} to run the tests over
+ * their storages.
+ */
 @DisplayName("`EventStore` should")
 public abstract class DefaultEventStoreTest {
 
     private BoundedContext context;
+
+    /**
+     * The application of the {@link #context}, closed after each test.
+     */
+    private Application application;
     private EventStore eventStore;
     private ExecutorService executor;
+
+    /**
+     * The storage factory of the test, created on the first call to {@link #storageFactory()}.
+     */
+    private @MonotonicNonNull StorageFactory inMemoryStorage;
 
     @BeforeEach
     void setUp() {
         executor = Executors.newFixedThreadPool(64);
-        context = BoundedContextBuilder.assumingTests().build();
+        var storage = storageFactory();
+        var environment = ServerEnvironment.newBuilder()
+                .under(Tests.class, env -> env.use(storage))
+                .build();
+        application = Application.newBuilder()
+                .setServerEnvironment(environment)
+                .add(BoundedContextBuilder.assumingTests())
+                .build();
+        context = application.contexts()
+                             .get(0);
         eventStore = context.eventBus().eventStore();
     }
 
+    /**
+     * Obtains the storage factory with which the context of the test creates its event store.
+     *
+     * <p>Returns an in-memory factory by default. Storage implementations override this method
+     * to run the tests over their storages. The application of a test closes the factory after
+     * the test, together with the server environment that holds it.
+     */
+    protected StorageFactory storageFactory() {
+        if (inMemoryStorage == null) {
+            inMemoryStorage = InMemoryStorageFactory.newInstance();
+        }
+        return inMemoryStorage;
+    }
+
     @AfterEach
-    void tearDown() throws Exception {
-        context.close();
+    void tearDown() {
+        application.close();
         executor.shutdownNow();
     }
 

@@ -35,15 +35,15 @@ import io.spine.protobuf.AnyPacker
 import io.spine.environment.Tests
 import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
-import io.spine.server.ServerEnvironment
 import io.spine.server.aggregate.given.Given
 import io.spine.server.aggregate.given.history.FailingHistoryFactory
 import io.spine.server.aggregate.given.history.HistoryReadingAggregate
 import io.spine.server.aggregate.given.history.StateHistoryTestRepository
+import io.spine.server.application
 import io.spine.server.event.AbstractEventSubscriber
 import io.spine.server.entity.EntityRecord
+import io.spine.server.serverEnvironment
 import io.spine.server.tenant.TenantAwareRunner
-import io.spine.server.under
 import io.spine.test.aggregate.ProjectId
 import io.spine.test.aggregate.event.AggProjectCreated
 import io.spine.test.aggregate.event.aggProjectArchived
@@ -236,36 +236,35 @@ internal class AggregateRepositoryStateHistorySpec {
 
     @Test
     fun `fail the dispatch when the history append fails`() {
-        under<Tests> {
-            use(FailingHistoryFactory())
-        }
-        try {
-            // Close `context` first: it serves the entity state type of
-            // `StateHistoryTestRepository`.
-            context.close()
-            BoundedContextBuilder.assumingTests().build().use { failingContext ->
-                val failingRepository = StateHistoryTestRepository()
-                failingContext.internalAccess()
-                    .register(failingRepository)
-                val observer = CreatedProjectsObserver()
-                failingContext.internalAccess()
-                    .registerEventDispatcher(observer)
-                failingRepository.enableStateHistory()
-                failingContext.commandBus()
-                    .post(Given.ACommand.createProject(projectId), noOpObserver())
-
-                // The durable state write precedes the failing append...
-                failingRepository.loadAggregate(projectId)
-                    .version()
-                    .number shouldBe 1
-                // ...but the documented contract holds: the failure to record
-                // the history fails the dispatch, and the produced event is
-                // never posted. A write path swallowing the failure would have
-                // published it.
-                observer.seen shouldBe 0
+        val environment = serverEnvironment {
+            under<Tests> {
+                use(FailingHistoryFactory())
             }
-        } finally {
-            ServerEnvironment.instance().reset()
+        }
+        application {
+            serverEnvironment = environment
+            add(BoundedContextBuilder.assumingTests())
+        }.use { failingApplication ->
+            val failingContext = failingApplication.contexts().single()
+            val failingRepository = StateHistoryTestRepository()
+            failingContext.internalAccess()
+                .register(failingRepository)
+            val observer = CreatedProjectsObserver()
+            failingContext.internalAccess()
+                .registerEventDispatcher(observer)
+            failingRepository.enableStateHistory()
+            failingContext.commandBus()
+                .post(Given.ACommand.createProject(projectId), noOpObserver())
+
+            // The durable state write precedes the failing append...
+            failingRepository.loadAggregate(projectId)
+                .version()
+                .number shouldBe 1
+            // ...but the documented contract holds: the failure to record
+            // the history fails the dispatch, and the produced event is
+            // never posted. A write path swallowing the failure would have
+            // published it.
+            observer.seen shouldBe 0
         }
     }
 

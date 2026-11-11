@@ -16,12 +16,15 @@ package io.spine.server
 
 import com.google.protobuf.Message
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.base.CommandMessage
 import io.spine.core.BoundedContextName
@@ -30,6 +33,7 @@ import io.spine.grpc.StreamObservers.noOpObserver
 import io.spine.server.commandbus.CommandScheduler
 import io.spine.server.commandbus.ExecutorCommandScheduler
 import io.spine.server.delivery.Delivery
+import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.RecordStorage
 import io.spine.server.storage.StorageFactory
@@ -56,7 +60,7 @@ import org.opentest4j.AssertionFailedError
 
 /**
  * Checks the technologies of the context, which [BoundedContextBuilder] passes to
- * the built context.
+ * the built context, and building a test-only context by the builder itself.
  *
  * Supplements `BoundedContextBuilderTest`, which checks the other properties of the builder.
  */
@@ -65,20 +69,19 @@ internal class BoundedContextBuilderSpec {
 
     private val requests = TestActorRequestFactory(BoundedContextBuilderSpec::class.java)
     private var context: BoundedContext? = null
-    private var environmentChanged = false
 
     /**
-     * Closes the built context, and then resets the server environment if the test changed it.
+     * The application of the [context], if the case built one.
+     */
+    private var builtApplication: Application? = null
+
+    /**
+     * Closes the built context and its application, if any.
      */
     @AfterEach
     fun closeContext() {
-        try {
-            context?.close()
-        } finally {
-            if (environmentChanged) {
-                ServerEnvironment.instance().reset()
-            }
-        }
+        context?.close()
+        builtApplication?.close()
     }
 
     @Nested inner class
@@ -117,10 +120,11 @@ internal class BoundedContextBuilderSpec {
         @Test
         fun `is used instead of the one of the server environment`() {
             val ofEnvironment = MemoizingTracerFactory()
-            environmentChanged = true
-            under<Tests> { use(ofEnvironment) }
+            val environment = serverEnvironment {
+                under<Tests> { use(ofEnvironment) }
+            }
             val tracing = MemoizingTracerFactory()
-            val built = buildWith(tracing)
+            val built = build(AirportContext.builder().setTracerFactory(tracing), environment)
 
             post(built, scheduleFlight())
 
@@ -160,8 +164,8 @@ internal class BoundedContextBuilderSpec {
         @Test
         fun `are used by the built context once set`() {
             val storageFactory = InMemoryStorageFactory.newInstance()
-            val environment = ServerEnvironment.instance()
-            val delivery = Delivery.local(environment.nodeId(), environment.storageFactory())
+            val environment = serverEnvironment {}
+            val delivery = Delivery.local(environment.nodeId, storageFactory)
             val schedulers = RecordingSchedulerFactory()
             val transportFactory = InMemoryTransportFactory.newInstance()
             val builder = BoundedContextBuilder.assumingTests()
@@ -170,7 +174,7 @@ internal class BoundedContextBuilderSpec {
                 .setCommandSchedulerFactory(schedulers)
                 .setTransportFactory(transportFactory)
 
-            val access = build(builder).internalAccess()
+            val access = build(builder, environment).internalAccess()
 
             access.storageFactory() shouldBeSameInstanceAs storageFactory
             access.delivery() shouldBeSameInstanceAs delivery
@@ -182,10 +186,10 @@ internal class BoundedContextBuilderSpec {
         @Test
         fun `are taken from the server environment, if not set`() {
             val builder = BoundedContextBuilder.assumingTests()
+            val environment = serverEnvironment {}
 
-            val access = build(builder).internalAccess()
+            val access = build(builder, environment).internalAccess()
 
-            val environment = ServerEnvironment.instance()
             access.storageFactory() shouldBeSameInstanceAs environment.storageFactory()
             access.delivery() shouldBeSameInstanceAs environment.delivery()
             access.transportFactory() shouldBeSameInstanceAs environment.transportFactory()
@@ -221,13 +225,130 @@ internal class BoundedContextBuilderSpec {
         }
     }
 
+    @Nested inner class
+    `build a context by itself` {
+
+        @Test
+        fun `with the name and the tenancy given to the test-only builder`() {
+            val builder = BoundedContextBuilder.assumingTests("Tested", /* multitenant = */ true)
+
+            val built = remember(builder.build())
+
+            built.name().value shouldBe "Tested"
+            built.isMultitenant.shouldBeTrue()
+        }
+
+        @Test
+        fun `with a single-tenant context, unless told otherwise`() {
+            val built = remember(BoundedContextBuilder.assumingTests("Tested").build())
+
+            built.isMultitenant.shouldBeFalse()
+        }
+
+        @Test
+        fun `with a new server environment for each context`() {
+            val first = remember(BoundedContextBuilder.assumingTests().build())
+
+            BoundedContextBuilder.assumingTests().build().use { second ->
+                first.internalAccess().delivery() shouldNotBe second.internalAccess().delivery()
+            }
+        }
+
+        @Test
+        fun `with the technologies set on the builder`() {
+            val storageFactory = InMemoryStorageFactory.newInstance()
+            val builder = BoundedContextBuilder.assumingTests()
+                .setStorageFactory(storageFactory)
+
+            val built = remember(builder.build())
+
+            built.internalAccess().storageFactory() shouldBeSameInstanceAs storageFactory
+        }
+
+        @Test
+        fun `only if the builder was created for tests`() {
+            val builder = BoundedContext.singleTenant("NotForTests")
+
+            val exception = shouldThrow<IllegalStateException> {
+                builder.build()
+            }
+
+            exception.message shouldContain "NotForTests"
+            exception.message shouldContain "Application"
+        }
+
+        @Test
+        fun `closing its application with the context`() {
+            val context = BoundedContextBuilder.assumingTests().build()
+            val access = context.internalAccess()
+            val storage = access.storageFactory()
+            val transport = access.transportFactory()
+
+            context.close()
+
+            storage.isOpen.shouldBeFalse()
+            transport.isOpen.shouldBeFalse()
+        }
+
+        @Test
+        fun `running 'onBeforeClose' once when the context is closed`() {
+            var calls = 0
+            val context = BoundedContextBuilder.assumingTests()
+                .setOnBeforeClose { calls++ }
+                .build()
+
+            context.close()
+
+            calls shouldBe 1
+        }
+
+        @Test
+        fun `closing its application even if closing the context fails`() {
+            val context = BoundedContextBuilder.assumingTests()
+                .setOnBeforeClose { error(CLOSE_FAILURE) }
+                .build()
+            val storage = context.internalAccess().storageFactory()
+
+            val error = shouldThrow<IllegalStateException> {
+                context.close()
+            }
+
+            error.message shouldBe CLOSE_FAILURE
+            storage.isOpen.shouldBeFalse()
+        }
+
+        @Test
+        fun `closing the environment, if the application fails to build`() {
+            val repository = CalculatorsFailingOnRegistration()
+            val builder = BoundedContextBuilder.assumingTests()
+                .add(repository)
+
+            shouldThrow<IllegalStateException> {
+                builder.build()
+            }
+
+            repository.storage.shouldNotBeNull().isOpen.shouldBeFalse()
+        }
+    }
+
+    private fun remember(built: BoundedContext): BoundedContext {
+        context = built
+        return built
+    }
+
     private fun buildWith(tracing: MemoizingTracerFactory): BoundedContext =
         build(AirportContext.builder().setTracerFactory(tracing))
 
-    private fun build(builder: BoundedContextBuilder): BoundedContext {
-        val built = builder.build()
-        context = built
-        return built
+    private fun build(
+        builder: BoundedContextBuilder,
+        environment: ServerEnvironment = serverEnvironment {}
+    ): BoundedContext {
+        val application = application {
+            serverEnvironment = environment
+            add(builder)
+        }
+        builtApplication = application
+        return remember(application.contexts().single())
     }
 
     private fun post(context: BoundedContext, command: CommandMessage) {
@@ -256,6 +377,29 @@ private class RecordingStorageFactory : StorageFactory {
     override fun isOpen(): Boolean = delegate.isOpen
 
     override fun close() = delegate.close()
+}
+
+/**
+ * The message of the failure to close a context.
+ */
+private const val CLOSE_FAILURE = "The context failed to close."
+
+/**
+ * A repository of calculators that throws once it is registered.
+ *
+ * Before throwing, it keeps the storage factory of its context, which is the one of
+ * the server environment of the context.
+ */
+private class CalculatorsFailingOnRegistration : CalculatorRepository() {
+
+    var storage: StorageFactory? = null
+        private set
+
+    override fun onRegistered() {
+        super.onRegistered()
+        storage = context().internalAccess().storageFactory()
+        error("The repository failed on registration.")
+    }
 }
 
 /**

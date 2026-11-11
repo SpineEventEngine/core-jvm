@@ -18,12 +18,9 @@ import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Durations
 import com.google.protobuf.util.Timestamps.subtract
 import io.spine.base.Time.currentTime
-import io.spine.environment.Tests
-import io.spine.server.ServerEnvironment
 import io.spine.server.delivery.InboxMessageStatus.TO_CATCH_UP
 import io.spine.server.delivery.InboxMessageStatus.TO_DELIVER
 import io.spine.server.delivery.given.CounterView
-import io.spine.server.under
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.server.blackbox.BlackBox
 import io.spine.type.TypeUrl
@@ -37,7 +34,8 @@ import org.junit.jupiter.api.BeforeEach
 /**
  * An abstract base for the integration tests of a catch-up of [CounterView] projections.
  *
- * A test installs a `Delivery` with [useDelivery], catches up the [repository], and then
+ * A test installs a `Delivery` with [useDelivery], builds a context with [blackBox] or
+ * [blackBoxWith], catches up the [repository], and then
  * checks what the catch-up left behind: the [failures], the [jobStatuses], the [totals] of
  * the projections, and the [undelivered] messages. [emitHistory] posts the events for
  * a catch-up to replay.
@@ -84,8 +82,8 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
      * recorded in [failures]. So a delivery that does not end, such as a livelock, is stopped
      * well before the test times out.
      *
-     * Call it before creating a `BlackBox`: a projection repository binds its catch-up to
-     * the `Delivery` in use when it is registered.
+     * Call it before creating a [BlackBox] with [blackBox] or [blackBoxWith]: a context
+     * takes the `Delivery` set when the context is built.
      *
      * @param strategy The strategy of the delivery.
      * @param observer The observer that delivers each message sent to an inbox.
@@ -109,8 +107,7 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
         configure: (DeliveryBuilder) -> Unit = {}
     ): Delivery {
         val watchdog = Watchdog(onePagePerRun)
-        val environment = ServerEnvironment.instance()
-        val builder = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
+        val builder = Delivery.newBuilder(nodeId(), storageFactory())
             .setStrategy(strategy)
             .setDeduplicationWindow(Durations.ZERO)
         configure(builder)
@@ -129,7 +126,7 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
                 throw e
             }
         }
-        under<Tests> { use(delivery) }
+        use(delivery)
         return delivery
     }
 
@@ -140,8 +137,7 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
     protected fun jobStatuses(
         stateType: TypeUrl = CounterView.projectionType()
     ): List<CatchUpStatus> =
-        ServerEnvironment.instance()
-            .delivery()
+        delivery()
             .catchUpStorage()
             .readByType(stateType)
             .asSequence()
@@ -166,7 +162,8 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
     /**
      * Returns the messages of all the inboxes.
      */
-    protected fun inboxContents(): List<InboxMessage> = InboxContents.get().values.flatten()
+    protected fun inboxContents(): List<InboxMessage> =
+        InboxContents.of(delivery()).values.flatten()
 
     /**
      * Emits [eventsPerTarget] events to each of the projections with the given [ids].

@@ -15,9 +15,8 @@
 package io.spine.server.delivery.given;
 
 import com.google.common.collect.ImmutableList;
-import io.spine.environment.Tests;
 import io.spine.server.DefaultRepository;
-import io.spine.server.ServerEnvironment;
+import io.spine.server.delivery.AbstractDeliveryTest;
 import io.spine.server.delivery.Delivery;
 import io.spine.server.delivery.DeliveryMonitor;
 import io.spine.server.delivery.FailedReception;
@@ -45,20 +44,24 @@ public final class ReceptionFailureTestEnv {
     private ReceptionFailureTestEnv() {
     }
 
-    public static BlackBox blackBox() {
+    /**
+     * Creates a black box over a context of receptionists, built by the given test.
+     */
+    public static BlackBox receptionistContext(AbstractDeliveryTest test) {
         var repository = DefaultRepository.of(ReceptionistAggregate.class);
-        var context = BlackBox.singleTenantWith(repository);
+        var context = test.blackBoxWith(repository);
         return context;
     }
 
-    public static void configureDelivery(DeliveryMonitor monitor) {
-        var environment = ServerEnvironment.instance();
-        var delivery = Delivery.newBuilder(environment.nodeId(), environment.storageFactory())
+    /**
+     * Makes the given test deliver through a {@code Delivery} with the given monitor.
+     */
+    public static void configureDelivery(AbstractDeliveryTest test, DeliveryMonitor monitor) {
+        var delivery = Delivery.newBuilder(test.nodeId(), test.storageFactory())
                 .setMonitor(monitor)
                 .build();
-        delivery.subscribe(new IgnoringObserver());
-        ServerEnvironment.under(Tests.class)
-                         .use(delivery);
+        delivery.subscribe(new IgnoringObserver(delivery));
+        test.use(delivery);
     }
 
     public static void sleep() {
@@ -86,8 +89,8 @@ public final class ReceptionFailureTestEnv {
      * <p>In case there are many shards configured, this method
      * throws an {@code IllegalStateException}.
      */
-    public static ImmutableList<InboxMessage> inboxMessages() {
-        var contents = InboxContents.get();
+    public static ImmutableList<InboxMessage> inboxMessages(AbstractDeliveryTest test) {
+        var contents = InboxContents.of(test.delivery());
         checkState(contents.size() == 1);
         var messages = contents.values()
                                .iterator()
@@ -101,17 +104,20 @@ public final class ReceptionFailureTestEnv {
      */
     private static final class IgnoringObserver implements ShardObserver {
 
+        private final Delivery delivery;
+
+        private IgnoringObserver(Delivery delivery) {
+            this.delivery = delivery;
+        }
+
         @Override
         public void onMessage(InboxMessage message) {
             new Thread(() -> runDelivery(message)).start();
         }
 
-        @SuppressWarnings("resource")
-        private static void runDelivery(InboxMessage message) {
+        private void runDelivery(InboxMessage message) {
             var tenant = message.tenant();
             var index = message.shardIndex();
-            var delivery = ServerEnvironment.instance()
-                                            .delivery();
             try {
                 TenantAwareRunner.with(tenant)
                                  .run(() -> delivery.deliverMessagesFrom(index));

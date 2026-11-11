@@ -21,7 +21,6 @@ import com.google.protobuf.util.Timestamps;
 import io.spine.query.RecordQuery;
 import io.spine.query.RecordQueryBuilder;
 import io.spine.server.ContextSpec;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.storage.given.DelegatingRecordStorageTestEnv;
 import io.spine.server.storage.given.StgProjectStorage;
 import io.spine.test.storage.StgProject;
@@ -62,17 +61,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * <p>This type is made {@code public}, so that it could be re-used in testing of
  * Spine libraries sitting on top of real-world storage engines, such as Google Datastore.
  *
- * <p>In order to use this type in this manner, one should configure the desired
- * {@code StorageFactory} implementation before this test suite:
- *
- * <pre>
- *     ServerEnvironment.under(Tests.class)
- *                      .useStorageFactory(myRealStorageFactory);
- * </pre>
+ * <p>In order to use this type in this manner, one should override
+ * {@link #storageFactory()} to return the desired {@code StorageFactory} implementation.
  *
  * {@code StgProjectStorage} used in these tests delegates all of its actions to the underlying
- * {@code RecordStorage}, which in turn is produced by the pre-configured
- * {@linkplain ServerEnvironment#storageFactory() current} {@code StorageFactory}.
+ * {@code RecordStorage}, which in turn is produced by that {@code StorageFactory}.
  * Therefore, all tests will run against the desired storage engine.
  */
 @SuppressWarnings("resource")
@@ -82,8 +75,7 @@ public abstract class DelegatingRecordStorageTest
 
     @Override
     protected StgProjectStorage newStorage() {
-        var factory = ServerEnvironment.instance()
-                                       .storageFactory();
+        var factory = storageFactory();
         var ctxSpec = ContextSpec.singleTenant(getClass().getName());
         return new StgProjectStorage(ctxSpec, factory);
     }

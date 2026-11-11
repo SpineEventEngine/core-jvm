@@ -22,11 +22,14 @@ import io.spine.core.CommandContextKt
 import io.spine.core.CommandId
 import io.spine.core.copy
 import io.spine.grpc.StreamObservers.noOpObserver
+import io.spine.server.Application
 import io.spine.server.BoundedContext
+import io.spine.server.BoundedContextBuilder
 import io.spine.server.DefaultRepository
-import io.spine.server.delivery.given.closeAll
+import io.spine.server.application
 import io.spine.server.entity.RecordBasedRepository
 import io.spine.server.entity.Repository
+import io.spine.server.serverEnvironment
 import io.spine.system.server.SystemBoundedContexts.systemOf
 import io.spine.system.server.given.command.CompanyAggregate
 import io.spine.system.server.given.schedule.TestCommandScheduler
@@ -41,29 +44,35 @@ import org.junit.jupiter.api.Test
  * posted to this context, when another context with the same System projections
  * shares the `Delivery` with it.
  *
- * Both contexts use the `Delivery` of the server environment. The context built last
- * registers the inboxes of its System projections after the first context does.
+ * Both contexts belong to one application, so they use the `Delivery` of its server
+ * environment. The context built last registers the inboxes of its System projections
+ * after the first context does.
  */
 @DisplayName("The System projections of several contexts should")
 internal class SystemProjectionsIgTest {
 
     private val requests = TestActorRequestFactory(SystemProjectionsIgTest::class.java)
 
-    private val contexts = mutableListOf<BoundedContext>()
+    private lateinit var application: Application
     private lateinit var first: BoundedContext
     private lateinit var last: BoundedContext
 
     @BeforeEach
     fun buildContexts() {
-        first = contextWithCommandLog(FIRST, DefaultRepository.of(CompanyAggregate::class.java))
-            .also(contexts::add)
-        last = contextWithCommandLog(LAST)
-            .also(contexts::add)
+        application = application {
+            serverEnvironment = serverEnvironment {
+                scheduleCommandsUsing { TestCommandScheduler() }
+            }
+            add(contextWithCommandLog(FIRST, DefaultRepository.of(CompanyAggregate::class.java)))
+            add(contextWithCommandLog(LAST))
+        }
+        first = application.contexts().first()
+        last = application.contexts().last()
     }
 
     @AfterEach
-    fun closeContexts() {
-        closeAll(contexts)
+    fun closeApplication() {
+        application.close()
     }
 
     @Test
@@ -116,12 +125,11 @@ internal class SystemProjectionsIgTest {
         fun contextWithCommandLog(
             name: String,
             vararg repositories: Repository<*, *>
-        ): BoundedContext {
+        ): BoundedContextBuilder {
             val builder = BoundedContext.singleTenant(name)
-                .setCommandSchedulerFactory(::TestCommandScheduler)
             builder.systemSettings().enableCommandLog()
             repositories.forEach { builder.add(it) }
-            return builder.build()
+            return builder
         }
 
         fun systemRepositoryOf(

@@ -23,13 +23,14 @@ import io.opentelemetry.kotlin.ExperimentalApi
 import io.spine.base.CommandMessage
 import io.spine.environment.Tests
 import io.spine.grpc.StreamObservers.noOpObserver
+import io.spine.server.Application
 import io.spine.server.BoundedContext
-import io.spine.server.ServerEnvironment
+import io.spine.server.application
+import io.spine.server.serverEnvironment
 import io.spine.server.trace.given.TracingTestEnv.scheduleFlight
 import io.spine.server.trace.given.airport.AirportContext
 import io.spine.server.trace.otel.given.RecordingSpanProcessor
 import io.spine.server.trace.otel.given.recordingOpenTelemetry
-import io.spine.server.under
 import io.spine.testing.client.TestActorRequestFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -42,26 +43,32 @@ internal class OtelTracingSpec {
     private val requests = TestActorRequestFactory(OtelTracingSpec::class.java)
 
     private lateinit var spans: RecordingSpanProcessor
+    private lateinit var application: Application
     private lateinit var context: BoundedContext
 
     @BeforeEach
     fun setUp() {
         spans = RecordingSpanProcessor()
         val factory = OtelTracerFactory(recordingOpenTelemetry(spans))
-        under<Tests> {
-            use(factory)
+        val environment = serverEnvironment {
+            under<Tests> {
+                use(factory)
+            }
         }
-        context = AirportContext.builder().build()
+        application = application {
+            serverEnvironment = environment
+            add(AirportContext.builder())
+        }
+        context = application.contexts().single()
     }
 
+    /**
+     * Closes the application, together with its environment, which holds the tracer factory.
+     */
     @AfterEach
     fun tearDown() {
-        try {
-            if (::context.isInitialized) {
-                context.close()
-            }
-        } finally {
-            ServerEnvironment.instance().reset()
+        if (::application.isInitialized) {
+            application.close()
         }
     }
 

@@ -27,6 +27,7 @@ import io.spine.core.CommandContext;
 import io.spine.core.CommandId;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.BoundedContext;
+import io.spine.server.BoundedContextBuilder;
 import io.spine.server.DefaultRepository;
 import io.spine.system.server.event.CommandAcknowledged;
 import io.spine.system.server.event.CommandDispatched;
@@ -71,7 +72,7 @@ class CommandLogTest {
         var contextName = BoundedContextName.newBuilder()
                 .setValue(EntityEventsTest.class.getSimpleName())
                 .build();
-        context = BoundedContext.singleTenant(contextName.getValue()).build();
+        context = BoundedContextBuilder.assumingTests(contextName.getValue()).build();
         system = systemOf(context);
 
         var ctx = context.internalAccess();

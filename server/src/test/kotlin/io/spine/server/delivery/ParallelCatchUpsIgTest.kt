@@ -38,7 +38,6 @@ import io.spine.server.delivery.given.TallyPair
 import io.spine.server.delivery.given.TallyRepository
 import io.spine.server.delivery.given.TallyWeight
 import io.spine.server.delivery.given.TestTenants
-import io.spine.server.delivery.given.closeAll
 import io.spine.server.event.AbstractEventReactor
 import io.spine.server.event.NoReaction
 import io.spine.server.event.React
@@ -47,6 +46,7 @@ import io.spine.test.delivery.numberAdded
 import io.spine.testing.SlowTest
 import io.spine.testing.server.blackbox.BlackBox
 import io.spine.type.TypeUrl
+import io.spine.util.closeAll
 import java.util.concurrent.TimeUnit.SECONDS
 import java.util.stream.Stream
 import org.junit.jupiter.api.AfterEach
@@ -121,7 +121,7 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
 
     @AfterEach
     fun closeContexts() {
-        closeAll(contexts.map { it.box })
+        contexts.map { it.box }.closeAll()
     }
 
     @ParameterizedTest(name = "{0}")
@@ -351,7 +351,7 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
                     .enableParallelPosting()
                     .useCustomPostingExecutor(systemEvents)
             }
-            box = BlackBox.from(builder)
+            box = blackBox(builder)
         }
 
         /**

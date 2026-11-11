@@ -14,7 +14,9 @@
 
 package io.spine.server.delivery;
 
-import io.spine.server.ServerEnvironment;
+import io.spine.base.Identifier;
+import io.spine.server.NodeId;
+import io.spine.server.storage.memory.InMemoryStorageFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -27,8 +29,10 @@ class DeliveryFactoryTest {
     @DisplayName("create an instance of `Delivery` " +
             "which delivers the messages from their shards asynchronously")
     void createLocalAsync(){
-        var environment = ServerEnvironment.instance();
-        var delivery = Delivery.localAsync(environment.nodeId(), environment.storageFactory());
+        var nodeId = NodeId.newBuilder()
+                .setValue(Identifier.newUuid())
+                .build();
+        var delivery = Delivery.localAsync(nodeId, InMemoryStorageFactory.newInstance());
 
         var observers = delivery.shardObservers();
         assertThat(observers).hasSize(1);

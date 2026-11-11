@@ -40,7 +40,6 @@ import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.delivery.TallyA1
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.server.TestEventFactory
-import io.spine.testing.server.blackbox.BlackBox
 import io.spine.type.TypeUrl
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -76,7 +75,7 @@ internal class HeldCatchUpMessagesIgTest : AbstractCatchUpIgTest() {
         val delivery = useDelivery(UniformAcrossAllShards.singleShard(), observer = { }) {
             it.setPageSize(pageSize)
         }
-        BlackBox.from(BoundedContext.singleTenant(CONTEXT.value).add(tallies)).use {
+        blackBox(BoundedContext.singleTenant(CONTEXT.value).add(tallies)).use {
             writeJob(delivery.catchUpStorage(), completedJob())
             writeHeld(delivery)
 
@@ -110,7 +109,7 @@ internal class HeldCatchUpMessagesIgTest : AbstractCatchUpIgTest() {
             it.setPageSize(2)
                 .setCatchUpStorage(storage)
         }
-        BlackBox.from(BoundedContext.singleTenant(CONTEXT.value).add(tallies)).use {
+        blackBox(BoundedContext.singleTenant(CONTEXT.value).add(tallies)).use {
             writeJob(storage, completedJob())
             val newJob = startedJob()
             val held = writeHeld(delivery)

@@ -181,7 +181,8 @@ class StandTest extends TenantAwareTest {
         @Test
         @DisplayName("aggregate repositories")
         void aggregateRepositories() {
-            var boundedContext = closeAfterTest(BoundedContextBuilder.assumingTests().build());
+            var boundedContext =
+                    closeAfterTest(BoundedContextBuilder.assumingTests().build());
             var stand = boundedContext.stand();
 
             checkTypesEmpty(stand);
@@ -417,8 +418,8 @@ class StandTest extends TenantAwareTest {
             var waiter = new AloneWaiter();
             var context = closeAfterTest(
                     BoundedContextBuilder.assumingTests(isMultitenant())
-                                         .addCommandDispatcher(waiter)
-                                         .build());
+                            .addCommandDispatcher(waiter)
+                            .build());
             var stand = context.stand();
             var topic = requestFactory.topic().allOf(OrderPlaced.class);
 
@@ -617,8 +618,8 @@ class StandTest extends TenantAwareTest {
                 .build();
         var repository = new CustomerAggregateRepository();
         closeAfterTest(BoundedContextBuilder.assumingTests()
-                                            .add(repository)
-                                            .build());
+                .add(repository)
+                .build());
         stand.registerTypeSupplier(repository);
         var queryFactory = getRequestFactory().query();
         var query =

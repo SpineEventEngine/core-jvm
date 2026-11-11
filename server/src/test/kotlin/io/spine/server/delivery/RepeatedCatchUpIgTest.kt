@@ -22,7 +22,6 @@ import io.spine.server.delivery.CatchUpStatus.COMPLETED
 import io.spine.server.delivery.given.CounterView
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.SlowTest
-import io.spine.testing.server.blackbox.BlackBox
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -44,7 +43,7 @@ internal class RepeatedCatchUpIgTest : AbstractCatchUpIgTest() {
 
     @Test
     fun `replay the history once and complete`() {
-        BlackBox.singleTenantWith(repository).use { context ->
+        blackBoxWith(repository).use { context ->
             val since = emitHistory(context, EVENTS_PER_TARGET, FIRST, SECOND)
             catchUpAllFirstTime(since)
 
@@ -64,7 +63,7 @@ internal class RepeatedCatchUpIgTest : AbstractCatchUpIgTest() {
 
     @Test
     fun `not hold back the live events of the instances it does not catch up`() {
-        BlackBox.singleTenantWith(repository).use { context ->
+        blackBoxWith(repository).use { context ->
             val since = emitHistory(context, EVENTS_PER_TARGET, FIRST, SECOND)
             catchUpAllFirstTime(since)
 

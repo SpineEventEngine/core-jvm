@@ -23,8 +23,8 @@ import io.spine.core.Events;
 import io.spine.core.MessageId;
 import io.spine.core.UserId;
 import io.spine.protobuf.TypeConverter;
+import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.given.groups.GroupId;
 import io.spine.server.given.groups.GroupName;
 import io.spine.server.given.groups.GroupNameProjection;
@@ -39,9 +39,9 @@ import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.event.EntityStateChanged;
 import io.spine.test.projection.ProjectTaskNames;
 import io.spine.testing.core.given.GivenUserId;
+import io.spine.testing.server.TestApplications;
 import io.spine.testing.server.blackbox.BlackBox;
 import io.spine.type.TypeUrl;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -56,12 +56,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DisplayName("In end-to-end usage scenario, `Projection` should")
 @SuppressWarnings("WeakerAccess" /* Open for re-using in descendant Spine libraries.*/)
 public class ProjectionEndToEndTest {
-
-    @AfterEach
-    protected void tearDown() {
-        ServerEnvironment.instance()
-                         .reset();
-    }
 
     @Test
     @DisplayName("receive entity state updates from other entities")
@@ -97,10 +91,17 @@ public class ProjectionEndToEndTest {
     void receiveExternal() {
         var established = GivenEventMessage.organizationEstablished();
 
-        try (var sender = BlackBox.singleTenant("Organizations",
-                                                new OrganizationProjection.Repository());
-             var receiver = BlackBox.singleTenant("Groups",
-                                                  new GroupNameProjection.Repository())) {
+        // The contexts exchange external messages through the transport of their application.
+        try (var application = TestApplications.newBuilder()
+                .add(BoundedContext.singleTenant("Organizations")
+                                   .add(new OrganizationProjection.Repository()))
+                .add(BoundedContext.singleTenant("Groups")
+                                   .add(new GroupNameProjection.Repository()))
+                .build()) {
+            var sender = BlackBox.from(application.contexts()
+                                                  .get(0));
+            var receiver = BlackBox.from(application.contexts()
+                                                    .get(1));
             var producerId = established.getId();
             sender.receivesEventsProducedBy(producerId, established);
             var groupId = GroupId.newBuilder()

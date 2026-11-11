@@ -19,20 +19,20 @@ import io.spine.string.Diags
 import java.io.Serial
 
 /**
- * An exception thrown when a Bounded Context is built with the name of another open
- * Bounded Context of the JVM.
+ * An exception thrown when an [Application] is built with two Bounded Contexts
+ * of one name.
  *
- * The System context of a Bounded Context is an open context too. So a context cannot have
- * the name of the System context of another open one, and its own System context cannot have
- * the name of another open context.
+ * The System context of a Bounded Context counts too. So a context cannot have the name of
+ * the System context of another context of the application, and its own System context cannot
+ * have the name of another context.
  *
  * The framework tells Bounded Contexts apart by name in several places. For example,
  * the integration transport takes a message from a context with the same name for one of its
- * own, and the event store keeps the events of a context under its name. So two open contexts
- * with one name would be taken for one another.
+ * own, and the event store keeps the events of a context under its name. So two contexts
+ * of an application with one name would be taken for one another.
  *
- * @param name The name that another open context already has.
- * @see BoundedContextBuilder.build
+ * @param name The name that two contexts of the application have.
+ * @see Application.Builder.build
  */
 public class DuplicateContextNameException internal constructor(
     name: BoundedContextName
@@ -45,8 +45,8 @@ public class DuplicateContextNameException internal constructor(
 
         private fun messageOf(name: BoundedContextName): String {
             val quoted = Diags.backtick(name.value)
-            return "A Bounded Context named $quoted is already open." +
-                    " Close it, or give the new context another name."
+            return "Another Bounded Context of the application is named $quoted." +
+                    " Please give each context a name of its own."
         }
     }
 }

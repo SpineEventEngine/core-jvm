@@ -16,9 +16,9 @@ package io.spine.server.commandbus
 
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.spine.grpc.StreamObservers.noOpObserver
-import io.spine.server.Application
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.commandbus.given.CommandDispatcherRegistryTestEnv.CreateProjectAssignee
+import io.spine.testing.server.testApplication
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -32,14 +32,17 @@ internal class CommandBusSpec {
 
     @Test
     fun `not register the tenant of a posted command`() {
-        BoundedContextBuilder.assumingTests(/* multitenant = */ true).build().use { context ->
+        val application = testApplication {
+            add(BoundedContextBuilder.assumingTests(/* multitenant = */ true))
+        }
+        application.use {
+            val context = it.contexts().single()
             context.internalAccess().registerCommandDispatcher(CreateProjectAssignee())
             val command = Given.ACommand.createProject()
 
             context.commandBus().post(command, noOpObserver())
 
-            Application.instance()
-                .tenantIndex()
+            it.tenantIndex()
                 .contains(command.tenant())
                 .shouldBeFalse()
         }

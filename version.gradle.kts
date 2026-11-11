@@ -15,4 +15,4 @@
 /**
  * The version of this library.
  */
-extra.set("versionToPublish", "2.0.0-SNAPSHOT.680")
+extra.set("versionToPublish", "2.0.0-SNAPSHOT.690")

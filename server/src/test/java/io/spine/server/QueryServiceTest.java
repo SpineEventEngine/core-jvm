@@ -130,7 +130,7 @@ class QueryServiceTest {
         closeContexts();
         responseObserver = memoizingObserver();
         // Create Projects Bounded Context with one repository and one projection.
-        var projectsContext = BoundedContext.singleTenant(PROJECTS_CONTEXT_NAME).build();
+        var projectsContext = BoundedContextBuilder.assumingTests(PROJECTS_CONTEXT_NAME).build();
         var projectRepo = new Given.ProjectAggregateRepository();
         projectsContext.register(projectRepo);
         projectsContext.register(repository);
@@ -138,7 +138,7 @@ class QueryServiceTest {
         boundedContexts.add(projectsContext);
 
         // Create Customers Bounded Context with one repository.
-        var customersContext = BoundedContext.singleTenant(CUSTOMERS_CONTEXT_NAME).build();
+        var customersContext = BoundedContextBuilder.assumingTests(CUSTOMERS_CONTEXT_NAME).build();
         var customerRepo = new Given.CustomerAggregateRepository();
         customersContext.register(customerRepo);
         boundedContexts.add(customersContext);

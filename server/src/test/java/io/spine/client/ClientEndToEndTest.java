@@ -16,11 +16,13 @@ package io.spine.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
+import io.spine.server.Application;
 import io.spine.server.Server;
 import io.spine.test.client.billing.PaymentReceived;
 import io.spine.test.client.tasks.event.CTaskCreated;
 import io.spine.testing.SlowTest;
 import io.spine.testing.logging.mute.MuteLogging;
+import io.spine.testing.server.TestApplications;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,18 +53,22 @@ class ClientEndToEndTest {
     @SuppressWarnings("DuplicateStringLiteralInspection")
     private static final String ADDRESS = "localhost";
 
+    private Application application;
     private Client client;
     private Server server;
     private ManagedChannel channel;
 
     @BeforeEach
     void startAndConnect() throws IOException {
+        application = TestApplications.newBuilder()
+                .add(users())
+                .add(tasks())
+                .build();
         // Bind to the port `0` so that the OS assigns a free one, and connect to the port
         // the server actually got. A fixed port makes the test fail intermittently when
         // the port is taken by another process on the CI runner.
-        users().build();
-        tasks().build();
-        server = atPort(0).build();
+        server = atPort(0).setApplication(application)
+                          .build();
         server.start();
         channel = forAddress(ADDRESS, server.getBoundPort())
                 .usePlaintext()
@@ -82,6 +88,7 @@ class ClientEndToEndTest {
         server.shutdown();
         channel.shutdown();
         channel.awaitTermination(1, SECONDS);
+        application.close();
     }
 
     @Test

@@ -72,8 +72,8 @@ class AggregateQueryingTest {
     void setUp() {
         repository = newPhotosRepository();
         context = BoundedContextBuilder.assumingTests(/* multitenant = */ false)
-                                       .add(repository)
-                                       .build();
+                .add(repository)
+                .build();
         var requestFactory = new TestActorRequestFactory(AggregateQueryingTest.class);
         queries = requestFactory.query();
         commands = requestFactory.command();

@@ -1,32 +1,38 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
+
 package io.spine.server
 
+import com.google.protobuf.Message
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.environment.Tests
+import io.spine.server.commandbus.CommandScheduler
+import io.spine.server.commandbus.ExecutorCommandScheduler
+import io.spine.server.storage.RecordSpec
+import io.spine.server.storage.RecordStorage
+import io.spine.server.storage.StorageFactory
+import io.spine.server.storage.StorageGroup
+import io.spine.server.storage.memory.InMemoryStorageFactory
+import io.spine.server.storage.system.SystemAwareStorageFactory
+import io.spine.server.transport.memory.InMemoryTransportFactory
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -34,10 +40,153 @@ import org.junit.jupiter.api.Test
 internal class ServerEnvironmentSpec {
 
     @Test
-    @Suppress("DEPRECATION") /* The point of the test is to cover the deprecated method. */
-    fun `configure the passed type via the deprecated 'when'`() {
-        val configurator = ServerEnvironment.`when`(Tests::class.java)
+    fun `be built with the Kotlin DSL, with the technologies for a type of environment`() {
+        val storage = InMemoryStorageFactory.newInstance()
+        val transport = InMemoryTransportFactory.newInstance()
 
-        configurator.type() shouldBe Tests::class.java
+        val environment = serverEnvironment {
+            under<Tests> {
+                type shouldBe Tests::class.java
+                use(storage)
+                use(transport)
+            }
+        }
+
+        val storageFactory = environment.storageFactory()
+        storageFactory.shouldBeInstanceOf<SystemAwareStorageFactory>()
+        storageFactory.delegate() shouldBeSameInstanceAs storage
+        environment.transportFactory() shouldBeSameInstanceAs transport
+    }
+
+    @Test
+    fun `use in-memory storage and transport, and a local delivery, in tests by default`() {
+        val environment = serverEnvironment {}
+
+        val storageFactory = environment.storageFactory()
+        storageFactory.shouldBeInstanceOf<SystemAwareStorageFactory>()
+        storageFactory.delegate().shouldBeInstanceOf<InMemoryStorageFactory>()
+        environment.transportFactory().shouldBeInstanceOf<InMemoryTransportFactory>()
+        environment.delivery() shouldBeSameInstanceAs environment.delivery()
+        environment.tracing().isPresent.shouldBeFalse()
+    }
+
+    @Test
+    fun `create a command scheduler for each call`() {
+        val created = mutableListOf<CommandScheduler>()
+        val environment = serverEnvironment {
+            scheduleCommandsUsing { ExecutorCommandScheduler().also(created::add) }
+        }
+
+        environment.newCommandScheduler()
+        environment.newCommandScheduler()
+
+        created shouldHaveSize 2
+    }
+
+    @Test
+    fun `have a node of its own`() {
+        val first = serverEnvironment {}
+        val second = serverEnvironment {}
+
+        first.nodeId shouldNotBe second.nodeId
+    }
+
+    @Test
+    fun `not be built twice by one builder`() {
+        val builder = ServerEnvironment.newBuilder()
+        builder.build()
+
+        shouldThrow<IllegalStateException> {
+            builder.build()
+        }
+    }
+
+    @Test
+    fun `not be configured after it is built`() {
+        lateinit var configurator: ServerEnvironment.TypeConfigurator
+        val builder = ServerEnvironment.newBuilder()
+            .under<Tests> { configurator = this }
+        builder.build()
+
+        shouldThrow<IllegalStateException> {
+            configurator.use(InMemoryTransportFactory.newInstance())
+        }
+    }
+
+    @Test
+    fun `close the factories of its technologies`() {
+        val storage = InMemoryStorageFactory.newInstance()
+        val transport = InMemoryTransportFactory.newInstance()
+        val environment = serverEnvironment {
+            under<Tests> {
+                use(storage)
+                use(transport)
+            }
+        }
+        environment.storageFactory()
+        environment.transportFactory()
+
+        environment.close()
+
+        environment.isOpen.shouldBeFalse()
+        storage.isOpen.shouldBeFalse()
+        transport.isOpen.shouldBeFalse()
+    }
+
+    @Test
+    fun `close the factories of its technologies once`() {
+        val storage = StorageFactoryCountingClosings()
+        val environment = serverEnvironment {
+            under<Tests> { use(storage) }
+        }
+
+        environment.close()
+        environment.close()
+
+        storage.closings shouldBe 1
+    }
+
+    @Test
+    fun `name the factory that failed to close`() {
+        val storage = StorageFactoryCountingClosings(failure = "The factory failed to close.")
+        val environment = serverEnvironment {
+            under<Tests> { use(storage) }
+        }
+
+        val error = shouldThrow<IllegalStateException> {
+            environment.close()
+        }
+
+        error.message shouldContain "StorageFactory"
+        error.cause?.message shouldContain "The factory failed to close."
+    }
+}
+
+/**
+ * An in-memory storage factory that counts the calls to [close].
+ *
+ * @param failure The message of the error that each call to [close] throws, if any.
+ */
+private class StorageFactoryCountingClosings(
+    private val failure: String? = null
+) : StorageFactory {
+
+    private val delegate = InMemoryStorageFactory.newInstance()
+
+    var closings = 0
+        private set
+
+    override fun <I : Any, R : Message> createRecordStorage(
+        context: ContextSpec,
+        recordSpec: RecordSpec<I, R>,
+        group: StorageGroup?
+    ): RecordStorage<I, R> = delegate.createRecordStorage(context, recordSpec, group)
+
+    override fun isOpen(): Boolean = delegate.isOpen
+
+    override fun close() {
+        closings++
+        failure?.let { error(it) }
+        delegate.close()
     }
 }

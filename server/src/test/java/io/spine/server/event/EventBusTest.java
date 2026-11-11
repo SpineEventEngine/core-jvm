@@ -19,7 +19,6 @@ import io.spine.core.Ack;
 import io.spine.grpc.StreamObservers;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.server.ServerEnvironment;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.event.given.bus.BareDispatcher;
 import io.spine.server.event.given.bus.EBExternalTaskAddedSubscriber;
@@ -97,8 +96,6 @@ class EventBusTest {
     @AfterEach
     void tearDown() throws Exception {
         context.close();
-        ServerEnvironment.instance()
-                         .reset();
     }
 
     @Test

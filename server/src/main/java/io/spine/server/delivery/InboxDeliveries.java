@@ -22,8 +22,10 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Maps.newConcurrentMap;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static java.util.stream.Collectors.joining;
 
 /**
  * The container for the {@linkplain ShardedMessageDelivery message deliveries} for each
@@ -41,7 +43,7 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  *
  * <ol>
  *     <li>the job tells the type of the projection it catches up;
- *     <li>the type tells the domain context that serves it;
+ *     <li>the inbox of the type tells the domain context that serves it;
  *     <li>the domain context tells its System context.
  * </ol>
  */
@@ -107,14 +109,34 @@ final class InboxDeliveries {
     /**
      * Finds the System context, to which the catch-up message with the passed address goes.
      *
+     * <p>It is the System context of the domain context, which registered the inbox of
+     * the projection type of the job.
+     *
      * @throws IllegalStateException
-     *         if no open context serves the projection type of the job
+     *         if no inbox, or more than one, is registered for the projection type of the job
      */
-    private static BoundedContextName systemContextOf(InboxId inboxId) {
+    private BoundedContextName systemContextOf(InboxId inboxId) {
         var job = jobOf(inboxId);
-        return CatchUpProcess.domainContextOf(job)
-                             .name()
-                             .toSystem();
+        var projectionType = TypeUrl.parse(job.getProjectionType());
+        var contexts = inboxes.keySet()
+                .stream()
+                .filter(key -> key.type.equals(projectionType))
+                .map(key -> key.context)
+                .collect(toImmutableSet());
+        checkState(!contexts.isEmpty(),
+                   "No inbox is registered for the projection type `%s`" +
+                           " of the catch-up job `%s`.",
+                   projectionType, job.getUuid());
+        checkState(contexts.size() == 1,
+                   "The projection type `%s` of the catch-up job `%s` has inboxes" +
+                           " in several Bounded Contexts: %s.",
+                   projectionType, job.getUuid(),
+                   contexts.stream()
+                           .map(BoundedContextName::getValue)
+                           .collect(joining(", ")));
+        return contexts.iterator()
+                       .next()
+                       .toSystem();
     }
 
     /**

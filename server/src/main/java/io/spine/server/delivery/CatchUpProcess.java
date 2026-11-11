@@ -28,7 +28,6 @@ import io.spine.core.Event;
 import io.spine.core.EventContext;
 import io.spine.core.Versions;
 import io.spine.grpc.MemoizingObserver;
-import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.delivery.event.AllShardsFinalized;
 import io.spine.server.delivery.event.CatchUpCompleted;
@@ -61,6 +60,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.IntStream;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.protobuf.util.Durations.fromMillis;
@@ -83,7 +83,6 @@ import static io.spine.server.delivery.CatchUpStatus.IN_PROGRESS;
 import static io.spine.server.delivery.CatchUpStatus.STARTED;
 import static io.spine.server.delivery.DeliveryStrategy.newIndex;
 import static io.spine.server.route.EventRoute.noTargets;
-import static io.spine.util.Exceptions.newIllegalStateException;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -303,6 +302,13 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
     private @MonotonicNonNull Delivery delivery;
 
     /**
+     * The Bounded Context that serves the projections to catch up.
+     *
+     * <p>Set by the {@linkplain CatchUpRepository repository} when it configures the process.
+     */
+    private @MonotonicNonNull BoundedContext domainContext;
+
+    /**
      * Creates a new instance of the process with the given ID.
      */
     CatchUpProcess(CatchUpId id) {
@@ -314,6 +320,28 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
      */
     void injectDelivery(Delivery delivery) {
         this.delivery = checkNotNull(delivery);
+    }
+
+    /**
+     * Assigns the Bounded Context that serves the projections to catch up.
+     *
+     * <p>The process lives in the System context of this context.
+     *
+     * @throws IllegalArgumentException
+     *         if the passed context is a System context, which serves no projections
+     *         of its own to catch up
+     */
+    // A domain context is its own domain context, the very same instance.
+    @SuppressWarnings({"ObjectEquality", "ReferenceEquality"})
+    void injectDomainContext(BoundedContext context) {
+        checkNotNull(context);
+        var domain = context.internalAccess()
+                            .domainContext();
+        checkArgument(domain == context,
+                      "The catch-up process `%s` needs a domain context," +
+                              " but `%s` is the System context of `%s`.",
+                      id(), context, domain);
+        this.domainContext = context;
     }
 
     private Delivery delivery() {
@@ -857,37 +885,19 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
     }
 
     /**
-     * Returns the open Bounded Context that serves the projection type of this process.
-     *
-     * @see #domainContextOf(CatchUpId)
+     * Returns the Bounded Context that serves the projection type of this process.
      */
     private BoundedContext domainContext() {
-        return domainContextOf(id());
-    }
-
-    /**
-     * Returns the open Bounded Context that serves the projection type of the given job.
-     *
-     * @throws IllegalStateException
-     *         if no open context serves the type
-     */
-    static BoundedContext domainContextOf(CatchUpId job) {
-        var projectionType = TypeUrl.parse(job.getProjectionType());
-        var context = Application.instance().contexts().contextServing(projectionType);
-        if (context == null) {
-            throw newIllegalStateException(
-                    "No open Bounded Context serves the projection type `%s`" +
-                            " of the catch-up job `%s`.",
-                    projectionType, job.getUuid());
-        }
-        return context;
+        checkState(domainContext != null,
+                   "The catch-up process `%s` is not configured with its Bounded Context.",
+                   id());
+        return domainContext;
     }
 
     /**
      * Returns the repository of the projections under this catch-up.
      *
-     * <p>The repository is found in the open Bounded Context that serves
-     * the projection type.
+     * <p>The repository is found in the Bounded Context that serves the projection type.
      */
     @SuppressWarnings("unchecked") // The repository serves the projection type of the job.
     private ProjectionRepository<Object, ?, ?> repository() {

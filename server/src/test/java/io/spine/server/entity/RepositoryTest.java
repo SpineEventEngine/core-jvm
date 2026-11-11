@@ -119,8 +119,8 @@ class RepositoryTest {
         @Test
         @DisplayName("throwing `ISE`")
         void prohibit() {
-            var anotherContext = BoundedContext
-                    .singleTenant("Context-1")
+            var anotherContext = BoundedContextBuilder
+                    .assumingTests("Context-1")
                     .build();
             assertThrows(IllegalStateException.class, () ->
                     repository.registerWith(anotherContext));
@@ -225,7 +225,7 @@ class RepositoryTest {
         var repo = new TestRepo();
 
         var contextName = "test context";
-        var context = BoundedContext.singleTenant(contextName).build();
+        var context = BoundedContextBuilder.assumingTests(contextName).build();
         repo.registerWith(context);
 
         assertTrue(repo.isRegistered());
@@ -237,7 +237,7 @@ class RepositoryTest {
     @DisplayName("not register in another context")
     void anotherContext() {
         assertTrue(repository.isRegistered());
-        var anotherContext = BoundedContext.singleTenant("another").build();
+        var anotherContext = BoundedContextBuilder.assumingTests("another").build();
         assertThrows(IllegalStateException.class, () -> repository.registerWith(anotherContext));
     }
 

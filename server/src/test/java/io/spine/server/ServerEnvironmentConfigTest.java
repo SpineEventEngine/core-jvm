@@ -15,6 +15,7 @@
 package io.spine.server;
 
 import com.google.common.testing.NullPointerTester;
+import io.spine.base.Identifier;
 import io.spine.environment.DefaultMode;
 import io.spine.environment.Environment;
 import io.spine.environment.EnvironmentType;
@@ -40,8 +41,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import static com.google.common.truth.Truth.assertThat;
-import static io.spine.server.ServerEnvironment.under;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -53,14 +55,41 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ServerEnvironmentConfigTest {
 
     private static final Environment environment = Environment.instance();
-    private static final ServerEnvironment serverEnvironment = ServerEnvironment.instance();
+
+    /**
+     * The builder of the environment under the test, created for each test.
+     */
+    private final ServerEnvironment.Builder builder = ServerEnvironment.newBuilder();
+
+    /**
+     * The environment under the test, built on the first call to {@link #serverEnvironment()}.
+     */
+    private @Nullable ServerEnvironment built;
 
     @AfterEach
     void resetAndBackToTests() {
-        serverEnvironment.reset();
         environment.reset();
         environment.setTo(Tests.class);
         Local.disable();
+    }
+
+    /**
+     * Starts configuring the environment under the test for the given type.
+     */
+    private ServerEnvironment.TypeConfigurator under(Class<? extends EnvironmentType<?>> type) {
+        var configurator = new AtomicReference<ServerEnvironment.TypeConfigurator>();
+        builder.under(type, configurator::set);
+        return configurator.get();
+    }
+
+    /**
+     * Obtains the environment under the test, building it on the first call.
+     */
+    private ServerEnvironment serverEnvironment() {
+        if (built == null) {
+            built = builder.build();
+        }
+        return built;
     }
 
     @Test
@@ -75,7 +104,7 @@ class ServerEnvironmentConfigTest {
     class OfTransportFactory {
 
         private void assertValue(TransportFactory factory) {
-            assertThat(serverEnvironment.transportFactory())
+            assertThat(serverEnvironment().transportFactory())
                     .isSameInstanceAs(factory);
         }
 
@@ -91,7 +120,8 @@ class ServerEnvironmentConfigTest {
             @Test
             @DisplayName("throw an `IllegalStateException` if not configured")
             void throwsIfNotConfigured() {
-                assertThrows(IllegalStateException.class, serverEnvironment::transportFactory);
+                assertThrows(IllegalStateException.class,
+                             () -> serverEnvironment().transportFactory());
             }
             @Test
             @DisplayName("return configured instance in Production")
@@ -117,7 +147,7 @@ class ServerEnvironmentConfigTest {
             @DisplayName("returning an `InMemoryTransportFactory` when not set")
             void notSet() {
                 environment.setTo(Tests.class);
-                assertThat(serverEnvironment.transportFactory())
+                assertThat(serverEnvironment().transportFactory())
                         .isInstanceOf(InMemoryTransportFactory.class);
             }
         }
@@ -135,7 +165,8 @@ class ServerEnvironmentConfigTest {
             @Test
             @DisplayName("throwing an `IllegalStateException` if not set")
             void illegalState() {
-                assertThrows(IllegalStateException.class, serverEnvironment::transportFactory);
+                assertThrows(IllegalStateException.class,
+                             () -> serverEnvironment().transportFactory());
             }
 
             @Test
@@ -166,28 +197,21 @@ class ServerEnvironmentConfigTest {
     class OfDelivery {
 
         private Class<? extends EnvironmentType<?>> currentType;
-        private Delivery currentDelivery;
 
         private void assertValue(Delivery delivery) {
-            assertThat(serverEnvironment.delivery())
+            assertThat(serverEnvironment().delivery())
                     .isSameInstanceAs(delivery);
         }
 
         @BeforeEach
-        void rememberCurrentDelivery() {
+        void rememberCurrentType() {
             currentType = environment.type();
-            currentDelivery = serverEnvironment.delivery();
-        }
-
-        @AfterEach
-        void restoreDelivery() {
-            under(currentType).use(currentDelivery);
         }
 
         @Test
         @DisplayName("to default back to `Local` if no delivery is set")
         void defaultsToLocal() {
-            var delivery = serverEnvironment.delivery();
+            var delivery = serverEnvironment().delivery();
             assertThat(delivery).isNotNull();
         }
 
@@ -213,8 +237,10 @@ class ServerEnvironmentConfigTest {
         }
 
         private Delivery customDelivery() {
-            return Delivery.newBuilder(serverEnvironment.nodeId(),
-                                       serverEnvironment.storageFactory())
+            var nodeId = NodeId.newBuilder()
+                    .setValue(Identifier.newUuid())
+                    .build();
+            return Delivery.newBuilder(nodeId, InMemoryStorageFactory.newInstance())
                     .setStrategy(UniformAcrossAllShards.forNumber(42))
                     .build();
         }
@@ -283,8 +309,8 @@ class ServerEnvironmentConfigTest {
             assertTracer(factory);
         }
 
-        private static void assertTracer(TracerFactory expected) {
-            assertThat(serverEnvironment.tracing())
+        private void assertTracer(TracerFactory expected) {
+            assertThat(serverEnvironment().tracing())
                   .hasValue(expected);
         }
 
@@ -296,7 +322,7 @@ class ServerEnvironmentConfigTest {
             TracerFactory factory = new MemoizingTracerFactory();
             under(Local.class).use(factory);
 
-            assertThat(serverEnvironment.tracing())
+            assertThat(serverEnvironment().tracing())
                   .isEmpty();
         }
 
@@ -318,7 +344,7 @@ class ServerEnvironmentConfigTest {
     class OfStorageFactory {
 
         private SystemAwareStorageFactory systemAwareFactory() {
-            return (SystemAwareStorageFactory) serverEnvironment.storageFactory();
+            return (SystemAwareStorageFactory) serverEnvironment().storageFactory();
         }
 
         private void assertDelegateIs(StorageFactory factory) {
@@ -339,7 +365,8 @@ class ServerEnvironmentConfigTest {
             @Test
             @DisplayName("throwing an `IllegalStateException` if not configured")
             void throwsIfNotConfigured() {
-                assertThrows(IllegalStateException.class, serverEnvironment::storageFactory);
+                assertThrows(IllegalStateException.class,
+                             () -> serverEnvironment().storageFactory());
             }
 
             @Test
@@ -355,7 +382,7 @@ class ServerEnvironmentConfigTest {
             void testsFactory() {
                 environment.setTo(Tests.class);
 
-                var factory = serverEnvironment.storageFactory();
+                var factory = serverEnvironment().storageFactory();
                 assertThat(factory)
                         .isInstanceOf(SystemAwareStorageFactory.class);
                 var delegate = systemAwareFactory().delegate();
@@ -390,7 +417,8 @@ class ServerEnvironmentConfigTest {
             @Test
             @DisplayName("throwing an `IllegalStateException` if not set")
             void illegalState() {
-                assertThrows(IllegalStateException.class, serverEnvironment::storageFactory);
+                assertThrows(IllegalStateException.class,
+                             () -> serverEnvironment().storageFactory());
             }
 
             @Test

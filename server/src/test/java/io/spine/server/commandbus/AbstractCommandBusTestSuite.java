@@ -24,6 +24,7 @@ import io.spine.core.ErrorCase;
 import io.spine.core.Status;
 import io.spine.core.TenantId;
 import io.spine.grpc.MemoizingObserver;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.command.AbstractAssignee;
@@ -75,6 +76,11 @@ abstract class AbstractCommandBusTestSuite {
     protected BoundedContext context;
 
     /**
+     * The application of the {@link #context}, closed after each test.
+     */
+    private Application application;
+
+    /**
      * A public constructor for derived test cases.
      *
      * @param multitenant the multi-tenancy status of the {@code CommandBus} under tests
@@ -123,10 +129,13 @@ abstract class AbstractCommandBusTestSuite {
 
         ScheduledExecutorService executorService = new DirectScheduledExecutor();
         CommandScheduler scheduler = new ExecutorCommandScheduler(executorService);
-        ServerEnvironment.instance()
-                         .scheduleCommandsUsing(() -> scheduler);
+        var environment = ServerEnvironment.newBuilder()
+                .scheduleCommandsUsing(() -> scheduler)
+                .build();
 
-        context = createContext();
+        application = createApplication(environment);
+        context = application.contexts()
+                             .get(0);
 
         var contextAccess = context.internalAccess();
         systemWriteSide = NoOpSystemWriteSide.INSTANCE;
@@ -149,18 +158,27 @@ abstract class AbstractCommandBusTestSuite {
         observer = memoizingObserver();
     }
 
-    private BoundedContext createContext() {
+    /**
+     * Builds the application of the only context of the test.
+     */
+    private Application createApplication(ServerEnvironment environment) {
         var cls = getClass();
         var name = cls.getSimpleName();
         var builder = multitenant
                       ? BoundedContext.multitenant(name)
                       : BoundedContext.singleTenant(name);
-        return builder.build();
+        return Application.newBuilder()
+                .setServerEnvironment(environment)
+                .add(builder)
+                .build();
     }
 
+    /**
+     * Closes the application, together with its context and its environment.
+     */
     @AfterEach
-    void tearDown() throws Exception {
-        context.close();
+    void tearDown() {
+        application.close();
     }
 
     @Test

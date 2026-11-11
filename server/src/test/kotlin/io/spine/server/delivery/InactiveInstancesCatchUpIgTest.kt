@@ -21,7 +21,6 @@ import io.spine.server.delivery.CatchUpStatus.COMPLETED
 import io.spine.server.delivery.given.CounterView
 import io.spine.server.entity.TestTransaction
 import io.spine.testing.SlowTest
-import io.spine.testing.server.blackbox.BlackBox
 import kotlin.jvm.optionals.getOrNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -47,7 +46,7 @@ internal class InactiveInstancesCatchUpIgTest : AbstractCatchUpIgTest() {
     @ValueSource(ints = [1, 3])
     fun `rebuild the archived and deleted instances from the history`(shards: Int) {
         useDelivery(UniformAcrossAllShards.forNumber(shards))
-        BlackBox.singleTenantWith(repository).use { context ->
+        blackBoxWith(repository).use { context ->
             val since = emitHistory(context, EVENTS_PER_TARGET, FIRST, SECOND, THIRD)
             changeStored(SECOND, TestTransaction::archive)
             changeStored(THIRD, TestTransaction::delete)
@@ -73,7 +72,7 @@ internal class InactiveInstancesCatchUpIgTest : AbstractCatchUpIgTest() {
     @ValueSource(ints = [1, 3])
     fun `rebuild the instances when none of them is active`(shards: Int) {
         useDelivery(UniformAcrossAllShards.forNumber(shards))
-        BlackBox.singleTenantWith(repository).use { context ->
+        blackBoxWith(repository).use { context ->
             val since = emitHistory(context, EVENTS_PER_TARGET, SECOND, THIRD)
             changeStored(SECOND, TestTransaction::archive)
             changeStored(THIRD, TestTransaction::delete)
@@ -98,7 +97,7 @@ internal class InactiveInstancesCatchUpIgTest : AbstractCatchUpIgTest() {
     @Test
     fun `remove an inactive instance that the history does not reach`() {
         useDelivery(UniformAcrossAllShards.singleShard())
-        BlackBox.singleTenantWith(repository).use { context ->
+        blackBoxWith(repository).use { context ->
             val since = emitHistory(context, EVENTS_PER_TARGET, FIRST)
             val fourth = repository.create(FOURTH)
             TestTransaction.archive(fourth)

@@ -99,8 +99,6 @@ class SubscriptionServiceTest {
     @SuppressWarnings("resource")  /* Fine for tests. */
     void setUp() {
         ModelTests.dropAllModels();
-        ServerEnvironment.instance()
-                         .reset();
         context = BoundedContextBuilder
                 .assumingTests()
                 .add(new ProjectAggregateRepository())
@@ -118,8 +116,7 @@ class SubscriptionServiceTest {
     }
 
     private BoundedContext randomCtx() {
-        return remember(BoundedContext.singleTenant(newUuid())
-                                      .build());
+        return remember(BoundedContextBuilder.assumingTests(newUuid()).build());
     }
 
     @AfterEach
@@ -139,8 +136,8 @@ class SubscriptionServiceTest {
 
     /** Creates a new multi-tenant BoundedContext with the passed name. */
     private BoundedContext ctx(String name) {
-        return remember(BoundedContext.multitenant(name)
-                                      .build());
+        var builder = BoundedContextBuilder.assumingTests(name, /* multitenant = */ true);
+        return remember(builder.build());
     }
 
     /** Adds the passed context to those closed after the current test. */
