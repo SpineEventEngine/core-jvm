@@ -22,7 +22,7 @@ import io.spine.testdata.Sample;
 import io.spine.testing.client.TestActorRequestFactory;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class AggregateRepositoryTestEnv {
 
@@ -41,13 +41,12 @@ public class AggregateRepositoryTestEnv {
     /**
      * Obtains the test {@link #context}.
      *
-     * @throws IllegalStateException
+     * @throws NullPointerException
      *         if the context is not {@linkplain #resetBoundedContext(BoundedContextBuilder)
      *         built} yet
      */
     public static BoundedContext context() {
-        checkState(context != null, "The test context is not built yet.");
-        return context;
+        return checkNotNull(context, "The test context is not built yet.");
     }
 
     public static ProjectAggregateRepository repository() {
