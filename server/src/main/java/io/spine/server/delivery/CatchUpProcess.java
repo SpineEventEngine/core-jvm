@@ -60,6 +60,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.IntStream;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.protobuf.util.Durations.fromMillis;
@@ -325,9 +326,21 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
      * Assigns the Bounded Context that serves the projections to catch up.
      *
      * <p>The process lives in the System context of this context.
+     *
+     * @throws IllegalArgumentException
+     *         if the passed context is a System context, which serves no projections
+     *         of its own to catch up
      */
+    @SuppressWarnings("ObjectEquality") // A domain context is its own domain context.
     void injectDomainContext(BoundedContext context) {
-        this.domainContext = checkNotNull(context);
+        checkNotNull(context);
+        var domain = context.internalAccess()
+                            .domainContext();
+        checkArgument(domain == context,
+                      "The catch-up process `%s` needs a domain context," +
+                              " but `%s` is the System context of `%s`.",
+                      id(), context, domain);
+        this.domainContext = context;
     }
 
     private Delivery delivery() {
