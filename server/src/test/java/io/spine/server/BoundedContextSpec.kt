@@ -466,11 +466,15 @@ internal class BoundedContextSpec {
         }
 
         @Test
-        fun `exposed by a probe`() {
-            val probe = EmptyProbe { setOf(SecretProjectRepository()) }
+        fun `exposed by a probe, leaving the probe not installed`() {
+            val probe = RepositoryExposingProbe()
             assertThrows<IllegalArgumentException> {
                 context.install(probe)
             }
+            context.hasProbe() shouldBe false
+            probe.isRegistered() shouldBe false
+            context.commandBus().hasListener(probe.commandListener()) shouldBe false
+            context.eventBus().hasListener(probe.eventListener()) shouldBe false
         }
     }
 
@@ -571,16 +575,7 @@ internal class BoundedContextSpec {
     }
 }
 
-/**
- * A probe that collects nothing.
- *
- * @param dispatchers Creates the event dispatchers exposed by the probe.
- */
-private class EmptyProbe(
-    private val dispatchers: () -> Set<EventDispatcher> = {
-        setOf(StubReaction1(), StubReaction2(), StubReaction3())
-    }
-) : BoundedContext.Probe {
+private class EmptyProbe : BoundedContext.Probe {
     private lateinit var context: BoundedContext
     override fun registerWith(context: BoundedContext) {
         this.context = context
@@ -588,7 +583,31 @@ private class EmptyProbe(
     override fun isRegistered(): Boolean = this::context.isInitialized
     override fun commandListener(): Listener<CommandEnvelope> = Listener { _ -> }
     override fun eventListener(): Listener<EventEnvelope> = Listener { _ -> }
-    override fun eventDispatchers(): Set<EventDispatcher> = dispatchers()
+    override fun eventDispatchers(): Set<EventDispatcher> = mutableSetOf(
+            StubReaction1(), StubReaction2(), StubReaction3()
+        )
+}
+
+/**
+ * A probe that exposes a repository as its event dispatcher.
+ *
+ * Its listeners stay the same instances, so a test can look for them on the buses.
+ */
+private class RepositoryExposingProbe : BoundedContext.Probe {
+    private var context: BoundedContext? = null
+    private val commands = Listener<CommandEnvelope> { _ -> }
+    private val events = Listener<EventEnvelope> { _ -> }
+    override fun registerWith(context: BoundedContext) {
+        this.context = context
+    }
+    override fun isRegistered(): Boolean = context != null
+    override fun unregister() {
+        super.unregister()
+        context = null
+    }
+    override fun commandListener(): Listener<CommandEnvelope> = commands
+    override fun eventListener(): Listener<EventEnvelope> = events
+    override fun eventDispatchers(): Set<EventDispatcher> = setOf(SecretProjectRepository())
 }
 
 private class StubReaction1: Reaction<SomethingHappened>() {

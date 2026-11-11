@@ -631,6 +631,9 @@ public abstract class BoundedContext
      * @see #removeProbe()
      * @throws IllegalStateException
      *          if another probe is already installed
+     * @throws IllegalArgumentException
+     *          if the probe exposes a repository as an event dispatcher;
+     *          the probe is then unregistered and not installed
      */
     public final void install(Probe probe) {
         checkNotNull(probe);
@@ -640,11 +643,27 @@ public abstract class BoundedContext
             return;
         }
         probe.registerWith(this);
+        var dispatchers = probe.eventDispatchers();
+        checkNoRepositories(probe, dispatchers);
         commandBus.add(probe.commandListener());
         eventBus.add(probe.eventListener());
-        probe.eventDispatchers()
-             .forEach(this::registerEventDispatcher);
+        dispatchers.forEach(this::registerEventDispatcher);
         this.probe = probe;
+    }
+
+    /**
+     * Ensures that the given probe exposes no repository as an event dispatcher.
+     *
+     * <p>If it does, unregisters the probe, so that it is left not installed.
+     */
+    @SuppressWarnings("ProhibitedExceptionThrown" /* Rethrowing what was caught. */)
+    private static void checkNoRepositories(Probe probe, Set<EventDispatcher> dispatchers) {
+        try {
+            dispatchers.forEach(BoundedContext::checkNotRepository);
+        } catch (IllegalArgumentException e) {
+            runKeepingFailure(e, probe::unregister);
+            throw e;
+        }
     }
 
     /**
