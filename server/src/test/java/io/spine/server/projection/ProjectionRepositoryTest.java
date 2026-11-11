@@ -199,7 +199,7 @@ class ProjectionRepositoryTest
     @BeforeEach
     protected void setUp() {
         context = BoundedContextBuilder
-                .assumingTests(getClass().getSimpleName(), /* multitenant = */ true)
+                .assumingTests(getClass().getSimpleName(), /* multiTenant = */ true)
                 .build();
         super.setUp();
         context.internalAccess()

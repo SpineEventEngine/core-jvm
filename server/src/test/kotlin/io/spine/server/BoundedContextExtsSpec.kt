@@ -34,7 +34,7 @@ internal class BoundedContextExtsSpec {
             val builder = singleTenantContext("Tasks") {}
 
             builder.name().value shouldBe "Tasks"
-            builder.isMultitenant.shouldBeFalse()
+            builder.isMultiTenant.shouldBeFalse()
         }
 
         @Test
@@ -57,7 +57,7 @@ internal class BoundedContextExtsSpec {
             val builder = multiTenantContext("Tasks") {}
 
             builder.name().value shouldBe "Tasks"
-            builder.isMultitenant.shouldBeTrue()
+            builder.isMultiTenant.shouldBeTrue()
         }
 
         @Test

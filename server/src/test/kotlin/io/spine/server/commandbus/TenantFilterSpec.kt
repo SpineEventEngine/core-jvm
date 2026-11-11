@@ -37,7 +37,7 @@ internal class TenantFilterSpec {
     @Nested inner class
     `in a multitenant bus` {
 
-        private val filter = TenantFilter(multitenant = true, delegatingTo(writeSide))
+        private val filter = TenantFilter(multiTenant = true, delegatingTo(writeSide))
 
         @Test
         fun `refuse a command without a tenant and record it`() {
@@ -63,7 +63,7 @@ internal class TenantFilterSpec {
     @Nested inner class
     `in a single-tenant bus` {
 
-        private val filter = TenantFilter(multitenant = false, delegatingTo(writeSide))
+        private val filter = TenantFilter(multiTenant = false, delegatingTo(writeSide))
 
         @Test
         fun `refuse a command with a tenant and record the tenant`() {

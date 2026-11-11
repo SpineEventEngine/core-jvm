@@ -295,7 +295,7 @@ public final class DeliveryBuilder {
     @CanIgnoreReturnValue
     public DeliveryBuilder setCatchUpStorage(CatchUpStorage catchUpStorage) {
         checkNotNull(catchUpStorage);
-        checkArgument(!catchUpStorage.isMultitenant(),
+        checkArgument(!catchUpStorage.isMultiTenant(),
                       "The `CatchUpStorage` of a `Delivery` must be single-tenant.");
         this.catchUpStorage = catchUpStorage;
         return this;

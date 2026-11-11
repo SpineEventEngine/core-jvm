@@ -62,11 +62,11 @@ public fun singleTenantContext(
  * @param name The name of the Bounded Context.
  * @param block The function that configures the builder.
  * @see singleTenantContext
- * @see BoundedContext.multitenant
+ * @see BoundedContext.multiTenant
  */
 public fun multiTenantContext(
     name: String,
     block: (@ServerDsl BoundedContextBuilder).() -> Unit
 ): BoundedContextBuilder =
-    BoundedContext.multitenant(name)
+    BoundedContext.multiTenant(name)
         .apply(block)

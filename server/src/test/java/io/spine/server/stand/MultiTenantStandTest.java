@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @DisplayName("Multitenant `Stand` should")
-class MultitenantStandTest extends StandTest {
+class MultiTenantStandTest extends StandTest {
 
     @Override
     @BeforeEach
@@ -45,7 +45,7 @@ class MultitenantStandTest extends StandTest {
         var tenantId = GivenTenantId.generate();
 
         setCurrentTenant(tenantId);
-        setMultitenant(true);
+        setMultiTenant(true);
         setRequestFactory(createRequestFactory(tenantId));
     }
 
@@ -58,7 +58,7 @@ class MultitenantStandTest extends StandTest {
     @DisplayName("not trigger updates of aggregate records for another tenant subscriptions")
     void updateOnlySameTenant() {
         var repository = new CustomerAggregateRepository();
-        var stand = closeAfterTest(newContext(isMultitenant(), repository)).stand();
+        var stand = closeAfterTest(newContext(isMultiTenant(), repository)).stand();
 
         // --- Default Tenant
         var requestFactory = getRequestFactory();

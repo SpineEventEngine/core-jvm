@@ -34,11 +34,11 @@ import java.util.Optional
  * [CommandTenantNotExpected][io.spine.system.server.event.CommandTenantNotExpected], and
  * refused with [TENANT_ERROR].
  *
- * @param multitenant Tells if the bus is multitenant.
+ * @param multiTenant Tells if the bus is multitenant.
  * @param writeSideFunction Obtains the System write side for a tenant.
  */
 internal class TenantFilter(
-    private val multitenant: Boolean,
+    private val multiTenant: Boolean,
     private val writeSideFunction: WriteSideFunction
 ) : CommandFilter {
 
@@ -53,10 +53,10 @@ internal class TenantFilter(
     private fun problemWith(envelope: CommandEnvelope, tenant: TenantId): EventMessage? {
         val specified = tenant.isNotDefault()
         return when {
-            multitenant && !specified -> commandTenantNotSpecified {
+            multiTenant && !specified -> commandTenantNotSpecified {
                 id = envelope.id()
             }
-            !multitenant && specified -> commandTenantNotExpected {
+            !multiTenant && specified -> commandTenantNotExpected {
                 id = envelope.id()
                 this.tenant = tenant
             }

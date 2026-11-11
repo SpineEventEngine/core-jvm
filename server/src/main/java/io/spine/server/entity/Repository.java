@@ -559,7 +559,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * Creates the cache of the entities of this repository.
      */
     private void initCache() {
-        cache = new RepositoryCache<>(context().isMultitenant(),
+        cache = new RepositoryCache<>(context().isMultiTenant(),
                                       this::doLoadOrCreate,
                                       this::doStore);
     }

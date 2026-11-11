@@ -489,14 +489,14 @@ abstract class BlackBoxTest<T extends BlackBox> {
 
         @Test
         void singleTenant() {
-            var builder = BoundedContextBuilder.assumingTests(/* multitenant = */ false)
+            var builder = BoundedContextBuilder.assumingTests(/* multiTenant = */ false)
                     .enrichEventsUsing(enricher);
             assertBlackBox(builder, StBlackBox.class);
         }
 
         @Test
         void multiTenant() {
-            var builder = BoundedContextBuilder.assumingTests(/* multitenant = */ true)
+            var builder = BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
                     .enrichEventsUsing(enricher);
             assertBlackBox(builder, MtBlackBox.class);
         }
@@ -592,10 +592,10 @@ abstract class BlackBoxTest<T extends BlackBox> {
 
         @Test
         @DisplayName("multitenant")
-        void multitenant() {
+        void multiTenant() {
             closeSetUpContext();
             try(var ctx = BlackBox.multiTenantWith(new BbProjectRepository())) {
-                assertThat(ctx.context().isMultitenant()).isTrue();
+                assertThat(ctx.context().isMultiTenant()).isTrue();
             }
         }
     }

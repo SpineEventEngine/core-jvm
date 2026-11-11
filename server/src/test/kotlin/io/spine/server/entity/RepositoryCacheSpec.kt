@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test
 internal class RepositoryCacheSpec {
 
     private val storage = StubStorage()
-    private val cache = newCache(multitenant = false)
+    private val cache = newCache(multiTenant = false)
 
     @Nested inner class
     `for an entity that is not cached` {
@@ -128,28 +128,28 @@ internal class RepositoryCacheSpec {
     @Nested inner class
     `for the same ID in different tenants` {
 
-        private val multitenantCache = newCache(multitenant = true)
+        private val multiTenantCache = newCache(multiTenant = true)
         private val alice = tenantId { value = "Alice" }
         private val bob = tenantId { value = "Bob" }
 
         @Test
         fun `cache the entities apart`() {
             val ofAlice = inTenant(alice) {
-                multitenantCache.startCaching(A)
-                multitenantCache.load(A)
+                multiTenantCache.startCaching(A)
+                multiTenantCache.load(A)
             }
-            val ofBob = inTenant(bob) { multitenantCache.load(A) }
+            val ofBob = inTenant(bob) { multiTenantCache.load(A) }
 
             ofBob shouldNotBeSameInstanceAs ofAlice
-            inTenant(alice) { multitenantCache.load(A) } shouldBeSameInstanceAs ofAlice
+            inTenant(alice) { multiTenantCache.load(A) } shouldBeSameInstanceAs ofAlice
 
             // The entity is cached for Alice only, so Bob's entity goes straight
             // to the storage.
-            inTenant(alice) { multitenantCache.store(ofAlice) }
-            inTenant(bob) { multitenantCache.store(ofBob) }
+            inTenant(alice) { multiTenantCache.store(ofAlice) }
+            inTenant(bob) { multiTenantCache.store(ofBob) }
             storage.stored shouldContainExactly listOf(ofBob)
 
-            inTenant(alice) { multitenantCache.stopCaching(A) }
+            inTenant(alice) { multiTenantCache.stopCaching(A) }
             storage.stored shouldContainExactly listOf(ofBob, ofAlice)
         }
 
@@ -163,10 +163,10 @@ internal class RepositoryCacheSpec {
                     gate.pass()
                 }
             }
-            val loadingForAlice = Worker { inTenant(alice) { multitenantCache.load(A) } }
+            val loadingForAlice = Worker { inTenant(alice) { multiTenantCache.load(A) } }
             gate.awaitReached(by = loadingForAlice)
 
-            val ofBob = Worker { inTenant(bob) { multitenantCache.load(A) } }.result()
+            val ofBob = Worker { inTenant(bob) { multiTenantCache.load(A) } }.result()
 
             loadingForAlice.isDone shouldBe false
             gate.open()
@@ -461,8 +461,8 @@ internal class RepositoryCacheSpec {
     /**
      * Creates a cache reading from and writing to the [storage] of this suite.
      */
-    private fun newCache(multitenant: Boolean): RepositoryCache<String, StubEntity> =
-        RepositoryCache(multitenant, storage::load, storage::store)
+    private fun newCache(multiTenant: Boolean): RepositoryCache<String, StubEntity> =
+        RepositoryCache(multiTenant, storage::load, storage::store)
 
     private companion object {
 

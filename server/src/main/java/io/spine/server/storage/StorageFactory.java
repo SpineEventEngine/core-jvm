@@ -189,11 +189,11 @@ public interface StorageFactory extends Closeable {
      * ServerEnvironment} instance, unlike other {@code Storage} types whose instances are created
      * per-{@link io.spine.server.BoundedContext BoundedContext}.
      *
-     * @param multitenant
+     * @param multiTenant
      *         whether the created storage should be multi-tenant
      */
-    default InboxStorage createInboxStorage(boolean multitenant) {
-        return new InboxStorage(this, multitenant);
+    default InboxStorage createInboxStorage(boolean multiTenant) {
+        return new InboxStorage(this, multiTenant);
     }
 
     /**
@@ -204,11 +204,11 @@ public interface StorageFactory extends Closeable {
      * instance of {@code CatchUpStorage} per {@link io.spine.server.ServerEnvironment
      * ServerEnvironment}.
      *
-     * @param multitenant
+     * @param multiTenant
      *         whether the created storage should be multi-tenant; the {@code Delivery}
      *         passes {@code false}, as the catch-ups of all tenants share the storage
      */
-    default CatchUpStorage createCatchUpStorage(boolean multitenant) {
-        return new CatchUpStorage(this, multitenant);
+    default CatchUpStorage createCatchUpStorage(boolean multiTenant) {
+        return new CatchUpStorage(this, multiTenant);
     }
 }

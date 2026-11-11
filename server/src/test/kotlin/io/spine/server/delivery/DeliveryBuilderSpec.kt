@@ -97,8 +97,8 @@ internal class DeliveryBuilderSpec {
     @Test
     fun `accept only a single-tenant catch-up storage`() {
         val factory = InMemoryStorageFactory.newInstance()
-        val multitenant = CatchUpStorage(factory, /* multitenant = */ true)
-        assertIllegalArgument { builder().setCatchUpStorage(multitenant) }
+        val multiTenant = CatchUpStorage(factory, /* multiTenant = */ true)
+        assertIllegalArgument { builder().setCatchUpStorage(multiTenant) }
     }
 
     @Nested internal inner class
@@ -130,8 +130,8 @@ internal class DeliveryBuilderSpec {
             val storages = InMemoryStorageFactory.newInstance()
 
             Delivery.newBuilder(node, factory)
-                .setInboxStorage(storages.createInboxStorage(/* multitenant = */ false))
-                .setCatchUpStorage(storages.createCatchUpStorage(/* multitenant = */ false))
+                .setInboxStorage(storages.createInboxStorage(/* multiTenant = */ false))
+                .setCatchUpStorage(storages.createCatchUpStorage(/* multiTenant = */ false))
                 .build()
 
             factory.inboxStorages shouldBe 0
@@ -221,7 +221,7 @@ internal class DeliveryBuilderSpec {
         fun `Inbox storage`() {
             val builder = builder()
             builder.hasInboxStorage() shouldBe false
-            builder.setInboxStorage(InboxStorage(factory, /* multitenant = */ false))
+            builder.setInboxStorage(InboxStorage(factory, /* multiTenant = */ false))
             builder.hasInboxStorage() shouldBe true
         }
 
@@ -229,7 +229,7 @@ internal class DeliveryBuilderSpec {
         fun `Catch-up storage`() {
             val builder = builder()
             builder.hasCatchUpStorage() shouldBe false
-            builder.setCatchUpStorage(CatchUpStorage(factory, /* multitenant = */ false))
+            builder.setCatchUpStorage(CatchUpStorage(factory, /* multiTenant = */ false))
             builder.hasCatchUpStorage() shouldBe true
         }
 
@@ -339,14 +339,14 @@ private class CountingStorageFactory : StorageFactory {
         group: StorageGroup?
     ): RecordStorage<I, R> = delegate.createRecordStorage(context, recordSpec, group)
 
-    override fun createInboxStorage(multitenant: Boolean): InboxStorage {
+    override fun createInboxStorage(multiTenant: Boolean): InboxStorage {
         inboxStorages++
-        return delegate.createInboxStorage(multitenant)
+        return delegate.createInboxStorage(multiTenant)
     }
 
-    override fun createCatchUpStorage(multitenant: Boolean): CatchUpStorage {
+    override fun createCatchUpStorage(multiTenant: Boolean): CatchUpStorage {
         catchUpStorages++
-        return delegate.createCatchUpStorage(multitenant)
+        return delegate.createCatchUpStorage(multiTenant)
     }
 
     override fun isOpen(): Boolean = delegate.isOpen

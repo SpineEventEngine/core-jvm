@@ -63,7 +63,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SuppressWarnings("ProtectedField") // for brevity of derived tests.
 abstract class AbstractCommandBusTestSuite {
 
-    private final boolean multitenant;
+    private final boolean multiTenant;
 
     protected ActorRequestFactory requestFactory;
 
@@ -83,10 +83,10 @@ abstract class AbstractCommandBusTestSuite {
     /**
      * A public constructor for derived test cases.
      *
-     * @param multitenant the multi-tenancy status of the {@code CommandBus} under tests
+     * @param multiTenant the multi-tenancy status of the {@code CommandBus} under tests
      */
-    AbstractCommandBusTestSuite(boolean multitenant) {
-        this.multitenant = multitenant;
+    AbstractCommandBusTestSuite(boolean multiTenant) {
+        this.multiTenant = multiTenant;
     }
 
     static Command newCommandWithoutContext() {
@@ -143,14 +143,14 @@ abstract class AbstractCommandBusTestSuite {
         eventBus = context.eventBus();
         watcher = new MemoizingCommandFlowWatcher();
         commandBus = CommandBus.newBuilder()
-                .setMultitenant(this.multitenant)
+                .setMultiTenant(this.multiTenant)
                 .injectContext(context)
                 .injectSystem(systemWriteSide)
                 .setWatcher(watcher)
                 .build();
         commandBus.registerWith(context);
         requestFactory =
-                multitenant
+                multiTenant
                 ? new TestActorRequestFactory(getClass(), generate())
                 : new TestActorRequestFactory(getClass());
         createProjectAssignee = new CreateProjectAssignee();
@@ -164,8 +164,8 @@ abstract class AbstractCommandBusTestSuite {
     private Application createApplication(ServerEnvironment environment) {
         var cls = getClass();
         var name = cls.getSimpleName();
-        var builder = multitenant
-                      ? BoundedContext.multitenant(name)
+        var builder = multiTenant
+                      ? BoundedContext.multiTenant(name)
                       : BoundedContext.singleTenant(name);
         return Application.newBuilder()
                 .setServerEnvironment(environment)

@@ -77,7 +77,7 @@ class EventBusTest {
 
     private void setUp(@Nullable EventEnricher enricher) {
         this.eventFactory = TestEventFactory.newInstance(EventBusTest.class);
-        var builder = assumingTests(/* multitenant = */ true)
+        var builder = assumingTests(/* multiTenant = */ true)
                 .addEventFilter(new TaskCreatedFilter())
                 .add(ProjectAggregate.class);
         if (enricher != null) {

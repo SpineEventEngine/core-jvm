@@ -43,19 +43,19 @@ import static java.util.Objects.requireNonNull;
  *
  * @param <S> the type of the storage "slice" for each tenant
  */
-abstract class MultitenantStorage<S extends TenantDataStorage<?, ?>> {
+abstract class MultiTenantStorage<S extends TenantDataStorage<?, ?>> {
 
-    /** The lock for {@code MultitenantStorage} accessor methods. */
+    /** The lock for {@code MultiTenantStorage} accessor methods. */
     private final Lock lock = new ReentrantLock();
 
     /** The map from {@code TenantId} to its slice of data. */
     private final Map<TenantId, S> tenantSlices = synchronizedMap(new HashMap<>());
 
     /** If {@code true} the storage will contain a data slice for each tenant. */
-    private final boolean multitenant;
+    private final boolean multiTenant;
 
-    MultitenantStorage(boolean multitenant) {
-        this.multitenant = multitenant;
+    MultiTenantStorage(boolean multiTenant) {
+        this.multiTenant = multiTenant;
     }
 
     /**
@@ -64,7 +64,7 @@ abstract class MultitenantStorage<S extends TenantDataStorage<?, ?>> {
      * <p>If the slice has not been created for this tenant, it will be created.
      */
     final S currentSlice() {
-        var func = new TenantFunction<S>(isMultitenant()) {
+        var func = new TenantFunction<S>(isMultiTenant()) {
             @Override
             public @Nullable S apply(@Nullable TenantId tenantId) {
                 requireNonNull(tenantId);
@@ -83,7 +83,7 @@ abstract class MultitenantStorage<S extends TenantDataStorage<?, ?>> {
 
     abstract S createSlice();
 
-    final boolean isMultitenant() {
-        return multitenant;
+    final boolean isMultiTenant() {
+        return multiTenant;
     }
 }

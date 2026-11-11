@@ -183,7 +183,7 @@ internal class QueryServiceErrorCaseSpec {
 
     @Test
     fun `record a problem for the tenant of the query`() {
-        serve(Given.ProjectDetailsRepository(), multitenant = true)
+        serve(Given.ProjectDetailsRepository(), multiTenant = true)
         val tenant = tenantId { value = "Tenant of the query" }
         val query = TestActorRequestFactory(javaClass, tenant).query()
             .all(Project::class.java)
@@ -197,8 +197,8 @@ internal class QueryServiceErrorCaseSpec {
         monitor.tenantOfSingle() shouldBe tenant
     }
 
-    private fun serve(repository: Repository<*, *>, multitenant: Boolean = false) {
-        val ctx = BoundedContextBuilder.assumingTests(multitenant)
+    private fun serve(repository: Repository<*, *>, multiTenant: Boolean = false) {
+        val ctx = BoundedContextBuilder.assumingTests(multiTenant)
             .add(repository)
             .build()
         ctx.internalAccess().registerEventDispatcher(monitor)

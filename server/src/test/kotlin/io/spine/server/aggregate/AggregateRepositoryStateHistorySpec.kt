@@ -178,7 +178,7 @@ internal class AggregateRepositoryStateHistorySpec {
     fun `record the histories of tenants separately`() {
         // Close `context` first: it serves the entity state type of `StateHistoryTestRepository`.
         context.close()
-        BoundedContextBuilder.assumingTests(/* multitenant = */ true)
+        BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
             .build().use { mtContext ->
                 val mtRepository = StateHistoryTestRepository()
                 mtContext.internalAccess()

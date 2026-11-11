@@ -99,7 +99,7 @@ class StandTest extends TenantAwareTest {
 
     private static final int TOTAL_PROJECTS_FOR_BATCH_READING = 10;
 
-    private boolean multitenant = false;
+    private boolean multiTenant = false;
 
     private ActorRequestFactory requestFactory = createRequestFactory(null);
 
@@ -111,8 +111,8 @@ class StandTest extends TenantAwareTest {
      */
     private final List<BoundedContext> contexts = new ArrayList<>();
 
-    protected void setMultitenant(boolean multitenant) {
-        this.multitenant = multitenant;
+    protected void setMultiTenant(boolean multiTenant) {
+        this.multiTenant = multiTenant;
     }
 
     public ActorRequestFactory getRequestFactory() {
@@ -123,13 +123,13 @@ class StandTest extends TenantAwareTest {
         this.requestFactory = requestFactory;
     }
 
-    protected boolean isMultitenant() {
-        return multitenant;
+    protected boolean isMultiTenant() {
+        return multiTenant;
     }
 
     @BeforeEach
     protected void setUp() {
-        setMultitenant(false);
+        setMultiTenant(false);
         requestFactory = createRequestFactory(null);
     }
 
@@ -156,9 +156,9 @@ class StandTest extends TenantAwareTest {
         @Test
         @DisplayName("projection repositories")
         void projectionRepositories() {
-            var multitenant = isMultitenant();
+            var multiTenant = isMultiTenant();
             var boundedContext = closeAfterTest(BoundedContextBuilder
-                    .assumingTests(multitenant)
+                    .assumingTests(multiTenant)
                     .build());
             var stand = boundedContext.stand();
 
@@ -417,7 +417,7 @@ class StandTest extends TenantAwareTest {
         void uponEventFromStandaloneAssignee() {
             var waiter = new AloneWaiter();
             var context = closeAfterTest(
-                    BoundedContextBuilder.assumingTests(isMultitenant())
+                    BoundedContextBuilder.assumingTests(isMultiTenant())
                             .addCommandDispatcher(waiter)
                             .build());
             var stand = context.stand();
@@ -612,9 +612,9 @@ class StandTest extends TenantAwareTest {
     @Test
     @DisplayName("query `AggregateRepository` for aggregate states")
     void readAggregates() {
-        var multitenant = isMultitenant();
+        var multiTenant = isMultiTenant();
         var stand = Stand.newBuilder()
-                .setMultitenant(multitenant)
+                .setMultiTenant(multiTenant)
                 .build();
         var repository = new CustomerAggregateRepository();
         closeAfterTest(BoundedContextBuilder.assumingTests()
@@ -647,7 +647,7 @@ class StandTest extends TenantAwareTest {
         @DisplayName("if querying unknown type")
         void ifQueryingUnknownType() {
             var stand = Stand.newBuilder()
-                    .setMultitenant(isMultitenant())
+                    .setMultiTenant(isMultiTenant())
                     .build();
             checkTypesEmpty(stand);
 
@@ -683,7 +683,7 @@ class StandTest extends TenantAwareTest {
         @DisplayName("if subscribing to unknown type changes")
         void ifSubscribingToUnknownType() {
             var stand = Stand.newBuilder()
-                    .setMultitenant(isMultitenant())
+                    .setMultiTenant(isMultiTenant())
                     .build();
             checkTypesEmpty(stand);
 
@@ -787,12 +787,12 @@ class StandTest extends TenantAwareTest {
     }
 
     private Stand createStand() {
-        return closeAfterTest(newContext(isMultitenant())).stand();
+        return closeAfterTest(newContext(isMultiTenant())).stand();
     }
 
     @SuppressWarnings("OverloadedVarargsMethod") // OK for this helper method.
     private Stand createStand(Repository<?, ?>... repositories) {
-        return closeAfterTest(newContext(isMultitenant(), repositories)).stand();
+        return closeAfterTest(newContext(isMultiTenant(), repositories)).stand();
     }
 
     private void doCheckReadingProjectsById(int numberOfProjects) {

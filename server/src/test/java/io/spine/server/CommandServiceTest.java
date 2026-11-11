@@ -62,7 +62,7 @@ class CommandServiceTest {
         responseObserver = memoizingObserver();
         // Create Projects Bounded Context with one repository.
         projectsContext = BoundedContextBuilder
-                .assumingTests("Projects", /* multitenant = */ true)
+                .assumingTests("Projects", /* multiTenant = */ true)
                 .build();
         var projectRepo = new Given.ProjectAggregateRepository();
         projectsContext.register(projectRepo);
@@ -70,7 +70,7 @@ class CommandServiceTest {
 
         // Create Customers Bounded Context with one repository.
         customersContext = BoundedContextBuilder
-                .assumingTests("Customers", /* multitenant = */ true)
+                .assumingTests("Customers", /* multiTenant = */ true)
                 .build();
         var customerRepo = new Given.CustomerAggregateRepository();
         customersContext.register(customerRepo);

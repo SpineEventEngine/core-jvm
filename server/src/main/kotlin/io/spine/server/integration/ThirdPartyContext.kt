@@ -188,12 +188,12 @@ public class ThirdPartyContext private constructor(
          *   a third-party system.
          */
         @JvmStatic
-        public fun multitenant(name: String): ThirdPartyContext = newContext(name, true)
+        public fun multiTenant(name: String): ThirdPartyContext = newContext(name, true)
 
-        private fun newContext(name: String, multitenant: Boolean): ThirdPartyContext {
+        private fun newContext(name: String, multiTenant: Boolean): ThirdPartyContext {
             checkNotEmptyOrBlank(name)
-            val builder = if (multitenant) {
-                BoundedContext.multitenant(name)
+            val builder = if (multiTenant) {
+                BoundedContext.multiTenant(name)
             } else {
                 BoundedContext.singleTenant(name)
             }
@@ -211,7 +211,7 @@ public class ThirdPartyContext private constructor(
             val tenantSupplied = actorContext.hasTenantId()
             val contextName = context.name().value
             val eventType = event.javaClass.name
-            if (context.isMultitenant) {
+            if (context.isMultiTenant) {
                 require(tenantSupplied) {
                     "Cannot post `$eventType` into a third-party multitenant context" +
                             " `$contextName`. No tenant ID supplied."

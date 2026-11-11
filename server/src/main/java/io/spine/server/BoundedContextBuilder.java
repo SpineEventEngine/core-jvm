@@ -60,7 +60,7 @@ import java.util.function.Supplier;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.spine.core.BoundedContextNames.assumingTestsValue;
-import static io.spine.server.ContextSpec.multitenant;
+import static io.spine.server.ContextSpec.multiTenant;
 import static io.spine.server.ContextSpec.singleTenant;
 import static io.spine.util.Cleanup.runKeepingFailure;
 import static java.lang.String.format;
@@ -170,7 +170,7 @@ public final class BoundedContextBuilder implements WithLogging {
      * @param spec
      *         the context spec for the built context
      * @see BoundedContext#singleTenant
-     * @see BoundedContext#multitenant
+     * @see BoundedContext#multiTenant
      */
     BoundedContextBuilder(ContextSpec spec) {
         this(spec, SystemSettings.defaults(), /* forTests = */ false);
@@ -187,7 +187,7 @@ public final class BoundedContextBuilder implements WithLogging {
      *         tells if the builder is for a test-only context, which the builder
      *         can {@linkplain #build() build} by itself
      * @see BoundedContext#singleTenant
-     * @see BoundedContext#multitenant
+     * @see BoundedContext#multiTenant
      */
     private BoundedContextBuilder(ContextSpec spec,
                                   SystemSettings systemSettings,
@@ -206,14 +206,14 @@ public final class BoundedContextBuilder implements WithLogging {
      *
      * <p>The builder can {@linkplain #build() build} the context by itself.
      *
-     * @param multitenant
+     * @param multiTenant
      *         tells if the context is multitenant
      */
     @Internal
     @VisibleForTesting
-    public static BoundedContextBuilder assumingTests(boolean multitenant) {
+    public static BoundedContextBuilder assumingTests(boolean multiTenant) {
         var name = assumingTestsValue() + '-' + testContextCounter.incrementAndGet();
-        return assumingTests(name, multitenant);
+        return assumingTests(name, multiTenant);
     }
 
     /**
@@ -227,7 +227,7 @@ public final class BoundedContextBuilder implements WithLogging {
     @Internal
     @VisibleForTesting
     public static BoundedContextBuilder assumingTests() {
-        return assumingTests(/* multitenant = */ false);
+        return assumingTests(/* multiTenant = */ false);
     }
 
     /**
@@ -241,7 +241,7 @@ public final class BoundedContextBuilder implements WithLogging {
     @Internal
     @VisibleForTesting
     public static BoundedContextBuilder assumingTests(String name) {
-        return assumingTests(name, /* multitenant = */ false);
+        return assumingTests(name, /* multiTenant = */ false);
     }
 
     /**
@@ -251,15 +251,15 @@ public final class BoundedContextBuilder implements WithLogging {
      *
      * @param name
      *         the name of the context
-     * @param multitenant
+     * @param multiTenant
      *         tells if the context is multitenant
      */
     @Internal
     @VisibleForTesting
-    public static BoundedContextBuilder assumingTests(String name, boolean multitenant) {
+    public static BoundedContextBuilder assumingTests(String name, boolean multiTenant) {
         checkNotNull(name);
-        var spec = multitenant
-                   ? multitenant(name)
+        var spec = multiTenant
+                   ? multiTenant(name)
                    : singleTenant(name);
         return new BoundedContextBuilder(spec, SystemSettings.defaults(), /* forTests = */ true);
     }
@@ -281,8 +281,8 @@ public final class BoundedContextBuilder implements WithLogging {
     /**
      * Tells whether this builder is creating a multi-tenant Bounded Context.
      */
-    public boolean isMultitenant() {
-        return spec.isMultitenant();
+    public boolean isMultiTenant() {
+        return spec.isMultiTenant();
     }
 
     /**
@@ -989,13 +989,13 @@ public final class BoundedContextBuilder implements WithLogging {
     }
 
     private void initCommandBus(SystemWriteSide systemWriteSide) {
-        commandBus.setMultitenant(isMultitenant());
+        commandBus.setMultiTenant(isMultiTenant());
         commandBus.injectSystem(systemWriteSide);
     }
 
     private Stand createStand(@Nullable Stand systemStand) {
         var result = Stand.newBuilder()
-                .setMultitenant(isMultitenant());
+                .setMultiTenant(isMultiTenant());
         if (systemStand != null) {
             result.withSubscriptionRegistryFrom(systemStand);
         }

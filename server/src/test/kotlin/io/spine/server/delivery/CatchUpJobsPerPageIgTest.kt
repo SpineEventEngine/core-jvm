@@ -329,7 +329,7 @@ internal class CatchUpJobsPerPageIgTest : AbstractCatchUpIgTest() {
      * Counts the reads of all the jobs, and runs a one-off action right after the next one.
      */
     private class HookedCatchUpStorage :
-        CatchUpStorage(InMemoryStorageFactory.newInstance(), /* multitenant = */ false) {
+        CatchUpStorage(InMemoryStorageFactory.newInstance(), /* multiTenant = */ false) {
 
         val reads = AtomicInteger()
         private val nextReadAction = AtomicReference<(() -> Unit)?>()

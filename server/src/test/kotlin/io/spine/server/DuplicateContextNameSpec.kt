@@ -78,7 +78,7 @@ internal class DuplicateContextNameSpec {
     fun `allow several contexts built by 'assumingTests()', each with a name of its own`() {
         val app = applicationOf(
             BoundedContextBuilder.assumingTests(),
-            BoundedContextBuilder.assumingTests(/* multitenant = */ true)
+            BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
         )
 
         val (first, second) = app.contexts()

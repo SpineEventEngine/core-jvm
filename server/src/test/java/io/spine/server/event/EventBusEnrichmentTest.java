@@ -38,7 +38,7 @@ class EventBusEnrichmentTest {
         var enricher = EventEnricher.newBuilder().build();
         subscriber = new RememberingSubscriber();
         context = BoundedContextBuilder
-                .assumingTests(/* multitenant = */ true)
+                .assumingTests(/* multiTenant = */ true)
                 .enrichEventsUsing(enricher)
                 .addEventDispatcher(subscriber)
                 .add(ProjectAggregate.class)

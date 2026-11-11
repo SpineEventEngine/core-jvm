@@ -105,7 +105,7 @@ class ThirdPartyContextTest {
                 .setActor(GivenUserId.of("42"))
                 .setTimestamp(currentTime())
                 .build();
-        var calendar = ThirdPartyContext.multitenant("Calendar");
+        var calendar = ThirdPartyContext.multiTenant("Calendar");
         try (var ignored = application(BoundedContextBuilder.assumingTests(true), calendar)) {
             assertThrows(IllegalArgumentException.class,
                          () -> calendar.emittedEvent(GivenEvent.message(), noTenantContext));
@@ -202,19 +202,19 @@ class ThirdPartyContextTest {
 
     @Test
     @DisplayName("in a multitenant environment")
-    void multitenant() {
+    void multiTenant() {
         /* Getting rid of the class-level repositories and bounded contexts. */
         application.close();
 
         var documentRepository = new DocumentRepository();
-        var exports = ThirdPartyContext.multitenant("Exports");
+        var exports = ThirdPartyContext.multiTenant("Exports");
         // Assigned to the field that `closeApplication()` closes after each test.
-        application = application(BoundedContextBuilder.assumingTests(/* multitenant = */ true)
+        application = application(BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
                                                        .add(documentRepository),
                                   exports);
         context = application.contexts()
                              .get(0);
-        assertThat(context.isMultitenant())
+        assertThat(context.isMultiTenant())
                 .isTrue();
 
         var johnDoe = GivenUserId.newUuid();

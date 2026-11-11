@@ -58,7 +58,7 @@ class RepositoryTest {
     @BeforeEach
     void setUp() {
         context = BoundedContextBuilder
-                .assumingTests(/* multitenant = */ true)
+                .assumingTests(/* multiTenant = */ true)
                 .build();
         repository = new TestRepo();
         context.internalAccess()

@@ -19,7 +19,7 @@ import io.grpc.stub.StreamObserver;
 import io.spine.core.Command;
 import io.spine.grpc.StreamObservers;
 import io.spine.server.command.AbstractAssignee;
-import io.spine.server.commandbus.given.MultitenantCommandBusTestEnv.AddTaskDispatcher;
+import io.spine.server.commandbus.given.MultiTenantCommandBusTestEnv.AddTaskDispatcher;
 import io.spine.server.type.CommandClass;
 import io.spine.test.commandbus.command.CmdBusAddTask;
 import io.spine.test.commandbus.command.CmdBusCreateProject;

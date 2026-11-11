@@ -102,8 +102,8 @@ public final class StandTestEnv {
      * <p>The caller closes the context, so that the contexts of later tests can serve
      * the same entity state types.
      */
-    public static BoundedContext newContext(boolean multitenant) {
-        return newContext(multitenant,
+    public static BoundedContext newContext(boolean multiTenant) {
+        return newContext(multiTenant,
                           new CustomerAggregateRepository(), new StandTestProjectionRepository());
     }
 
@@ -113,9 +113,9 @@ public final class StandTestEnv {
      * <p>The caller closes the context, so that the contexts of later tests can serve
      * the same entity state types.
      */
-    public static BoundedContext newContext(boolean multitenant,
+    public static BoundedContext newContext(boolean multiTenant,
                                             Repository<?, ?>... repositories) {
-        var builder = BoundedContextBuilder.assumingTests(multitenant);
+        var builder = BoundedContextBuilder.assumingTests(multiTenant);
         for (var repository : repositories) {
             builder.add(repository);
         }

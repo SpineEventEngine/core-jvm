@@ -33,7 +33,7 @@ internal class CommandBusSpec {
     @Test
     fun `not register the tenant of a posted command`() {
         val application = testApplication {
-            add(BoundedContextBuilder.assumingTests(/* multitenant = */ true))
+            add(BoundedContextBuilder.assumingTests(/* multiTenant = */ true))
         }
         application.use {
             val context = it.contexts().single()

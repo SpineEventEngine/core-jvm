@@ -42,19 +42,19 @@ import static java.util.Objects.requireNonNull;
 /**
  * Registry for subscription management in a multi-tenant context.
  */
-final class MultitenantSubscriptionRegistry implements SubscriptionRegistry {
+final class MultiTenantSubscriptionRegistry implements SubscriptionRegistry {
 
     /** The map from {@code TenantId} to its slice of data. */
     private final Map<TenantId, SubscriptionRegistry> tenantSlices = new ConcurrentHashMap<>();
 
-    private final boolean multitenant;
+    private final boolean multiTenant;
 
-    private MultitenantSubscriptionRegistry(boolean multitenant) {
-        this.multitenant = multitenant;
+    private MultiTenantSubscriptionRegistry(boolean multiTenant) {
+        this.multiTenant = multiTenant;
     }
 
-    static MultitenantSubscriptionRegistry newInstance(boolean multitenant) {
-        return new MultitenantSubscriptionRegistry(multitenant);
+    static MultiTenantSubscriptionRegistry newInstance(boolean multiTenant) {
+        return new MultiTenantSubscriptionRegistry(multiTenant);
     }
 
     @Override
@@ -92,12 +92,12 @@ final class MultitenantSubscriptionRegistry implements SubscriptionRegistry {
         return registrySlice().hasType(type);
     }
 
-    private boolean isMultitenant() {
-        return multitenant;
+    private boolean isMultiTenant() {
+        return multiTenant;
     }
 
     private SubscriptionRegistry registrySlice() {
-        var func = new TenantFunction<SubscriptionRegistry>(isMultitenant()) {
+        var func = new TenantFunction<SubscriptionRegistry>(isMultiTenant()) {
             @Override
             public SubscriptionRegistry apply(TenantId tenantId) {
                 checkNotNull(tenantId);

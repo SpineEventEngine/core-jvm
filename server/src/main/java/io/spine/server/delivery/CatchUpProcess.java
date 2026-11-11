@@ -385,7 +385,7 @@ public final class CatchUpProcess extends ProcessManager<CatchUpId, CatchUp, Cat
                  .setStatus(STARTED)
                  .setProjectionType(e.getId()
                                      .getProjectionType());
-        if (domainContext().isMultitenant()) {
+        if (domainContext().isMultiTenant()) {
             builder().setTenant(ctx.actorContext()
                                    .getTenantId());
         }

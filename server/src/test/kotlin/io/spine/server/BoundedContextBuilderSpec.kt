@@ -230,19 +230,19 @@ internal class BoundedContextBuilderSpec {
 
         @Test
         fun `with the name and the tenancy given to the test-only builder`() {
-            val builder = BoundedContextBuilder.assumingTests("Tested", /* multitenant = */ true)
+            val builder = BoundedContextBuilder.assumingTests("Tested", /* multiTenant = */ true)
 
             val built = remember(builder.build())
 
             built.name().value shouldBe "Tested"
-            built.isMultitenant.shouldBeTrue()
+            built.isMultiTenant.shouldBeTrue()
         }
 
         @Test
         fun `with a single-tenant context, unless told otherwise`() {
             val built = remember(BoundedContextBuilder.assumingTests("Tested").build())
 
-            built.isMultitenant.shouldBeFalse()
+            built.isMultiTenant.shouldBeFalse()
         }
 
         @Test

@@ -40,7 +40,7 @@ public abstract class TestCommandAssignee extends AbstractAssignee {
 
     protected TestCommandAssignee() {
         super();
-        var context = BoundedContextBuilder.assumingTests(/* multitenant = */ true).build();
+        var context = BoundedContextBuilder.assumingTests(/* multiTenant = */ true).build();
         registerWith(context);
     }
 

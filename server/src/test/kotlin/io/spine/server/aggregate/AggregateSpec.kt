@@ -97,7 +97,7 @@ internal class AggregateSpec {
         ModelTests.dropAllModels()
         aggregate = TestAggregate(ID)
         amishAggregate = AmishAggregate(ID)
-        context = BoundedContextBuilder.assumingTests(/* multitenant = */ true)
+        context = BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
             .build()
         repository = TestAggregateRepository()
         context.internalAccess()

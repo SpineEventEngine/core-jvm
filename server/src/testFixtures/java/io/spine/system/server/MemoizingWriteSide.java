@@ -35,10 +35,10 @@ public final class MemoizingWriteSide implements SystemWriteSide {
 
     private @MonotonicNonNull MemoizedSystemMessage lastSeenEvent;
 
-    private final boolean multitenant;
+    private final boolean multiTenant;
 
-    private MemoizingWriteSide(boolean multitenant) {
-        this.multitenant = multitenant;
+    private MemoizingWriteSide(boolean multiTenant) {
+        this.multiTenant = multiTenant;
     }
 
     /**
@@ -56,7 +56,7 @@ public final class MemoizingWriteSide implements SystemWriteSide {
      *
      * @return new {@code MemoizingWriteSide}
      */
-    public static MemoizingWriteSide multitenant() {
+    public static MemoizingWriteSide multiTenant() {
         return new MemoizingWriteSide(true);
     }
 
@@ -76,7 +76,7 @@ public final class MemoizingWriteSide implements SystemWriteSide {
 
     /** Obtains the ID of the current tenant. */
     private TenantId currentTenant() {
-        var result = new TenantFunction<TenantId>(multitenant) {
+        var result = new TenantFunction<TenantId>(multiTenant) {
             @Override
             public TenantId apply(TenantId id) {
                 return id;

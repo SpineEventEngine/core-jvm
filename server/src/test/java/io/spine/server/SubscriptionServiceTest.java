@@ -136,7 +136,7 @@ class SubscriptionServiceTest {
 
     /** Creates a new multi-tenant BoundedContext with the passed name. */
     private BoundedContext ctx(String name) {
-        var builder = BoundedContextBuilder.assumingTests(name, /* multitenant = */ true);
+        var builder = BoundedContextBuilder.assumingTests(name, /* multiTenant = */ true);
         return remember(builder.build());
     }
 
