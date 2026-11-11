@@ -27,6 +27,7 @@ import io.kotest.matchers.optional.shouldBeEmpty
 import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.annotation.Internal
 import io.spine.base.EventMessage
@@ -372,7 +373,8 @@ internal class BoundedContextSpec {
                 @Internal
                 override fun systemClient(): SystemClient = TestValues.nullRef()
 
-                override fun isSystem(): Boolean = false
+                @Internal
+                override fun domainContext(): BoundedContext = TestValues.nullRef()
             }
         }
     }
@@ -391,20 +393,15 @@ internal class BoundedContextSpec {
         }
 
         @Test
-        fun `refusing a domain context for a domain context`() {
-            assumingTests().build().use { another ->
-                assertThrows<IllegalStateException> {
-                    context.attachDomain(another)
-                }
-            }
-        }
-
-        @Test
         fun `refusing a second domain context for a System context`() {
             assumingTests().build().use { another ->
-                assertThrows<IllegalStateException> {
-                    systemOf(context).attachDomain(another)
+                val system = systemOf(context)
+                val error = assertThrows<IllegalStateException> {
+                    system.attachDomain(another)
                 }
+                error.message shouldContain "`$system`"
+                error.message shouldContain "`$context`"
+                error.message shouldContain "`$another`"
             }
         }
     }

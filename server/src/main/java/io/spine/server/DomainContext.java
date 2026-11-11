@@ -60,9 +60,12 @@ final class DomainContext extends BoundedContext {
         return system;
     }
 
+    /**
+     * Returns this context, which is its own domain context.
+     */
     @Override
-    protected boolean isSystem() {
-        return false;
+    protected BoundedContext domainContext() {
+        return this;
     }
 
     /**

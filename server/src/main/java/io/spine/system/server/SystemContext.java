@@ -21,6 +21,10 @@ import io.spine.server.delivery.CatchUpRepository;
 import io.spine.server.delivery.ShardMaintenanceRepository;
 import io.spine.server.event.EventDispatcher;
 import io.spine.server.trace.TracerFactory;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * An implementation of {@link BoundedContext} used for the System domain.
@@ -44,6 +48,13 @@ import io.spine.server.trace.TracerFactory;
 public final class SystemContext extends BoundedContext {
 
     private final SystemConfig config;
+
+    /**
+     * The domain context served by this System context.
+     *
+     * <p>Remains {@code null} until the domain context is built.
+     */
+    private @MonotonicNonNull BoundedContext domain;
 
     private SystemContext(BoundedContextBuilder builder) {
         super(builder);
@@ -118,9 +129,35 @@ public final class SystemContext extends BoundedContext {
         return NoOpSystemClient.INSTANCE;
     }
 
+    /**
+     * Tells this context which domain context it serves.
+     *
+     * <p>The builder of the domain context calls this method once that context is built.
+     *
+     * @throws IllegalStateException
+     *         if the domain context is already set
+     * @apiNote This method is {@code public} because the builder of the domain context
+     *         belongs to another package.
+     */
+    public void attachDomain(BoundedContext domain) {
+        checkNotNull(domain);
+        checkState(this.domain == null,
+                   "The System context `%s` already serves the domain context `%s`," +
+                           " and cannot serve `%s`.", this, this.domain, domain);
+        this.domain = domain;
+    }
+
+    /**
+     * Returns the domain context this System context serves.
+     *
+     * @throws IllegalStateException
+     *         if this System context does not know its domain context yet
+     */
     @Override
-    protected boolean isSystem() {
-        return true;
+    protected BoundedContext domainContext() {
+        checkState(domain != null,
+                   "The System context `%s` does not know its domain context yet.", this);
+        return domain;
     }
 
     /**

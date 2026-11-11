@@ -44,7 +44,6 @@ import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.SystemClient;
 import io.spine.system.server.SystemContext;
 import io.spine.type.TypeName;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -86,7 +85,7 @@ import static java.lang.String.format;
  * @see <a href="https://martinfowler.com/bliki/BoundedContext.html">
  *         Martin Fowler on Bounded Contexts</a>
  */
-@SuppressWarnings({"ClassWithTooManyMethods", "NotJavadoc"})
+@SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass"})
 public abstract class BoundedContext
         implements Comparable<BoundedContext>,
                    Closeable,
@@ -130,13 +129,6 @@ public abstract class BoundedContext
     private final InternalAccess internalAccess;
 
     private final @Nullable Consumer<BoundedContext> onBeforeClose;
-
-    /**
-     * The domain context of this System context.
-     *
-     * <p>Remains {@code null} for a domain context.
-     */
-    private @MonotonicNonNull BoundedContext domain;
 
     /**
      * The currently installed probe.
@@ -460,10 +452,11 @@ public abstract class BoundedContext
     public abstract SystemClient systemClient();
 
     /**
-     * Tells if this is a System context, which keeps the meta information
-     * about the entities of another Bounded Context.
+     * Returns {@code this} if it is a domain context, or the domain context
+     * associated with a system context.
      */
-    protected abstract boolean isSystem();
+    @Internal
+    protected abstract BoundedContext domainContext();
 
     /**
      * Closes the {@code BoundedContext} performing all necessary clean-ups.
@@ -544,6 +537,7 @@ public abstract class BoundedContext
      * <p>If the passed failure is the first one itself, it is not added: an exception
      * cannot suppress itself.
      */
+    @SuppressWarnings("ObjectEquality") // Need instances here.
     private static RuntimeException
     withSuppressed(@Nullable RuntimeException first, RuntimeException next) {
         if (first == null) {
@@ -558,22 +552,6 @@ public abstract class BoundedContext
     @Override
     public boolean isOpen() {
         return commandBus.isOpen();
-    }
-
-    /**
-     * Tells this System context which domain context it serves.
-     *
-     * <p>The builder of the domain context calls this method once the domain context is built.
-     *
-     * @throws IllegalStateException
-     *         if this is a domain context, or if the domain context is already set
-     */
-    final void attachDomain(BoundedContext domain) {
-        checkNotNull(domain);
-        checkState(isSystem(), "The context `%s` is not a System context.", this);
-        checkState(this.domain == null,
-                   "The System context `%s` already serves a domain context.", this);
-        this.domain = domain;
     }
 
     final String nameForLogging() {
@@ -825,13 +803,7 @@ public abstract class BoundedContext
          *         if this System context does not know its domain context yet
          */
         public BoundedContext domainContext() {
-            var self = self();
-            if (!self.isSystem()) {
-                return self;
-            }
-            checkState(self.domain != null,
-                       "The System context `%s` does not know its domain context yet.", self);
-            return self.domain;
+            return self().domainContext();
         }
 
         /**

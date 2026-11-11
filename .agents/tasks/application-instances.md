@@ -419,6 +419,43 @@ Added after the pre-PR review:
 - The `@ServerDsl` marker on `Application.Builder`, `ServerEnvironment.Builder`, and
   `TypeConfigurator` keeps a nested DSL block from calling the outer builder implicitly.
 
+Added after the review of the PR (2026-11-10):
+
+- The link to the domain context lives in `SystemContext`, not in `BoundedContext`. The base
+  class had a `domain` field that only a System context ever set, with `isSystem()` guarding
+  both ends of it. Now `BoundedContext.domainContext()` is `abstract`, so each kind of context
+  answers for itself: `DomainContext` returns `this`, and `SystemContext` keeps the field and
+  returns it. `BoundedContext.InternalAccess.domainContext()` only delegates.
+  `attachDomain()` is `public` on `SystemContext`, because `BoundedContextBuilder` calls it
+  from another package and is not a subclass.
+  - This retires `checkState(isSystem(), …)`, the `((BoundedContext) system)` upcast in
+    `buildDomain()`, and the test `refusing a domain context for a domain context`: attaching
+    a domain context to a domain context no longer compiles.
+  - `BoundedContext.isSystem()` is removed with its two overrides. Both of its call sites were
+    the guards of the moved field, so it kept no caller at all, and `checkInheritance()` admits
+    only `DomainContext` and `SystemContext`, so no subclass outside the framework could have
+    implemented it. The anonymous subclass of the `prohibit 3rd-party descendants` test loses
+    the override too.
+  - `DefaultSystemClient.target()` and `SystemBoundedContexts.systemOf()` return
+    `SystemContext` instead of `BoundedContext`: the field they expose is a `SystemContext`,
+    and the test of `attachDomain()` needs that type.
+- Considered and rejected: moving `SystemContext` to `io.spine.server`, so that `attachDomain()`
+  could be package-private and `BoundedContext` could become a Kotlin `sealed class` in place of
+  `checkInheritance()`. A sealed class in Kotlin 2.4 admits subclasses from its own package
+  only, so the move is the only way to it — but `SystemContext` builds `SystemConfig`,
+  `SystemEnricher`, `CommandLogRepository`, `ScheduledCommandRepository`, and
+  `DefaultSystemClient`, all package-private, and `DefaultSystemWriteSide` reads its
+  package-private `config()`. The move would widen six members to retire two, and taking the
+  repositories along would widen the System entities, which `@BoundedContext("_System")` pins
+  to that package.
+- Also considered: converting `SystemContext` to Kotlin, to declare `attachDomain()` as
+  `internal` rather than `public`. It works — `internal` is module-wide, and `@JvmName` keeps
+  the name unmangled for the Java caller, as `Transaction.kt` does — but it buys one annotation,
+  so it waits for a reason of its own. Converting `BoundedContext` and `BoundedContextBuilder`
+  (1,868 lines, 16 accessors needing `@get:JvmName`, 17 wildcard-generic sites, ~190 files here
+  and ~350 downstream) is a task of its own, justified by a `boundedContext { }` DSL rather
+  than by this change.
+
 ## Questions and the options considered
 
 1. ~~Where do the guards of names and state types live once `Application` is an instance?~~

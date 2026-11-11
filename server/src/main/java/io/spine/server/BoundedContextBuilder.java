@@ -911,7 +911,7 @@ public final class BoundedContextBuilder implements WithLogging {
         Function<BoundedContextBuilder, DomainContext> instanceFactory =
                 builder -> DomainContext.newInstance(builder, systemClient);
         BoundedContext result = doBuild(instanceFactory, systemClient, system.stand());
-        ((BoundedContext) system).attachDomain(result);
+        system.attachDomain(result);
         return result;
     }
 
