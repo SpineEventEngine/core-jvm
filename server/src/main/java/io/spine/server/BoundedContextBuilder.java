@@ -764,7 +764,9 @@ public final class BoundedContextBuilder implements WithLogging {
      * and transport, and a local {@code Delivery}. The technologies set on this builder are
      * used instead of those of the environment.
      *
-     * <p>Closing the context does not close the environment.
+     * <p>Closing the context closes the application as well, once the context and its System
+     * context are closed. The application then closes its tenant index, if it created one, and
+     * the environment. If the application fails to build, the environment is closed at once.
      *
      * <p>To build several contexts that work together, or to give a context the technologies
      * of a particular environment, add the builders to an {@code Application} instead.
@@ -775,6 +777,7 @@ public final class BoundedContextBuilder implements WithLogging {
      */
     @Internal
     @VisibleForTesting
+    @SuppressWarnings("ProhibitedExceptionThrown" /* Rethrowing what was caught. */)
     public BoundedContext build() {
         checkState(forTests,
                    "The context `%s` cannot be built by itself, because its builder was not" +
@@ -782,12 +785,21 @@ public final class BoundedContextBuilder implements WithLogging {
                    name().getValue());
         var environment = ServerEnvironment.newBuilder()
                 .build();
-        var application = Application.newBuilder()
-                .setServerEnvironment(environment)
-                .add(this)
-                .build();
-        return application.contexts()
-                          .get(0);
+        Application application;
+        try {
+            application = Application.newBuilder()
+                    .setServerEnvironment(environment)
+                    .add(this)
+                    .build();
+        } catch (Throwable t) {
+            closeAfterFailure(environment, t);
+            throw t;
+        }
+        // An application builds only domain contexts.
+        var context = (DomainContext) application.contexts()
+                                                 .get(0);
+        context.runAfterClose(application::close);
+        return context;
     }
 
     /**
@@ -841,21 +853,23 @@ public final class BoundedContextBuilder implements WithLogging {
     }
 
     /**
-     * Closes the context that failed to build.
+     * Closes what was created for a build that failed.
      *
-     * <p>The caller never gets the context, so nobody else can close it. Left open, it would
-     * keep its repositories, and their inboxes in the {@code Delivery}.
+     * <p>The caller never gets it, so nobody else can close it. Left open, a context would
+     * keep its repositories, and their inboxes in the {@code Delivery}; an environment,
+     * its storage and its transport.
      *
-     * @param context
-     *         the context to close
+     * @param resource
+     *         the context or the environment to close
      * @param failure
      *         the error that failed the build; whatever closing throws, even an
      *         {@code Error}, is added to it as suppressed, so it does not replace the failure,
      *         unless closing throws the failure itself
      */
-    private static void closeAfterFailure(BoundedContext context, Throwable failure) {
+    @SuppressWarnings({"ObjectEquality", "ReferenceEquality"} /* Avoid self-suppression, */ )
+    private static void closeAfterFailure(Closeable resource, Throwable failure) {
         try {
-            context.close();
+            resource.close();
         } catch (Throwable e) {
             // Closing may throw the very failure, which cannot suppress itself.
             if (e != failure) {

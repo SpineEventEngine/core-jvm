@@ -46,6 +46,14 @@ Decisions:
 - Q10 (2026-11-11): `Server.shutdown()` and `shutdownAndWait()` stop the server only, and leave
   its application open, since several servers may serve one application. The usual sequence
   is to shut down the servers, and then to close the application. This supersedes Q7.
+- Q11 (2026-11-11): the application that `BoundedContextBuilder.build()` creates for
+  a test-only context is closed with the context. `DomainContext` runs a one-shot action once
+  the context and its System context are closed, and `build()` sets it to close the
+  application. By then the context is closed, so the application does not close it again.
+  The `onBeforeClose` hook does not fit: it runs first, so the environment would close its
+  storage before the repositories of the context, the nested `close()` would shut the
+  repositories down twice, and the hook belongs to the caller. If the application fails to
+  build, `build()` closes the environment.
 
 To confirm (assumed while writing, not asked):
 
@@ -391,8 +399,8 @@ Added while implementing, within the decisions above:
   environments share the storage factory of the test, which closing an environment closes.
   `DefaultEventStoreTest` closes its application, and so its storage factory, after each test.
   `BlackBox.from(Application)` takes an application of one context and closes it with the black
-  box. The application that `build()` creates for a test-only context is not reachable, so it
-  is not closed; the context is.
+  box. The application that `build()` creates for a test-only context is closed with the
+  context (Q11).
 - The test fixtures of `server` that storage implementations reuse take the storage factory from
   an overridable `storageFactory()` of `AbstractStorageTest` and `AbstractDeliveryTest`, instead
   of `ServerEnvironment.instance()`. `AbstractDeliveryTest` also has `nodeId()`, `use(Delivery)`,

@@ -33,6 +33,7 @@ import io.spine.grpc.StreamObservers.noOpObserver
 import io.spine.server.commandbus.CommandScheduler
 import io.spine.server.commandbus.ExecutorCommandScheduler
 import io.spine.server.delivery.Delivery
+import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.RecordStorage
 import io.spine.server.storage.StorageFactory
@@ -275,6 +276,59 @@ internal class BoundedContextBuilderSpec {
             exception.message shouldContain "NotForTests"
             exception.message shouldContain "Application"
         }
+
+        @Test
+        fun `closing its application with the context`() {
+            val context = BoundedContextBuilder.assumingTests().build()
+            val access = context.internalAccess()
+            val storage = access.storageFactory()
+            val transport = access.transportFactory()
+
+            context.close()
+
+            storage.isOpen.shouldBeFalse()
+            transport.isOpen.shouldBeFalse()
+        }
+
+        @Test
+        fun `running 'onBeforeClose' once when the context is closed`() {
+            var calls = 0
+            val context = BoundedContextBuilder.assumingTests()
+                .setOnBeforeClose { calls++ }
+                .build()
+
+            context.close()
+
+            calls shouldBe 1
+        }
+
+        @Test
+        fun `closing its application even if closing the context fails`() {
+            val context = BoundedContextBuilder.assumingTests()
+                .setOnBeforeClose { error(CLOSE_FAILURE) }
+                .build()
+            val storage = context.internalAccess().storageFactory()
+
+            val error = shouldThrow<IllegalStateException> {
+                context.close()
+            }
+
+            error.message shouldBe CLOSE_FAILURE
+            storage.isOpen.shouldBeFalse()
+        }
+
+        @Test
+        fun `closing the environment, if the application fails to build`() {
+            val repository = CalculatorsFailingOnRegistration()
+            val builder = BoundedContextBuilder.assumingTests()
+                .add(repository)
+
+            shouldThrow<IllegalStateException> {
+                builder.build()
+            }
+
+            repository.storage.shouldNotBeNull().isOpen.shouldBeFalse()
+        }
     }
 
     private fun remember(built: BoundedContext): BoundedContext {
@@ -323,6 +377,29 @@ private class RecordingStorageFactory : StorageFactory {
     override fun isOpen(): Boolean = delegate.isOpen
 
     override fun close() = delegate.close()
+}
+
+/**
+ * The message of the failure to close a context.
+ */
+private const val CLOSE_FAILURE = "The context failed to close."
+
+/**
+ * A repository of calculators that throws once it is registered.
+ *
+ * Before throwing, it keeps the storage factory of its context, which is the one of
+ * the server environment of the context.
+ */
+private class CalculatorsFailingOnRegistration : CalculatorRepository() {
+
+    var storage: StorageFactory? = null
+        private set
+
+    override fun onRegistered() {
+        super.onRegistered()
+        storage = context().internalAccess().storageFactory()
+        error("The repository failed on registration.")
+    }
 }
 
 /**
