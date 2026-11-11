@@ -4,8 +4,7 @@ This guide tells you what changes when you upgrade to `2.0.0-SNAPSHOT.690`. `Ser
 and `Application` are no longer singletons: an application builds its server environment, and
 then its application, which builds its Bounded Contexts. Every server-side application needs
 code changes, and so do the tests that build contexts or configure the server environment.
-`2.0.0-SNAPSHOT.700` also renames `multitenant` to `multiTenant` across the API, as section 7
-describes.
+`2.0.0-SNAPSHOT.700` also renames `multitenant` to `multiTenant` across the API; see section 7.
 
 ## What changed, in one paragraph
 
@@ -180,6 +179,7 @@ becomes `context.isMultiTenant`.
 
 `Storage.isMultiTenant()` is a renamed interface method, so the rename reaches every storage
 implementation, not only the code that calls it. An implementation that overrides
-`isMultitenant()` must rename its override. The compiler reports a Kotlin `override` and a Java
-method marked `@Override`. A Java method without `@Override` in a subclass of `AbstractStorage`
+`isMultitenant()` must rename its override. The compiler rejects a Kotlin `override` and a Java
+`@Override` that no longer override anything, and a class that implements `Storage` directly
+without the new method. A Java method without `@Override` in a subclass of `AbstractStorage`
 still compiles, but nothing calls it any more.

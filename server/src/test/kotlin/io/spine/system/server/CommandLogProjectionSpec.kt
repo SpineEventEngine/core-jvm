@@ -168,12 +168,12 @@ internal class CommandLogProjectionSpec {
     fun `record a command without a tenant posted to a multi-tenant context`() {
         val builder = BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
         builder.systemSettings().enableCommandLog()
-        builder.build().use { multiTenant ->
+        builder.build().use { mtContext ->
             // No handler is needed: the tenant is checked before the receivers of the command.
-            val log = commandLogOf(multiTenant)
+            val log = commandLogOf(mtContext)
             val command = establishing(name = "A company without a tenant")
 
-            multiTenant.commandBus().post(command, noOpObserver())
+            mtContext.commandBus().post(command, noOpObserver())
 
             val timeline = TenantAwareRunner.with(TenantId.getDefaultInstance()).evaluate {
                 log.find(command.id).orElseThrow().state().timeline

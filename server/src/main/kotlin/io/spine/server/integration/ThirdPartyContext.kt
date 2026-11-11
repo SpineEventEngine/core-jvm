@@ -176,7 +176,8 @@ public class ThirdPartyContext private constructor(
          *   a third-party system.
          */
         @JvmStatic
-        public fun singleTenant(name: String): ThirdPartyContext = newContext(name, false)
+        public fun singleTenant(name: String): ThirdPartyContext =
+            newContext(name, multiTenant = false)
 
         /**
          * Creates a new multi-tenant instance of `ThirdPartyContext` with the given name.
@@ -188,7 +189,8 @@ public class ThirdPartyContext private constructor(
          *   a third-party system.
          */
         @JvmStatic
-        public fun multiTenant(name: String): ThirdPartyContext = newContext(name, true)
+        public fun multiTenant(name: String): ThirdPartyContext =
+            newContext(name, multiTenant = true)
 
         private fun newContext(name: String, multiTenant: Boolean): ThirdPartyContext {
             checkNotEmptyOrBlank(name)

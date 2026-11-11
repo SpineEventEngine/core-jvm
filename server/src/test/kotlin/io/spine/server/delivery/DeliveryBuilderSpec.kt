@@ -97,8 +97,8 @@ internal class DeliveryBuilderSpec {
     @Test
     fun `accept only a single-tenant catch-up storage`() {
         val factory = InMemoryStorageFactory.newInstance()
-        val multiTenant = CatchUpStorage(factory, /* multiTenant = */ true)
-        assertIllegalArgument { builder().setCatchUpStorage(multiTenant) }
+        val multiTenantStorage = CatchUpStorage(factory, /* multiTenant = */ true)
+        assertIllegalArgument { builder().setCatchUpStorage(multiTenantStorage) }
     }
 
     @Nested internal inner class
