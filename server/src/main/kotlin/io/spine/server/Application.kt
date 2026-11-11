@@ -73,7 +73,10 @@ public class Application private constructor(
     private val registry: ContextRegistry,
 
     /**
-     * The index of tenants of the multitenant contexts, or `null` until it is created.
+     * The index of tenants [set][Builder.setTenantIndex] when the application was built,
+     * or `null` if none was set.
+     *
+     * See [tenantIndex] for the lifecycle of this property.
      */
     private var index: TenantIndex?
 ) : Closeable {
@@ -96,8 +99,14 @@ public class Application private constructor(
      * of the application.
      *
      * Unless the index is [set][Builder.setTenantIndex] when the application is built,
-     * the default one is created on the first call. It keeps the tenants with the storage
-     * factory of the [ServerEnvironment] of the application.
+     * the default one is created on the first call to this method, and kept for the later
+     * ones, which all return it. It keeps the tenants with the storage factory of
+     * the [ServerEnvironment] of the application.
+     *
+     * The index is created on demand so that an application of single-tenant contexts,
+     * which never calls this method, creates no storage for the tenants.
+     *
+     * [Closing][close] the application closes the index it has, if any, and releases it.
      *
      * @throws IllegalStateException If the application is closed.
      */
