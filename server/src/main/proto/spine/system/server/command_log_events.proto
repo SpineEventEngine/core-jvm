@@ -115,7 +115,7 @@ message UnsupportedCommandReceived {
     string type_url = 2 [(required) = true];
 }
 
-// An event emitted when a multitenant `CommandBus` does not accept a command because
+// An event emitted when a multi-tenant `CommandBus` does not accept a command because
 // the command has no tenant.
 message CommandTenantNotSpecified {
 

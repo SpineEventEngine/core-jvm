@@ -19,7 +19,7 @@ import io.grpc.stub.StreamObserver;
 import io.spine.core.Command;
 import io.spine.grpc.StreamObservers;
 import io.spine.server.command.AbstractAssignee;
-import io.spine.server.commandbus.given.MultitenantCommandBusTestEnv.AddTaskDispatcher;
+import io.spine.server.commandbus.given.MultiTenantCommandBusTestEnv.AddTaskDispatcher;
 import io.spine.server.type.CommandClass;
 import io.spine.test.commandbus.command.CmdBusAddTask;
 import io.spine.test.commandbus.command.CmdBusCreateProject;
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DisplayName("Multitenant `CommandBus` should")
+@DisplayName("Multi-tenant `CommandBus` should")
 @SuppressWarnings("DuplicateStringLiteralInspection") // Common test display names.
 class MultiTenantCommandBusTest extends AbstractCommandBusTestSuite {
 
@@ -62,7 +62,7 @@ class MultiTenantCommandBusTest extends AbstractCommandBusTestSuite {
     }
 
     @Test
-    @DisplayName("verify tenant ID attribute if is multitenant")
+    @DisplayName("verify tenant ID attribute if is multi-tenant")
     void requireTenantId() {
         commandBus.register(createProjectAssignee);
         var cmd = newCommandWithoutTenantId();

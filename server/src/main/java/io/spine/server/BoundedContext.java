@@ -208,7 +208,7 @@ public abstract class BoundedContext
     }
 
     /**
-     * Creates a new builder for a multitenant {@code BoundedContext}.
+     * Creates a new builder for a multi-tenant {@code BoundedContext}.
      *
      * <p>Add the returned builder to an {@link Application}, which builds the context with
      * the technologies of its {@link ServerEnvironment}.
@@ -217,9 +217,9 @@ public abstract class BoundedContext
      *         the name of the built context
      * @return new builder instance
      */
-    public static BoundedContextBuilder multitenant(String name) {
+    public static BoundedContextBuilder multiTenant(String name) {
         checkNotNull(name);
-        var spec = ContextSpec.multitenant(name);
+        var spec = ContextSpec.multiTenant(name);
         return new BoundedContextBuilder(spec);
     }
 
@@ -449,8 +449,8 @@ public abstract class BoundedContext
      * Returns {@code true} if the Bounded Context is designed to serve more than one tenant of
      * the application, {@code false} otherwise.
      */
-    public boolean isMultitenant() {
-        return spec.isMultitenant();
+    public boolean isMultiTenant() {
+        return spec.isMultiTenant();
     }
 
     /**

@@ -33,7 +33,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * processed in a batch, which is not recorded.
  */
 class RecordingInboxStorage :
-    InboxStorage(InMemoryStorageFactory.newInstance(), /* multitenant = */ false) {
+    InboxStorage(InMemoryStorageFactory.newInstance(), /* multiTenant = */ false) {
 
     private val sent = CopyOnWriteArrayList<InboxMessage>()
 

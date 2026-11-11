@@ -36,10 +36,10 @@ import io.spine.test.commandbus.command.CmdBusAddTask;
 
 import static io.spine.server.dispatch.DispatchOutcomes.successfulOutcome;
 
-public class MultitenantCommandBusTestEnv {
+public class MultiTenantCommandBusTestEnv {
 
     /** Prevents instantiation of this utility class. */
-    private MultitenantCommandBusTestEnv() {
+    private MultiTenantCommandBusTestEnv() {
     }
 
     /**

@@ -76,7 +76,7 @@ public final class RepositoryCache<I, E extends Entity<I, ?>> implements WithLog
      */
     private final KeyLocks<IdInTenant<I>> locks = new KeyLocks<>();
 
-    private final boolean multitenant;
+    private final boolean multiTenant;
     private final Load<I, E> loadFn;
     private final Store<E> storeFn;
 
@@ -84,8 +84,8 @@ public final class RepositoryCache<I, E extends Entity<I, ?>> implements WithLog
      * Creates the instance of the cache considering the multi-tenancy setting,
      * the function to load entities and the function to store the entity.
      */
-    public RepositoryCache(boolean multitenant, Load<I, E> loadFn, Store<E> storeFn) {
-        this.multitenant = multitenant;
+    public RepositoryCache(boolean multiTenant, Load<I, E> loadFn, Store<E> storeFn) {
+        this.multiTenant = multiTenant;
         this.loadFn = loadFn;
         this.storeFn = storeFn;
     }
@@ -178,7 +178,7 @@ public final class RepositoryCache<I, E extends Entity<I, ?>> implements WithLog
     }
 
     private IdInTenant<I> idInTenant(I id) {
-        return IdInTenant.of(id, multitenant);
+        return IdInTenant.of(id, multiTenant);
     }
 
     /**

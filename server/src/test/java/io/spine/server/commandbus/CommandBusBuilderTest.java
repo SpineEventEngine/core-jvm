@@ -64,14 +64,14 @@ class CommandBusBuilderTest
     class AllowToSpecify {
 
         @Test
-        @DisplayName("if `CommandBus` is multitenant")
-        void ifIsMultitenant() {
-            assertTrue(builder().setMultitenant(true)
+        @DisplayName("if `CommandBus` is multi-tenant")
+        void ifIsMultiTenant() {
+            assertTrue(builder().setMultiTenant(true)
                                 .build()
-                                .isMultitenant());
-            assertFalse(builder().setMultitenant(false)
+                                .isMultiTenant());
+            assertFalse(builder().setMultiTenant(false)
                                  .build()
-                                 .isMultitenant());
+                                 .isMultiTenant());
         }
 
         @Test

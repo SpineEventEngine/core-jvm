@@ -75,7 +75,7 @@ public final class CommandBus
      * <p>If the {@code CommandBus} is multi-tenant, the commands posted must have the
      * {@code tenant_id} attribute defined.
      */
-    private final boolean multitenant;
+    private final boolean multiTenant;
 
     private final DeadCommandHandler deadCommandHandler;
 
@@ -94,7 +94,7 @@ public final class CommandBus
      */
     private CommandBus(Builder builder) {
         super(builder);
-        this.multitenant = builder.multitenant != null && builder.multitenant;
+        this.multiTenant = builder.multiTenant != null && builder.multiTenant;
         this.systemWriteSide = builder.ensureSystem();
         this.watcher = checkNotNull(builder.watcher);
         this.deadCommandHandler = new DeadCommandHandler(this::systemFor);
@@ -108,8 +108,8 @@ public final class CommandBus
     }
 
     @VisibleForTesting
-    public boolean isMultitenant() {
-        return multitenant;
+    public boolean isMultiTenant() {
+        return multiTenant;
     }
 
     /**
@@ -155,7 +155,7 @@ public final class CommandBus
         var fromSuper = super.setupFilters(filters);
         return ImmutableList.<BusFilter<CommandEnvelope>>builder()
                 .add(new CommandReceivedTap(this::systemFor))
-                .add(new TenantFilter(multitenant, this::systemFor))
+                .add(new TenantFilter(multiTenant, this::systemFor))
                 .addAll(fromSuper)
                 .add(scheduler())
                 .build();
@@ -293,12 +293,12 @@ public final class CommandBus
          *
          * <p>The value of this field should be equal to that of corresponding
          * {@linkplain BoundedContextBuilder BoundedContext.Builder} and is not
-         * supposed to be {@linkplain #setMultitenant(Boolean) set directly}.
+         * supposed to be {@linkplain #setMultiTenant(Boolean) set directly}.
          *
          * <p>If set directly, the value would be matched to the multi-tenancy flag of
          * {@code BoundedContext}.
          */
-        private @Nullable Boolean multitenant;
+        private @Nullable Boolean multiTenant;
         private @Nullable CommandFlowWatcher watcher;
 
         /** Prevents direct instantiation. */
@@ -313,8 +313,8 @@ public final class CommandBus
 
         @Internal
         @CanIgnoreReturnValue
-        public Builder setMultitenant(@Nullable Boolean multitenant) {
-            this.multitenant = multitenant;
+        public Builder setMultiTenant(@Nullable Boolean multiTenant) {
+            this.multiTenant = multiTenant;
             return this;
         }
 

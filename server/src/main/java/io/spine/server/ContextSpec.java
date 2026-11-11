@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server;
@@ -44,12 +32,12 @@ import static io.spine.core.BoundedContextNames.newName;
 public final class ContextSpec {
 
     private final BoundedContextName name;
-    private final boolean multitenant;
+    private final boolean multiTenant;
     private final boolean storeEvents;
 
-    private ContextSpec(BoundedContextName name, boolean multitenant, boolean storeEvents) {
+    private ContextSpec(BoundedContextName name, boolean multiTenant, boolean storeEvents) {
         this.name = checkNotNull(name);
-        this.multitenant = multitenant;
+        this.multiTenant = multiTenant;
         this.storeEvents = storeEvents;
     }
 
@@ -62,17 +50,17 @@ public final class ContextSpec {
     }
 
     /**
-     * Creates a spec of a multitenant context with the given name.
+     * Creates a spec of a multi-tenant context with the given name.
      */
     @VisibleForTesting
-    public static ContextSpec multitenant(String name) {
+    public static ContextSpec multiTenant(String name) {
         return createDomain(name, true);
     }
 
-    private static ContextSpec createDomain(String name, boolean multitenant) {
+    private static ContextSpec createDomain(String name, boolean multiTenant) {
         checkNotNull(name);
         var contextName = newName(name);
-        return new ContextSpec(contextName, multitenant, true);
+        return new ContextSpec(contextName, multiTenant, true);
     }
 
     /**
@@ -83,10 +71,10 @@ public final class ContextSpec {
     }
 
     /**
-     * Checks if the context is multitenant or not.
+     * Checks if the context is multi-tenant or not.
      */
-    public boolean isMultitenant() {
-        return multitenant;
+    public boolean isMultiTenant() {
+        return multiTenant;
     }
 
     /**
@@ -106,7 +94,7 @@ public final class ContextSpec {
      * Converts this spec into the System spec for the counterpart of this domain context.
      */
     ContextSpec toSystem() {
-        return new ContextSpec(name.toSystem(), multitenant, storeEvents);
+        return new ContextSpec(name.toSystem(), multiTenant, storeEvents);
     }
 
     /**
@@ -114,15 +102,15 @@ public final class ContextSpec {
      * {@linkplain #storesEvents() store events}.
      */
     ContextSpec notStoringEvents() {
-        return new ContextSpec(name, multitenant, false);
+        return new ContextSpec(name, multiTenant, false);
     }
 
     /**
-     * Returns a single-tenant version of this instance, if it is multitenant, or
+     * Returns a single-tenant version of this instance, if it is multi-tenant, or
      * this instance if it is single-tenant.
      */
     public ContextSpec toSingleTenant() {
-        if (isMultitenant()) {
+        if (isMultiTenant()) {
             var result = singleTenant(name.getValue());
             return result;
         }
@@ -137,20 +125,20 @@ public final class ContextSpec {
         if (!(o instanceof ContextSpec spec)) {
             return false;
         }
-        return isMultitenant() == spec.isMultitenant() &&
+        return isMultiTenant() == spec.isMultiTenant() &&
                 storeEvents == spec.storeEvents &&
                 Objects.equal(name, spec.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name, isMultitenant(), storeEvents);
+        return Objects.hashCode(name, isMultiTenant(), storeEvents);
     }
 
     @Override
     public String toString() {
-        var tenancy = multitenant
-                      ? "Multitenant"
+        var tenancy = multiTenant
+                      ? "Multi-tenant"
                       : "Single tenant";
         return String.format("%s context %s", tenancy, name.getValue());
     }

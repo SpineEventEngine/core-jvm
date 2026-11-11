@@ -50,12 +50,12 @@ public class CatchUpStorage extends EntityRecordStorage<CatchUpId, CatchUp> {
      *
      * @param factory
      *         storage factory to create an underlying record storage
-     * @param multitenant
+     * @param multiTenant
      *         whether {@code CatchUpStorage} should be multi-tenant; must be {@code false}
      *         for the storage of a {@code Delivery}
      */
-    public CatchUpStorage(StorageFactory factory, boolean multitenant) {
-        super(Delivery.contextSpec(multitenant), factory, CatchUpProcess.class);
+    public CatchUpStorage(StorageFactory factory, boolean multiTenant) {
+        super(Delivery.contextSpec(multiTenant), factory, CatchUpProcess.class);
     }
 
     /**

@@ -54,7 +54,7 @@ public abstract class RecordStorage<I, R extends Message> extends AbstractStorag
      *         definitions of the columns to store along with each record
      */
     protected RecordStorage(ContextSpec context, RecordSpec<I, R> recordSpec) {
-        super(context.isMultitenant());
+        super(context.isMultiTenant());
         this.recordSpec = recordSpec;
     }
 

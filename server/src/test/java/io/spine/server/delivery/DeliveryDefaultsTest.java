@@ -53,6 +53,6 @@ class DeliveryDefaultsTest {
 
     private static void assertSingleTenant(Storage<?, ?> storage) {
         assertThat(storage).isNotNull();
-        assertThat(storage.isMultitenant()).isFalse();
+        assertThat(storage.isMultiTenant()).isFalse();
     }
 }

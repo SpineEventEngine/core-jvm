@@ -26,7 +26,7 @@ import io.spine.server.storage.StorageFactory
  * This storage is not multi-tenant, as it stores the data across all tenants.
  *
  * [Application][io.spine.server.Application] uses it as the default index
- * of the tenants of multitenant contexts.
+ * of the tenants of multi-tenant contexts.
  *
  * @constructor Creates the storage with the given factory.
  */

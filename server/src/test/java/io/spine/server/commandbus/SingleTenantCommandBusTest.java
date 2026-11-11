@@ -77,8 +77,8 @@ class SingleTenantCommandBusTest extends AbstractCommandBusTestSuite {
         }
 
         @Test
-        @DisplayName("multitenant command in single tenant context")
-        void multitenantCmdIfSingleTenant() {
+        @DisplayName("multi-tenant command in single tenant context")
+        void multiTenantCmdIfSingleTenant() {
             // Create a multi-tenant command.
             var cmd = createProject();
 

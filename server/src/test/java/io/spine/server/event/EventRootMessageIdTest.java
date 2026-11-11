@@ -75,7 +75,7 @@ public class EventRootMessageIdTest {
     @BeforeEach
     void setUp() {
         context = BoundedContextBuilder
-                .assumingTests(/* multitenant = */ true)
+                .assumingTests(/* multiTenant = */ true)
                 .build();
         var projectRepository = new ProjectAggregateRepository();
         var teamRepository = new TeamAggregateRepository();

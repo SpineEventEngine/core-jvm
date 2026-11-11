@@ -129,7 +129,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * Creates a new instance obtaining configuration parameters from the given context instance.
      */
     public static BlackBox from(BoundedContext context) {
-        var box = context.isMultitenant()
+        var box = context.isMultiTenant()
                   ? new MtBlackBox(context)
                   : new StBlackBox(context);
         return box;
@@ -204,14 +204,14 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * <p>For creating a test environment with other components, please use
      * {@link BoundedContextBuilder} and then {@link #from(BoundedContext)}.
      *
-     * @param multitenant
-     *         whether the context under test is multitenant
+     * @param multiTenant
+     *         whether the context under test is multi-tenant
      * @param components
      *         repositories or entity classes to be added to the context under test
      */
-    public static BlackBox with(boolean multitenant, Object... components) {
+    public static BlackBox with(boolean multiTenant, Object... components) {
         checkNotNull(components);
-        var builder = BoundedContextBuilder.assumingTests(multitenant);
+        var builder = BoundedContextBuilder.assumingTests(multiTenant);
         return with(builder, components);
     }
 

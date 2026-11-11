@@ -49,7 +49,7 @@ class AssigneeTest {
     void setUp() {
         ModelTests.dropAllModels();
         var context = BoundedContextBuilder
-                .assumingTests(/* multitenant = */ true)
+                .assumingTests(/* multiTenant = */ true)
                 .build();
         commandBus = context.commandBus();
         eventBus = context.eventBus();

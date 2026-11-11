@@ -44,16 +44,16 @@ import static com.google.common.collect.Sets.newHashSetWithExpectedSize;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@DisplayName("`MultitenantStorage` should")
-class MultitenantStorageTest {
+@DisplayName("`MultiTenantStorage` should")
+class MultiTenantStorageTest {
 
-    private static final boolean IS_MULTITENANT = false;
+    private static final boolean IS_MULTI_TENANT = false;
 
-    private MultitenantStorage<TenantRecords<StgProjectId, EntityRecord>> multitenantStorage;
+    private MultiTenantStorage<TenantRecords<StgProjectId, EntityRecord>> multiTenantStorage;
 
     @BeforeEach
     void setUp() {
-        multitenantStorage = new MultitenantStorage<>(IS_MULTITENANT) {
+        multiTenantStorage = new MultiTenantStorage<>(IS_MULTI_TENANT) {
             @Override
             TenantRecords<StgProjectId, EntityRecord> createSlice() {
                 return new TenantRecords<>();
@@ -62,7 +62,7 @@ class MultitenantStorageTest {
     }
 
     @Test
-    @DisplayName("return same slice within single tenant and multitenant environment")
+    @DisplayName("return same slice within single tenant and multi-tenant environment")
     void returnSameSlice()
             throws InterruptedException, ExecutionException {
         var numberOfTasks = 1000;
@@ -71,7 +71,7 @@ class MultitenantStorageTest {
 
         for (var i = 0; i < numberOfTasks; i++) {
             tasks.add(() -> {
-                var storage = multitenantStorage.currentSlice();
+                var storage = multiTenantStorage.currentSlice();
                 return storage;
             });
         }

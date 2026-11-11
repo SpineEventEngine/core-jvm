@@ -165,8 +165,8 @@ public abstract class DelegatingRecordStorage<I, R extends Message> extends Reco
     }
 
     @Override
-    public final boolean isMultitenant() {
-        return delegate.isMultitenant();
+    public final boolean isMultiTenant() {
+        return delegate.isMultiTenant();
     }
 
     @Override

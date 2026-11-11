@@ -153,7 +153,7 @@ public final class CatchUpStarter<I> {
     }
 
     private TenantId currentTenant() {
-        var function = new TenantFunction<TenantId>(context.isMultitenant()) {
+        var function = new TenantFunction<TenantId>(context.isMultiTenant()) {
             @Override
             public TenantId apply(TenantId tenant) {
                 return tenant;

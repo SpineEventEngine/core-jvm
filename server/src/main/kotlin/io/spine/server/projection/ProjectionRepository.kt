@@ -300,7 +300,7 @@ public abstract class ProjectionRepository<I : Any,
     public fun catchUp(since: Timestamp, ids: Set<I>?): CatchUpId {
         checkCatchUpTargets(ids)
         checkCatchUpStartTime(since)
-        return withCurrentTenant(context().isMultitenant)
+        return withCurrentTenant(context().isMultiTenant)
             .evaluate { catchUpStarter.start(ids, since) }
     }
 

@@ -4,6 +4,7 @@ This guide tells you what changes when you upgrade to `2.0.0-SNAPSHOT.690`. `Ser
 and `Application` are no longer singletons: an application builds its server environment, and
 then its application, which builds its Bounded Contexts. Every server-side application needs
 code changes, and so do the tests that build contexts or configure the server environment.
+`2.0.0-SNAPSHOT.700` also renames `multitenant` to `multiTenant` across the API; see section 7.
 
 ## What changed, in one paragraph
 
@@ -26,11 +27,16 @@ since several servers may serve one application.
 | `ServerEnvironment.nodeId()`, `type()` | methods | Kotlin properties; Java calls stay the same |
 | `Application.instance()`, `use(TenantIndex)`, `defaultMultitenantIndex()` | public | **removed**; use `Application.newBuilder()` and `setTenantIndex()` |
 | `Application.contexts()` | internal | public: the contexts the application built |
-| `BoundedContextBuilder.build()` | public | throws `IllegalStateException` for a builder of `BoundedContext.singleTenant()` or `multitenant()`; add the builder to an `Application` |
+| `BoundedContextBuilder.build()` | public | throws `IllegalStateException` for a builder of `BoundedContext.singleTenant()` or `multiTenant()`; add the builder to an `Application` |
 | `BoundedContextBuilder.setStorageFactory()` and the other technologies | public | **package-private**; the application sets them |
 | `Server.Builder` | serves the contexts of `Application.instance()` | `setApplication()` is required |
 | `Server.shutdown()`, `shutdownAndWait()` | close the contexts | stop the server only; close the application after its servers |
-| `ThirdPartyContext.singleTenant()`, `multitenant()` | build the context | the context is built by the application it is added to |
+| `ThirdPartyContext.singleTenant()`, `multiTenant()` | build the context | the context is built by the application it is added to |
+| `BoundedContext.multitenant()`, `ContextSpec.multitenant()`, `ThirdPartyContext.multitenant()` | public | **renamed** to `multiTenant()` |
+| `isMultitenant()` of `BoundedContext`, `BoundedContextBuilder`, `ContextSpec`, `CommandBus`, and `Stand` | public | **renamed** to `isMultiTenant()`; Kotlin reads `isMultiTenant` |
+| `CommandBus.Builder.setMultitenant()`, `Stand.Builder.setMultitenant()` | public | **renamed** to `setMultiTenant()` |
+| `Storage.isMultitenant()` | interface method | **renamed** to `isMultiTenant()`; affects every storage implementation |
+| `MemoizingWriteSide.multitenant()`, `MultitenantCommandBusTestEnv` | test fixtures of `server` | **renamed** to `multiTenant()`, `MultiTenantCommandBusTestEnv` |
 | `TenantAwareTest.createTenantIndex()` | public | **removed** |
 
 ## 1. Build the server environment
@@ -76,7 +82,7 @@ var application = Application.newBuilder()
 
 In Kotlin, `singleTenantContext(name) {}` and `multiTenantContext(name) {}` configure a context
 builder in a block and return it, so a context with several repositories does not need a chain
-of calls. `BoundedContext.singleTenant(name)` and `multitenant(name)` stay, and Java uses them.
+of calls. `BoundedContext.singleTenant(name)` and `multiTenant(name)` stay, and Java uses them.
 
 ```kotlin
 val application = application {
@@ -115,7 +121,7 @@ application.close();
 
 ## 4. Add third-party contexts to the application
 
-`ThirdPartyContext.singleTenant(name)` and `multitenant(name)` no longer build a context.
+`ThirdPartyContext.singleTenant(name)` and `multiTenant(name)` no longer build a context.
 Add the third-party context to the application, which builds it. It can emit events once
 the application is built.
 
@@ -162,3 +168,18 @@ environment. An application registers a tenant with `application.tenantIndex().k
   `AbstractStorageTest` and `AbstractDeliveryTest`, instead of configuring
   `ServerEnvironment.under(Tests.class)`. `AbstractDeliveryTest.use(Delivery)` sets the delivery
   of the contexts that a delivery test builds afterwards.
+
+## 7. Spell `multiTenant` as two words
+
+`2.0.0-SNAPSHOT.700` spells the word the way the Kotlin DSL `multiTenantContext()` does:
+`multitenant()` becomes `multiTenant()`, `isMultitenant()` becomes `isMultiTenant()`, and
+`setMultitenant()` becomes `setMultiTenant()`. The old names are gone, with no deprecated
+aliases, so the compiler points at each call to update. In Kotlin, `context.isMultitenant`
+becomes `context.isMultiTenant`.
+
+`Storage.isMultiTenant()` is a renamed interface method, so the rename reaches every storage
+implementation, not only the code that calls it. An implementation that overrides
+`isMultitenant()` must rename its override. The compiler rejects a Kotlin `override` and a Java
+`@Override` that no longer override anything, and a class that implements `Storage` directly
+without the new method. A Java method without `@Override` in a subclass of `AbstractStorage`
+still compiles, but nothing calls it any more.

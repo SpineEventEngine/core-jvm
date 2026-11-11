@@ -341,7 +341,7 @@ internal class ParallelCatchUpsIgTest : AbstractCatchUpIgTest() {
             val builder = if (case.tenancy == Tenancy.SINGLE) {
                 BoundedContext.singleTenant(name)
             } else {
-                BoundedContext.multitenant(name)
+                BoundedContext.multiTenant(name)
             }
             builder.add(tallies.a)
                 .add(tallies.b)

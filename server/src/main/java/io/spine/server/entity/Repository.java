@@ -559,7 +559,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
      * Creates the cache of the entities of this repository.
      */
     private void initCache() {
-        cache = new RepositoryCache<>(context().isMultitenant(),
+        cache = new RepositoryCache<>(context().isMultiTenant(),
                                       this::doLoadOrCreate,
                                       this::doStore);
     }
@@ -686,7 +686,7 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     /**
      * Obtains an instance of {@link EntityLifecycle} for the entity with the given ID.
      *
-     * <p>It is necessary that a tenant ID is set when calling this method in a multitenant
+     * <p>It is necessary that a tenant ID is set when calling this method in a multi-tenant
      * environment.
      *
      * @param id the ID of the target entity

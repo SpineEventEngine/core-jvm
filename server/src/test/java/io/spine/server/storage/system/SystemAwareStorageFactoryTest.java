@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DisplayName("`SystemAwareStorageFactory` should")
 class SystemAwareStorageFactoryTest {
 
-    private static final ContextSpec CONTEXT = ContextSpec.multitenant("foo");
+    private static final ContextSpec CONTEXT = ContextSpec.multiTenant("foo");
 
     @Test
     @DisplayName(NOT_ACCEPT_NULLS)
@@ -103,7 +103,7 @@ class SystemAwareStorageFactoryTest {
     void delegateInboxStorage() {
         var factory = new MemoizingStorageFactory();
         var systemAware = SystemAwareStorageFactory.wrap(factory);
-        var storage = systemAware.createInboxStorage(CONTEXT.isMultitenant());
+        var storage = systemAware.createInboxStorage(CONTEXT.isMultiTenant());
         assertThat(storage).isNull();
         assertTrue(factory.requestedInbox());
     }
@@ -113,7 +113,7 @@ class SystemAwareStorageFactoryTest {
     void delegateCatchUpStorage() {
         var factory = new MemoizingStorageFactory();
         var systemAware = SystemAwareStorageFactory.wrap(factory);
-        var storage = systemAware.createCatchUpStorage(CONTEXT.isMultitenant());
+        var storage = systemAware.createCatchUpStorage(CONTEXT.isMultiTenant());
         assertThat(storage).isNull();
         assertTrue(factory.requestedCatchUp());
     }
@@ -135,7 +135,7 @@ class SystemAwareStorageFactoryTest {
         var systemAware = SystemAwareStorageFactory.wrap(factory);
         var name = CONTEXT.name()
                           .getValue();
-        var context = BoundedContextBuilder.assumingTests(name, /* multitenant = */ true)
+        var context = BoundedContextBuilder.assumingTests(name, /* multiTenant = */ true)
                 .build();
         var systemContext = systemOf(context);
         var systemSpec = systemContext.spec();

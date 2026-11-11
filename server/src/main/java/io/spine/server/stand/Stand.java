@@ -97,7 +97,7 @@ public class Stand implements Closeable {
      */
     private final EventRegistry eventRegistry;
 
-    private final boolean multitenant;
+    private final boolean multiTenant;
 
     private final TopicValidator topicValidator;
     private final QueryValidator queryValidator;
@@ -107,7 +107,7 @@ public class Stand implements Closeable {
 
     private Stand(Builder builder) {
         super();
-        this.multitenant = builder.isMultitenant();
+        this.multiTenant = builder.isMultiTenant();
         this.subscriptionRegistry = builder.subscriptionRegistry();
         this.typeRegistry = builder.typeRegistry();
         this.eventRegistry = builder.eventRegistry();
@@ -148,8 +148,8 @@ public class Stand implements Closeable {
 
     @Internal
     @VisibleForTesting
-    public boolean isMultitenant() {
-        return multitenant;
+    public boolean isMultiTenant() {
+        return multiTenant;
     }
 
     /**
@@ -429,12 +429,12 @@ public class Stand implements Closeable {
          *
          * <p>The value of this field should be equal to that of the corresponding
          * {@linkplain io.spine.server.BoundedContextBuilder BoundedContextBuilder} and is not
-         * supposed to be {@linkplain #setMultitenant(boolean) set directly}.
+         * supposed to be {@linkplain #setMultiTenant(boolean) set directly}.
          *
          * <p>If set directly, the value would be matched to the multi-tenancy flag of the
          * aggregating {@code BoundedContext}.
          */
-        private @Nullable Boolean multitenant;
+        private @Nullable Boolean multiTenant;
 
         private final TypeRegistry typeRegistry = InMemoryTypeRegistry.newInstance();
         private final EventRegistry eventRegistry = InMemoryEventRegistry.newInstance();
@@ -446,8 +446,8 @@ public class Stand implements Closeable {
 
         @CanIgnoreReturnValue
         @Internal
-        public Builder setMultitenant(boolean multitenant) {
-            this.multitenant = multitenant;
+        public Builder setMultiTenant(boolean multiTenant) {
+            this.multiTenant = multiTenant;
             return this;
         }
 
@@ -459,8 +459,8 @@ public class Stand implements Closeable {
             return this;
         }
 
-        private boolean isMultitenant() {
-            return this.multitenant != null && this.multitenant;
+        private boolean isMultiTenant() {
+            return this.multiTenant != null && this.multiTenant;
         }
 
         private SubscriptionRegistry subscriptionRegistry() {
@@ -498,7 +498,7 @@ public class Stand implements Closeable {
         @Internal
         public Stand build() {
             if (subscriptionRegistry == null) {
-                subscriptionRegistry = MultitenantSubscriptionRegistry.newInstance(isMultitenant());
+                subscriptionRegistry = MultiTenantSubscriptionRegistry.newInstance(isMultiTenant());
             }
             topicValidator = new TopicValidator(typeRegistry);
             queryValidator = new QueryValidator(typeRegistry);

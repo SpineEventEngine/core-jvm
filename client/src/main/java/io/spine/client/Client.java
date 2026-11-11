@@ -48,7 +48,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * <p>A connection can be established via {@linkplain #connectTo(String, int) host/port}
  * combination, or via an already available {@link #usingChannel(ManagedChannel) ManagedChannel}.
  *
- * <p>Multitenant applications need to specify {@link Builder#forTenant(TenantId) TenantId}
+ * <p>Multi-tenant applications need to specify {@link Builder#forTenant(TenantId) TenantId}
  * for a new client connection. Single-tenant applications do nothing about it.
  *
  * <p>Client requests can be created on behalf of a {@linkplain #asGuest() guest user},

@@ -38,7 +38,7 @@ class EventEnricherIntegrationTest {
         var tasks = new EitTaskRepository();
         var users = new EitUserRepository();
         var enricher = createEnricher(users, projects, tasks);
-        var contextBuilder = BoundedContextBuilder.assumingTests(/* multitenant = */ true)
+        var contextBuilder = BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
                 .enrichEventsUsing(enricher)
                 .add(projects)
                 .add(tasks)

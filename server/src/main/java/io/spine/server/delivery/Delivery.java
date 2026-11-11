@@ -881,14 +881,14 @@ public final class Delivery implements WithLogging {
      * of {@code InboxMessage}s is more effective when the batches are not
      * split across tenants.
      *
-     * @param multitenant
+     * @param multiTenant
      *         whether the Bounded Context supports multi-tenancy
      */
     @SuppressWarnings("WeakerAccess" /* Used in descendant libraries to configure storage. */)
-    public static ContextSpec contextSpec(boolean multitenant) {
+    public static ContextSpec contextSpec(boolean multiTenant) {
         var name = SYSTEM_DELIVERY.value();
-        return multitenant ?
-               ContextSpec.multitenant(name) :
+        return multiTenant ?
+               ContextSpec.multiTenant(name) :
                ContextSpec.singleTenant(name);
     }
 }

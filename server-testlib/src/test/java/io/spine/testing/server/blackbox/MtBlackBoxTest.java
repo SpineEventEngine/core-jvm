@@ -40,7 +40,7 @@ class MtBlackBoxTest
 
     @Override
     BoundedContextBuilder newBuilder() {
-        return BoundedContextBuilder.assumingTests(/* multitenant = */ true);
+        return BoundedContextBuilder.assumingTests(/* multiTenant = */ true);
     }
 
     @BeforeEach
@@ -100,7 +100,7 @@ class MtBlackBoxTest
     void requireTenantId() {
         assertThrows(
                 IllegalStateException.class,
-                () -> BlackBox.from(BoundedContextBuilder.assumingTests(/* multitenant = */ true))
+                () -> BlackBox.from(BoundedContextBuilder.assumingTests(/* multiTenant = */ true))
                               .assertEntityWithState(BbProjectId.generate(), BbProject.class)
         );
     }

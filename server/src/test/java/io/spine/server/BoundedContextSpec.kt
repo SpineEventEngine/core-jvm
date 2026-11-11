@@ -97,7 +97,7 @@ internal class BoundedContextSpec {
     @BeforeEach
     fun setUp() {
         ModelTests.dropAllModels()
-        context = assumingTests(/* multitenant = */ true)
+        context = assumingTests(/* multiTenant = */ true)
             .build()
     }
 
@@ -138,10 +138,10 @@ internal class BoundedContextSpec {
         }
 
         @Test
-        fun `multitenancy state`() {
-            assumingTests(/* multitenant = */ true)
+        fun `multi-tenancy state`() {
+            assumingTests(/* multiTenant = */ true)
                 .build().use {
-                    it.isMultitenant shouldBe true
+                    it.isMultiTenant shouldBe true
                 }
         }
 
@@ -286,23 +286,23 @@ internal class BoundedContextSpec {
     }
 
     @Nested
-    @DisplayName("assign own multitenancy state to")
-    internal inner class AssignMultitenancyState {
+    @DisplayName("assign own multi-tenancy state to")
+    internal inner class AssignMultiTenancyState {
 
         private lateinit var context: BoundedContext
 
         @Test
         fun CommandBus() {
             context = multiTenant()
-            assertMultitenancyEqual(
-                { context.isMultitenant },
-                { context.commandBus().isMultitenant }
+            assertMultiTenancyEqual(
+                { context.isMultiTenant },
+                { context.commandBus().isMultiTenant }
             )
 
             context = singleTenant()
-            assertMultitenancyEqual(
-                { context.isMultitenant },
-                { context.commandBus().isMultitenant }
+            assertMultiTenancyEqual(
+                { context.isMultiTenant },
+                { context.commandBus().isMultiTenant }
             )
         }
 
@@ -310,29 +310,29 @@ internal class BoundedContextSpec {
         fun Stand() {
             context = multiTenant()
 
-            assertMultitenancyEqual(
-                { context.isMultitenant },
-                { context.stand().isMultitenant }
+            assertMultiTenancyEqual(
+                { context.isMultiTenant },
+                { context.stand().isMultiTenant }
             )
 
             context = singleTenant()
 
-            assertMultitenancyEqual(
-                { context.isMultitenant },
-                { context.stand().isMultitenant }
+            assertMultiTenancyEqual(
+                { context.isMultiTenant },
+                { context.stand().isMultiTenant }
             )
         }
 
-        private fun assertMultitenancyEqual(s1: BooleanSupplier, s2: BooleanSupplier) {
+        private fun assertMultiTenancyEqual(s1: BooleanSupplier, s2: BooleanSupplier) {
             s1.asBoolean shouldBe s2.asBoolean
         }
 
         private fun multiTenant(): BoundedContext =
-            assumingTests(/* multitenant = */ true)
+            assumingTests(/* multiTenant = */ true)
                 .build()
 
         private fun singleTenant(): BoundedContext =
-            assumingTests(/* multitenant = */ false)
+            assumingTests(/* multiTenant = */ false)
                 .build()
     }
 
@@ -486,8 +486,8 @@ internal class BoundedContextSpec {
     fun `be equal to another context by its name`() {
         val c1 = closedAfterBuild(assumingTests("One"))
         val c2 = closedAfterBuild(assumingTests("Two"))
-        val c1m = closedAfterBuild(assumingTests("One", /* multitenant = */ true))
-        val c2m = closedAfterBuild(assumingTests("Two", /* multitenant = */ true))
+        val c1m = closedAfterBuild(assumingTests("One", /* multiTenant = */ true))
+        val c2m = closedAfterBuild(assumingTests("Two", /* multiTenant = */ true))
         EqualsTester()
             .addEqualityGroup(c1, c1m)
             .addEqualityGroup(c2, c2m)
@@ -500,7 +500,7 @@ internal class BoundedContextSpec {
         val c2 = closedAfterBuild(assumingTests("2"))
         c1 shouldBeLessThan c2
         c2 shouldBeGreaterThan c1
-        c1 shouldBe closedAfterBuild(assumingTests("1", /* multitenant = */ true))
+        c1 shouldBe closedAfterBuild(assumingTests("1", /* multiTenant = */ true))
     }
 
     /**

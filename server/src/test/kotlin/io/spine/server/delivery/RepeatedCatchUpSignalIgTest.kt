@@ -428,7 +428,7 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
      * Records each state of a catch-up job written to the storage.
      */
     private class RecordingCatchUpStorage :
-        CatchUpStorage(InMemoryStorageFactory.newInstance(), /* multitenant = */ false) {
+        CatchUpStorage(InMemoryStorageFactory.newInstance(), /* multiTenant = */ false) {
 
         private val writes = CopyOnWriteArrayList<CatchUp>()
 

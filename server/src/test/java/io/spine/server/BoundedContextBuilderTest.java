@@ -53,7 +53,7 @@ class BoundedContextBuilderTest {
 
     @BeforeEach
     void setUp() {
-        builder = BoundedContextBuilder.assumingTests(/* multitenant = */ true);
+        builder = BoundedContextBuilder.assumingTests(/* multiTenant = */ true);
     }
 
     @Test
@@ -108,10 +108,10 @@ class BoundedContextBuilderTest {
     }
 
     @Test
-    @DisplayName("support multitenancy")
-    void supportMultitenancy() {
-        var builder = BoundedContextBuilder.assumingTests(/* multitenant = */ true);
-        assertTrue(builder.isMultitenant());
+    @DisplayName("support multi-tenancy")
+    void supportMultiTenancy() {
+        var builder = BoundedContextBuilder.assumingTests(/* multiTenant = */ true);
+        assertTrue(builder.isMultiTenant());
     }
 
     @Nested

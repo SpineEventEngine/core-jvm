@@ -62,12 +62,12 @@ public class InboxStorage extends MessageStorage<InboxMessageId, InboxMessage> {
      *
      * @param factory
      *         storage factory to create an underlying record storage
-     * @param multitenant
+     * @param multiTenant
      *         whether {@code InboxStorage} should be multi-tenant
      */
-    public InboxStorage(StorageFactory factory, boolean multitenant) {
-        super(Delivery.contextSpec(multitenant),
-              factory.createRecordStorage(Delivery.contextSpec(multitenant), spec()));
+    public InboxStorage(StorageFactory factory, boolean multiTenant) {
+        super(Delivery.contextSpec(multiTenant),
+              factory.createRecordStorage(Delivery.contextSpec(multiTenant), spec()));
     }
 
     private static RecordSpec<InboxMessageId, InboxMessage> spec() {
