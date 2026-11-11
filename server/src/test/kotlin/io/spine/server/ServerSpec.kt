@@ -16,9 +16,7 @@ package io.spine.server
 
 import com.google.protobuf.Empty
 import io.grpc.ManagedChannelBuilder
-import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
@@ -26,7 +24,6 @@ import io.kotest.matchers.shouldNotBe
 import io.spine.client.given.ClientTasksTestEnv.createCTask
 import io.spine.core.Ack
 import io.spine.grpc.StreamObservers.memoizingObserver
-import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.given.service.StatusCheckService
 import io.spine.test.client.ClientTestContext.tasks
 import io.spine.test.client.ClientTestContext.users
@@ -69,15 +66,10 @@ internal class ServerSpec {
     @MuteLogging
     fun `provide 'CommandService', 'QueryService', and 'SubscriptionService'`() {
         val server = server(applicationOf(users(), tasks()))
-        // The server is started only to be shut down, which closes its application.
-        server.start()
-        try {
-            server.subscriptionService() shouldNotBe null
-            server.queryService() shouldNotBe null
-            server.commandService() shouldNotBe null
-        } finally {
-            server.shutdown()
-        }
+
+        server.subscriptionService() shouldNotBe null
+        server.queryService() shouldNotBe null
+        server.commandService() shouldNotBe null
     }
 
     @Test
@@ -143,45 +135,64 @@ internal class ServerSpec {
 
     @Test
     @MuteLogging
-    fun `close its application when shut down and awaited`() {
-        val application = applicationOf(users())
-        val server = server(application)
-        server.start()
+    fun `leave its application open when shut down`() {
+        applicationOf(users()).use { application ->
+            val server = server(application)
+            server.start()
 
-        server.shutdownAndWait()
-
-        application.isOpen.shouldBeFalse()
-        application.contexts().single().isOpen.shouldBeFalse()
-    }
-
-    @Test
-    @MuteLogging
-    fun `close its application when shut down and awaited, even if it was not started`() {
-        val application = applicationOf(users())
-        val server = server(application)
-
-        shouldThrow<IllegalStateException> {
-            server.shutdownAndWait()
-        }
-
-        application.isOpen.shouldBeFalse()
-    }
-
-    @Test
-    @MuteLogging
-    fun `close every context when shut down, even if closing one of them fails`() {
-        val application = applicationOf(
-            BoundedContext.singleTenant("Calculators").add(FailingCalculatorRepository()),
-            users()
-        )
-        val server = server(application)
-        server.start()
-
-        shouldNotThrowAny {
             server.shutdown()
-        }
 
-        application.contexts().forEach { it.isOpen.shouldBeFalse() }
+            application.isOpen.shouldBeTrue()
+            application.contexts().single().isOpen.shouldBeTrue()
+        }
+    }
+
+    @Test
+    @MuteLogging
+    fun `leave its application open when shut down and awaited`() {
+        applicationOf(users()).use { application ->
+            val server = server(application)
+            server.start()
+
+            server.shutdownAndWait()
+
+            application.isOpen.shouldBeTrue()
+            application.contexts().single().isOpen.shouldBeTrue()
+        }
+    }
+
+    @Test
+    @MuteLogging
+    fun `refuse to be shut down and awaited before it is started`() {
+        applicationOf(users()).use { application ->
+            val server = server(application)
+
+            shouldThrow<IllegalStateException> {
+                server.shutdownAndWait()
+            }
+
+            application.isOpen.shouldBeTrue()
+        }
+    }
+
+    @Test
+    @MuteLogging
+    fun `share its application with other servers`() {
+        applicationOf(tasks()).use { application ->
+            val first = server(application).apply { start() }
+            val second = server(application).apply { start() }
+            try {
+                first.shutdown()
+
+                val command = TestActorRequestFactory(ServerSpec::class.java)
+                    .createCommand(createCTask("Served after another server shut down"))
+                val observer = memoizingObserver<Ack>()
+                second.commandService().post(command, observer)
+                observer.firstResponse().status.hasOk().shouldBeTrue()
+            } finally {
+                second.shutdown()
+            }
+        }
     }
 
     @Test
@@ -231,22 +242,9 @@ internal class ServerSpec {
             .setApplication(application)
             .build()
 
-    /**
-     * A repository of calculators that throws from `close()` after closing its resources.
-     */
-    private class FailingCalculatorRepository : CalculatorRepository() {
-
-        override fun close() {
-            super.close()
-            error(CLOSE_FAILURE)
-        }
-    }
-
     private companion object {
 
         const val ADDRESS = "localhost"
-
-        const val CLOSE_FAILURE = "The repository failed to close."
 
         /**
          * Tells the operating system to pick a free port when the server binds.

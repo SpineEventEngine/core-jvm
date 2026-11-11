@@ -33,7 +33,7 @@ Decisions:
   it. See section 8.
 - Q7 (2026-11-10): `Server.shutdown()` and `shutdownAndWait()` close the whole application they
   serve: its contexts, its tenant index, and its environment. This supersedes Q22 of
-  `reject-unregistered-tenants.md`. See section 7.
+  `reject-unregistered-tenants.md`. See section 7. Superseded by Q10.
 - Q8 (2026-11-10): the tenant index is set with `Application.Builder.setTenantIndex()`.
   `Application.use(TenantIndex)` and the internal `closeIndex()` are removed. Nothing else about
   tenants changes in this work. See section 9.
@@ -43,6 +43,9 @@ Decisions:
   `assumingTests(name)` and `assumingTests(name, multitenant)` serve the tests that need
   a particular name. A test that needs a particular environment adds the builder to an
   `Application`. `TestContexts.kt` with `buildForTests()` is removed. This revises Q6.
+- Q10 (2026-11-11): `Server.shutdown()` and `shutdownAndWait()` stop the server only, and leave
+  its application open, since several servers may serve one application. The usual sequence
+  is to shut down the servers, and then to close the application. This supersedes Q7.
 
 To confirm (assumed while writing, not asked):
 
@@ -283,13 +286,13 @@ calendar.emittedEvent(event, actor)
   `BoundedContext`. Until then, `emittedEvent()` throws `IllegalStateException`.
 - `close()` and `isOpen()` stay. The application closes it with the other contexts.
 
-### 7. `Server` serves an application, and closes it
+### 7. `Server` serves an application
 
 - `Server.Builder.setApplication(Application)` sets the application to serve. `build()` throws
   `IllegalStateException` without it. It replaces the package-private `serving(Application)`.
-- `Server.shutdown()` and `shutdownAndWait()` stop the transport and close the application.
-  So a `main()` builds the environment, the application, and the server, starts the server,
-  awaits its termination, and shuts it down.
+- `Server.shutdown()` and `shutdownAndWait()` stop the server, and leave the application open
+  (Q10). So a `main()` builds the environment, the application, and the server, starts
+  the server, awaits its termination, shuts it down, and then closes the application.
 - The doc of `Server` changes accordingly: the example builds an application first.
 
 ### 8. Tests
@@ -475,8 +478,8 @@ Added after the review of the PR (2026-11-10):
 6. ~~How do tests build a context?~~ Decided: through `Application`, with a helper in
    `server-testlib`. The other option: keep `BoundedContextBuilder.build()` public, marked
    `@VisibleForTesting`.
-7. ~~What does `Server.shutdown()` close?~~ Decided: the whole application. Options: stop only
-   the transport; close the contexts and leave the application open (Q22 of
-   `reject-unregistered-tenants.md`).
+7. ~~What does `Server.shutdown()` close?~~ Decided: the whole application (Q7), revised to
+   nothing but the server itself (Q10). Options: stop only the transport; close the contexts
+   and leave the application open (Q22 of `reject-unregistered-tenants.md`).
 8. ~~Set the tenant index on the builder, or keep `Application.use(TenantIndex)`?~~ Decided:
    on the builder.

@@ -13,7 +13,8 @@ JVM-wide `Application.instance()` when it was built. Now a `ServerEnvironment` i
 a builder, and given to the builder of an `Application`, together with the builders of the
 Bounded Contexts. The application builds the contexts with the technologies of its environment,
 and owns them and the environment: closing the application closes them all. A `Server` serves
-the contexts of the application it is given, and closes the application when it shuts down.
+the contexts of the application it is given, and leaves the application open when it shuts down,
+since several servers may serve one application.
 
 ## At a glance
 
@@ -28,7 +29,7 @@ the contexts of the application it is given, and closes the application when it 
 | `BoundedContextBuilder.build()` | public | throws `IllegalStateException` for a builder of `BoundedContext.singleTenant()` or `multitenant()`; add the builder to an `Application` |
 | `BoundedContextBuilder.setStorageFactory()` and the other technologies | public | **package-private**; the application sets them |
 | `Server.Builder` | serves the contexts of `Application.instance()` | `setApplication()` is required |
-| `Server.shutdown()`, `shutdownAndWait()` | close the contexts | close the application and its environment |
+| `Server.shutdown()`, `shutdownAndWait()` | close the contexts | stop the server only; close the application after its servers |
 | `ThirdPartyContext.singleTenant()`, `multitenant()` | build the context | the context is built by the application it is added to |
 | `TenantAwareTest.createTenantIndex()` | public | **removed** |
 
@@ -103,8 +104,14 @@ var server = Server.atPort(8484)
 server.start();
 ```
 
-`Server.shutdown()` closes the application: its contexts, its tenant index, and its server
-environment. An application that does not run a server closes itself with `close()`.
+`Server.shutdown()` leaves the application open, since several servers may serve one
+application. Shut down the servers first, and then close the application, which closes its
+contexts, its tenant index, and its server environment:
+
+```java
+server.shutdown();
+application.close();
+```
 
 ## 4. Add third-party contexts to the application
 

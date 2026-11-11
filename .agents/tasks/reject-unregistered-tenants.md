@@ -99,7 +99,8 @@ Decisions:
 - Q22 (2026-11-09): `Server.shutdown()` closes the contexts the server serves, as before.
   The application stays open, so a later server in the same JVM can serve new contexts.
   Superseded by Q7 of `application-instances.md` (2026-11-10): `Server.shutdown()` closes the
-  whole application, which is no longer a singleton.
+  whole application, which is no longer a singleton. Q10 there (2026-11-11) supersedes Q7:
+  `Server.shutdown()` stops the server only, and the application is closed after its servers.
   See section 11.
 - Q23 (2026-11-09): this change goes into PR 1, not a PR of its own.
 - Q24 (2026-11-10): the former PRs 2–4 become one PR, PR 2: the record of `Application`,

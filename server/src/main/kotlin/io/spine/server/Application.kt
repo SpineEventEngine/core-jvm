@@ -57,8 +57,9 @@ import io.spine.server.tenant.TenantIndex
  * ## Closing
  *
  * [Closing][close] the application closes its contexts, then its tenant index, and then
- * its [ServerEnvironment]. A [Server] that serves the application closes it when the server
- * shuts down.
+ * its [ServerEnvironment]. A [Server] that serves the application leaves it open when
+ * the server shuts down, since several servers may serve one application. So shut down
+ * the servers first, and then close the application.
  */
 public class Application private constructor(
 

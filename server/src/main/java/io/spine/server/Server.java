@@ -49,18 +49,20 @@ import static java.lang.String.format;
  *         .add(BoundedContext.singleTenant("Tasks").add(new TaskRepository()))
  *         .build();
  * var server = Server.atPort(8484)
- *                    .setApplication(application)
- *                    .build();
+ *         .setApplication(application)
+ *         .build();
  * server.start();
  * }</pre>
  *
- * <p>{@linkplain #shutdown() Shutting down} the server closes the application it serves:
- * the contexts, the tenant index, and the server environment of the application.
+ * <p>{@linkplain #shutdown() Shutting down} the server leaves the application open, since
+ * several servers may expose one application. Shut down the servers first, and then close
+ * the application:
+ * <pre>{@code
+ * server.shutdown();
+ * application.close();
+ * }</pre>
  */
 public final class Server implements WithLogging {
-
-    /** The application whose Bounded Contexts the server exposes. */
-    private final Application application;
 
     /** The container for Command- and Query- services. */
     private final GrpcContainer grpcContainer;
@@ -92,7 +94,6 @@ public final class Server implements WithLogging {
 
     private Server(Builder builder) {
         this.grpcContainer = builder.createContainer();
-        this.application = checkNotNull(builder.application);
         this.queryService = checkNotNull(builder.queryService);
         this.subscriptionService = checkNotNull(builder.subscriptionService);
         this.commandService = checkNotNull(builder.commandService);
@@ -128,44 +129,27 @@ public final class Server implements WithLogging {
     /**
      * Initiates an orderly shutdown in which existing calls continue but new calls are rejected.
      *
-     * <p>Also closes the {@link Application} of the server, logging an error if closing
-     * it fails.
+     * <p>The {@link Application} of the server stays open. Close it once all the servers that
+     * expose it are shut down.
      */
     public void shutdown() {
         logger().atInfo().log(() -> "Shutting down the server...");
         grpcContainer.shutdown();
-        closeApplication();
         logger().atInfo().log(() -> "Server shut down.");
     }
 
     /**
      * Initiates a forceful shutdown in which preexisting and new calls are rejected.
      *
-     * <p>The method returns when the server becomes terminated and its {@link Application}
-     * is closed, as {@link #shutdown()} closes it.
+     * <p>The method returns when the server becomes terminated. The {@link Application} of
+     * the server stays open, as it does after {@link #shutdown()}.
      *
      * <p>The most common usage scenario for this method is clean-up in unit tests
      * (e.g. {@literal @}{@code AfterEach} in JUnit5) that involve client-server communications.
      */
     @VisibleForTesting
     public void shutdownAndWait() {
-        try {
-            grpcContainer.shutdownNowAndWait();
-        } finally {
-            closeApplication();
-        }
-    }
-
-    /**
-     * Closes the application of the server, logging an error if closing it fails.
-     */
-    private void closeApplication() {
-        try {
-            application.close();
-        } catch (Exception e) {
-            logger().atError().withCause(e).log(() -> format(
-                    "Unable to close the application of the server: %s.", application));
-        }
+        grpcContainer.shutdownNowAndWait();
     }
 
     /**
@@ -226,7 +210,8 @@ public final class Server implements WithLogging {
         /**
          * Sets the application whose Bounded Contexts the server exposes.
          *
-         * <p>The server closes the application when it shuts down.
+         * <p>The server does not close the application when it shuts down, since several
+         * servers may expose one application. Close the application after the servers.
          */
         @CanIgnoreReturnValue
         public Builder setApplication(Application application) {
