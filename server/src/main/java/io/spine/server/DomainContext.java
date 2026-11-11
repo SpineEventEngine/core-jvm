@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Throwables.throwIfUnchecked;
+import static io.spine.util.Cleanup.runAll;
 
 /**
  * A bounded context representing a user-specific domain model.
@@ -107,40 +107,9 @@ final class DomainContext extends BoundedContext {
      */
     @Override
     public void close() {
-        var failure = runKeepingFailure(super::close, null);
-        failure = runKeepingFailure(system::closeSystemContext, failure);
         var action = afterClose.getAndSet(null);
-        if (action != null) {
-            failure = runKeepingFailure(action, failure);
-        }
-        if (failure != null) {
-            throwIfUnchecked(failure);
-            throw new IllegalStateException(failure);
-        }
-    }
-
-    /**
-     * Runs the given step, and returns the first failure among the given one and the one
-     * of the step.
-     *
-     * <p>If both failed, the failure of the step is added to the given one as suppressed,
-     * unless it is that very failure, since an exception cannot suppress itself.
-     */
-    @SuppressWarnings("ObjectEquality") // Need instances here.
-    private static @Nullable Throwable runKeepingFailure(Runnable step,
-                                                         @Nullable Throwable failure) {
-        try {
-            step.run();
-            return failure;
-        } catch (Throwable t) {
-            // Keeps any failure, an `Error` too, so that the later steps still run.
-            if (failure == null) {
-                return t;
-            }
-            if (failure != t) {
-                failure.addSuppressed(t);
-            }
-            return failure;
-        }
+        runAll(super::close,
+               system::closeSystemContext,
+               action != null ? action : () -> {});
     }
 }

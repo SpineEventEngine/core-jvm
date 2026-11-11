@@ -54,6 +54,8 @@ import java.util.function.Consumer;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.spine.server.security.Security.allowOnlyFrameworkServer;
+import static io.spine.util.Cleanup.runKeepingFailure;
+import static io.spine.util.Cleanup.throwIfAny;
 import static io.spine.util.Exceptions.newIllegalStateException;
 import static java.lang.String.format;
 
@@ -510,20 +512,12 @@ public abstract class BoundedContext
      *         tells if the context was open when the closing started
      */
     private void closeComponents(boolean wasOpen) {
-        RuntimeException failure = null;
+        Throwable failure = null;
         for (var component : List.of(commandBus, eventBus, broker, stand)) {
-            try {
-                component.closeIfOpen();
-            } catch (RuntimeException e) {
-                failure = withSuppressed(failure, e);
-            }
+            failure = runKeepingFailure(failure, component::closeIfOpen);
         }
         if (wasOpen) {
-            try {
-                shutDownRepositories();
-            } catch (RuntimeException e) {
-                failure = withSuppressed(failure, e);
-            }
+            failure = runKeepingFailure(failure, this::shutDownRepositories);
         }
         if (hasProbe()) {
             removeProbe();
@@ -531,28 +525,7 @@ public abstract class BoundedContext
         if (wasOpen) {
             logger().atDebug().log(() -> format("%s", closed(nameForLogging())));
         }
-        if (failure != null) {
-            throw failure;
-        }
-    }
-
-    /**
-     * Returns the first failure, adding the passed one to it as suppressed,
-     * or the passed failure if it is the first one.
-     *
-     * <p>If the passed failure is the first one itself, it is not added: an exception
-     * cannot suppress itself.
-     */
-    @SuppressWarnings("ObjectEquality") // Need instances here.
-    private static RuntimeException
-    withSuppressed(@Nullable RuntimeException first, RuntimeException next) {
-        if (first == null) {
-            return next;
-        }
-        if (first != next) {
-            first.addSuppressed(next);
-        }
-        return first;
+        throwIfAny(failure);
     }
 
     @Override

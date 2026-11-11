@@ -17,6 +17,7 @@ package io.spine.server
 import com.google.common.collect.ImmutableList
 import io.spine.core.BoundedContextName
 import io.spine.type.TypeUrl
+import io.spine.util.closeAll
 
 /**
  * The registry of the domain Bounded Contexts of an [Application].
@@ -49,17 +50,10 @@ internal class ContextRegistry(contexts: List<BoundedContext>) {
      * Closes each context even if closing another one fails, even with an [Error];
      * then throws the first failure, with the later ones suppressed.
      */
-    @Suppress("TooGenericExceptionCaught") // Closes the other contexts, then rethrows.
     fun closeAll() {
-        var failure: Throwable? = null
-        for (context in contexts.asReversed()) {
-            try {
-                context.closeIfOpen()
-            } catch (e: Throwable) {
-                failure = failure.withSuppressed(e)
-            }
-        }
-        failure?.let { throw it }
+        contexts.asReversed()
+            .map { context -> AutoCloseable { context.closeIfOpen() } }
+            .closeAll()
     }
 }
 
@@ -99,21 +93,4 @@ internal fun checkUnique(builders: List<BoundedContextBuilder>) {
                 }
             }
     }
-}
-
-/**
- * Returns this failure with the given one added to it as suppressed,
- * or the given failure if this one is `null`.
- *
- * If the given failure is this very instance, as when two closings throw one exception
- * object, it is not added: a [Throwable] cannot suppress itself.
- */
-internal fun Throwable?.withSuppressed(next: Throwable): Throwable {
-    if (this == null) {
-        return next
-    }
-    if (this !== next) {
-        addSuppressed(next)
-    }
-    return this
 }

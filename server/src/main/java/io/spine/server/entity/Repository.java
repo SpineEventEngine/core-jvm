@@ -49,6 +49,8 @@ import static com.google.common.base.Throwables.getRootCause;
 import static com.google.common.collect.Iterables.getFirst;
 import static io.spine.base.Errors.fromThrowable;
 import static io.spine.server.entity.model.EntityClass.asEntityClass;
+import static io.spine.util.Cleanup.runKeepingFailure;
+import static io.spine.util.Cleanup.throwIfAny;
 import static io.spine.util.Exceptions.newIllegalStateException;
 import static io.spine.util.Iterators2.filter;
 
@@ -599,45 +601,16 @@ public abstract class Repository<I, E extends Entity<I, ?>>
     @Override
     @OverridingMethodsMustInvokeSuper
     public void close() {
-        RuntimeException failure = null;
+        Throwable failure = null;
         if (inbox != null) {
-            failure = attemptClose(null, inbox::unregister);
+            failure = runKeepingFailure(null, inbox::unregister);
         }
         if (isOpen()) {
-            failure = attemptClose(failure, storage()::close);
+            failure = runKeepingFailure(failure, storage()::close);
             this.storage = null;
         }
         this.context = null;
-        if (failure != null) {
-            throw failure;
-        }
-    }
-
-    /**
-     * Runs one close step for a {@link #close()} override that releases several resources,
-     * folding any exception the step throws into the accumulated failure.
-     *
-     * <p>Threading each close through this method attempts them all and keeps the first failure
-     * as the primary exception; a later failure is attached to it as
-     * {@linkplain Throwable#addSuppressed(Throwable) suppressed}, so no failure is lost.
-     *
-     * @param failure
-     *         the failure accumulated so far, or {@code null} if every prior step succeeded
-     * @param step
-     *         the close step to run
-     * @return the accumulated failure after running the step
-     */
-    protected static @Nullable RuntimeException
-    attemptClose(@Nullable RuntimeException failure, Runnable step) {
-        try {
-            step.run();
-        } catch (RuntimeException e) {
-            if (failure == null) {
-                return e;
-            }
-            failure.addSuppressed(e);
-        }
-        return failure;
+        throwIfAny(failure);
     }
 
     /**

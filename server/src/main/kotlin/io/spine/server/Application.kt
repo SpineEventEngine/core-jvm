@@ -18,6 +18,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue
 import io.spine.server.integration.ThirdPartyContext
 import io.spine.server.tenant.DefaultTenantStorage
 import io.spine.server.tenant.TenantIndex
+import io.spine.util.runAll
 
 /**
  * The application made of Bounded Contexts that run on the technologies
@@ -129,7 +130,6 @@ public class Application private constructor(
      *
      * Does nothing if the application is already closed.
      */
-    @Suppress("TooGenericExceptionCaught") // Closes every part even if closing another fails.
     override fun close() {
         val closingIndex = synchronized(this) {
             if (!open) {
@@ -138,23 +138,11 @@ public class Application private constructor(
             open = false
             index.also { index = null }
         }
-        var failure: Throwable? = null
-        try {
-            registry.closeAll()
-        } catch (e: Throwable) {
-            failure = e
-        }
-        try {
-            closingIndex?.closeIfOpen()
-        } catch (e: Throwable) {
-            failure = failure.withSuppressed(e)
-        }
-        try {
-            environment.closeIfOpen()
-        } catch (e: Throwable) {
-            failure = failure.withSuppressed(e)
-        }
-        failure?.let { throw it }
+        runAll(
+            { registry.closeAll() },
+            { closingIndex?.closeIfOpen() },
+            { environment.closeIfOpen() }
+        )
     }
 
     override fun toString(): String =

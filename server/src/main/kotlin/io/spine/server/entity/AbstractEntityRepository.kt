@@ -21,6 +21,8 @@ import io.spine.core.Version
 import io.spine.server.BoundedContext
 import io.spine.server.entity.storage.EntityStateHistoryStorage
 import io.spine.util.Exceptions.newIllegalStateException
+import io.spine.util.runKeepingFailure
+import io.spine.util.throwIfAny
 
 /**
  * Implementation of [RecordBasedRepository] that manages entities
@@ -297,16 +299,14 @@ public abstract class AbstractEntityRepository<I : Any,
     @OverridingMethodsMustInvokeSuper
     @Suppress("TooGenericExceptionCaught") // Accumulates any failure of a close step.
     override fun close() {
-        var failure: RuntimeException? = null
+        var failure: Throwable? = null
         try {
             super.close()
-        } catch (e: RuntimeException) {
+        } catch (e: Throwable) {
             failure = e
         }
-        failure = attemptClose(failure) { closeStateHistory() }
-        if (failure != null) {
-            throw failure
-        }
+        failure = runKeepingFailure(failure) { closeStateHistory() }
+        throwIfAny(failure)
     }
 
     /**

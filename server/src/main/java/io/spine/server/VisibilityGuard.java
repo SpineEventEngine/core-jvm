@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static io.spine.util.Cleanup.closeAll;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
@@ -164,21 +165,10 @@ final class VisibilityGuard {
      * as the very same instance is not added, since an exception cannot suppress itself.
      */
     void shutDownRepositories() {
-        RuntimeException failure = null;
-        for (var repository : repositories()) {
-            try {
-                repository.close();
-            } catch (RuntimeException e) {
-                if (failure == null) {
-                    failure = e;
-                } else if (failure != e) {
-                    failure.addSuppressed(e);
-                }
-            }
-        }
-        repositories.clear();
-        if (failure != null) {
-            throw failure;
+        try {
+            closeAll(repositories());
+        } finally {
+            repositories.clear();
         }
     }
 

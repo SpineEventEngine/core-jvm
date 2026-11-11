@@ -62,6 +62,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static io.spine.core.BoundedContextNames.assumingTestsValue;
 import static io.spine.server.ContextSpec.multitenant;
 import static io.spine.server.ContextSpec.singleTenant;
+import static io.spine.util.Cleanup.runKeepingFailure;
 import static java.lang.String.format;
 
 /**
@@ -866,16 +867,9 @@ public final class BoundedContextBuilder implements WithLogging {
      *         {@code Error}, is added to it as suppressed, so it does not replace the failure,
      *         unless closing throws the failure itself
      */
-    @SuppressWarnings({"ObjectEquality", "ReferenceEquality"} /* Avoid self-suppression, */ )
     private static void closeAfterFailure(Closeable resource, Throwable failure) {
-        try {
-            resource.close();
-        } catch (Throwable e) {
-            // Closing may throw the very failure, which cannot suppress itself.
-            if (e != failure) {
-                failure.addSuppressed(e);
-            }
-        }
+        // The given failure comes back as is, with the failure of closing added to it.
+        runKeepingFailure(failure, resource::close);
     }
 
     EventBus buildEventBus(BoundedContext context) {
