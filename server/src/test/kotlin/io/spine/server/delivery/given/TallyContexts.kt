@@ -18,6 +18,7 @@ import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.entity.Repository
 import io.spine.server.event.EventDispatcher
+import io.spine.server.singleTenantContext
 import io.spine.test.delivery.numberAdded
 import io.spine.testing.server.blackbox.BlackBox
 
@@ -47,9 +48,10 @@ internal class TallyContexts(
         vararg repositories: Repository<*, *>,
         dispatcher: EventDispatcher? = null
     ): BlackBox {
-        val builder = BoundedContext.singleTenant(name)
-        repositories.forEach { builder.add(it) }
-        dispatcher?.let { builder.addEventDispatcher(it) }
+        val builder = singleTenantContext(name) {
+            repositories.forEach { add(it) }
+            dispatcher?.let { addEventDispatcher(it) }
+        }
         return add(name, blackBox(builder))
     }
 

@@ -44,6 +44,7 @@ import io.spine.server.event.AbstractEventReactor
 import io.spine.server.event.EventDispatcher
 import io.spine.server.event.NoReaction
 import io.spine.server.event.React
+import io.spine.server.singleTenantContext
 import io.spine.server.storage.RecordWithColumns
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.system.server.SystemBoundedContexts.systemOf
@@ -343,12 +344,13 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
      * Also sets the [context], to which [postAgain] posts.
      */
     private fun blackBox(vararg dispatchers: EventDispatcher): BlackBox {
-        val builder = BoundedContext.singleTenant("RepeatedCatchUpSignal")
-            .add(repository)
-        dispatchers.forEach { builder.addEventDispatcher(it) }
-        builder.systemSettings()
-            .enableParallelPosting()
-            .useCustomPostingExecutor(systemEvents)
+        val builder = singleTenantContext("RepeatedCatchUpSignal") {
+            add(repository)
+            dispatchers.forEach { addEventDispatcher(it) }
+            systemSettings()
+                .enableParallelPosting()
+                .useCustomPostingExecutor(systemEvents)
+        }
         context = build(builder)
         return BlackBox.from(context)
     }

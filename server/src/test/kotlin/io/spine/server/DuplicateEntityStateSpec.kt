@@ -101,9 +101,10 @@ internal class DuplicateEntityStateSpec {
     @Test
     fun `close a context that failed to build, even if its 'onBeforeClose' action throws`() {
         val failure = IllegalStateException(REPOSITORY_FAILURE)
-        val failing = BoundedContext.singleTenant("Failing")
-            .setOnBeforeClose { throw AssertionError(HOOK_FAILURE) }
-            .add(CalculatorsFailingOnRegistration(failure))
+        val failing = singleTenantContext("Failing") {
+            setOnBeforeClose { throw AssertionError(HOOK_FAILURE) }
+            add(CalculatorsFailingOnRegistration(failure))
+        }
 
         val error = shouldThrow<IllegalStateException> {
             applicationOf(failing)
@@ -116,9 +117,10 @@ internal class DuplicateEntityStateSpec {
     @Test
     fun `close a context that failed to build, even if closing throws the failure itself`() {
         val failure = IllegalStateException(REPOSITORY_FAILURE)
-        val failing = BoundedContext.singleTenant("Failing")
-            .setOnBeforeClose { throw failure }
-            .add(CalculatorsFailingOnRegistration(failure))
+        val failing = singleTenantContext("Failing") {
+            setOnBeforeClose { throw failure }
+            add(CalculatorsFailingOnRegistration(failure))
+        }
 
         val error = shouldThrow<IllegalStateException> {
             applicationOf(failing)
