@@ -17,6 +17,8 @@ package io.spine.server.delivery
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import io.spine.base.Identifier
 import io.spine.core.BoundedContextName
 import io.spine.core.BoundedContextNames.newName
@@ -58,40 +60,79 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
     }
 
     @Nested inner class
-    `find the inbox of an entity type` {
+    `find the inbox of an entity type in the context of the message` {
 
         @Test
-        fun `by the type alone`() {
-            deliveries.register(inbox(TALLY_TYPE))
+        fun `by the type and the context`() {
+            deliveries.register(inbox(TALLY_TYPE, TASKS))
 
             shouldNotThrowAny {
-                deliveries.get(messageTo(TALLY_TYPE, "some-tally"))
+                deliveries.get(messageTo(TALLY_TYPE, "some-tally", context = TASKS))
             }
+        }
+
+        @Test
+        fun `not the inbox of another context registered later`() {
+            val toTasks = messageTo(TALLY_TYPE, "some-tally", context = TASKS)
+            val toBilling = messageTo(TALLY_TYPE, "some-tally", context = BILLING)
+            deliveries.register(inbox(TALLY_TYPE, TASKS))
+            val ofTasks = deliveries.get(toTasks)
+
+            deliveries.register(inbox(TALLY_TYPE, BILLING))
+
+            deliveries.get(toTasks) shouldBeSameInstanceAs ofTasks
+            deliveries.get(toBilling) shouldNotBeSameInstanceAs ofTasks
         }
 
         @Test
         fun `failing if the type has no inbox`() {
             val error = shouldThrow<IllegalStateException> {
-                deliveries.get(messageTo(TALLY_TYPE, "some-tally"))
+                deliveries.get(messageTo(TALLY_TYPE, "some-tally", context = TASKS))
             }
             error.message shouldContain TALLY_TYPE.value()
         }
 
         @Test
+        fun `failing if only another context has an inbox of the type`() {
+            deliveries.register(inbox(TALLY_TYPE, BILLING))
+
+            val error = shouldThrow<IllegalStateException> {
+                deliveries.get(messageTo(TALLY_TYPE, "some-tally", context = TASKS))
+            }
+            error.message shouldContain TASKS.value
+        }
+
+        @Test
         fun `keeping the inbox that replaced the unregistered one`() {
-            val first = inbox(TALLY_TYPE)
-            val second = inbox(TALLY_TYPE)
+            val first = inbox(TALLY_TYPE, TASKS)
+            val second = inbox(TALLY_TYPE, TASKS)
             deliveries.register(first)
             deliveries.register(second)
 
             deliveries.unregister(first)
             shouldNotThrowAny {
-                deliveries.get(messageTo(TALLY_TYPE, "some-tally"))
+                deliveries.get(messageTo(TALLY_TYPE, "some-tally", context = TASKS))
             }
 
             deliveries.unregister(second)
             shouldThrow<IllegalStateException> {
-                deliveries.get(messageTo(TALLY_TYPE, "some-tally"))
+                deliveries.get(messageTo(TALLY_TYPE, "some-tally", context = TASKS))
+            }
+        }
+
+        @Test
+        fun `keeping the inbox of another context when one is unregistered`() {
+            val tasks = inbox(TALLY_TYPE, TASKS)
+            deliveries.register(tasks)
+            deliveries.register(inbox(TALLY_TYPE, BILLING))
+
+            deliveries.unregister(tasks)
+
+            shouldNotThrowAny {
+                deliveries.get(messageTo(TALLY_TYPE, "some-tally", context = BILLING))
+            }
+            shouldThrow<IllegalStateException> {
+                deliveries.get(messageTo(TALLY_TYPE, "some-tally", context = TASKS))
             }
         }
     }
@@ -105,7 +146,7 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
             deliveries.register(inbox(CatchUpProcess.TYPE, TASKS.toSystem()))
 
             shouldNotThrowAny {
-                deliveries.get(messageTo(CatchUpProcess.TYPE, job()))
+                deliveries.get(messageTo(CatchUpProcess.TYPE, job(), context = TASKS.toSystem()))
             }
         }
 
@@ -115,7 +156,23 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
             deliveries.register(inbox(ShardMaintenanceProcess.TYPE, TASKS.toSystem()))
 
             shouldNotThrowAny {
-                deliveries.get(messageTo(ShardMaintenanceProcess.TYPE, maintenanceOf(job())))
+                deliveries.get(
+                    messageTo(
+                        ShardMaintenanceProcess.TYPE,
+                        maintenanceOf(job()),
+                        context = TASKS.toSystem()
+                    )
+                )
+            }
+        }
+
+        @Test
+        fun `whatever context the message tells`() {
+            serveTallies(TASKS)
+            deliveries.register(inbox(CatchUpProcess.TYPE, TASKS.toSystem()))
+
+            shouldNotThrowAny {
+                deliveries.get(messageTo(CatchUpProcess.TYPE, job(), context = BILLING.toSystem()))
             }
         }
 
@@ -125,7 +182,7 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
             deliveries.register(inbox(CatchUpProcess.TYPE, BILLING.toSystem()))
 
             val error = shouldThrow<IllegalStateException> {
-                deliveries.get(messageTo(CatchUpProcess.TYPE, job()))
+                deliveries.get(messageTo(CatchUpProcess.TYPE, job(), context = TASKS.toSystem()))
             }
             error.message shouldContain TASKS.toSystem().value
         }
@@ -141,7 +198,7 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
             deliveries.unregister(first)
 
             shouldNotThrowAny {
-                deliveries.get(messageTo(CatchUpProcess.TYPE, job()))
+                deliveries.get(messageTo(CatchUpProcess.TYPE, job(), context = TASKS.toSystem()))
             }
         }
     }
@@ -154,7 +211,7 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
             deliveries.register(inbox(CatchUpProcess.TYPE, TASKS.toSystem()))
 
             val error = shouldThrow<IllegalStateException> {
-                deliveries.get(messageTo(CatchUpProcess.TYPE, job()))
+                deliveries.get(messageTo(CatchUpProcess.TYPE, job(), context = TASKS.toSystem()))
             }
             error.message shouldContain TALLY_TYPE.value()
         }
@@ -165,7 +222,9 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
             val shardOnly = DeliveryStrategy.newIndex(0, 1)
 
             val error = shouldThrow<IllegalStateException> {
-                deliveries.get(messageTo(ShardMaintenanceProcess.TYPE, shardOnly))
+                deliveries.get(
+                    messageTo(ShardMaintenanceProcess.TYPE, shardOnly, context = TASKS.toSystem())
+                )
             }
             error.message shouldContain "Before upgrading"
         }
@@ -194,14 +253,11 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
          * The inbox is also registered in the `Delivery` of the environment,
          * which the test uses for nothing else.
          */
-        fun inbox(type: TypeUrl, context: BoundedContextName? = null): Inbox<String> {
-            val builder = instance.delivery()
-                .newInbox<String>(type)
-            context?.let { builder.withContext(it) }
-            return builder
+        fun inbox(type: TypeUrl, context: BoundedContextName): Inbox<String> =
+            instance.delivery()
+                .newInbox<String>(type, context)
                 .addCommandEndpoint(InboxLabel.HANDLE_COMMAND) { NoOpEndpoint() }
                 .build()
-        }
 
         fun job(): CatchUpId = catchUpId {
             uuid = Identifier.newUuid()
@@ -214,13 +270,20 @@ internal class InboxDeliveriesSpec : AbstractDeliveryTest() {
         }
 
         /**
-         * Creates a message addressed to the given target of the given type.
+         * Creates a message addressed to the given target of the given type,
+         * stored by the inbox of the given context.
          *
-         * Only the address of the message is set, as the tested code reads nothing else.
+         * Only the address and the context of the message are set,
+         * as the tested code reads nothing else.
          */
-        fun messageTo(type: TypeUrl, target: Any): @NonValidated InboxMessage =
+        fun messageTo(
+            type: TypeUrl,
+            target: Any,
+            context: BoundedContextName
+        ): @NonValidated InboxMessage =
             InboxMessage.newBuilder()
                 .setInboxId(InboxIds.wrap(target, type))
+                .setContext(context)
                 .buildPartial()
     }
 }

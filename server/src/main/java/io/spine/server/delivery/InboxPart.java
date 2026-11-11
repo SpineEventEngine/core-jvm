@@ -16,6 +16,7 @@ package io.spine.server.delivery;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.base.Time;
+import io.spine.core.BoundedContextName;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.event.NoReaction;
 import io.spine.server.tenant.TenantAwareRunner;
@@ -43,12 +44,14 @@ abstract class InboxPart<I, M extends SignalEnvelope<?, ?, ?>> {
     private final InboxWriter writer;
     private final Delivery delivery;
     private final TypeUrl entityStateType;
+    private final BoundedContextName contextName;
 
     InboxPart(Inbox.Builder<I> builder, Endpoints<I, M> endpoints) {
         this.endpoints = endpoints;
         this.writer = builder.writer();
         this.delivery = builder.delivery();
         this.entityStateType = builder.entityStateType();
+        this.contextName = builder.contextName();
     }
 
     /**
@@ -83,6 +86,7 @@ abstract class InboxPart<I, M extends SignalEnvelope<?, ?, ?>> {
                 .setId(id)
                 .setSignalId(signalIdFrom(envelope, entityId))
                 .setInboxId(inboxId)
+                .setContext(contextName)
                 .setLabel(label)
                 .setWhenReceived(Time.currentTime())
                 .setStatus(determineStatus(envelope, label))
