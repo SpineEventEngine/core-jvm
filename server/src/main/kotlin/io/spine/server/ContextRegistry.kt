@@ -66,6 +66,10 @@ internal class ContextRegistry(contexts: List<BoundedContext>) {
  *   context of another one;
  * - no two contexts may have repositories of one entity state type.
  *
+ * The builders hold all the repositories of the domain contexts: the framework adds none
+ * to a context after it is built. The repositories of System contexts are not compared:
+ * every System context has the same repositories of the framework.
+ *
  * @throws DuplicateContextNameException If two contexts have one name, or a context has
  *   the name of the System context of another one.
  * @throws DuplicateEntityStateException If two contexts have repositories of one entity

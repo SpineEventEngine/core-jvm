@@ -48,12 +48,11 @@ class AggregateRepositoryViewsTest {
 
     @BeforeEach
     void setUp() {
+        repository = new RepoOfAggregateWithLifecycle();
         context = BoundedContextBuilder
                 .assumingTests()
+                .add(repository)
                 .build();
-        repository = new RepoOfAggregateWithLifecycle();
-        context.internalAccess()
-               .register(repository);
 
         // Create the aggregate instance.
         postCommand("createCommand");

@@ -63,17 +63,15 @@ class CommandServiceTest {
         // Create Projects Bounded Context with one repository.
         projectsContext = BoundedContextBuilder
                 .assumingTests("Projects", /* multiTenant = */ true)
+                .add(new Given.ProjectAggregateRepository())
                 .build();
-        var projectRepo = new Given.ProjectAggregateRepository();
-        projectsContext.register(projectRepo);
         boundedContexts.add(projectsContext);
 
         // Create Customers Bounded Context with one repository.
         customersContext = BoundedContextBuilder
                 .assumingTests("Customers", /* multiTenant = */ true)
+                .add(new Given.CustomerAggregateRepository())
                 .build();
-        var customerRepo = new Given.CustomerAggregateRepository();
-        customersContext.register(customerRepo);
         boundedContexts.add(customersContext);
 
         // Expose two Bounded Contexts via an instance of {@code CommandService}.

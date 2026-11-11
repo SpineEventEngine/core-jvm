@@ -68,11 +68,16 @@ class AggregateQueryingTest {
     private CommandFactory commands;
     private AggregateRepository<MRPhotoId, PhotoAggregate, MRPhoto> repository;
 
+    /** The repository of invisible aggregates, registered with the context of the test. */
+    private AggregateRepository<String, InvisibleSound, MRSoundRecord> invisibleSounds;
+
     @BeforeEach
     void setUp() {
         repository = newPhotosRepository();
+        invisibleSounds = InvisibleSound.newRepository();
         context = BoundedContextBuilder.assumingTests(/* multiTenant = */ false)
                 .add(repository)
+                .add(invisibleSounds)
                 .build();
         var requestFactory = new TestActorRequestFactory(AggregateQueryingTest.class);
         queries = requestFactory.query();
@@ -161,28 +166,16 @@ class AggregateQueryingTest {
     void queryInvisible() {
         var query = MRSoundRecord.query()
                                  .build(transformWith(queries));
-        var repository = invisibleSounds();
         assertDoesNotThrow(
                 () -> ImmutableList.copyOf(
-                        repository.findRecords(query.filters(), query.responseFormat())));
+                        invisibleSounds.findRecords(query.filters(), query.responseFormat())));
     }
 
     @Test
     @DisplayName("serve direct queries for an invisible Aggregate via `EntityQuery`")
     void entityQueryInvisible() {
         var entityQuery = MRSoundRecord.query().build();
-        var repository = invisibleSounds();
-        assertDoesNotThrow(() -> ImmutableList.copyOf(repository.findStates(entityQuery)));
-    }
-
-    /**
-     * Creates a repository of invisible aggregates, registered with the context of the test.
-     */
-    private AggregateRepository<String, InvisibleSound, MRSoundRecord> invisibleSounds() {
-        var repository = InvisibleSound.newRepository();
-        context.internalAccess()
-               .register(repository);
-        return repository;
+        assertDoesNotThrow(() -> ImmutableList.copyOf(invisibleSounds.findStates(entityQuery)));
     }
 
     /**

@@ -120,9 +120,9 @@ public class ProjectionEndToEndTest {
     @DisplayName("receive entity state updates along with system event context")
     void receiveEntityStateUpdatesAndEventContext() {
         var repository = new GroupProjection.Repository();
-        try (var groups = BoundedContextBuilder.assumingTests().build()) {
-            groups.internalAccess()
-                  .register(repository);
+        try (var ignored = BoundedContextBuilder.assumingTests()
+                .add(repository)
+                .build()) {
             var organizationHead = GivenUserId.newUuid();
             var entityId = MessageId.newBuilder()
                     .setTypeUrl(TypeUrl.of(Organization.class).value())

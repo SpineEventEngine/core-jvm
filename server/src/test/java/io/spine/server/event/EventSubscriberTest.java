@@ -49,12 +49,13 @@ class EventSubscriberTest {
         // Create event that should fail.
         var eventEnvelope = createEvent(false);
 
-        var context = BoundedContextBuilder.assumingTests().build();
-        var contextAccess = context.internalAccess();
-        contextAccess.registerEventDispatcher(subscriber);
         var monitor = new DiagnosticMonitor();
-        contextAccess.registerEventDispatcher(monitor);
-        subscriber.dispatch(eventEnvelope);
+        try (var ignored = BoundedContextBuilder.assumingTests()
+                .addEventDispatcher(subscriber)
+                .addEventDispatcher(monitor)
+                .build()) {
+            subscriber.dispatch(eventEnvelope);
+        }
 
         assertTrue(subscriber.isMethodCalled());
         var systemEvents = monitor.handlerFailureEvents();

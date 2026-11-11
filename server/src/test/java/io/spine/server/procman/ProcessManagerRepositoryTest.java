@@ -115,6 +115,8 @@ class ProcessManagerRepositoryTest
             new TestActorRequestFactory(getClass(), TenantId.newBuilder()
                                                             .setValue(newUuid())
                                                             .build());
+    private final DiagnosticMonitor monitor = new DiagnosticMonitor();
+    private final RememberingSubscriber subscriber = new RememberingSubscriber();
     private BoundedContext context;
 
     @Override
@@ -190,9 +192,11 @@ class ProcessManagerRepositoryTest
     protected void setUp() {
         super.setUp();
         setCurrentTenant(requestFactory.tenantId());
-        context = BoundedContextBuilder.assumingTests(/* multiTenant = */ true).build();
-        context.internalAccess()
-               .register(repository());
+        context = BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
+                .add(repository())
+                .addEventDispatcher(monitor)
+                .addEventDispatcher(subscriber)
+                .build();
         TestProcessManager.clearMessageDeliveryHistory();
         repository().clearConfigureCalledFlag();
     }
@@ -255,9 +259,11 @@ class ProcessManagerRepositoryTest
     @DisplayName("allow customizing command routing")
     void setupOfCommandRouting() {
         var repo = new ProjectCompletion.Repository();
-        context.internalAccess()
-               .register(repo);
-        assertTrue(repo.callbackCalled());
+        try (var ignored = BoundedContextBuilder.assumingTests()
+                .add(repo)
+                .build()) {
+            assertTrue(repo.callbackCalled());
+        }
     }
 
     @Nested
@@ -280,10 +286,6 @@ class ProcessManagerRepositoryTest
     @Test
     @DisplayName("dispatch command and post events")
     void dispatchCommandAndPostEvents() {
-        var subscriber = new RememberingSubscriber();
-        context.internalAccess()
-               .registerEventDispatcher(subscriber);
-
         testDispatchCommand(addTask());
 
         var message = subscriber.getRemembered();
@@ -300,9 +302,6 @@ class ProcessManagerRepositoryTest
         @Test
         @DisplayName("events")
         void events() {
-            var monitor = new DiagnosticMonitor();
-            context.internalAccess()
-                   .registerEventDispatcher(monitor);
             var event = GivenMessage.projectStarted();
 
             dispatchEvent(event);
@@ -325,9 +324,6 @@ class ProcessManagerRepositoryTest
         @Test
         @DisplayName("commands")
         void commands() {
-            var monitor = new DiagnosticMonitor();
-            context.internalAccess()
-                   .registerEventDispatcher(monitor);
             var command = GivenMessage.createProject();
 
             dispatchCommand(command);
@@ -471,9 +467,6 @@ class ProcessManagerRepositoryTest
         var unknownCommand = requestFactory.createCommand(PmDontHandle.getDefaultInstance());
         var command = CommandEnvelope.of(unknownCommand);
         ProcessManagerRepository<ProjectId, ?, ?> repo = repository();
-        var monitor = new DiagnosticMonitor();
-        context.internalAccess()
-               .registerEventDispatcher(monitor);
         repo.dispatchCommand(command);
         var failures = monitor.routingFailures();
         assertThat(failures).hasSize(1);
@@ -535,11 +528,9 @@ class ProcessManagerRepositoryTest
     @Test
     @DisplayName("check that its `ProcessManager` class is subscribed to at least one message")
     void notRegisterIfSubscribedToNothing() {
-        var repo = new SensoryDeprivedPmRepository();
-        var context = BoundedContextBuilder
-                .assumingTests()
-                .build();
-        assertThrows(IllegalStateException.class, () -> repo.registerWith(context));
+        var builder = BoundedContextBuilder.assumingTests()
+                .add(new SensoryDeprivedPmRepository());
+        assertThrows(IllegalStateException.class, builder::build);
     }
 
     @Test

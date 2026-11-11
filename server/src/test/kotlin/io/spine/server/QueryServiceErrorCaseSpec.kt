@@ -200,8 +200,8 @@ internal class QueryServiceErrorCaseSpec {
     private fun serve(repository: Repository<*, *>, multiTenant: Boolean = false) {
         val ctx = BoundedContextBuilder.assumingTests(multiTenant)
             .add(repository)
+            .addEventDispatcher(monitor)
             .build()
-        ctx.internalAccess().registerEventDispatcher(monitor)
         context = ctx
         service = QueryService.withSingle(ctx)
     }

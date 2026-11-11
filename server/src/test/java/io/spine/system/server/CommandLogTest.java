@@ -28,7 +28,6 @@ import io.spine.core.CommandId;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.server.DefaultRepository;
 import io.spine.system.server.event.CommandAcknowledged;
 import io.spine.system.server.event.CommandDispatched;
 import io.spine.system.server.event.CommandValidationFailed;
@@ -72,12 +71,11 @@ class CommandLogTest {
         var contextName = BoundedContextName.newBuilder()
                 .setValue(EntityEventsTest.class.getSimpleName())
                 .build();
-        context = BoundedContextBuilder.assumingTests(contextName.getValue()).build();
+        context = BoundedContextBuilder.assumingTests(contextName.getValue())
+                .add(CompanyAggregate.class)
+                .add(new CompanyNameProcmanRepo())
+                .build();
         system = systemOf(context);
-
-        var ctx = context.internalAccess();
-        ctx.register(DefaultRepository.of(CompanyAggregate.class));
-        ctx.register(new CompanyNameProcmanRepo());
     }
 
     @AfterEach

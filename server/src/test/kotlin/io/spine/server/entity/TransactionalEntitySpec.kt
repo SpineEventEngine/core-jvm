@@ -327,8 +327,9 @@ internal class TransactionalEntitySpec {
         @BeforeEach
         fun registerRepository() {
             repo = StockKeeperRepo()
-            context = BoundedContextBuilder.assumingTests().build()
-            context.internalAccess().register(repo)
+            context = BoundedContextBuilder.assumingTests()
+                .add(repo)
+                .build()
         }
 
         @AfterEach

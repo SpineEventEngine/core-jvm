@@ -24,7 +24,6 @@ import io.spine.option.EntityOption;
 import io.spine.people.PersonName;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.server.DefaultRepository;
 import io.spine.system.server.event.CommandDispatchedToHandler;
 import io.spine.system.server.event.EntityArchived;
 import io.spine.system.server.event.EntityCreated;
@@ -69,14 +68,13 @@ class EntityEventsTest {
 
     @BeforeEach
     void setUp() {
-        context = BoundedContextBuilder.assumingTests(/* multiTenant = */ false).build();
+        context = BoundedContextBuilder.assumingTests(/* multiTenant = */ false)
+                .add(PersonAggregate.class)
+                .add(PersonProjection.class)
+                .add(PersonNamePart.class)
+                .add(new PersonProcmanRepository())
+                .build();
         var system = systemOf(context);
-
-        var ctx = context.internalAccess();
-        ctx.register(DefaultRepository.of(PersonAggregate.class));
-        ctx.register(DefaultRepository.of(PersonProjection.class));
-        ctx.register(DefaultRepository.of(PersonNamePart.class));
-        ctx.register(new PersonProcmanRepository());
         eventAccumulator = new HistoryEventWatcher();
         system.eventBus()
               .register(eventAccumulator);

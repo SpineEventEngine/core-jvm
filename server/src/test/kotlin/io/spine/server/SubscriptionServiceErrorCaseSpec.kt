@@ -73,8 +73,8 @@ internal class SubscriptionServiceErrorCaseSpec {
         context = BoundedContextBuilder.assumingTests()
             .add(Given.ProjectAggregateRepository())
             .add(SecretProjectRepository())
+            .addEventDispatcher(monitor)
             .build()
-        context.internalAccess().registerEventDispatcher(monitor)
         service = SubscriptionService.withSingle(context)
     }
 

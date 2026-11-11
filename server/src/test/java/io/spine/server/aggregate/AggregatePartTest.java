@@ -71,15 +71,15 @@ class AggregatePartTest {
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
-        context = BoundedContextBuilder.assumingTests().build();
+        taskRepository = new TaskRepository();
+        taskCommentsRepository = new TaskCommentsRepository();
+        context = BoundedContextBuilder.assumingTests()
+                .add(taskRepository)
+                .add(taskCommentsRepository)
+                .build();
         root = new TaskRoot(context, ID);
         taskPart = new TaskPart(root);
         taskCommentsPart = new TaskCommentsPart(root);
-        taskRepository = new TaskRepository();
-        taskCommentsRepository = new TaskCommentsRepository();
-        var contextAccess = context.internalAccess();
-        contextAccess.register(taskRepository);
-        contextAccess.register(taskCommentsRepository);
         prepareAggregatePart();
     }
 

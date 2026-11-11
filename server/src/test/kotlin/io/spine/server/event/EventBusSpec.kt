@@ -50,8 +50,9 @@ internal class EventBusSpec {
 
     @BeforeEach
     fun createContext() {
-        context = BoundedContextBuilder.assumingTests().build()
-        context.internalAccess().registerEventDispatcher(monitor)
+        context = BoundedContextBuilder.assumingTests()
+            .addEventDispatcher(monitor)
+            .build()
     }
 
     @AfterEach

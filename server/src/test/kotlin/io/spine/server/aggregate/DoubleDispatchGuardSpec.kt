@@ -55,10 +55,10 @@ internal class DoubleDispatchGuardSpec {
     @BeforeEach
     fun setUp() {
         ModelTests.dropAllModels()
-        context = BoundedContextBuilder.assumingTests().build()
         repository = IgTestAggregateRepository()
-        context.internalAccess()
-            .register(repository)
+        context = BoundedContextBuilder.assumingTests()
+            .add(repository)
+            .build()
         projectId = ProjectId.generate()
     }
 

@@ -20,6 +20,7 @@ import io.grpc.stub.StreamObserver;
 import io.spine.base.Identifier;
 import io.spine.core.Ack;
 import io.spine.core.Event;
+import io.spine.server.BoundedContextBuilder;
 import io.spine.server.aggregate.given.repo.AnemicAggregateRepository;
 import io.spine.server.aggregate.given.repo.EventDiscardingAggregateRepository;
 import io.spine.server.aggregate.given.repo.FailingAggregateRepository;
@@ -63,6 +64,7 @@ import java.util.Set;
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.Messages.isNotDefault;
+import static io.spine.server.BoundedContextBuilder.assumingTests;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.context;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.givenAggregate;
 import static io.spine.server.aggregate.given.repo.AggregateRepositoryTestEnv.givenAggregateId;
@@ -87,15 +89,23 @@ class AggregateRepositoryTest {
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
-        resetBoundedContext();
         resetRepository();
-        context().internalAccess()
-                 .register(repository());
+        resetBoundedContext(assumingTests());
     }
 
     @AfterEach
     void tearDown() {
         context().close();
+    }
+
+    /**
+     * Replaces the context of the test with a new one, built by the given builder
+     * with a new test repository.
+     */
+    private static void rebuildContext(BoundedContextBuilder builder) {
+        context().close();
+        resetRepository();
+        resetBoundedContext(builder);
     }
 
     @Nested
@@ -302,8 +312,7 @@ class AggregateRepositoryTest {
         @DisplayName("on events")
         void onEvents() {
             var repository = new ReactingRepository();
-            context().internalAccess()
-                     .register(repository);
+            rebuildContext(assumingTests().add(repository));
 
             var parentId = givenAggregateId("parent");
             var childId = givenAggregateId("child");
@@ -342,11 +351,11 @@ class AggregateRepositoryTest {
         @Test
         @DisplayName("on rejections")
         void onRejections() {
-            var context = context();
-            var contextAccess = context.internalAccess();
-            contextAccess.register(new RejectingRepository());
             var repository = new RejectionReactingRepository();
-            contextAccess.register(repository);
+            rebuildContext(assumingTests()
+                    .add(new RejectingRepository())
+                    .add(repository));
+            var context = context();
 
             var parentId = givenAggregateId("rejectingParent");
             var childId1 = givenAggregateId("acceptingChild-1");
@@ -552,10 +561,10 @@ class AggregateRepositoryTest {
     @MuteLogging
     void doNothingWhenEventReactionFails() {
         var repository = new FailingAggregateRepository();
-        var contextAccess = context().internalAccess();
-        contextAccess.register(repository);
         var monitor = new DiagnosticMonitor();
-        contextAccess.registerEventDispatcher(monitor);
+        rebuildContext(assumingTests()
+                .add(repository)
+                .addEventDispatcher(monitor));
 
         var factory = TestEventFactory.newInstance(getClass());
 
@@ -585,10 +594,10 @@ class AggregateRepositoryTest {
     @DisplayName("not pass command rejection to `onError`")
     void notPassCommandRejectionToOnError() {
         var repository = new FailingAggregateRepository();
-        var contextAccess = context().internalAccess();
-        contextAccess.register(repository);
         var monitor = new DiagnosticMonitor();
-        contextAccess.registerEventDispatcher(monitor);
+        rebuildContext(assumingTests()
+                .add(repository)
+                .addEventDispatcher(monitor));
 
         // Passing negative long value to `FailingAggregate` should cause a rejection.
         var rejectNegative = RejectNegativeLong.newBuilder()
@@ -605,8 +614,7 @@ class AggregateRepositoryTest {
     @Test
     @DisplayName("not allow anemic aggregates")
     void notAllowAnemicAggregates() {
-        assertThrows(IllegalStateException.class,
-                     () -> context().internalAccess()
-                                    .register(new AnemicAggregateRepository()));
+        var builder = assumingTests().add(new AnemicAggregateRepository());
+        assertThrows(IllegalStateException.class, builder::build);
     }
 }

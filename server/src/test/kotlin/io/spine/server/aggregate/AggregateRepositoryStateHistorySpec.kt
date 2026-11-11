@@ -65,10 +65,10 @@ internal class AggregateRepositoryStateHistorySpec {
     @BeforeEach
     fun setUp() {
         ModelTests.dropAllModels()
-        context = BoundedContextBuilder.assumingTests().build()
         repository = StateHistoryTestRepository()
-        context.internalAccess()
-            .register(repository)
+        context = BoundedContextBuilder.assumingTests()
+            .add(repository)
+            .build()
         projectId = ProjectId.generate()
         HistoryReadingAggregate.statesSeenOnStart = emptyList()
     }
@@ -178,11 +178,10 @@ internal class AggregateRepositoryStateHistorySpec {
     fun `record the histories of tenants separately`() {
         // Close `context` first: it serves the entity state type of `StateHistoryTestRepository`.
         context.close()
+        val mtRepository = StateHistoryTestRepository()
         BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
+            .add(mtRepository)
             .build().use { mtContext ->
-                val mtRepository = StateHistoryTestRepository()
-                mtContext.internalAccess()
-                    .register(mtRepository)
                 mtRepository.enableStateHistory()
                 val alice = tenantId { value = "Alice" }
                 val bob = tenantId { value = "Bob" }
@@ -241,17 +240,17 @@ internal class AggregateRepositoryStateHistorySpec {
                 use(FailingHistoryFactory())
             }
         }
+        val failingRepository = StateHistoryTestRepository()
+        val observer = CreatedProjectsObserver()
         application {
             serverEnvironment = environment
-            add(BoundedContextBuilder.assumingTests())
+            add(
+                BoundedContextBuilder.assumingTests()
+                    .add(failingRepository)
+                    .addEventDispatcher(observer)
+            )
         }.use { failingApplication ->
             val failingContext = failingApplication.contexts().single()
-            val failingRepository = StateHistoryTestRepository()
-            failingContext.internalAccess()
-                .register(failingRepository)
-            val observer = CreatedProjectsObserver()
-            failingContext.internalAccess()
-                .registerEventDispatcher(observer)
             failingRepository.enableStateHistory()
             failingContext.commandBus()
                 .post(Given.ACommand.createProject(projectId), noOpObserver())

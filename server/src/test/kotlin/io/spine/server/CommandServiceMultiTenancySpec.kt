@@ -25,11 +25,10 @@ import org.junit.jupiter.api.Test
 @DisplayName("`CommandService` in a multi-tenant context should")
 class CommandServiceMultiTenancySpec : CommandServiceTenancyTest() {
 
-    override fun createContext(): BoundedContext {
-        val ctx = BoundedContextBuilder.assumingTests("Projects", /* multiTenant = */ true).build()
-        ctx.register(Given.ProjectAggregateRepository())
-        return ctx
-    }
+    override fun createContext(): BoundedContext =
+        BoundedContextBuilder.assumingTests("Projects", /* multiTenant = */ true)
+            .add(Given.ProjectAggregateRepository())
+            .build()
 
     @Test
     fun `return the tenant error case for a command without 'TenantId'`() {

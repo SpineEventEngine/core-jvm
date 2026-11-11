@@ -48,23 +48,31 @@ internal class PmEventHistorySpec {
 
     private lateinit var context: BoundedContext
     private lateinit var id: ProjectId
+    private val monitor = DiagnosticMonitor()
 
     @BeforeEach
     fun setUp() {
         ModelTests.dropAllModels()
-        context = BoundedContextBuilder.assumingTests().build()
         id = newProjectId()
     }
 
     @AfterEach
     fun tearDown() {
-        context.close()
+        if (::context.isInitialized) {
+            context.close()
+        }
         ModelTests.dropAllModels()
     }
 
+    /**
+     * Builds the context with the [monitor] and a new repository of the given journaling.
+     */
     private fun register(journaling: Boolean): JournalTestPmRepo {
         val repo = JournalTestPmRepo(journaling = journaling)
-        context.internalAccess().register(repo)
+        context = BoundedContextBuilder.assumingTests()
+            .add(repo)
+            .addEventDispatcher(monitor)
+            .build()
         return repo
     }
 
@@ -123,8 +131,6 @@ internal class PmEventHistorySpec {
     @MuteLogging
     fun `fail fast on the instance which just dispatched`() {
         val repo = register(journaling = false)
-        val monitor = DiagnosticMonitor()
-        context.internalAccess().registerEventDispatcher(monitor)
 
         repo.beginBatch(id)
         post(createProject(id))

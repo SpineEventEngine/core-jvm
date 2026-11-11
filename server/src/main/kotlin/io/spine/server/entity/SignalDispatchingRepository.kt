@@ -79,15 +79,13 @@ protected constructor() :
     private var eventStorage: EntityEventStorage<I>? = null
 
     /**
-     * Registers with the `CommandBus` for dispatching commands
-     * (via a [delegating dispatcher][io.spine.server.commandbus.DelegatingCommandDispatcher]),
-     * and sets up the routing of the commands.
+     * Registers this repository with the given context, as the parent class does, and sets up
+     * the routing of the commands it dispatches.
      *
-     * Before any of that, verifies that the configuration of this repository is
-     * consistent — e.g., that the [double-dispatch guard][useDoubleDispatchGuard],
-     * if enabled, has the [event journal][eventHistoryEnabled] it
-     * scans. The check precedes the registration side effects, so a misconfigured
-     * repository is never left subscribed to the buses of the context.
+     * Before any step of the registration, verifies that the configuration of this
+     * repository is consistent — e.g., that the [double-dispatch guard][useDoubleDispatchGuard],
+     * if enabled, has the [event journal][eventHistoryEnabled] it scans. So a misconfigured
+     * repository is left unregistered.
      *
      * @param context The `BoundedContext` of this repository.
      */

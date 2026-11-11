@@ -37,11 +37,11 @@ internal class DefaultConverterSpec {
 
     @BeforeEach
     fun setUp() {
-        context = BoundedContextBuilder.assumingTests().build()
         val repo: RecordBasedRepository<OrganizationId, TestEntity, Organization> =
             TestRepository()
-        context.internalAccess()
-            .register(repo)
+        context = BoundedContextBuilder.assumingTests()
+            .add(repo)
+            .build()
 
         val stateType = repo.entityModelClass().stateTypeUrl()
         converter = DefaultConverter(stateType, repo.entityFactory())

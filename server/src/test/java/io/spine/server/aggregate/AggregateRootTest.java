@@ -45,12 +45,12 @@ class AggregateRootTest {
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
-        context = BoundedContextBuilder.assumingTests().build();
+        context = BoundedContextBuilder.assumingTests()
+                .add(new ProjectDefinitionRepository())
+                .add(new ProjectLifeCycleRepository())
+                .build();
         var projectId = ProjectId.generate();
         aggregateRoot = new AggregateRootTestEnv.ProjectRoot(context, projectId);
-        var contextAccess = context.internalAccess();
-        contextAccess.register(new ProjectDefinitionRepository());
-        contextAccess.register(new ProjectLifeCycleRepository());
     }
 
     @AfterEach

@@ -91,17 +91,18 @@ internal class AggregateSpec {
     private lateinit var amishAggregate: AmishAggregate
     private lateinit var context: BoundedContext
     private lateinit var repository: TestAggregateRepository
+    private val monitor = DiagnosticMonitor()
 
     @BeforeEach
     fun setUp() {
         ModelTests.dropAllModels()
         aggregate = TestAggregate(ID)
         amishAggregate = AmishAggregate(ID)
-        context = BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
-            .build()
         repository = TestAggregateRepository()
-        context.internalAccess()
-            .register(repository)
+        context = BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
+            .add(repository)
+            .addEventDispatcher(monitor)
+            .build()
     }
 
     @AfterEach
@@ -486,10 +487,6 @@ internal class AggregateSpec {
     @Test
     @MuteLogging
     fun `throw 'DuplicateCommandException' for a duplicated command`() {
-        val monitor = DiagnosticMonitor()
-        context.internalAccess()
-            .registerEventDispatcher(monitor)
-
         val tenantId = newTenantId()
         val createCommand = command(createProject, tenantId)
         val envelope = CommandEnvelope.of(createCommand)
@@ -503,9 +500,6 @@ internal class AggregateSpec {
 
     @Test
     fun `run 'DoubleDispatchGuard' when dispatching commands`() {
-        val monitor = DiagnosticMonitor()
-        context.internalAccess()
-            .registerEventDispatcher(monitor)
         repository.enableGuard()
         val createCommand = command(createProject)
         val cmd = CommandEnvelope.of(createCommand)
@@ -521,9 +515,6 @@ internal class AggregateSpec {
 
     @Test
     fun `run 'DoubleDispatchGuard' when dispatching events`() {
-        val monitor = DiagnosticMonitor()
-        context.internalAccess()
-            .registerEventDispatcher(monitor)
         repository.enableGuard()
         val eventMessage = aggProjectDeleted { projectId = ID }
         val event = event(eventMessage, 2)

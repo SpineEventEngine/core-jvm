@@ -19,7 +19,6 @@ import io.spine.server.BoundedContextBuilder;
 import io.spine.test.system.server.MealOrder;
 import io.spine.test.system.server.OrderId;
 
-import static io.spine.system.server.SystemBoundedContexts.systemOf;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class SystemClientTestEnv {
@@ -30,12 +29,16 @@ public class SystemClientTestEnv {
     private SystemClientTestEnv() {
     }
 
-    public static BoundedContext contextWithSystemProjection() {
-        var context = BoundedContextBuilder.assumingTests().build();
-        var systemContext = systemOf(context);
-        systemContext.internalAccess()
-                     .register(new MealOrderRepository());
-        return context;
+    /**
+     * Creates a context with the projection of meal orders.
+     *
+     * <p>The projection subscribes to the events of meal orders, which are posted to
+     * the System context, and receives them from there.
+     */
+    public static BoundedContext contextWithMealOrders() {
+        return BoundedContextBuilder.assumingTests()
+                .add(new MealOrderRepository())
+                .build();
     }
 
     public static MealOrderProjection findProjection(OrderId projectionId, BoundedContext context) {

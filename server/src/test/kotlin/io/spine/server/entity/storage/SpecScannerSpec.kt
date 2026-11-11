@@ -34,10 +34,12 @@ import io.spine.base.Time.currentTime
 import io.spine.client.ResponseFormat
 import io.spine.core.Versions
 import io.spine.protobuf.AnyPacker
+import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.ContextSpec
 import io.spine.server.entity.AbstractEntityRepository
 import io.spine.server.entity.EntityRecord
+import io.spine.server.entity.Repository
 import io.spine.server.entity.TestTransaction
 import io.spine.server.entity.TransactionalEntity
 import io.spine.server.entity.entityRecord
@@ -217,14 +219,27 @@ internal class SpecScannerSpec : UtilityClassTest<SpecScanner>(SpecScanner::clas
 
         private val factory = InMemoryStorageFactory.newInstance()
         private val contextSpec = ContextSpec.singleTenant("`SpecScanner` tests")
-        private val context = BoundedContextBuilder.assumingTests().build()
+        private lateinit var context: BoundedContext
 
         /**
-         * Closes the context, which closes the repositories registered with it.
+         * Closes the context, if the test built one. This also closes the repositories
+         * registered with it.
          */
         @AfterEach
         fun closeContext() {
-            context.close()
+            if (::context.isInitialized) {
+                context.close()
+            }
+        }
+
+        /**
+         * Builds the context with the given repository.
+         */
+        private fun <R : Repository<*, *>> register(repository: R): R {
+            context = BoundedContextBuilder.assumingTests()
+                .add(repository)
+                .build()
+            return repository
         }
 
         @Test
@@ -255,8 +270,7 @@ internal class SpecScannerSpec : UtilityClassTest<SpecScanner>(SpecScanner::clas
 
         @Test
         fun `a repository`() {
-            val repository = TaskViewRepository()
-            context.internalAccess().register(repository)
+            val repository = register(TaskViewRepository())
 
             val packedStates = repository.storeRevisions(viewId, ::taskRevision)
 
@@ -267,8 +281,7 @@ internal class SpecScannerSpec : UtilityClassTest<SpecScanner>(SpecScanner::clas
 
         @Test
         fun `a repository of an entity without state-based columns`() {
-            val repository = PlainTaskRepository()
-            context.internalAccess().register(repository)
+            val repository = register(PlainTaskRepository())
 
             val packedStates = repository.storeRevisions(plainTaskId, ::plainTaskRevision)
 

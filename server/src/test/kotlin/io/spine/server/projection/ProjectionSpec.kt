@@ -144,11 +144,12 @@ internal class ProjectionSpec {
         @Suppress("UNCHECKED_CAST")
         val repository = DefaultRepository.of(SavingProjection::class.java)
                 as ProjectionRepository<String, SavingProjection, SavedString>
-        BoundedContextBuilder.assumingTests().build().use { context ->
-            val contextAccess = context.internalAccess()
-            contextAccess.register(repository)
-            val monitor = DiagnosticMonitor()
-            contextAccess.registerEventDispatcher(monitor)
+        val monitor = DiagnosticMonitor()
+        val context = BoundedContextBuilder.assumingTests()
+            .add(repository)
+            .addEventDispatcher(monitor)
+            .build()
+        context.use {
             val event = GivenEvent.arbitrary()
             val envelope = EventEnvelope.of(event)
             val endpoint = ProjectionEndpoint.of<String, SavingProjection, SavedString>(
