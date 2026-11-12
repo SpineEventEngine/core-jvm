@@ -31,7 +31,7 @@ import org.junit.jupiter.api.fail
 @DisplayName("`DefaultLog` should")
 internal class DefaultLogSpec : LoggingTest(DefaultLog::class.java, Level.INFO) {
 
-    private val log = DefaultLog()
+    private val log = DefaultLog
 
     private val event = unsupportedRequestRejected {
         request = refusedRequest {

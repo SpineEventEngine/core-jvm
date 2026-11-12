@@ -20,13 +20,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.spine.core.ErrorCase.INTERNAL_ERROR
 import io.spine.core.ErrorCase.TENANT_ERROR
-import io.spine.core.TenantId
 import io.spine.core.boundedContextName
 import io.spine.core.tenantId
 import io.spine.logging.Level.Companion.ERROR
 import io.spine.logging.Level.Companion.WARNING
 import io.spine.server.Application
 import io.spine.server.BoundedContextBuilder
+import io.spine.server.given.FailingIndex
 import io.spine.server.given.RecordingLog
 import io.spine.server.tenant.TenantIndex
 import io.spine.test.projection.Project
@@ -47,17 +47,19 @@ internal class TenantGateSpec {
         query = TestActorRequestFactory(TenantGateSpec::class.java, tenant).query()
             .all(Project::class.java)
     }
-    private var application: Application? = null
+    private lateinit var application: Application
 
     @AfterEach
     fun closeApplication() {
-        application?.close()
+        if (::application.isInitialized) {
+            application.close()
+        }
     }
 
     @Test
     fun `admit a registered tenant, describing nothing`() {
         val gate = gate()
-        application!!.tenantIndex().keep(tenant)
+        application.tenantIndex().keep(tenant)
 
         gate.check(tenant, context) { fail("The request must not be described.") }
             .shouldBeNull()
@@ -116,23 +118,5 @@ internal class TenantGateSpec {
         }
         application = app
         return TenantGate(app, "TestService")
-    }
-
-    /**
-     * The tenant index that fails to tell if it has a tenant.
-     */
-    private object FailingIndex : TenantIndex {
-
-        const val MESSAGE = "The tenant index is not available."
-
-        override fun keep(id: TenantId) = Unit
-
-        override fun contains(id: TenantId): Boolean = error(MESSAGE)
-
-        override fun all(): Set<TenantId> = emptySet()
-
-        override fun isOpen(): Boolean = true
-
-        override fun close() = Unit
     }
 }

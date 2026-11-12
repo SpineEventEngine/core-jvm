@@ -221,7 +221,6 @@ public abstract class BlackBox implements WithLogging, Closeable {
             "ChainOfInstanceofChecks" /* We allow passing `Object`s to simplify setup. */,
             "ConstantValue" /* Checking for `null` component in a `components` array. */
     })
-    // We allow passing `Object`s to simplify setup.
     public static BlackBox with(BoundedContextBuilder builder, Object... components) {
         checkNotNull(components);
         for (var c : components) {

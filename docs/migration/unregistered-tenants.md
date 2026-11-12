@@ -75,9 +75,9 @@ and an event is written as the name of its type, followed by its compact JSON fo
 example: `spine.server.app.UnsupportedRequestRejected {"request":{…},"reason":"…"}`.
 A request of a type unknown to the application cannot be written as JSON, so it is written as
 text, which names the type and the ID of the request.
-Since each record holds the refused request, the log holds the data the callers send.
 The logger belongs to the `io.spine.server.app` package, so a logging backend may route the
-records apart from the others by the name of the package.
+records apart from the others by the name of the package. Each record holds the refused request,
+so the log holds the data that the callers send.
 
 To write the records elsewhere, implement `ApplicationLog`, and set it when building
 the application:

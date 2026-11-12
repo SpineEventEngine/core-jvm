@@ -184,9 +184,9 @@ internal class QueryServiceErrorCaseSpec {
 
     @Test
     fun `record a problem for the tenant of the query`() {
-        serve(Given.ProjectDetailsRepository(), multiTenant = true)
+        val application = serve(Given.ProjectDetailsRepository(), multiTenant = true)
         val tenant = tenantId { value = "Tenant of the query" }
-        application!!.tenantIndex().keep(tenant)
+        application.tenantIndex().keep(tenant)
         val query = TestActorRequestFactory(javaClass, tenant).query()
             .all(Project::class.java)
         val invalid = query.toBuilder()
@@ -199,7 +199,16 @@ internal class QueryServiceErrorCaseSpec {
         monitor.tenantOfSingle() shouldBe tenant
     }
 
-    private fun serve(repository: Repository<*, *>, multiTenant: Boolean = false) {
+    /**
+     * Creates the application of one context with the given repository, and the service
+     * that serves its queries.
+     *
+     * @return The created application, which is closed after the test.
+     */
+    private fun serve(
+        repository: Repository<*, *>,
+        multiTenant: Boolean = false
+    ): Application {
         val app = testApplication {
             add(
                 BoundedContextBuilder.assumingTests(multiTenant)
@@ -209,6 +218,7 @@ internal class QueryServiceErrorCaseSpec {
         }
         application = app
         service = QueryService.of(app)
+        return app
     }
 
     private fun projectsQuery(): Query = requests.query().all(Project::class.java)

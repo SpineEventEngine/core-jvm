@@ -53,8 +53,8 @@ message RequestOfUnregisteredTenantRejected {
 // The gRPC services of an application refused a request because no Bounded Context of
 // the application serves it.
 //
-// The type of the request is known to the application, but internal to the framework,
-// or not served by any Bounded Context.
+// The type of the request is known to the application, but is either internal to
+// the framework or not served by any Bounded Context.
 //
 message UnsupportedRequestRejected {
 

@@ -21,7 +21,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.server.app.DefaultLog
 import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
@@ -299,7 +298,7 @@ internal class ApplicationSpec {
         @Test
         fun `which writes with Spine Logging, unless another log is set`() {
             applicationOf(serverEnvironment {}, BoundedContextBuilder.assumingTests()).use {
-                it.log().shouldBeInstanceOf<DefaultLog>()
+                it.log() shouldBeSameInstanceAs DefaultLog
             }
         }
 

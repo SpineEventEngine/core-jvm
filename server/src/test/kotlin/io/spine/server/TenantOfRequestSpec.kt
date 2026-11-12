@@ -34,7 +34,6 @@ import io.spine.core.ErrorCase.TENANT_ERROR
 import io.spine.core.ErrorCase.UNSUPPORTED_REQUEST
 import io.spine.core.Response
 import io.spine.core.Subscribe
-import io.spine.core.TenantId
 import io.spine.core.tenantId
 import io.spine.grpc.MemoizingObserver
 import io.spine.grpc.StreamObservers.memoizingObserver
@@ -43,6 +42,7 @@ import io.spine.server.app.RequestOfUnregisteredTenantRejected
 import io.spine.server.app.TenantCheckFailed
 import io.spine.server.app.UnsupportedRequestRejected
 import io.spine.server.event.AbstractEventSubscriber
+import io.spine.server.given.FailingIndex
 import io.spine.server.given.RecordingLog
 import io.spine.server.given.RequestEventMonitor
 import io.spine.server.given.errorCase
@@ -79,11 +79,13 @@ internal class TenantOfRequestSpec {
     private val tenant = tenantId { value = "Tenant of the request" }
     private val withTenant = TestActorRequestFactory(javaClass, tenant)
     private val withoutTenant = TestActorRequestFactory(javaClass)
-    private var application: Application? = null
+    private lateinit var application: Application
 
     @AfterEach
     fun closeApplication() {
-        application?.close()
+        if (::application.isInitialized) {
+            application.close()
+        }
     }
 
     @Nested inner class
@@ -132,7 +134,7 @@ internal class TenantOfRequestSpec {
         serve(multiTenant = true, index = FailingIndex)
         val observer = memoizingObserver<Ack>()
 
-        CommandService.of(application!!).post(command(), observer)
+        CommandService.of(application).post(command(), observer)
 
         observer.error.shouldNotBeNull().errorCase() shouldBe INTERNAL_ERROR
         log.single<TenantCheckFailed>()
@@ -280,7 +282,7 @@ internal class TenantOfRequestSpec {
             val subscription = Subscriptions.from(topic(withTenant))
             val observer = memoizingObserver<SubscriptionUpdate>()
 
-            SubscriptionService.of(application!!).activate(subscription, observer)
+            SubscriptionService.of(application).activate(subscription, observer)
 
             observer.error.shouldNotBeNull().errorCase() shouldBe TENANT_ERROR
             val (_, event) = log.single<RequestOfUnregisteredTenantRejected>()
@@ -365,10 +367,10 @@ internal class TenantOfRequestSpec {
         }
     }
 
-    private fun context(): BoundedContext = application!!.contexts().single()
+    private fun context(): BoundedContext = application.contexts().single()
 
     private fun register() {
-        application!!.tenantIndex().keep(tenant)
+        application.tenantIndex().keep(tenant)
     }
 
     private fun command(): Command =
@@ -382,7 +384,7 @@ internal class TenantOfRequestSpec {
 
     private fun post(command: Command): Ack {
         val observer = memoizingObserver<Ack>()
-        CommandService.of(application!!).post(command, observer)
+        CommandService.of(application).post(command, observer)
         return observer.firstResponse()
     }
 
@@ -393,36 +395,19 @@ internal class TenantOfRequestSpec {
      */
     private fun read(query: Query): Throwable? {
         val observer = memoizingObserver<QueryResponse>()
-        QueryService.of(application!!).read(query, observer)
+        QueryService.of(application).read(query, observer)
         return observer.error
     }
 
     private fun subscribe(topic: Topic): MemoizingObserver<Subscription> =
         memoizingObserver<Subscription>().also {
-            SubscriptionService.of(application!!).subscribe(topic, it)
+            SubscriptionService.of(application).subscribe(topic, it)
         }
 
     private fun cancel(subscription: Subscription): MemoizingObserver<Response> =
         memoizingObserver<Response>().also {
-            SubscriptionService.of(application!!).cancel(subscription, it)
+            SubscriptionService.of(application).cancel(subscription, it)
         }
-
-    /**
-     * The tenant index that fails to tell if it has a tenant.
-     */
-    private object FailingIndex : TenantIndex {
-
-        override fun keep(id: TenantId) = Unit
-
-        override fun contains(id: TenantId): Boolean =
-            error("The tenant index is not available.")
-
-        override fun all(): Set<TenantId> = emptySet()
-
-        override fun isOpen(): Boolean = true
-
-        override fun close() = Unit
-    }
 }
 
 /**

@@ -36,7 +36,12 @@ import io.spine.type.toCompactJson
  * ```
  */
 @LoggingDomain("Application")
-internal class DefaultLog : ApplicationLog {
+internal object DefaultLog : ApplicationLog {
+
+    /**
+     * The logger of the object, which applies its [LoggingDomain].
+     */
+    private val logger = loggerFor(DefaultLog::class)
 
     override fun log(level: Level, message: () -> String) {
         logger.at(level).log(message)
@@ -51,14 +56,6 @@ internal class DefaultLog : ApplicationLog {
      */
     override fun logEvent(level: Level, message: () -> String, event: () -> EventMessage) {
         logger.at(level).log { message() + System.lineSeparator() + event().printed() }
-    }
-
-    private companion object {
-
-        /**
-         * The logger of the class, which applies its [LoggingDomain].
-         */
-        private val logger = loggerFor(DefaultLog::class)
     }
 }
 

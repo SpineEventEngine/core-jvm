@@ -28,7 +28,7 @@ import io.spine.server.Application
  * Admits to the Bounded Contexts of an application only the requests of the tenants
  * registered in the application.
  *
- * Writes to the [log][Application.log] of the application each request that it refuses,
+ * It writes to the [log][Application.log] of the application each request that it refuses,
  * and each failure to tell if a tenant is registered.
  *
  * @param application The application whose tenants are admitted.
@@ -104,7 +104,7 @@ internal class TenantGate(
                 context?.let { this.context = it }
                 this.error = Errors.fromThrowable(failure)
                 this.reason = "`$service` failed the request, since the tenant index of" +
-                        " the application could not tell if it has the tenant: ${failure.message}"
+                        " the application could not tell if it has the tenant: $failure"
             }
         }
         return INTERNAL_ERROR

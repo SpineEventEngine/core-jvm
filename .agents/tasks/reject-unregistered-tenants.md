@@ -940,6 +940,15 @@ Added while implementing PR 2, within the decisions above:
   disagree because the subscription is created in one context's `Stand` directly, and the
   multi-tenant case registers its tenants.
 
+Added after the pre-PR review (2026-11-12):
+
+- The KDoc of `ApplicationLog` states that an implementation must be thread-safe and must not
+  throw: the services write to it concurrently, while they answer requests. `DefaultLog` is
+  an `object`, since it holds no state.
+- `io.spine.server.given.FailingIndex` serves the specs of the gate, which no longer use `!!`.
+- Base is `2.0.0-SNAPSHOT.465` (SpineEventEngine/base-libraries#971): `runKeepingFailure()`
+  lets Java callers ignore its result, so IDEA does not report them.
+
 ## Other aspects to discuss
 
 1. **Scope of the index.** Resolved by Q5: one index per application, held by

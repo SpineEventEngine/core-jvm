@@ -363,7 +363,7 @@ public class Application private constructor(
             thirdParty.forEach { party ->
                 party.attach(registry.all().first { it.name() == party.builder.name() })
             }
-            return Application(environment, registry, index, log ?: DefaultLog())
+            return Application(environment, registry, index, log ?: DefaultLog)
         }
 
         /**

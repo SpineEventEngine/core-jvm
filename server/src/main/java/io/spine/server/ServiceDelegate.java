@@ -439,7 +439,8 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
      * Explains why the service refused a request with the given error case.
      */
     private String explanation(ErrorCase errorCase, @Nullable String reason) {
-        return format("`%s` refused the request with `%s`. %s", serviceName(), errorCase, reason);
+        var refusal = format("`%s` refused the request with `%s`.", serviceName(), errorCase);
+        return reason == null ? refusal : refusal + ' ' + reason;
     }
 
     /**

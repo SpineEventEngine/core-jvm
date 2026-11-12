@@ -30,6 +30,10 @@ import io.spine.logging.Level
  * The arguments other than the level are functions, so that a record of a level that is not
  * enabled costs nothing. An implementation calls them only when it writes the record.
  *
+ * The services of the application write to the log concurrently, while they answer
+ * requests. So an implementation must be thread-safe, and must not throw: it handles
+ * a failure to write a record on its own, as Spine Logging does.
+ *
  * Unless the builder of the application is given another log, the application writes
  * with Spine Logging. The message of each record starts with `[Application]`, and
  * an event is written as the name of its type, followed by its compact JSON form.
