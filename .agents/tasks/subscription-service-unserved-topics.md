@@ -39,9 +39,9 @@ refuses the request only if none has it. Issue #1712.
       an invalid subscription when cancelling.
 - [x] `Stand.hasSubscription(Subscription)` under the tenant of the topic.
 - [x] `SubscriptionDelegate.serveNoContext()` shared by activation and cancellation.
-- [ ] Bump the version (`.702`, not breaking).
+- [x] Bump the version (`.702`, not breaking).
 - [x] Verify with `./gradlew check dokkaGenerate`.
-- [ ] `./gradlew build dokkaGenerate` after the bump.
+- [x] `./gradlew build dokkaGenerate` after the bump.
 
 ## Log
 
@@ -54,3 +54,5 @@ refuses the request only if none has it. Issue #1712.
   (1 skipped); `client` 186, `core` 188, `server-testlib` 163. Review fixes re-checked with
   the `SubscriptionService*` specs (47), `:server:detekt`, and `:server:dokkaGenerate`.
   Version bump and commits wait for the owner.
+- 2026-11-12 — bumped to `.702`; `./gradlew build dokkaGenerate` green with the same counts;
+  dependency reports updated.
