@@ -949,6 +949,15 @@ Added after the pre-PR review (2026-11-12):
 - Base is `2.0.0-SNAPSHOT.465` (SpineEventEngine/base-libraries#971): `runKeepingFailure()`
   lets Java callers ignore its result, so IDEA does not report them.
 
+Added after the review of the PR (#1727, 2026-11-12):
+
+- `BoundedContextBuilder.commandTypes()` counts the commands of the event dispatchers that
+  delegate the dispatching of commands to them too: a context registers them with its
+  `CommandBus`.
+- `CommandRequest.post()` reports the error case of a refused subscription to its events, for
+  example, of an unregistered tenant, to the server error handler, cancels the subscriptions
+  already made, and does not post the command, instead of letting the gRPC exception escape.
+
 ## Other aspects to discuss
 
 1. **Scope of the index.** Resolved by Q5: one index per application, held by

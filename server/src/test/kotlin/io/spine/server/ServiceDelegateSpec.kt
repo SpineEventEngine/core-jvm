@@ -28,6 +28,7 @@ import io.spine.core.ErrorCase.INVALID_REQUEST
 import io.spine.core.TenantId
 import io.spine.grpc.StreamObservers.memoizingObserver
 import io.spine.server.app.RefusedRequest
+import io.spine.server.given.RecordingLog
 import io.spine.server.given.errorCase
 import io.spine.system.server.event.QueryExecutionFailed
 import io.spine.testing.logging.mute.MuteLogging
@@ -41,11 +42,16 @@ import org.junit.jupiter.api.Test
 @DisplayName("`ServiceDelegate` should")
 internal class ServiceDelegateSpec {
 
+    private val log = RecordingLog()
+
     private lateinit var application: Application
 
     @BeforeEach
     fun createApplication() {
-        application = testApplication { add(BoundedContextBuilder.assumingTests()) }
+        application = testApplication {
+            applicationLog = log
+            add(BoundedContextBuilder.assumingTests())
+        }
     }
 
     @AfterEach
@@ -62,21 +68,33 @@ internal class ServiceDelegateSpec {
 
         observer.error.shouldNotBeNull().errorCase() shouldBe INVALID_REQUEST
     }
+
+    @Test
+    fun `explain a refusal that has no reason by the service and the error case only`() {
+        val observer = memoizingObserver<Empty>()
+
+        RefusingDelegate(application).serve(StringValue.of("A request"), observer, null)
+
+        observer.error.shouldNotBeNull().errorCase() shouldBe INVALID_REQUEST
+        log.records.single().message shouldBe
+                "`NoService` refused the request with `INVALID_REQUEST`."
+    }
 }
 
 /**
- * Rejects every request in the only context of the given application.
+ * Serves requests of the [StringValue] type in the only context of the given application.
  *
  * The tenant of a request is obtained once, for the check of the tenant. Then it cannot be
- * obtained, so the rejection cannot be recorded.
+ * obtained.
  */
-private class RejectingDelegate(application: Application) : ServiceDelegate<StringValue, Empty>(
-    NoService,
-    TypeDictionary.newBuilder()
-        .putAll(application.contexts().single()) { setOf(TypeUrl.of(StringValue::class.java)) }
-        .build(),
-    application
-) {
+private abstract class StubDelegate(application: Application) :
+    ServiceDelegate<StringValue, Empty>(
+        NoService,
+        TypeDictionary.newBuilder()
+            .putAll(application.contexts().single()) { setOf(TypeUrl.of(StringValue::class.java)) }
+            .build(),
+        application
+    ) {
 
     private var tenantObtained = false
 
@@ -101,6 +119,22 @@ private class RejectingDelegate(application: Application) : ServiceDelegate<Stri
     override fun failureEvent(request: StringValue, error: Error): EventMessage =
         QueryExecutionFailed.getDefaultInstance()
 
+    override fun serveNoContext(
+        request: StringValue,
+        observer: StreamObserver<Empty>,
+        params: Any?
+    ) {
+        refuseNotServed(request, observer)
+    }
+}
+
+/**
+ * Rejects every request in the only context of the given application.
+ *
+ * Since the tenant of the request cannot be obtained again, the rejection cannot be recorded.
+ */
+private class RejectingDelegate(application: Application) : StubDelegate(application) {
+
     override fun serve(
         context: BoundedContext,
         request: StringValue,
@@ -110,13 +144,20 @@ private class RejectingDelegate(application: Application) : ServiceDelegate<Stri
         val event = QueryExecutionFailed.getDefaultInstance()
         reject(context, request, event, INVALID_REQUEST, observer)
     }
+}
 
-    override fun serveNoContext(
+/**
+ * Refuses every request with no reason, before the only context of the given application.
+ */
+private class RefusingDelegate(application: Application) : StubDelegate(application) {
+
+    override fun serve(
+        context: BoundedContext,
         request: StringValue,
         observer: StreamObserver<Empty>,
         params: Any?
     ) {
-        refuseNotServed(request, observer)
+        refuse(request, INVALID_REQUEST, observer, null)
     }
 }
 

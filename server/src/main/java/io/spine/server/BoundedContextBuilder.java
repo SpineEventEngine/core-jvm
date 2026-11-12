@@ -571,17 +571,18 @@ public final class BoundedContextBuilder implements WithLogging {
      * Obtains the types of the commands that the context built by this builder is going
      * to handle.
      *
-     * <p>The commands are those of the repositories and the command dispatchers added to
-     * the builder by the time of the call.
+     * <p>The commands are those of the command dispatchers added to the builder by the time
+     * of the call, and of the repositories and the event dispatchers that delegate the
+     * dispatching of commands to them.
      */
     ImmutableSet<TypeUrl> commandTypes() {
-        var ofRepositories = repositories.stream()
+        var ofDelegates = Stream.concat(repositories.stream(), eventDispatchers.stream())
                 .filter(CommandDispatcherDelegate.class::isInstance)
                 .map(CommandDispatcherDelegate.class::cast)
-                .flatMap(repository -> repository.commandClasses().stream());
+                .flatMap(delegate -> delegate.commandClasses().stream());
         var ofDispatchers = commandDispatchers.stream()
                 .flatMap(dispatcher -> dispatcher.messageClasses().stream());
-        return Stream.concat(ofRepositories, ofDispatchers)
+        return Stream.concat(ofDelegates, ofDispatchers)
                 .map(MessageClass::typeUrl)
                 .collect(toImmutableSet());
     }

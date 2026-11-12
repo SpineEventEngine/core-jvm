@@ -1,27 +1,15 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.client;
@@ -32,8 +20,10 @@ import io.spine.core.Event;
 import io.spine.core.EventContext;
 import io.spine.core.UserId;
 import io.spine.logging.WithLogging;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
@@ -51,7 +41,7 @@ final class EventsAfterCommand implements WithLogging {
     private final Command command;
     private final MultiEventConsumers consumers;
 
-    static @NonNull ImmutableSet<Subscription>
+    static ImmutableSet<Subscription>
     subscribe(Client client,
               Command command,
               MultiEventConsumers consumers,
@@ -68,15 +58,26 @@ final class EventsAfterCommand implements WithLogging {
         this.consumers = checkNotNull(consumers);
     }
 
+    /**
+     * Subscribes the consumers to the events that originate from the command.
+     *
+     * <p>If subscribing to a topic fails, cancels the subscriptions made for the topics before
+     * it, and rethrows the failure.
+     */
     private ImmutableSet<Subscription> subscribeWith(@Nullable ErrorHandler errorHandler) {
         var topics = eventsOf(command);
         var observer = consumers.toObserver(errorHandler);
-        var subscriptions =
-                topics.stream()
-                      .map((topic) -> client.subscriptions()
-                                            .subscribeTo(topic, observer))
-                      .collect(toImmutableSet());
-        return subscriptions;
+        var subscriptions = client.subscriptions();
+        List<Subscription> made = new ArrayList<>();
+        try {
+            for (var topic : topics) {
+                made.add(subscriptions.subscribeTo(topic, observer));
+            }
+        } catch (RuntimeException e) {
+            made.forEach(subscriptions::cancel);
+            throw e;
+        }
+        return ImmutableSet.copyOf(made);
     }
 
     /**

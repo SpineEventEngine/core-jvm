@@ -44,6 +44,10 @@ application.tenantIndex()
 There is no switch that registers the tenants of incoming requests. Requests posted from within
 the server, such as the commands of a process manager, are not checked.
 
+A client of an unregistered tenant gets `TENANT_ERROR`. `CommandRequest.post()` reports it to
+the server error handler of the request, and returns an empty set without posting the command,
+since the server refuses to subscribe to the events of the command.
+
 ## 2. Create the services from the application
 
 `Server` creates the services from the application given to `Server.Builder.setApplication()`,

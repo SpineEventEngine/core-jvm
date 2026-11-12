@@ -93,4 +93,7 @@ internal abstract class AbstractClientTest {
     protected fun client(): Client {
         return client
     }
+
+    /** Obtains the application that the server exposes. */
+    protected fun application(): Application = application
 }

@@ -50,6 +50,7 @@ import io.spine.server.tenant.TenantIndex
 import io.spine.system.server.event.CommandReceived
 import io.spine.system.server.event.QueryTenantNotExpected
 import io.spine.system.server.event.QueryTenantNotSpecified
+import io.spine.system.server.event.SubscriptionTenantNotExpected
 import io.spine.system.server.event.SubscriptionTenantNotSpecified
 import io.spine.system.server.event.TopicTenantNotExpected
 import io.spine.system.server.event.TopicTenantNotSpecified
@@ -60,6 +61,7 @@ import io.spine.test.projection.Project
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
 import io.spine.testing.server.testApplication
+import io.spine.validation.NonValidated
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -309,6 +311,41 @@ internal class TenantOfRequestSpec {
 
             monitor.single<SubscriptionTenantNotSpecified>().id shouldBe subscription.id
         }
+
+        @Test
+        fun `with a tenant in a single-tenant context, recording the subscription`() {
+            serve(multiTenant = false)
+            val subscription = Subscriptions.from(topic(withTenant))
+
+            cancel(subscription).error.shouldNotBeNull().errorCase() shouldBe TENANT_ERROR
+
+            val event = monitor.single<SubscriptionTenantNotExpected>()
+            event.id shouldBe subscription.id
+            event.tenant shouldBe tenant
+        }
+
+        @Test
+        fun `to a topic that no context serves, of an unregistered tenant, naming no context`() {
+            serve(multiTenant = true)
+            val topic = withTenant.topic().allOf(CTaskCreated::class.java)
+            val subscription = Subscriptions.from(topic)
+
+            cancel(subscription).error.shouldNotBeNull().errorCase() shouldBe TENANT_ERROR
+
+            val (_, event) = log.single<RequestOfUnregisteredTenantRejected>()
+            event.request.subscriptionCancellation shouldBe subscription
+            event.hasContext() shouldBe false
+        }
+    }
+
+    @Test
+    fun `not check the tenant of a topic that no context serves, if no context is multi-tenant`() {
+        serve(multiTenant = false)
+        val topic = withTenant.topic().allOf(CTaskCreated::class.java)
+
+        subscribe(topic).error.shouldBeNull()
+
+        log.records.shouldBeEmpty()
     }
 
     @Nested inner class
@@ -347,6 +384,30 @@ internal class TenantOfRequestSpec {
             message shouldContain "spine.test.NoSuchType"
             message shouldContain query.id.value
         }
+
+        @Test
+        fun `a topic of a type unknown to the server as text, naming the type and the topic`() {
+            serve(multiTenant = false)
+            val topic = withUnknownTarget(topic(withoutTenant))
+
+            subscribe(topic).error.shouldNotBeNull().errorCase() shouldBe UNSUPPORTED_REQUEST
+
+            val message = log.records.single().message.shouldNotBeNull()
+            message shouldContain "spine.test.NoSuchType"
+            message shouldContain topic.id.value
+        }
+
+        @Test
+        fun `a subscription of a type unknown to the server as text, naming the subscription`() {
+            serve(multiTenant = false)
+            val subscription = Subscriptions.from(withUnknownTarget(topic(withoutTenant)))
+
+            cancel(subscription).error.shouldNotBeNull().errorCase() shouldBe UNSUPPORTED_REQUEST
+
+            val message = log.records.single().message.shouldNotBeNull()
+            message shouldContain "spine.test.NoSuchType"
+            message shouldContain subscription.id.value
+        }
     }
 
     /**
@@ -381,6 +442,14 @@ internal class TenantOfRequestSpec {
 
     private fun topic(requests: TestActorRequestFactory): Topic =
         requests.topic().allOf(Project::class.java)
+
+    /**
+     * Copies the given topic, targeting a type unknown to the server.
+     */
+    private fun withUnknownTarget(topic: Topic): @NonValidated Topic =
+        topic.toBuilder()
+            .setTarget(topic.target.toBuilder().setType("type.spine.io/spine.test.NoSuchType"))
+            .buildPartial()
 
     private fun post(command: Command): Ack {
         val observer = memoizingObserver<Ack>()

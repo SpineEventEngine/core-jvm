@@ -21,13 +21,18 @@ import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldNotBeInstanceOf
 import io.spine.server.commandbus.CommandDispatcher
+import io.spine.server.commandbus.CommandDispatcherDelegate
 import io.spine.server.commandbus.given.CommandDispatcherRegistryTestEnv.AddTaskDispatcher
 import io.spine.server.commandbus.given.CommandDispatcherRegistryTestEnv.CreateProjectAssignee
 import io.spine.server.commandbus.given.CommandDispatcherRegistryTestEnv.CreateProjectDispatcher
 import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.dispatch.DispatchOutcomes.successfulOutcome
+import io.spine.server.event.EventDispatcher
 import io.spine.server.type.CommandClass
 import io.spine.server.type.CommandEnvelope
+import io.spine.server.type.EventClass
+import io.spine.server.type.EventEnvelope
+import io.spine.test.commandbus.command.CmdBusCreateProject
 import io.spine.test.aggregate.command.AggCreateProject
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
@@ -68,6 +73,16 @@ internal class DuplicateCommandHandlerSpec {
             applicationOf(
                 context("First").add(Given.ProjectAggregateRepository()),
                 context("Second").addCommandDispatcher(CreateAggProject())
+            )
+        }
+    }
+
+    @Test
+    fun `count the commands that the event dispatchers of a context handle`() {
+        shouldThrow<DuplicateCommandHandlerException> {
+            applicationOf(
+                context("First").addEventDispatcher(CreateProjectDelegate()),
+                context("Second").addCommandDispatcher(CreateProjectDispatcher())
             )
         }
     }
@@ -125,6 +140,28 @@ internal class DuplicateCommandHandlerSpec {
             serverEnvironment = serverEnvironment {}
             contexts.forEach { add(it) }
         }.also(built::add)
+
+    /**
+     * An event dispatcher that handles the `CmdBusCreateProject` commands too, and so is
+     * registered with the `CommandBus` of its context.
+     */
+    private class CreateProjectDelegate : EventDispatcher, CommandDispatcherDelegate {
+
+        override fun messageClasses(): ImmutableSet<EventClass> = ImmutableSet.of()
+
+        override fun externalEventClasses(): ImmutableSet<EventClass> = ImmutableSet.of()
+
+        override fun domesticEventClasses(): ImmutableSet<EventClass> = ImmutableSet.of()
+
+        override fun dispatch(envelope: EventEnvelope): DispatchOutcome =
+            successfulOutcome(envelope)
+
+        override fun commandClasses(): ImmutableSet<CommandClass> =
+            CommandClass.setOf(CmdBusCreateProject::class.java)
+
+        override fun dispatchCommand(envelope: CommandEnvelope): DispatchOutcome =
+            successfulOutcome(envelope)
+    }
 
     /**
      * Handles the commands that the aggregates of `Given.ProjectAggregateRepository`
