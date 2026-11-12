@@ -25,10 +25,10 @@ tracked `branch` for the rest): `config` itself, plus every submodule that decla
 a tracked `branch` in `.gitmodules` (`.agents/shared`, and any shared submodule
 added later) — the same rule `./config/pull` uses to decide what it floats. It
 deliberately does not stop at the commit the superproject pins for such a
-submodule: nothing keeps that pin current — `ignore = all` hides the submodule from
-`git status`, and `./config/pull` floats the on-disk copy without committing the
-moved gitlink — so materializing the pin as-is means months-old hook scripts,
-skills, and guidelines. If the float fails — a branch the remote does not have,
+submodule: its pin moves only when a `./config/pull` is committed (`ignore = all`
+hides the submodule from `git status`, so only the pull stages its pointer), so
+materializing the pin means hook scripts, skills, and guidelines as old as the
+last committed pull. If the float fails — a branch the remote does not have,
 say — a warning is printed and the submodule is left wherever the steps that
 did succeed put it, at worst the pin, so a session still starts with a usable
 tree; it is not retried on a later run, which is why that warning points at

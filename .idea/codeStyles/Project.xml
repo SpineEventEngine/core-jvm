@@ -70,7 +70,7 @@
       <option name="DOWHILE_BRACE_FORCE" value="3" />
       <option name="WHILE_BRACE_FORCE" value="3" />
       <option name="FOR_BRACE_FORCE" value="3" />
-      <option name="BUILDER_METHODS" value="newBuilder,builder,toBuilder,create,stream,singleTenant,multitenant" />
+      <option name="BUILDER_METHODS" value="newBuilder,builder,toBuilder,create,stream,singleTenant,multitenant,multiTenant" />
       <option name="KEEP_BUILDER_METHODS_INDENTS" value="true" />
       <arrangement>
         <groups>

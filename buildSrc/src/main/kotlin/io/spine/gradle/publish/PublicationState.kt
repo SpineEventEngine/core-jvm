@@ -644,8 +644,9 @@ private fun Project.remoteRepositories(): List<MavenArtifactRepository> =
         ?.repositories
         ?.withType(MavenArtifactRepository::class.java)
         ?.filter { repository ->
-            // `getUrl()` returns `null` for an unset URL.
-            repository.url != null && repository.url.scheme in remoteSchemes
+            // Gradle declares `getUrl()` as non-null, yet it returns `null` for an unset URL.
+            val url: URI? = repository.url
+            url != null && url.scheme in remoteSchemes
         }
         .orEmpty()
 

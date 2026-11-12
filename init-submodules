@@ -30,14 +30,16 @@
 #
 # Such a submodule is initialized and then advanced to the tip of its tracked
 # branch, the way `./config/pull` floats it — NOT left at the commit the
-# superproject pins. That pin is not a version anyone maintains: `.gitmodules`
-# declares `ignore = all` for `.agents/shared`, which hides the submodule from
-# `git status` and `git diff`, and `./config/pull` floats the on-disk copy without
-# ever committing the moved gitlink. The pin therefore still holds the value it
-# had on the day the submodule was adopted; an audit of all 19 Spine consumer
-# repositories on 2026-10-16 found every one of them months stale. Materializing
-# it hands a fresh worktree, CI checkout, or cloud session hook scripts, skills,
-# and guidelines that are months out of date.
+# superproject pins. That pin moves only when a `./config/pull` is committed:
+# `.gitmodules` declares `ignore = all` for `.agents/shared`, which hides the
+# submodule from `git status` and `git diff`, so the pull stages the floated
+# pointer itself and nothing else does. Between pulls the pin lags behind the
+# branch tip, and in a repository whose last committed pull predates `./config/pull`
+# staging the pointer it still holds the value it had on the day the submodule was
+# adopted; an audit
+# of all 19 Spine consumer repositories on 2026-10-16 found every one of them
+# months stale. Materializing it would hand a fresh worktree, CI checkout, or
+# cloud session hook scripts, skills, and guidelines that are out of date.
 #
 # The submodule is initialized without its own submodules. Those are initialized
 # only after the float, at the commits the HEAD it ends on pins, whether or not
