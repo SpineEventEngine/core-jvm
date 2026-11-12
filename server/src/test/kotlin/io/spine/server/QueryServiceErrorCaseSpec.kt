@@ -42,6 +42,7 @@ import io.spine.test.client.tasks.CTask
 import io.spine.test.projection.Project
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
+import io.spine.testing.server.testApplication
 import io.spine.type.TypeUrl
 import io.spine.validation.NonValidated
 import org.junit.jupiter.api.AfterEach
@@ -59,12 +60,12 @@ internal class QueryServiceErrorCaseSpec {
 
     private val requests = TestActorRequestFactory(javaClass)
     private val monitor = RequestEventMonitor()
-    private var context: BoundedContext? = null
+    private var application: Application? = null
     private lateinit var service: QueryService
 
     @AfterEach
-    fun closeContext() {
-        context?.close()
+    fun closeApplication() {
+        application?.close()
     }
 
     @Nested inner class
@@ -185,6 +186,7 @@ internal class QueryServiceErrorCaseSpec {
     fun `record a problem for the tenant of the query`() {
         serve(Given.ProjectDetailsRepository(), multiTenant = true)
         val tenant = tenantId { value = "Tenant of the query" }
+        application!!.tenantIndex().keep(tenant)
         val query = TestActorRequestFactory(javaClass, tenant).query()
             .all(Project::class.java)
         val invalid = query.toBuilder()
@@ -198,12 +200,15 @@ internal class QueryServiceErrorCaseSpec {
     }
 
     private fun serve(repository: Repository<*, *>, multiTenant: Boolean = false) {
-        val ctx = BoundedContextBuilder.assumingTests(multiTenant)
-            .add(repository)
-            .addEventDispatcher(monitor)
-            .build()
-        context = ctx
-        service = QueryService.withSingle(ctx)
+        val app = testApplication {
+            add(
+                BoundedContextBuilder.assumingTests(multiTenant)
+                    .add(repository)
+                    .addEventDispatcher(monitor)
+            )
+        }
+        application = app
+        service = QueryService.of(app)
     }
 
     private fun projectsQuery(): Query = requests.query().all(Project::class.java)

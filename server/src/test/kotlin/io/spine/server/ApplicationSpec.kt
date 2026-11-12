@@ -21,8 +21,11 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.spine.server.app.DefaultLog
 import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
+import io.spine.server.given.RecordingLog
 import io.spine.server.integration.ThirdPartyContext
 import io.spine.server.tenant.TenantIndex
 import io.spine.server.tenant.given.InMemoryTenantIndex
@@ -173,18 +176,22 @@ internal class ApplicationSpec {
     `have a builder, whose Kotlin DSL properties` {
 
         @Test
-        fun `give the server environment and the tenant index once set`() {
+        fun `give the server environment, the tenant index, and the log once set`() {
             val environment = serverEnvironment {}
             val index = InMemoryTenantIndex()
+            val log = RecordingLog()
             val builder = Application.newBuilder()
             builder.serverEnvironment shouldBe null
             builder.tenantIndex shouldBe null
+            builder.applicationLog shouldBe null
 
             builder.serverEnvironment = environment
             builder.tenantIndex = index
+            builder.applicationLog = log
 
             builder.serverEnvironment shouldBeSameInstanceAs environment
             builder.tenantIndex shouldBeSameInstanceAs index
+            builder.applicationLog shouldBeSameInstanceAs log
         }
 
         @Test
@@ -196,6 +203,9 @@ internal class ApplicationSpec {
             }
             shouldThrow<IllegalArgumentException> {
                 builder.tenantIndex = null
+            }
+            shouldThrow<IllegalArgumentException> {
+                builder.applicationLog = null
             }
         }
     }
@@ -280,6 +290,31 @@ internal class ApplicationSpec {
             shouldThrow<IllegalStateException> {
                 second.build()
             }
+        }
+    }
+
+    @Nested inner class
+    `obtain the log` {
+
+        @Test
+        fun `which writes with Spine Logging, unless another log is set`() {
+            applicationOf(serverEnvironment {}, BoundedContextBuilder.assumingTests()).use {
+                it.log().shouldBeInstanceOf<DefaultLog>()
+            }
+        }
+
+        @Test
+        fun `which was set`() {
+            val log = RecordingLog()
+
+            Application.newBuilder()
+                .setServerEnvironment(serverEnvironment {})
+                .setApplicationLog(log)
+                .add(BoundedContextBuilder.assumingTests())
+                .build()
+                .use {
+                    it.log() shouldBeSameInstanceAs log
+                }
         }
     }
 

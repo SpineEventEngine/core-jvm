@@ -351,8 +351,9 @@ internal class RepeatedCatchUpSignalIgTest : AbstractCatchUpIgTest() {
                 .enableParallelPosting()
                 .useCustomPostingExecutor(systemEvents)
         }
-        context = build(builder)
-        return BlackBox.from(context)
+        val application = newApplication(builder)
+        context = application.contexts().single()
+        return BlackBox.from(application)
     }
 
     /**

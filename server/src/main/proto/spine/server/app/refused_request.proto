@@ -1,0 +1,57 @@
+/*
+ * Copyright 2026 CodeMatters, Lda.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
+
+syntax = "proto3";
+
+package spine.server.app;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+
+option java_package = "io.spine.server.app";
+option java_outer_classname = "RefusedRequestProto";
+option java_multiple_files = true;
+
+import "spine/core/command.proto";
+import "spine/client/query.proto";
+import "spine/client/subscription.proto";
+
+// A request to the gRPC services of an application that the services refused before
+// it reached a Bounded Context.
+message RefusedRequest {
+
+    // The refused request.
+    //
+    // The request may be invalid: it is refused before it is validated.
+    //
+    oneof request {
+        option (choice).required = true;
+
+        // A command posted to the `CommandService`.
+        core.Command command = 1;
+
+        // A query sent to the `QueryService`.
+        client.Query query = 2;
+
+        // A topic to which a client asked the `SubscriptionService` to subscribe.
+        client.Topic topic = 3;
+
+        // A subscription that a client asked the `SubscriptionService` to activate.
+        client.Subscription subscription_activation = 4;
+
+        // A subscription that a client asked the `SubscriptionService` to cancel.
+        client.Subscription subscription_cancellation = 5;
+    }
+}

@@ -44,8 +44,9 @@ import java.util.List;
  * storage factory}, the {@linkplain #nodeId() node}, and the {@code Delivery} of the test.
  *
  * <p>The test closes these applications after it completes, together with their environments,
- * which close the storage factory of the test. Closing a context or a black box during the test
- * leaves the storage factory open.
+ * which close the storage factory of the test. Closing a context during the test leaves
+ * the storage factory open. Closing a black box closes its application and environment, and so
+ * the storage factory of the test.
  */
 public abstract class AbstractDeliveryTest {
 
@@ -149,23 +150,33 @@ public abstract class AbstractDeliveryTest {
      * <p>The test closes the application after it completes.
      */
     public final BoundedContext build(BoundedContextBuilder builder) {
+        return newApplication(builder).contexts()
+                                      .get(0);
+    }
+
+    /**
+     * Creates a black box over the context of the given builder, the only context of
+     * a new application with a {@linkplain #newEnvironment() new environment} of the test.
+     *
+     * <p>Closing the black box closes the application, together with its environment.
+     */
+    public final BlackBox blackBox(BoundedContextBuilder builder) {
+        return BlackBox.from(newApplication(builder));
+    }
+
+    /**
+     * Creates a new application of the only context of the given builder,
+     * with a {@linkplain #newEnvironment() new environment} of the test.
+     *
+     * <p>The test closes the application after it completes.
+     */
+    public final Application newApplication(BoundedContextBuilder builder) {
         var application = Application.newBuilder()
                 .setServerEnvironment(newEnvironment())
                 .add(builder)
                 .build();
         applications.add(application);
-        return application.contexts()
-                          .get(0);
-    }
-
-    /**
-     * Creates a black box over the context of the given builder,
-     * {@linkplain #build(BoundedContextBuilder) built} with a new environment of the test.
-     *
-     * <p>Closing the black box closes only the context.
-     */
-    public final BlackBox blackBox(BoundedContextBuilder builder) {
-        return BlackBox.from(build(builder));
+        return application;
     }
 
     /**

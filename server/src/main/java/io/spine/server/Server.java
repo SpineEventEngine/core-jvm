@@ -14,7 +14,6 @@
 
 package io.spine.server;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.grpc.BindableService;
 import io.spine.annotation.VisibleForTesting;
@@ -247,35 +246,29 @@ public final class Server implements WithLogging {
         }
 
         /**
-         * Obtains the contexts of the application that is set at the moment.
+         * Obtains the application that is set at the moment.
          *
-         * <p>The builder does not keep them, so a builder that is reused with another
-         * application builds a server of that application.
+         * <p>The builder creates the services from it each time it builds a server, so
+         * a builder that is reused with another application builds a server of that
+         * application.
          */
-        private ImmutableSet<BoundedContext> contexts() {
+        private Application application() {
             checkState(application != null,
                        "The application of the server is not set." +
                                " Please call `setApplication()`.");
             checkState(application.isOpen(),
                        "The application of the server is closed.");
-            return ImmutableSet.copyOf(application.contexts());
+            return application;
         }
 
         /**
          * Creates a container for the Bounded Contexts of the server.
          */
         private GrpcContainer createContainer() {
-            var commandService = CommandService.newBuilder();
-            var queryService = QueryService.newBuilder();
-            var subscriptionService = SubscriptionService.newBuilder();
-            contexts().forEach(context -> {
-                commandService.add(context);
-                queryService.add(context);
-                subscriptionService.add(context);
-            });
-            this.queryService = queryService.build();
-            this.subscriptionService = subscriptionService.build();
-            this.commandService = commandService.build();
+            var application = application();
+            this.queryService = QueryService.of(application);
+            this.subscriptionService = SubscriptionService.of(application);
+            this.commandService = CommandService.of(application);
             var builder = createContainerBuilder();
             builder.addService(this.commandService)
                    .addService(this.queryService)

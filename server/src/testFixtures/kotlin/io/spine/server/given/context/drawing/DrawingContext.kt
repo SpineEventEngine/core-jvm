@@ -17,7 +17,6 @@ package io.spine.server.given.context.drawing
 import io.spine.base.EventMessage
 import io.spine.core.Subscribe
 import io.spine.protobuf.pack
-import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.given.context.drawing.Classifier.LIFECYCLE
 import io.spine.server.given.context.drawing.Classifier.LOCATION
@@ -55,9 +54,8 @@ import io.spine.server.route.Route
  * The routing methods "classify" the events by returning the name of the [Classifier] enum
  * item as the target entity ID(s).
  */
-fun drawingContext(): BoundedContext = BoundedContextBuilder.assumingTests("Drawing")
+fun drawingContext(): BoundedContextBuilder = BoundedContextBuilder.assumingTests("Drawing")
     .add(DrawingEvents::class.java)
-    .build()
 
 class DrawingEvents : Projection<String, Log, Log.Builder>() {
 

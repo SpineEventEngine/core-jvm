@@ -22,10 +22,11 @@ import io.spine.core.Status
 import io.spine.grpc.MemoizingObserver
 import io.spine.grpc.StreamObservers.memoizingObserver
 import io.spine.protobuf.isNotDefault
-import io.spine.server.given.service.GivenCommandService.noOpCommandService
 import io.spine.test.unpublished.command.Halt
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
+import io.spine.testing.server.testApplication
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -34,13 +35,20 @@ import org.junit.jupiter.api.Test
 @DisplayName("`CommandService` should prohibit using `internal_type` commands")
 internal class CommandServiceUnpublishedLanguageSpec {
 
+    private lateinit var application: Application
     private lateinit var service: CommandService
     private lateinit var observer: MemoizingObserver<Ack>
 
     @BeforeEach
     fun initServiceAndObserver() {
-        service = noOpCommandService()
+        application = testApplication { add(BoundedContextBuilder.assumingTests()) }
+        service = CommandService.of(application)
         observer = memoizingObserver()
+    }
+
+    @AfterEach
+    fun closeApplication() {
+        application.close()
     }
 
     @Test

@@ -22,6 +22,7 @@ import io.kotest.matchers.shouldBe
 import io.spine.base.Identifier.newUuid
 import io.spine.client.Subscription
 import io.spine.client.SubscriptionUpdate
+import io.spine.client.Subscriptions
 import io.spine.client.Topic
 import io.spine.client.copy
 import io.spine.core.ErrorCase.UNSUPPORTED_REQUEST
@@ -39,6 +40,7 @@ import io.spine.test.client.tasks.event.cTaskCreated
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
 import io.spine.testing.server.TestEventFactory
+import io.spine.testing.server.testApplication
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -49,25 +51,22 @@ import org.junit.jupiter.api.Test
  * Supplements `SubscriptionServiceTest` with the specs of a subscription to a topic whose
  * target type no Bounded Context serves.
  *
- * The service creates such a subscription in each context it knows. A context added to
- * several services may therefore have a subscription that the other contexts of a service
- * do not have.
+ * The service creates such a subscription in each context of its application. The contexts
+ * may still disagree, for example, when a subscription is created in one context directly.
+ * The service then serves the request only in the contexts that have the subscription.
  */
 @MuteLogging
 @DisplayName("`SubscriptionService`, for a topic that no context serves, should")
 internal class SubscriptionServiceUnservedTopicSpec {
 
     /**
-     * The contexts built by the current test.
-     *
-     * They are closed after each test, so that no context left open serves their entity types
-     * in the tests that run later.
+     * The applications built by the current test, closed after it.
      */
-    private val built = mutableListOf<BoundedContext>()
+    private val built = mutableListOf<Application>()
 
     @AfterEach
-    fun closeContexts() {
-        built.forEach(BoundedContext::closeIfOpen)
+    fun closeApplications() {
+        built.forEach(Application::closeIfOpen)
         built.clear()
     }
 
@@ -77,29 +76,30 @@ internal class SubscriptionServiceUnservedTopicSpec {
         private val requests = TestActorRequestFactory(javaClass)
 
         /**
-         * The context shared by two services.
+         * The context that has the subscription.
          */
         private lateinit var shared: BoundedContext
 
         /**
-         * The service with the shared context and another one.
+         * The service of the application of the shared context and another one.
          */
         private lateinit var both: SubscriptionService
 
         /**
-         * The subscription created through the service with only the shared context.
+         * The subscription created in the shared context only.
          */
         private lateinit var subscription: Subscription
 
         @BeforeEach
         fun subscribeInSharedContextOnly() {
-            shared = newContext(Given.ProjectAggregateRepository())
-            both = SubscriptionService.newBuilder()
-                .add(shared)
-                .add(newContext(Given.CustomerAggregateRepository()))
-                .build()
-            val sharedOnly = SubscriptionService.withSingle(shared)
-            subscription = subscribe(sharedOnly, taskEvents(requests))
+            val application = newApplication(
+                contextOf(Given.ProjectAggregateRepository()),
+                contextOf(Given.CustomerAggregateRepository())
+            )
+            shared = application.contexts().first()
+            both = SubscriptionService.of(application)
+            subscription = Subscriptions.from(taskEvents(requests))
+            shared.stand().subscribe(subscription)
         }
 
         @Test
@@ -128,14 +128,19 @@ internal class SubscriptionServiceUnservedTopicSpec {
 
         private val tenant = tenantId { value = "Tenant of the topic" }
         private val requests = TestActorRequestFactory(javaClass, tenant)
+        private lateinit var application: Application
         private lateinit var context: BoundedContext
         private lateinit var service: SubscriptionService
         private lateinit var subscription: Subscription
 
         @BeforeEach
         fun createSubscription() {
-            context = newContext(Given.ProjectAggregateRepository(), multitenant = true)
-            service = SubscriptionService.withSingle(context)
+            application = newApplication(
+                contextOf(Given.ProjectAggregateRepository(), multiTenant = true)
+            )
+            application.tenantIndex().keep(tenant)
+            context = application.contexts().single()
+            service = SubscriptionService.of(application)
             subscription = subscribe(service, taskEvents(requests))
         }
 
@@ -162,7 +167,9 @@ internal class SubscriptionServiceUnservedTopicSpec {
 
         @Test
         fun `refuse a subscription that only another tenant has`() {
-            val another = TestActorRequestFactory(javaClass, tenantId { value = "Another tenant" })
+            val anotherTenant = tenantId { value = "Another tenant" }
+            application.tenantIndex().keep(anotherTenant)
+            val another = TestActorRequestFactory(javaClass, anotherTenant)
             val ofAnotherTenant = subscription.copy { topic = taskEvents(another) }
 
             val updates = activate(service, ofAnotherTenant)
@@ -173,18 +180,20 @@ internal class SubscriptionServiceUnservedTopicSpec {
     }
 
     /**
-     * Creates a context with the given repository.
-     *
-     * The service knows only the contexts that expose a type, so each context has
-     * a repository of its own.
+     * Creates the builder of a context with the given repository.
      */
-    private fun newContext(
+    private fun contextOf(
         repository: Repository<*, *>,
-        multitenant: Boolean = false
-    ): BoundedContext =
-        BoundedContextBuilder.assumingTests(multitenant)
+        multiTenant: Boolean = false
+    ): BoundedContextBuilder =
+        BoundedContextBuilder.assumingTests(multiTenant)
             .add(repository)
-            .build()
+
+    /**
+     * Builds an application of the given contexts, which is closed after the test.
+     */
+    private fun newApplication(vararg contexts: BoundedContextBuilder): Application =
+        testApplication { contexts.forEach { add(it) } }
             .also(built::add)
 
     private fun taskEvents(requests: TestActorRequestFactory): Topic =

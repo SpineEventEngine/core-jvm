@@ -14,6 +14,7 @@
 
 package io.spine.server;
 
+import com.google.common.collect.ImmutableSet;
 import io.spine.annotation.Internal;
 import io.spine.base.EntityState;
 import io.spine.core.BoundedContextName;
@@ -42,7 +43,9 @@ import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.SystemClient;
 import io.spine.system.server.SystemContext;
+import io.spine.type.MessageClass;
 import io.spine.type.TypeName;
+import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -53,6 +56,7 @@ import java.util.function.Consumer;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static io.spine.server.security.Security.allowOnlyFrameworkServer;
 import static io.spine.util.Cleanup.runKeepingFailure;
 import static io.spine.util.Cleanup.throwIfAny;
@@ -454,6 +458,16 @@ public abstract class BoundedContext
         return result;
     }
 
+    /**
+     * Obtains the types of the commands that this Bounded Context handles.
+     */
+    ImmutableSet<TypeUrl> commandTypes() {
+        return commandBus.registeredCommandClasses()
+                         .stream()
+                         .map(MessageClass::typeUrl)
+                         .collect(toImmutableSet());
+    }
+
     /** Obtains instance of {@link CommandBus} of this {@code BoundedContext}. */
     public CommandBus commandBus() {
         return this.commandBus;
@@ -656,7 +670,6 @@ public abstract class BoundedContext
      *
      * <p>If it does, unregisters the probe, so that it is left not installed.
      */
-    @SuppressWarnings("ProhibitedExceptionThrown" /* Rethrowing what was caught. */)
     private static void checkNoRepositories(Probe probe, Set<EventDispatcher> dispatchers) {
         try {
             dispatchers.forEach(BoundedContext::checkNotRepository);

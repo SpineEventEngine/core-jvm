@@ -28,6 +28,9 @@ public interface TenantIndex extends Closeable {
 
     /**
      * Stores the passed tenant ID in the index.
+     *
+     * <p>An application calls this method when it has onboarded a tenant, before the tenant
+     * sends requests.
      */
     void keep(TenantId id);
 

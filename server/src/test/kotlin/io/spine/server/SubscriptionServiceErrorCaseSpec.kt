@@ -48,6 +48,7 @@ import io.spine.test.client.tasks.CTask
 import io.spine.test.client.tasks.event.CTaskCreated
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
+import io.spine.testing.server.testApplication
 import io.spine.type.TypeUrl
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -65,22 +66,27 @@ internal class SubscriptionServiceErrorCaseSpec {
 
     private val requests = TestActorRequestFactory(javaClass)
     private val monitor = RequestEventMonitor()
+    private lateinit var application: Application
     private lateinit var context: BoundedContext
     private lateinit var service: SubscriptionService
 
     @BeforeEach
     fun createService() {
-        context = BoundedContextBuilder.assumingTests()
-            .add(Given.ProjectAggregateRepository())
-            .add(SecretProjectRepository())
-            .addEventDispatcher(monitor)
-            .build()
-        service = SubscriptionService.withSingle(context)
+        application = testApplication {
+            add(
+                BoundedContextBuilder.assumingTests()
+                    .add(Given.ProjectAggregateRepository())
+                    .add(SecretProjectRepository())
+                    .addEventDispatcher(monitor)
+            )
+        }
+        context = application.contexts().single()
+        service = SubscriptionService.of(application)
     }
 
     @AfterEach
-    fun closeContext() {
-        context.close()
+    fun closeApplication() {
+        application.close()
     }
 
     @Nested inner class
@@ -306,9 +312,9 @@ internal class SubscriptionServiceErrorCaseSpec {
     }
 
     @Test
-    fun `refuse an invalid topic even if the service knows no context`() {
-        BoundedContextBuilder.assumingTests().build().use { empty ->
-            val noContexts = SubscriptionService.withSingle(empty)
+    fun `refuse an invalid topic that no context of the application serves`() {
+        testApplication { add(BoundedContextBuilder.assumingTests()) }.use { empty ->
+            val noContexts = SubscriptionService.of(empty)
             val invalid = requests.topic().allOf(CTaskCreated::class.java).toBuilder()
                 .clearId()
                 .buildPartial()

@@ -15,7 +15,7 @@
 package io.spine.server.given.context.fizzbuzz
 
 import io.spine.annotation.VisibleForTesting
-import io.spine.server.BoundedContext
+import io.spine.server.BoundedContextBuilder
 import io.spine.server.BoundedContextBuilder.assumingTests
 import io.spine.server.command.Assign
 import io.spine.server.event.NoReaction
@@ -31,7 +31,7 @@ import io.spine.server.procman.ProcessManager
 import io.spine.server.route.Route
 
 /**
- * Creates a toy context around the rules of
+ * Creates the builder of a toy context around the rules of
  * the [Fizz Buzz](https://en.wikipedia.org/wiki/Fizz_buzz) game.
  *
  * The purpose of the context is to test the command rounting based on a static method
@@ -39,9 +39,9 @@ import io.spine.server.route.Route
  *
  * @see io.spine.server.given.context.sorting.createSortingContext
  */
-fun createFizzBuzzContext(): BoundedContext = assumingTests("FizzBuzz").apply {
+fun createFizzBuzzContext(): BoundedContextBuilder = assumingTests("FizzBuzz").apply {
     add(NumberQualification::class.java)
-}.build()
+}
 
 /**
  * This process manager handles the [QualifyNumber] command and the [NumberQualified] event

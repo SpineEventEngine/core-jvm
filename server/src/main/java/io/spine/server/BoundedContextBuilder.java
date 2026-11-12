@@ -15,6 +15,7 @@
 package io.spine.server;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
@@ -28,6 +29,7 @@ import io.spine.server.bus.MessageDispatcher;
 import io.spine.server.command.AbstractAssignee;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcher;
+import io.spine.server.commandbus.CommandDispatcherDelegate;
 import io.spine.server.commandbus.CommandScheduler;
 import io.spine.server.delivery.Delivery;
 import io.spine.server.enrich.Enricher;
@@ -47,6 +49,8 @@ import io.spine.system.server.SystemClient;
 import io.spine.system.server.SystemContext;
 import io.spine.system.server.SystemSettings;
 import io.spine.system.server.SystemWriteSide;
+import io.spine.type.MessageClass;
+import io.spine.type.TypeUrl;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -56,9 +60,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static io.spine.core.BoundedContextNames.assumingTestsValue;
 import static io.spine.server.ContextSpec.multiTenant;
 import static io.spine.server.ContextSpec.singleTenant;
@@ -559,6 +565,25 @@ public final class BoundedContextBuilder implements WithLogging {
      */
     public ImmutableList<Repository<?, ?>> repositories() {
         return ImmutableList.copyOf(repositories);
+    }
+
+    /**
+     * Obtains the types of the commands that the context built by this builder is going
+     * to handle.
+     *
+     * <p>The commands are those of the repositories and the command dispatchers added to
+     * the builder by the time of the call.
+     */
+    ImmutableSet<TypeUrl> commandTypes() {
+        var ofRepositories = repositories.stream()
+                .filter(CommandDispatcherDelegate.class::isInstance)
+                .map(CommandDispatcherDelegate.class::cast)
+                .flatMap(repository -> repository.commandClasses().stream());
+        var ofDispatchers = commandDispatchers.stream()
+                .flatMap(dispatcher -> dispatcher.messageClasses().stream());
+        return Stream.concat(ofRepositories, ofDispatchers)
+                .map(MessageClass::typeUrl)
+                .collect(toImmutableSet());
     }
 
     /**

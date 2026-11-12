@@ -17,6 +17,7 @@ package io.spine.testing.server.blackbox;
 import io.spine.base.Identifier;
 import io.spine.client.Client;
 import io.spine.core.TenantId;
+import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.Closeable;
 import io.spine.server.CommandService;
@@ -36,12 +37,17 @@ import static io.spine.util.Exceptions.illegalStateWithCauseOf;
 import static java.util.Objects.isNull;
 
 /**
- * Creates {@code Client} instances for the passed Bounded Context.
+ * Creates {@code Client} instances for the only Bounded Context of the passed application.
  *
  * <p>As {@code Client} requires a gRPC server to be connected to, the factory assembles
  * and starts a {@link GrpcContainer}. The server and the created clients are working in-process.
  */
-class ClientFactory implements Closeable {
+final class ClientFactory implements Closeable {
+
+    /**
+     * The application whose services serve the created {@code Client} instances.
+     */
+    private final Application application;
 
     /**
      * The context to which this factory creates {@code Client} instances.
@@ -62,10 +68,11 @@ class ClientFactory implements Closeable {
 
     /**
      * Creates a factory producing {@code Client}s that would send their requests
-     * to the specified context.
+     * to the only context of the specified application.
      */
-    ClientFactory(BoundedContext context) {
-        this.context = context;
+    ClientFactory(Application application) {
+        this.application = application;
+        this.context = application.contexts().get(0);
         this.clients = new ArrayList<>();
     }
 
@@ -90,7 +97,7 @@ class ClientFactory implements Closeable {
     }
 
     private void ensureTenantMatch(@Nullable TenantId tenant) {
-        if(tenant == null) {
+        if (tenant == null) {
             checkState(!context.isMultiTenant(),
                        "The context `%s` is multi-tenant, " +
                                "it is not possible to create a `Client` with no tenant ID passed.",
@@ -117,9 +124,9 @@ class ClientFactory implements Closeable {
     }
 
     private void initServer() {
-        var commandService = CommandService.withSingle(context);
-        var queryService = QueryService.withSingle(context);
-        var subscriptionService = SubscriptionService.withSingle(context);
+        var commandService = CommandService.of(application);
+        var queryService = QueryService.of(application);
+        var subscriptionService = SubscriptionService.of(application);
 
         var serverName = "BlackBox-Server-" + Identifier.newUuid();
         var grpcContainer = GrpcContainer

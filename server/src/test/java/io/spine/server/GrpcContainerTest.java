@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server;
@@ -29,6 +17,8 @@ package io.spine.server;
 import io.grpc.ServerServiceDefinition;
 import io.spine.server.given.transport.TestGrpcServer;
 import io.spine.testing.logging.mute.MuteLogging;
+import io.spine.testing.server.TestApplications;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,7 +28,6 @@ import java.io.IOException;
 import java.util.Set;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.spine.server.given.service.GivenCommandService.noOpCommandService;
 import static io.spine.testing.TestValues.randomString;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -53,10 +42,24 @@ class GrpcContainerTest {
 
     private GrpcContainer grpcContainer;
 
+    /**
+     * The application of one context that handles no commands, for the services
+     * deployed by the tests.
+     */
+    private Application application;
+
     @BeforeEach
     void setUp() {
         grpcContainer = GrpcContainer.inProcess(randomString()).build();
         grpcContainer.injectServer(new TestGrpcServer());
+        application = TestApplications.newBuilder()
+                .add(BoundedContextBuilder.assumingTests())
+                .build();
+    }
+
+    @AfterEach
+    void closeApplication() {
+        application.close();
     }
 
     @SuppressWarnings("MagicNumber")
@@ -72,7 +75,7 @@ class GrpcContainerTest {
 
         var count = 3;
         for (var i = 0; i < count; i++) {
-            var service = noOpCommandService();
+            var service = CommandService.of(application);
             builder.addService(service);
         }
 
@@ -110,7 +113,7 @@ class GrpcContainerTest {
     @MuteLogging
     @DisplayName("configure underlying gRPC server")
     void configureUnderlyingGrpcServer() throws IOException {
-        var service = noOpCommandService();
+        var service = CommandService.of(application);
         var container = GrpcContainer
                 .atPort(0)
                 .withServer((server) -> server.addService(service))

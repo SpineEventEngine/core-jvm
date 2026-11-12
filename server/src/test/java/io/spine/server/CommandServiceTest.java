@@ -14,7 +14,6 @@
 
 package io.spine.server;
 
-import com.google.common.collect.Sets;
 import io.spine.base.Identifier;
 import io.spine.core.Ack;
 import io.spine.core.Command;
@@ -25,6 +24,7 @@ import io.spine.test.commandservice.command.CsSuspendProject;
 import io.spine.testing.TestValues;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.logging.mute.MuteLogging;
+import io.spine.testing.server.TestApplications;
 import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +33,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Set;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
@@ -48,45 +47,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DisplayName("`CommandService` should")
 class CommandServiceTest {
 
+    private Application application;
     private CommandService service;
-
-    private final Set<BoundedContext> boundedContexts = Sets.newHashSet();
-    private BoundedContext projectsContext;
-
-    private BoundedContext customersContext;
     private MemoizingObserver<Ack> responseObserver;
 
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
         responseObserver = memoizingObserver();
-        // Create Projects Bounded Context with one repository.
-        projectsContext = BoundedContextBuilder
+        // Create the Projects and Customers Bounded Contexts with one repository each.
+        var projects = BoundedContextBuilder
                 .assumingTests("Projects", /* multiTenant = */ true)
-                .add(new Given.ProjectAggregateRepository())
-                .build();
-        boundedContexts.add(projectsContext);
-
-        // Create Customers Bounded Context with one repository.
-        customersContext = BoundedContextBuilder
+                .add(new Given.ProjectAggregateRepository());
+        var customers = BoundedContextBuilder
                 .assumingTests("Customers", /* multiTenant = */ true)
-                .add(new Given.CustomerAggregateRepository())
+                .add(new Given.CustomerAggregateRepository());
+        application = TestApplications.newBuilder()
+                .add(projects)
+                .add(customers)
                 .build();
-        boundedContexts.add(customersContext);
 
-        // Expose two Bounded Contexts via an instance of {@code CommandService}.
-        var builder = CommandService.newBuilder();
-        for (var context : boundedContexts) {
-            builder.add(context);
-        }
-        service = builder.build();
+        // Expose the two Bounded Contexts via an instance of {@code CommandService}.
+        service = CommandService.of(application);
     }
 
     @AfterEach
     void tearDown() {
-        for (var boundedContext : boundedContexts) {
-            boundedContext.close();
-        }
+        application.close();
     }
 
     @Test
@@ -96,23 +83,9 @@ class CommandServiceTest {
         verifyPostsCommand(Given.ACommand.createCustomer());
     }
 
-    @Test
-    @DisplayName("never retrieve removed bounded contexts from builder")
-    void notRetrieveRemovedBc() {
-        var builder = CommandService.newBuilder()
-                .add(projectsContext)
-                .add(customersContext)
-                .remove(projectsContext);
-
-        // Create BoundedContext map.
-        var service = builder.build();
-        assertNotNull(service);
-
-        assertTrue(builder.contains(customersContext));
-        assertFalse(builder.contains(projectsContext));
-    }
-
     private void verifyPostsCommand(Command cmd) {
+        application.tenantIndex()
+                   .keep(cmd.tenant());
         MemoizingObserver<Ack> observer = memoizingObserver();
         service.post(cmd, observer);
 

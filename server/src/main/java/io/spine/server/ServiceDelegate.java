@@ -15,15 +15,22 @@
 package io.spine.server;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.protobuf.Message;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
 import io.spine.base.Error;
 import io.spine.base.Errors;
 import io.spine.base.EventMessage;
+import io.spine.base.Identifier;
+import io.spine.core.BoundedContextName;
 import io.spine.core.ErrorCase;
 import io.spine.core.Origin;
 import io.spine.core.TenantId;
 import io.spine.logging.WithLogging;
+import io.spine.server.app.ApplicationLog;
+import io.spine.server.app.RefusedRequest;
+import io.spine.server.app.TenantGate;
+import io.spine.server.app.UnsupportedRequestRejected;
 import io.spine.server.stand.InvalidRequestException;
 import io.spine.server.stand.UnsupportedRequestException;
 import io.spine.server.transport.Statuses;
@@ -38,7 +45,10 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.core.ErrorCase.INTERNAL_ERROR;
 import static io.spine.core.ErrorCase.INVALID_REQUEST;
+import static io.spine.core.ErrorCase.TENANT_ERROR;
 import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
+import static io.spine.logging.Level.WARNING;
+import static io.spine.protobuf.Messages.isNotDefault;
 import static io.spine.system.server.WriteSideFunction.delegatingTo;
 import static io.spine.type.MessageExtsKt.isInternal;
 import static io.spine.type.ProtoTexts.shortDebugString;
@@ -49,11 +59,21 @@ import static java.lang.String.format;
  *
  * <p>This class implements a {@linkplain #serve(Object, StreamObserver, Object) common way}
  * in which services work. Initially, each request is checked not to be for an unpublished part
- * of the domain language. Then, a service attempts to find a bounded context that would handle
- * the request. If found, the request is
- * {@linkplain #serve(BoundedContext, Object, StreamObserver, Object) dispatched} to
+ * of the domain language. Then, a service attempts to find a bounded context of the application
+ * that would handle the request. If found, the tenant of the request is checked, and the request
+ * is {@linkplain #serve(BoundedContext, Object, StreamObserver, Object) dispatched} to
  * the bounded context. Otherwise, the service
  * {@linkplain #serveNoContext(Object, StreamObserver, Object) handles} the request on its own.
+ *
+ * <p>The tenant of a request to a bounded context is checked in two ways:
+ *
+ * <ul>
+ *     <li>a request to a multi-tenant context must have a tenant, and a request to
+ *         a single-tenant context must have none, unless the context checks this
+ *         on its own;
+ *     <li>the tenant of a request to a multi-tenant context must be registered in
+ *         the {@linkplain Application#tenantIndex() tenant index} of the application.
+ * </ul>
  *
  * <p>The client receives only the {@linkplain ErrorCase kind} of a problem with the request:
  *
@@ -62,14 +82,18 @@ import static java.lang.String.format;
  *         internal to the server, unknown to it, or not served by any bounded context;
  *     <li>{@link ErrorCase#INVALID_REQUEST INVALID_REQUEST} for a request whose type cannot
  *         be read;
+ *     <li>{@link ErrorCase#TENANT_ERROR TENANT_ERROR} for a request whose tenant does not fit
+ *         the bounded context, or is not registered in the application;
  *     <li>the error case chosen by a bounded context that {@linkplain #reject rejects}
  *         the request;
  *     <li>{@link ErrorCase#INTERNAL_ERROR INTERNAL_ERROR} for an unexpected failure.
  * </ul>
  *
  * <p>A problem with a request that a bounded context serves is recorded as an event of
- * the System context of that bounded context. A request that reaches no bounded context is
- * only logged.
+ * the System context of that bounded context. A request refused before it reaches
+ * a bounded context, such as a request of an unregistered tenant, or a request that no
+ * bounded context serves, is written to the {@linkplain Application#log() log} of
+ * the application.
  *
  * @param <T>
  *         the type of the request handled by the service
@@ -83,13 +107,18 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
 
     private final BindableService service;
     private final TypeDictionary types;
+    private final Application application;
+    private final TenantGate gate;
 
     /**
-     * Creates a new instance with the reference to the parent service and served types.
+     * Creates a new instance with the reference to the parent service, the types it serves,
+     * and the application whose bounded contexts serve them.
      */
-    ServiceDelegate(BindableService service, TypeDictionary types) {
+    ServiceDelegate(BindableService service, TypeDictionary types, Application application) {
         this.service = checkNotNull(service);
         this.types = checkNotNull(types);
+        this.application = checkNotNull(application);
+        this.gate = new TenantGate(application, serviceName());
     }
 
     /**
@@ -103,7 +132,9 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
             type = enclosedMessageType(request);
             internal = isInternal(type.getMessageClass());
         } catch (UnknownTypeException e) {
-            refuse(request, UNSUPPORTED_REQUEST, observer, e.getMessage());
+            refuse(request, UNSUPPORTED_REQUEST, observer,
+                   format("%s The ID of the request: `%s`.",
+                          e.getMessage(), Identifier.toString(idOf(request))));
             return;
         } catch (RuntimeException e) {
             refuse(request, INVALID_REQUEST, observer,
@@ -111,8 +142,7 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
             return;
         }
         if (internal) {
-            refuse(request, UNSUPPORTED_REQUEST, observer,
-                   format("The type `%s` is internal.", type));
+            refuseUnsupported(request, observer, format("The type `%s` is internal.", type));
             return;
         }
         var context = find(type);
@@ -138,6 +168,42 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
      * <p>The events that record the problems with the request are posted for this tenant.
      */
     protected abstract TenantId tenantOf(T request);
+
+    /**
+     * Wraps the request into the message that describes it in
+     * the {@linkplain Application#log() log} of the application.
+     */
+    protected abstract RefusedRequest refusedRequest(T request);
+
+    /**
+     * Obtains the ID of the request.
+     *
+     * <p>Names the request in the log of the application when the request cannot be written
+     * there whole, because its type is unknown to the server.
+     */
+    protected abstract Message idOf(T request);
+
+    /**
+     * Creates the event that records a request that has no tenant, while the bounded context
+     * that serves it is multi-tenant.
+     *
+     * @return the event, or {@code null} if the bounded context checks the tenant of such
+     *         requests on its own, so that the request is passed to it
+     */
+    protected abstract @Nullable EventMessage tenantNotSpecified(T request);
+
+    /**
+     * Creates the event that records a request that has a tenant, while the bounded context
+     * that serves it is single-tenant.
+     *
+     * @param request
+     *         the request
+     * @param tenant
+     *         the tenant of the request
+     * @return the event, or {@code null} if the bounded context checks the tenant of such
+     *         requests on its own, so that the request is passed to it
+     */
+    protected abstract @Nullable EventMessage tenantNotExpected(T request, TenantId tenant);
 
     /**
      * Creates the event that records an unexpected failure to serve the request.
@@ -185,10 +251,11 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     /**
      * Handles the case when no bounded context was found for the incoming request.
      *
-     * <p>Implementations may {@linkplain #refuseNotServed refuse} the request. Nothing is
-     * recorded for such a request: {@link InvalidRequestException} and
-     * {@link UnsupportedRequestException} thrown by this method are answered with
-     * their error case, any other exception with {@link ErrorCase#INTERNAL_ERROR}.
+     * <p>Implementations may {@linkplain #refuseNotServed refuse} the request, and should
+     * {@linkplain #admittedToAll check} the tenant of a request that they serve.
+     * {@link InvalidRequestException} and {@link UnsupportedRequestException} thrown by this
+     * method are answered with their error case, any other exception with
+     * {@link ErrorCase#INTERNAL_ERROR}.
      */
     protected abstract void serveNoContext(T request,
                                            StreamObserver<R> observer,
@@ -226,18 +293,22 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     /**
      * Refuses the request that no bounded context serves.
      *
-     * <p>Answers with {@link ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST}.
+     * <p>Answers with {@link ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST}, and writes
+     * the request to the log of the application.
      */
     protected final void refuseNotServed(T request, StreamObserver<R> observer) {
         var type = enclosedMessageType(request);
-        refuse(request, UNSUPPORTED_REQUEST, observer,
-               format("No bounded context serves the type `%s`.", type));
+        refuseUnsupported(request, observer,
+                          format("No bounded context serves the type `%s`.", type));
     }
 
     private void serveIn(BoundedContext context,
                          T request,
                          StreamObserver<R> observer,
                          @Nullable Object params) {
+        if (!admitted(context, request, observer)) {
+            return;
+        }
         try {
             serve(context, request, observer, params);
         } catch (RuntimeException e) {
@@ -259,7 +330,7 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
         } catch (InvalidRequestException e) {
             refuse(request, INVALID_REQUEST, observer, e.getMessage());
         } catch (UnsupportedRequestException e) {
-            refuse(request, UNSUPPORTED_REQUEST, observer, e.getMessage());
+            refuseUnsupported(request, observer, e.getMessage());
         } catch (RuntimeException e) {
             logger().atError().withCause(e).log(() -> format(
                     "`%s` failed to serve a request in all bounded contexts.", serviceName()));
@@ -268,17 +339,129 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     }
 
     /**
-     * Refuses the request with the given error case, and records nothing.
+     * Checks the tenant of the request to the given bounded context.
      *
-     * <p>Logs the reason of the refusal.
+     * <p>Answers a request that does not pass with the error case of the problem.
+     *
+     * @return {@code true} if the request may be served
+     */
+    private boolean admitted(BoundedContext context, T request, StreamObserver<R> observer) {
+        var tenant = tenantOf(request);
+        var specified = isNotDefault(tenant);
+        if (context.isMultiTenant() != specified) {
+            var misfit = specified
+                         ? tenantNotExpected(request, tenant)
+                         : tenantNotSpecified(request);
+            if (misfit == null) {
+                return true;
+            }
+            reject(context, request, misfit, TENANT_ERROR, observer);
+            return false;
+        }
+        return !specified || registered(tenant, context.name(), request, observer);
+    }
+
+    /**
+     * Checks the tenant of the request that every bounded context of the application serves.
+     *
+     * <p>A request with a tenant is admitted only if the tenant is registered in
+     * the application. If the application has no multi-tenant bounded contexts, the tenant
+     * is not checked.
+     *
+     * <p>Answers a request that does not pass with the error case of the problem.
+     *
+     * @return {@code true} if the request may be served
+     */
+    protected final boolean admittedToAll(T request, StreamObserver<R> observer) {
+        var tenant = tenantOf(request);
+        if (!isNotDefault(tenant)) {
+            return true;
+        }
+        var multiTenant = application.contexts()
+                                     .stream()
+                                     .anyMatch(BoundedContext::isMultiTenant);
+        return !multiTenant || registered(tenant, null, request, observer);
+    }
+
+    /**
+     * Checks that the given tenant of the request is registered in the application.
+     *
+     * <p>Answers a request that does not pass with the error case of the problem.
+     *
+     * @param context
+     *         the name of the bounded context that serves the request, or {@code null}
+     *         if every context of the application serves it
+     * @return {@code true} if the tenant is registered
+     */
+    private boolean registered(TenantId tenant,
+                               @Nullable BoundedContextName context,
+                               T request,
+                               StreamObserver<R> observer) {
+        var errorCase = gate.check(tenant, context, () -> refusedRequest(request));
+        if (errorCase == null) {
+            return true;
+        }
+        respondWithError(request, errorCase, observer);
+        return false;
+    }
+
+    /**
+     * Refuses the request with the given error case without recording anything in
+     * the bounded contexts.
+     *
+     * <p>Writes the reason of the refusal to the log of the application as text. This is
+     * for a request that cannot be written there whole: its type cannot be read, or is
+     * unknown to the server, or the request fails validation before it reaches a bounded
+     * context.
      */
     protected final void refuse(T request,
                                 ErrorCase errorCase,
                                 StreamObserver<R> observer,
                                 @Nullable String reason) {
-        logger().atWarning().log(() -> format(
-                "`%s` refused a request with `%s`. %s", serviceName(), errorCase, reason));
+        log().log(WARNING, () -> explanation(errorCase, reason));
         respondWithError(request, errorCase, observer);
+    }
+
+    /**
+     * Refuses the request of a type that the server knows, but no bounded context serves.
+     *
+     * <p>Answers with {@link ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST}, and writes
+     * the event that describes the request, with the reason of the refusal, to the log of
+     * the application.
+     */
+    private void refuseUnsupported(T request, StreamObserver<R> observer, String reason) {
+        log().logEvent(WARNING,
+                       () -> unsupported(request, explanation(UNSUPPORTED_REQUEST, reason)));
+        respondWithError(request, UNSUPPORTED_REQUEST, observer);
+    }
+
+    /**
+     * Explains why the service refused a request with the given error case.
+     */
+    private String explanation(ErrorCase errorCase, @Nullable String reason) {
+        return format("`%s` refused the request with `%s`. %s", serviceName(), errorCase, reason);
+    }
+
+    /**
+     * Creates the event that describes the request that no bounded context serves.
+     *
+     * @param request
+     *         the refused request
+     * @param reason
+     *         why the request was refused
+     */
+    private UnsupportedRequestRejected unsupported(T request, String reason) {
+        return UnsupportedRequestRejected.newBuilder()
+                .setRequest(refusedRequest(request))
+                .setReason(reason)
+                .build();
+    }
+
+    /**
+     * Obtains the log of the application.
+     */
+    private ApplicationLog log() {
+        return application.log();
     }
 
     /**
@@ -331,9 +514,9 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     }
 
     /**
-     * Obtains all the bounded contexts known to the service.
+     * Obtains the bounded contexts of the application.
      */
     final ImmutableSet<BoundedContext> contexts() {
-        return ImmutableSet.copyOf(types.contexts());
+        return ImmutableSet.copyOf(application.contexts());
     }
 }

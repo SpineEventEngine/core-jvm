@@ -1,0 +1,148 @@
+/*
+ * Copyright 2026 CodeMatters, Lda.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
+
+syntax = "proto3";
+
+package spine.system.server;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+option (internal_all) = true;
+
+option java_package = "io.spine.system.server.event";
+option java_outer_classname = "TenantEventsProto";
+option java_multiple_files = true;
+
+import "spine/core/actor_context.proto";
+import "spine/core/tenant_id.proto";
+import "spine/client/query.proto";
+import "spine/client/subscription.proto";
+
+// An event emitted when the `QueryService` does not serve a query because the query has
+// no tenant, and the Bounded Context is multi-tenant.
+message QueryTenantNotSpecified {
+
+    // The ID of the query.
+    //
+    // The field is not required: the tenant is checked before the query is validated,
+    // so the query may have no ID.
+    //
+    client.QueryId id = 1;
+
+    // The actor context of the query.
+    //
+    // The field is not required: the tenant is checked before the query is validated.
+    //
+    core.ActorContext actor_context = 2;
+}
+
+// An event emitted when the `QueryService` does not serve a query because the query has
+// a tenant, and the Bounded Context is single-tenant.
+message QueryTenantNotExpected {
+
+    // The ID of the query.
+    //
+    // The field is not required: the tenant is checked before the query is validated,
+    // so the query may have no ID.
+    //
+    client.QueryId id = 1;
+
+    // The actor context of the query.
+    //
+    // The field is not required: the tenant is checked before the query is validated.
+    //
+    core.ActorContext actor_context = 2;
+
+    // The tenant of the query.
+    core.TenantId tenant = 3 [(required) = true];
+}
+
+// An event emitted when the `SubscriptionService` does not subscribe to a topic because
+// the topic has no tenant, and the Bounded Context is multi-tenant.
+message TopicTenantNotSpecified {
+
+    // The ID of the topic.
+    //
+    // The field is not required: the tenant is checked before the topic is validated,
+    // so the topic may have no ID.
+    //
+    client.TopicId id = 1;
+
+    // The actor context of the topic.
+    //
+    // The field is not required: the tenant is checked before the topic is validated.
+    //
+    core.ActorContext actor_context = 2;
+}
+
+// An event emitted when the `SubscriptionService` does not subscribe to a topic because
+// the topic has a tenant, and the Bounded Context is single-tenant.
+message TopicTenantNotExpected {
+
+    // The ID of the topic.
+    //
+    // The field is not required: the tenant is checked before the topic is validated,
+    // so the topic may have no ID.
+    //
+    client.TopicId id = 1;
+
+    // The actor context of the topic.
+    //
+    // The field is not required: the tenant is checked before the topic is validated.
+    //
+    core.ActorContext actor_context = 2;
+
+    // The tenant of the topic.
+    core.TenantId tenant = 3 [(required) = true];
+}
+
+// An event emitted when the `SubscriptionService` does not activate or cancel
+// a subscription because its topic has no tenant, and the Bounded Context is multi-tenant.
+message SubscriptionTenantNotSpecified {
+
+    // The ID of the subscription.
+    //
+    // The field is not required: the tenant is checked before the subscription is validated,
+    // so the subscription may have no ID.
+    //
+    client.SubscriptionId id = 1;
+
+    // The actor context of the topic of the subscription.
+    //
+    // The field is not required: the tenant is checked before the subscription is validated.
+    //
+    core.ActorContext actor_context = 2;
+}
+
+// An event emitted when the `SubscriptionService` does not activate or cancel
+// a subscription because its topic has a tenant, and the Bounded Context is single-tenant.
+message SubscriptionTenantNotExpected {
+
+    // The ID of the subscription.
+    //
+    // The field is not required: the tenant is checked before the subscription is validated,
+    // so the subscription may have no ID.
+    //
+    client.SubscriptionId id = 1;
+
+    // The actor context of the topic of the subscription.
+    //
+    // The field is not required: the tenant is checked before the subscription is validated.
+    //
+    core.ActorContext actor_context = 2;
+
+    // The tenant of the topic of the subscription.
+    core.TenantId tenant = 3 [(required) = true];
+}

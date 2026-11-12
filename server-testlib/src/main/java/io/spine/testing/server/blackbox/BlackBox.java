@@ -89,10 +89,8 @@ public abstract class BlackBox implements WithLogging, Closeable {
 
     /**
      * The application of the context under the test, which this black box closes.
-     *
-     * <p>{@code null} if the black box is created over a context alone.
      */
-    private @Nullable Application application;
+    private final Application application;
 
     /**
      * The probe inserted into the context under test.
@@ -126,16 +124,6 @@ public abstract class BlackBox implements WithLogging, Closeable {
     private final Set<Event> postedEvents;
 
     /**
-     * Creates a new instance obtaining configuration parameters from the given context instance.
-     */
-    public static BlackBox from(BoundedContext context) {
-        var box = context.isMultiTenant()
-                  ? new MtBlackBox(context)
-                  : new StBlackBox(context);
-        return box;
-    }
-
-    /**
      * Creates a new instance obtaining configuration parameters from the passed builder.
      *
      * <p>The context is the only context of a new {@link Application}, whose server
@@ -163,8 +151,9 @@ public abstract class BlackBox implements WithLogging, Closeable {
         checkArgument(contexts.size() == 1,
                       "A black box needs an application of one context," +
                               " but the application has %s contexts.", contexts.size());
-        var box = from(contexts.get(0));
-        box.application = application;
+        var box = contexts.get(0).isMultiTenant()
+                  ? new MtBlackBox(application)
+                  : new StBlackBox(application);
         return box;
     }
 
@@ -202,7 +191,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * <p>The components can be either {@link Repository} or {@link Entity} classes.
      *
      * <p>For creating a test environment with other components, please use
-     * {@link BoundedContextBuilder} and then {@link #from(BoundedContext)}.
+     * {@link BoundedContextBuilder} and then {@link #from(BoundedContextBuilder)}.
      *
      * @param multiTenant
      *         whether the context under test is multi-tenant
@@ -221,14 +210,18 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * <p>The components can be either {@link Repository} or {@link Entity} classes.
      *
      * <p>For creating a test environment with other components, please use
-     * {@link BoundedContextBuilder} and then {@link #from(BoundedContext)}.
+     * {@link BoundedContextBuilder} and then {@link #from(BoundedContextBuilder)}.
      *
      * @param builder
      *         the context builder to use for creating the context under test
      * @param components
      *         repositories or entity classes to be added to the context under test
      */
-    @SuppressWarnings("ChainOfInstanceofChecks") // We allow passing `Object`s to simplify setup.
+    @SuppressWarnings({
+            "ChainOfInstanceofChecks" /* We allow passing `Object`s to simplify setup. */,
+            "ConstantValue" /* Checking for `null` component in a `components` array. */
+    })
+    // We allow passing `Object`s to simplify setup.
     public static BlackBox with(BoundedContextBuilder builder, Object... components) {
         checkNotNull(components);
         for (var c : components) {
@@ -255,12 +248,16 @@ public abstract class BlackBox implements WithLogging, Closeable {
         return result;
     }
 
-    BlackBox(BoundedContext context) {
+    /**
+     * Creates a new instance over the only context of the given application.
+     */
+    BlackBox(Application application) {
         super();
-        this.context = context;
+        this.application = application;
+        this.context = application.contexts().get(0);
         this.probe = new BlackboxProbe();
         context.install(probe);
-        this.clientFactory = new ClientFactory(context);
+        this.clientFactory = new ClientFactory(application);
         this.actor = defaultActor();
         this.postedCommands = synchronizedSet(new HashSet<>());
         this.postedEvents = synchronizedSet(new HashSet<>());
@@ -320,6 +317,13 @@ public abstract class BlackBox implements WithLogging, Closeable {
     @VisibleForTesting
     final BoundedContext context() {
         return context;
+    }
+
+    /**
+     * Obtains the application of the context under test.
+     */
+    final Application application() {
+        return application;
     }
 
     /**
@@ -526,8 +530,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      *
      * <p>This method performs the following:
      * <ol>
-     *     <li>Closes the tested {@link BoundedContext}, or its {@link Application}, if
-     *         the black box was created from an application or a {@link BoundedContextBuilder}.
+     *     <li>Closes the {@link Application} of the tested {@link BoundedContext}.
      *     <li>Closes the associated {@link io.spine.client.Client Client}s.
      * </ol>
      *
@@ -536,11 +539,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      */
     @Override
     public final void close() {
-        if (application != null) {
-            application.closeIfOpen();
-        } else {
-            context.closeIfOpen();
-        }
+        application.closeIfOpen();
         clientFactory.closeIfOpen();
     }
 
@@ -552,7 +551,6 @@ public abstract class BlackBox implements WithLogging, Closeable {
     /**
      * Obtains the request factory to operate with.
      */
-    @SuppressWarnings("TestOnlyProblems")   /* `TestActorRequestFactory` is not test-only. */
     abstract TestActorRequestFactory requestFactory();
 
     /**
@@ -644,7 +642,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
 
     @VisibleForTesting
     final Repository<?, ?> repositoryOf(Class<? extends EntityState<?>> stateClass) {
-        Repository<?, ?> repository =
+        var repository =
                 context.internalAccess()
                        .getRepository(stateClass);
         return repository;
@@ -667,9 +665,9 @@ public abstract class BlackBox implements WithLogging, Closeable {
     }
 
     /**
-     * Asserts that there is an entity with the passed ID and the passed state.
+     * Asserts that there is an entity with the given ID and the given state.
      *
-     * <p>The method compares only fields in the passed state.
+     * <p>The method compares only fields in the given state.
      */
     public final <I, S extends EntityState<I>> void assertState(I id, S entityState) {
         checkNotNull(id);
@@ -721,12 +719,9 @@ public abstract class BlackBox implements WithLogging, Closeable {
     /**
      * Obtains the subject for checking the {@code Query} execution result.
      */
-    @SuppressWarnings("TestOnlyProblems")   /* `QueryResultSubject` is not test-only. */
     public QueryResultSubject assertQueryResult(Query query) {
         MemoizingObserver<QueryResponse> observer = memoizingObserver();
-        var service = QueryService.newBuilder()
-                .add(context)
-                .build();
+        var service = QueryService.of(application);
         service.read(query, observer);
         assertTrue(observer.isCompleted());
 
@@ -742,7 +737,7 @@ public abstract class BlackBox implements WithLogging, Closeable {
      * @return a fixture for testing subscription updates.
      */
     public SubscriptionFixture subscribeTo(Topic topic) {
-        var result = new SubscriptionFixture(context, topic);
+        var result = new SubscriptionFixture(application, topic);
         result.activate();
         return result;
     }
