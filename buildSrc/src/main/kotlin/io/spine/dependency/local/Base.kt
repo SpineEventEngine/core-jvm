@@ -24,7 +24,7 @@ package io.spine.dependency.local
     "unused" /* Some subprojects do not use all Base artifacts. */,
 )
 object Base {
-    const val version = "2.0.0-SNAPSHOT.464"
+    const val version = "2.0.0-SNAPSHOT.465"
     const val versionForBuildScript = "2.0.0-SNAPSHOT.463"
     const val group = Spine.group
     private const val prefix = "spine"
