@@ -214,6 +214,18 @@ internal class SubscriptionServiceErrorCaseSpec {
 
             monitor.events.shouldBeEmpty()
         }
+
+        @Test
+        fun `cancelling, if it fails validation`() {
+            val invalid = unknownSubscription(requests.topic().allOf(CTaskCreated::class.java))
+                .toBuilder()
+                .clearId()
+                .buildPartial()
+
+            cancel(invalid).errorCase() shouldBe INVALID_REQUEST
+
+            monitor.events.shouldBeEmpty()
+        }
     }
 
     @Test
@@ -290,7 +302,7 @@ internal class SubscriptionServiceErrorCaseSpec {
         cancellation.error shouldBe null
         cancellation.firstResponse().status.hasOk() shouldBe true
         cancellation.isCompleted shouldBe true
-        context.stand().hasSubscription(subscription.id) shouldBe false
+        context.stand().hasSubscription(subscription) shouldBe false
     }
 
     @Test

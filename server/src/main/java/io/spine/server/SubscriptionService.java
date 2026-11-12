@@ -314,6 +314,51 @@ public final class SubscriptionService
         }
 
         /**
+         * Serves the request in those Bounded Contexts known to this service that have
+         * the subscription.
+         *
+         * <p>No Bounded Context serves the message targeted in the subscription. Therefore,
+         * upon subscribing, the subscription
+         * {@linkplain SubscriptionImpl#serveNoContext(Topic, StreamObserver, Object) was created}
+         * in each context known to the service that handled the subscribing. Another service
+         * may know other contexts, which do not have the subscription.
+         *
+         * <p>A subscription that fails validation is refused with
+         * {@link io.spine.core.ErrorCase#INVALID_REQUEST INVALID_REQUEST}. If no context has
+         * the subscription, the request is {@linkplain #refuseNotServed refused}.
+         *
+         * @implNote The original {@code observer} is only fed with an acknowledgement once
+         *         after the request is served in each Bounded Context.
+         *         This is because it is not possible to call {@code onCompleted()}
+         *         several times, which would happen should we pass
+         *         the original {@code observer} to each Bounded Context.
+         */
+        @Override
+        protected final void serveNoContext(Subscription subscription,
+                                            StreamObserver<Response> observer,
+                                            @Nullable Object params) {
+            var violations = Validate.violationsOf(subscription);
+            if (!violations.isEmpty()) {
+                refuse(subscription, INVALID_REQUEST, observer, ViolationText.ofAll(violations));
+                return;
+            }
+            var holders = contexts().stream()
+                    .filter(context -> context.stand()
+                                              .hasSubscription(subscription))
+                    .collect(toImmutableList());
+            if (holders.isEmpty()) {
+                refuseNotServed(subscription, observer);
+                return;
+            }
+            var gatheringObserver = StreamObservers.<Response>memoizingObserver();
+            for (var context : holders) {
+                serveBy(context.stand(), subscription, gatheringObserver, params);
+            }
+            observer.onNext(gatheringObserver.firstResponse());
+            observer.onCompleted();
+        }
+
+        /**
          * Serves the request with the given {@code Stand}.
          */
         abstract void serveBy(Stand stand,
@@ -369,24 +414,6 @@ public final class SubscriptionService
                     .setActorContext(actorOf(subscription))
                     .build();
         }
-
-        /**
-         * Activates the subscription in each Bounded Context known to this service.
-         *
-         * <p>Such a use case means that it was not possible to detect a Bounded Context
-         * serving the message targeted in the subscription. Thus, upon subscribing,
-         * the subscription
-         * {@linkplain SubscriptionImpl#serveNoContext(Topic, StreamObserver, Object) was created}
-         * in each known Bounded Context.
-         */
-        @Override
-        protected void serveNoContext(Subscription subscription,
-                                      StreamObserver<Response> observer,
-                                      @Nullable Object params) {
-            contexts().forEach(
-                    context -> serveBy(context.stand(), subscription, observer, params)
-            );
-        }
     }
 
     private static final class CancellationImpl extends SubscriptionDelegate {
@@ -409,45 +436,6 @@ public final class SubscriptionService
                     .setId(subscription.getId())
                     .setActorContext(actorOf(subscription))
                     .build();
-        }
-
-        /**
-         * Performs the cancellation of the subscription.
-         *
-         * <p>Such a use case means that it was not possible to detect a Bounded Context
-         * serving the message targeted in the subscription. Thus, upon subscribing,
-         * the subscription
-         * {@linkplain SubscriptionImpl#serveNoContext(Topic, StreamObserver, Object) was created}
-         * in each known Bounded Context.
-         *
-         * <p>Therefore, the cancellation is also performed in each Bounded Context known
-         * to this service, which has the subscription. If none has it, the request is
-         * {@linkplain #refuseNotServed refused}.
-         *
-         * @implNote The original {@code observer} is only fed with an acknowledgement once
-         *         after the subscription is cancelled in each Bounded Context.
-         *         This is because it is not possible to call {@code onCompleted()}
-         *         several times, which would happen should we run
-         *         the original {@code observer} through a default cancellation procedure.
-         */
-        @Override
-        protected void serveNoContext(Subscription subscription,
-                                      StreamObserver<Response> observer,
-                                      @Nullable Object params) {
-            var holders = contexts().stream()
-                    .filter(context -> context.stand()
-                                              .hasSubscription(subscription.getId()))
-                    .collect(toImmutableList());
-            if (holders.isEmpty()) {
-                refuseNotServed(subscription, observer);
-                return;
-            }
-            var gatheringObserver = StreamObservers.<Response>memoizingObserver();
-            for (var context : holders) {
-                serveBy(context.stand(), subscription, gatheringObserver, params);
-            }
-            observer.onNext(gatheringObserver.firstResponse());
-            observer.onCompleted();
         }
     }
 

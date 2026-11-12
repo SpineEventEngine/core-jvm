@@ -23,7 +23,6 @@ import io.spine.client.EntityStateWithVersion;
 import io.spine.client.Query;
 import io.spine.client.QueryResponse;
 import io.spine.client.Subscription;
-import io.spine.client.SubscriptionId;
 import io.spine.client.Topic;
 import io.spine.core.Origin;
 import io.spine.core.Response;
@@ -40,6 +39,7 @@ import io.spine.server.entity.StorageConverter;
 import io.spine.server.tenant.QueryOperation;
 import io.spine.server.tenant.SubscriptionOperation;
 import io.spine.server.tenant.TenantAwareOperation;
+import io.spine.server.tenant.TenantAwareRunner;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.event.EntityStateChanged;
 import io.spine.type.TypeUrl;
@@ -415,11 +415,19 @@ public class Stand implements Closeable {
     }
 
     /**
-     * Tells whether this context has a subscription with the given ID.
+     * Tells whether this {@code Stand} has the given subscription.
+     *
+     * <p>The subscription is looked up among those of the tenant of its topic.
      */
     @Internal
-    public boolean hasSubscription(SubscriptionId id) {
-        return subscriptionRegistry.containsId(id);
+    public boolean hasSubscription(Subscription subscription) {
+        checkNotNull(subscription);
+        var tenantId = subscription.getTopic()
+                                   .getContext()
+                                   .getTenantId();
+        var id = subscription.getId();
+        return TenantAwareRunner.with(tenantId)
+                                .evaluate(() -> subscriptionRegistry.containsId(id));
     }
 
     public static class Builder {
