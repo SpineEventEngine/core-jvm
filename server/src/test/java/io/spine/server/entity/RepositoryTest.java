@@ -57,12 +57,11 @@ class RepositoryTest {
 
     @BeforeEach
     void setUp() {
+        repository = new TestRepo();
         context = BoundedContextBuilder
                 .assumingTests(/* multiTenant = */ true)
+                .add(repository)
                 .build();
-        repository = new TestRepo();
-        context.internalAccess()
-               .register(repository);
         tenantId = generate();
     }
 
@@ -181,10 +180,10 @@ class RepositoryTest {
     void iterateBareRepository() throws Exception {
         // Close `context` first: it serves the entity state type of `BareRepository`.
         context.close();
-        try (var bareContext = BoundedContextBuilder.assumingTests().build()) {
-            var bare = new BareRepository();
-            bareContext.internalAccess()
-                       .register(bare);
+        var bare = new BareRepository();
+        try (var ignored = BoundedContextBuilder.assumingTests()
+                .add(bare)
+                .build()) {
             bare.store(bare.create(createId("Uno")));
             bare.store(bare.create(createId("Dos")));
 

@@ -133,11 +133,11 @@ abstract class AbstractCommandBusTestSuite {
                 .scheduleCommandsUsing(() -> scheduler)
                 .build();
 
+        createProjectAssignee = new CreateProjectAssignee();
         application = createApplication(environment);
         context = application.contexts()
                              .get(0);
 
-        var contextAccess = context.internalAccess();
         systemWriteSide = NoOpSystemWriteSide.INSTANCE;
 
         eventBus = context.eventBus();
@@ -153,13 +153,13 @@ abstract class AbstractCommandBusTestSuite {
                 multiTenant
                 ? new TestActorRequestFactory(getClass(), generate())
                 : new TestActorRequestFactory(getClass());
-        createProjectAssignee = new CreateProjectAssignee();
-        contextAccess.registerCommandDispatcher(createProjectAssignee);
         observer = memoizingObserver();
     }
 
     /**
      * Builds the application of the only context of the test.
+     *
+     * <p>The context has the {@link #createProjectAssignee}.
      */
     private Application createApplication(ServerEnvironment environment) {
         var cls = getClass();
@@ -169,7 +169,7 @@ abstract class AbstractCommandBusTestSuite {
                       : BoundedContext.singleTenant(name);
         return Application.newBuilder()
                 .setServerEnvironment(environment)
-                .add(builder)
+                .add(builder.addAssignee(createProjectAssignee))
                 .build();
     }
 

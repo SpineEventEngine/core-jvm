@@ -33,11 +33,13 @@ internal class CommandBusSpec {
     @Test
     fun `not register the tenant of a posted command`() {
         val application = testApplication {
-            add(BoundedContextBuilder.assumingTests(/* multiTenant = */ true))
+            add(
+                BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
+                    .addAssignee(CreateProjectAssignee())
+            )
         }
         application.use {
             val context = it.contexts().single()
-            context.internalAccess().registerCommandDispatcher(CreateProjectAssignee())
             val command = Given.ACommand.createProject()
 
             context.commandBus().post(command, noOpObserver())

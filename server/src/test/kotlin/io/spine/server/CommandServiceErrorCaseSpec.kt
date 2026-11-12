@@ -68,8 +68,8 @@ internal class CommandServiceErrorCaseSpec {
         context = BoundedContextBuilder.assumingTests()
             .add(Given.ProjectAggregateRepository())
             .addCommandFilter(FailingFilter)
+            .addEventDispatcher(monitor)
             .build()
-        context.internalAccess().registerEventDispatcher(monitor)
         service = CommandService.withSingle(context)
     }
 

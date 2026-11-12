@@ -51,17 +51,16 @@ class AggregateCommandEndpointTest {
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
-        context = BoundedContextBuilder.assumingTests().build();
+        repository = new ProjectAggregateRepository();
+        context = BoundedContextBuilder.assumingTests()
+                .add(repository)
+                .build();
         projectId = ProjectId.generate();
 
         // Create a subscriber of ProjectCreated event.
         subscriber = new Subscriber();
         context.eventBus()
                .register(subscriber);
-
-        repository = new ProjectAggregateRepository();
-        context.internalAccess()
-               .register(repository);
     }
 
     @AfterEach

@@ -20,6 +20,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.spine.core.Versions
+import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.delivery.Inbox
 import io.spine.server.delivery.InboxLabel.UPDATE_SUBSCRIBER
@@ -42,23 +43,34 @@ import org.junit.jupiter.api.Test
 @DisplayName("`Repository`, as the owner of the `Inbox` and the cache, should")
 internal class RepositoryInboxAndCacheSpec {
 
-    private val context = BoundedContextBuilder.assumingTests().build()
+    private lateinit var context: BoundedContext
 
     /**
-     * Closes the context, which closes the repositories registered with it.
+     * Closes the context, if the test built one.
      *
-     * Closing a repository unregisters its inbox from the `Delivery` of the current
-     * `ServerEnvironment`, which is server-wide and outlives this test.
+     * Closing the context closes the repositories registered with it, and the environment
+     * the context was built with.
      */
     @AfterEach
     fun closeContext() {
-        context.close()
+        if (::context.isInitialized) {
+            context.close()
+        }
+    }
+
+    /**
+     * Builds the context with the given repository.
+     */
+    private fun <R : Repository<*, *>> register(repo: R): R {
+        context = BoundedContextBuilder.assumingTests()
+            .add(repo)
+            .build()
+        return repo
     }
 
     @Test
     fun `create a cache, but no inbox, for a repository configuring no endpoints`() {
-        val repo = NoEndpointsRepository()
-        context.internalAccess().register(repo)
+        val repo = register(NoEndpointsRepository())
 
         shouldNotThrowAny { repo.exposedCache() }
 
@@ -68,8 +80,7 @@ internal class RepositoryInboxAndCacheSpec {
 
     @Test
     fun `create both for a repository configuring an endpoint`() {
-        val repo = WithEndpointRepository()
-        context.internalAccess().register(repo)
+        val repo = register(WithEndpointRepository())
 
         shouldNotThrowAny { repo.exposedInbox() }
         shouldNotThrowAny { repo.exposedCache() }
@@ -86,13 +97,12 @@ internal class RepositoryInboxAndCacheSpec {
     fun `not fail the registration of a repository dispatching no messages by default`() {
         // `NoEndpointsRepository` does not override `checkDispatchesMessages()`,
         // so the no-op default of `Repository` applies.
-        context.internalAccess().register(NoEndpointsRepository())
+        shouldNotThrowAny { register(NoEndpointsRepository()) }
     }
 
     @Test
     fun `store and load through the cache of an event-dispatching repository with no inbox`() {
-        val repo = NoInboxDispatchingRepository()
-        context.internalAccess().register(repo)
+        val repo = register(NoInboxDispatchingRepository())
 
         val id = ProjectId.newBuilder()
             .setId("no-inbox")

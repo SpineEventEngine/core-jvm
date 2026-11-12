@@ -76,17 +76,11 @@ public class EventRootMessageIdTest {
     void setUp() {
         context = BoundedContextBuilder
                 .assumingTests(/* multiTenant = */ true)
+                .add(new ProjectAggregateRepository())
+                .add(new TeamAggregateRepository())
+                .add(new TeamCreationRepository())
+                .add(new UserSignUpRepository())
                 .build();
-        var projectRepository = new ProjectAggregateRepository();
-        var teamRepository = new TeamAggregateRepository();
-        var teamCreationRepository = new TeamCreationRepository();
-        var userSignUpRepository = new UserSignUpRepository();
-
-        var contextAccess = context.internalAccess();
-        contextAccess.register(projectRepository);
-        contextAccess.register(teamRepository);
-        contextAccess.register(teamCreationRepository);
-        contextAccess.register(userSignUpRepository);
     }
 
     @AfterEach

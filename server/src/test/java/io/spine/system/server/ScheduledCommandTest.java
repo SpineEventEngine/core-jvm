@@ -23,7 +23,6 @@ import io.spine.core.CommandId;
 import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.server.DefaultRepository;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.entity.RecordBasedRepository;
 import io.spine.system.server.given.command.CompanyAggregate;
@@ -63,7 +62,8 @@ class ScheduledCommandTest {
         var environment = ServerEnvironment.newBuilder()
                 .scheduleCommandsUsing(() -> scheduler)
                 .build();
-        var contextBuilder = BoundedContextBuilder.assumingTests();
+        var contextBuilder = BoundedContextBuilder.assumingTests()
+                .add(CompanyAggregate.class);
         contextBuilder.systemSettings()
                       .enableCommandLog();
         application = Application.newBuilder()
@@ -72,8 +72,6 @@ class ScheduledCommandTest {
                 .build();
         context = application.contexts()
                              .get(0);
-        context.internalAccess()
-               .register(DefaultRepository.of(CompanyAggregate.class));
         var system = systemOf(this.context);
         var found = system.internalAccess()
                           .findRepository(ScheduledCommandRecord.class);

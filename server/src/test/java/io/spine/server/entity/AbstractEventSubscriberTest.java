@@ -63,17 +63,16 @@ class AbstractEventSubscriberTest {
      */
     @BeforeEach
     void setUp() {
+        subscriber = new TestSubscriber();
         application = TestApplications.newBuilder()
-                .add(BoundedContext.singleTenant("Groups"))
+                .add(BoundedContext.singleTenant("Groups")
+                        .addEventDispatcher(subscriber))
                 .add(BoundedContext.singleTenant("Organizations"))
                 .build();
         groupsContext = application.contexts()
                                    .get(0);
         organizationsContext = application.contexts()
                                           .get(1);
-        subscriber = new TestSubscriber();
-        groupsContext.internalAccess()
-                     .registerEventDispatcher(subscriber);
     }
 
     @AfterEach

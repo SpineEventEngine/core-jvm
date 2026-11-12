@@ -95,6 +95,7 @@ class ProjectionRepositoryTest
 
     private static final Any PRODUCER_ID = pack(GivenEventMessage.ENTITY_ID);
 
+    private final DiagnosticMonitor monitor = new DiagnosticMonitor();
     private BoundedContext context;
 
     private static TestEventFactory newEventFactory(TenantId tenantId, Any producerId) {
@@ -115,9 +116,7 @@ class ProjectionRepositoryTest
 
     @Override
     protected RecordBasedRepository<ProjectId, TestProjection, Project> createRepository() {
-        var repository = new TestProjectionRepository();
-        repository.registerWith(context);
-        return repository;
+        return new TestProjectionRepository();
     }
 
     @Override
@@ -198,12 +197,12 @@ class ProjectionRepositoryTest
     @Override
     @BeforeEach
     protected void setUp() {
+        super.setUp();
         context = BoundedContextBuilder
                 .assumingTests(getClass().getSimpleName(), /* multiTenant = */ true)
+                .add(repository())
+                .addEventDispatcher(monitor)
                 .build();
-        super.setUp();
-        context.internalAccess()
-               .register(this.repository());
         TestProjection.clearMessageDeliveryHistory();
     }
 
@@ -330,9 +329,9 @@ class ProjectionRepositoryTest
                     .addSignalId(dispatchedEventId())
                     .build();
             var repository = new EntitySubscriberProjection.Repository();
-            try (var context = BoundedContextBuilder.assumingTests().build()) {
-                context.internalAccess()
-                       .register(repository);
+            try (var ignored = BoundedContextBuilder.assumingTests()
+                    .add(repository)
+                    .build()) {
                 var envelope = EventEnvelope.of(eventFactory.createEvent(changedEvent));
                 repository.dispatch(envelope);
                 var expectedValue = ProjectTaskNames.newBuilder()
@@ -360,15 +359,6 @@ class ProjectionRepositoryTest
     @DisplayName("not allow duplicate")
     @MuteLogging
     class AvoidDuplicates {
-
-        private DiagnosticMonitor monitor;
-
-        @BeforeEach
-        void setUp() {
-            monitor = new DiagnosticMonitor();
-            context.internalAccess()
-                   .registerEventDispatcher(monitor);
-        }
 
         @Test
         @DisplayName("events")
@@ -424,9 +414,6 @@ class ProjectionRepositoryTest
     @DisplayName("emit `RoutingFailed` when dispatching unknown event")
     void emitRoutingFailedOnUnknownEvent() {
         var event = GivenEvent.arbitrary();
-        var monitor = new DiagnosticMonitor();
-        context.internalAccess()
-               .registerEventDispatcher(monitor);
 
         dispatchEvent(event);
 
@@ -473,17 +460,18 @@ class ProjectionRepositoryTest
     @DisplayName("not create record if entity is not updated")
     void notCreateRecordForUnchanged() {
         var repo = new NoOpTaskNamesRepository();
-        context.internalAccess()
-               .register(repo);
+        try (var ignored = BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
+                .add(repo)
+                .build()) {
+            assertFalse(repo.loadAll(ResponseFormat.getDefaultInstance())
+                            .hasNext());
 
-        assertFalse(repo.loadAll(ResponseFormat.getDefaultInstance())
-                        .hasNext());
+            var event = createEvent(tenantId(), projectCreated(), currentTime());
+            repo.dispatch(EventEnvelope.of(event));
 
-        var event = createEvent(tenantId(), projectCreated(), currentTime());
-        repo.dispatch(EventEnvelope.of(event));
-
-        Iterator<?> items = repo.loadAll(ResponseFormat.getDefaultInstance());
-        assertFalse(items.hasNext());
+            Iterator<?> items = repo.loadAll(ResponseFormat.getDefaultInstance());
+            assertFalse(items.hasNext());
+        }
     }
 
     @Nested
@@ -505,11 +493,10 @@ class ProjectionRepositoryTest
     @Test
     @DisplayName("check that its `Projection` class is subscribed to at least one message")
     void notRegisterIfSubscribedToNothing() {
-        var repo = new SensoryDeprivedProjectionRepository();
-        var context = BoundedContextBuilder.assumingTests().build();
+        var builder = BoundedContextBuilder.assumingTests()
+                .add(new SensoryDeprivedProjectionRepository());
 
-        assertThrows(IllegalStateException.class, () ->
-                repo.registerWith(context));
+        assertThrows(IllegalStateException.class, builder::build);
     }
 
     @Test

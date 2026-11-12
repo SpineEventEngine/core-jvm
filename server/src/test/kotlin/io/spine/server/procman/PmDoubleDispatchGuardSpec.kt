@@ -53,19 +53,25 @@ internal class PmDoubleDispatchGuardSpec {
     @BeforeEach
     fun setUp() {
         ModelTests.dropAllModels()
-        context = BoundedContextBuilder.assumingTests().build()
         id = newProjectId()
     }
 
     @AfterEach
     fun tearDown() {
-        context.close()
+        if (::context.isInitialized) {
+            context.close()
+        }
         ModelTests.dropAllModels()
     }
 
+    /**
+     * Builds the context with a new repository of the given configuration.
+     */
     private fun register(journaling: Boolean = true, guard: Boolean = true): JournalTestPmRepo {
         val repo = JournalTestPmRepo(journaling = journaling, guard = guard)
-        context.internalAccess().register(repo)
+        context = BoundedContextBuilder.assumingTests()
+            .add(repo)
+            .build()
         return repo
     }
 
@@ -160,10 +166,8 @@ internal class PmDoubleDispatchGuardSpec {
 
         @Test
         fun `fail to register with the guard enabled and the journaling off`() {
-            val repo = JournalTestPmRepo(journaling = false, guard = true)
-
             val failure = shouldThrow<IllegalStateException> {
-                context.internalAccess().register(repo)
+                register(journaling = false, guard = true)
             }
 
             failure.message.shouldNotBeNull() shouldContain "double-dispatch guard"

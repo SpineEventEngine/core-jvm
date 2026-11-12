@@ -14,7 +14,6 @@
 
 package io.spine.server;
 
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
 import io.spine.base.EntityState;
 import io.spine.core.BoundedContextName;
@@ -51,6 +50,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.spine.server.security.Security.allowOnlyFrameworkServer;
@@ -226,8 +226,17 @@ public abstract class BoundedContext
     /**
      * Adds the passed repository to the context.
      *
+     * <p>The {@linkplain BoundedContextBuilder builder} calls this method for each repository
+     * added to it, before the context is returned. So an {@link Application} knows all
+     * the repositories of its contexts when it is built. A System context calls this method
+     * for its own repositories while it is built.
+     *
+     * <p>A repository that dispatches events is registered with the buses of this context once
+     * the context accepts it.
+     *
      * @throws IllegalStateException
-     *         if this context is closed
+     *         if this context is closed, or already has a repository of the entity state type
+     *         of the passed one
      */
     protected final void register(Repository<?, ?> repository) {
         checkNotNull(repository);
@@ -235,7 +244,10 @@ public abstract class BoundedContext
         registerIfAware(repository);
         guard.register(repository);
         // The guard holds the repository now, so this context serves its entities
-        // even if the callback fails.
+        // even if registering with the buses or the callback fails.
+        if (repository instanceof EventDispatcher dispatcher) {
+            registerWithBuses(dispatcher);
+        }
         repository.onRegistered();
     }
 
@@ -255,11 +267,15 @@ public abstract class BoundedContext
     /**
      * Registers the passed command dispatcher with the {@code CommandBus}.
      *
+     * @throws IllegalArgumentException
+     *         if the passed dispatcher is a repository, which only
+     *         {@link #register(Repository)} adds to a context
      * @see #registerCommandDispatcher(CommandDispatcherDelegate)
      */
     @SuppressWarnings("WeakerAccess") // This class is effectively `sealed`, so this is stricter.
     protected void registerCommandDispatcher(CommandDispatcher dispatcher) {
         checkNotNull(dispatcher);
+        checkNotRepository(dispatcher);
         registerIfAware(dispatcher);
         if (dispatcher.dispatchesCommands()) {
             commandBus().register(dispatcher);
@@ -289,19 +305,46 @@ public abstract class BoundedContext
     }
 
     /**
-     * Registering the passed event dispatcher with the buses of this context.
+     * Registers the passed event dispatcher with this context.
      *
-     * <p>If the given instance dispatches domestic events, registers it with the {@code EventBus}.
-     * If the given instance dispatches external events, registers it with
-     * the {@code IntegrationBroker}.
+     * <p>Registers the dispatcher with the buses of this context. If the dispatcher is
+     * {@link ContextAware}, it is first registered with this context.
      *
+     * @throws IllegalArgumentException
+     *         if the passed dispatcher is a repository, which only
+     *         {@link #register(Repository)} adds to a context
      * @see #registerEventDispatcher(EventDispatcherDelegate)
      * @see #unregisterEventDispatcher(EventDispatcher)
      */
     protected void registerEventDispatcher(EventDispatcher dispatcher) {
         checkNotNull(dispatcher);
         allowOnlyFrameworkServer();
+        checkNotRepository(dispatcher);
         registerIfAware(dispatcher);
+        registerWithBuses(dispatcher);
+    }
+
+    /**
+     * Ensures that the passed dispatcher is not a repository.
+     *
+     * <p>A repository is added to a context only by {@link #register(Repository)}, so that
+     * the context and its application know the entity state type it serves.
+     */
+    private static void checkNotRepository(Object dispatcher) {
+        checkArgument(!(dispatcher instanceof Repository),
+                      "The dispatcher `%s` is a repository." +
+                              " Add repositories to the builder of the context.", dispatcher);
+    }
+
+    /**
+     * Registers the passed event dispatcher with the buses of this context.
+     *
+     * <p>If the given instance dispatches domestic events, registers it with the {@code EventBus}
+     * and with the read side of the System context. If the given instance dispatches external
+     * events, registers it with the {@code IntegrationBroker}. If it is
+     * a {@link CommandDispatcherDelegate} as well, registers it with the {@code CommandBus}.
+     */
+    private void registerWithBuses(EventDispatcher dispatcher) {
         if (dispatcher.dispatchesEvents()) {
             var eventBus = eventBus();
             eventBus.register(dispatcher);
@@ -588,6 +631,9 @@ public abstract class BoundedContext
      * @see #removeProbe()
      * @throws IllegalStateException
      *          if another probe is already installed
+     * @throws IllegalArgumentException
+     *          if the probe exposes a repository as an event dispatcher;
+     *          the probe is then unregistered and not installed
      */
     public final void install(Probe probe) {
         checkNotNull(probe);
@@ -597,11 +643,27 @@ public abstract class BoundedContext
             return;
         }
         probe.registerWith(this);
+        var dispatchers = probe.eventDispatchers();
+        checkNoRepositories(probe, dispatchers);
         commandBus.add(probe.commandListener());
         eventBus.add(probe.eventListener());
-        probe.eventDispatchers()
-             .forEach(this::registerEventDispatcher);
+        dispatchers.forEach(this::registerEventDispatcher);
         this.probe = probe;
+    }
+
+    /**
+     * Ensures that the given probe exposes no repository as an event dispatcher.
+     *
+     * <p>If it does, unregisters the probe, so that it is left not installed.
+     */
+    @SuppressWarnings("ProhibitedExceptionThrown" /* Rethrowing what was caught. */)
+    private static void checkNoRepositories(Probe probe, Set<EventDispatcher> dispatchers) {
+        try {
+            dispatchers.forEach(BoundedContext::checkNotRepository);
+        } catch (IllegalArgumentException e) {
+            runKeepingFailure(e, probe::unregister);
+            throw e;
+        }
     }
 
     /**
@@ -681,44 +743,6 @@ public abstract class BoundedContext
 
         /** Prevents instantiation from the outside. */
         private InternalAccess() {
-        }
-
-        /**
-         * Registers the passed repository.
-         *
-         * @return this instance of {@code InternalAccess} for call chaining
-         * @throws IllegalStateException
-         *         if the context is closed
-         * @see BoundedContext#register(Repository)
-         */
-        @CanIgnoreReturnValue
-        public InternalAccess register(Repository<?, ?> repository) {
-            self().register(checkNotNull(repository));
-            return this;
-        }
-
-        /**
-         * Registers the passed command dispatcher.
-         *
-         * @return this instance of {@code InternalAccess} for call chaining
-         * @see BoundedContext#registerCommandDispatcher(CommandDispatcher)
-         */
-        @CanIgnoreReturnValue
-        public InternalAccess registerCommandDispatcher(CommandDispatcher dispatcher) {
-            self().registerCommandDispatcher(checkNotNull(dispatcher));
-            return this;
-        }
-
-        /**
-         * Registers the passed event dispatcher.
-         *
-         * @return this instance of {@code InternalAccess} for call chaining
-         * @see BoundedContext#registerEventDispatcher(EventDispatcher)
-         */
-        @CanIgnoreReturnValue
-        public InternalAccess registerEventDispatcher(EventDispatcher dispatcher) {
-            self().registerEventDispatcher(dispatcher);
-            return this;
         }
 
         /**

@@ -55,10 +55,10 @@ internal class AggregateRecentHistorySpec {
     @BeforeEach
     fun setUp() {
         ModelTests.dropAllModels()
-        context = BoundedContextBuilder.assumingTests().build()
         repository = StateHistoryTestRepository()
-        context.internalAccess()
-            .register(repository)
+        context = BoundedContextBuilder.assumingTests()
+            .add(repository)
+            .build()
         projectId = ProjectId.generate()
         HistoryReadingAggregate.statesSeenOnStart = emptyList()
         HistoryReadingAggregate.eventsSeenOnStart = emptyList()

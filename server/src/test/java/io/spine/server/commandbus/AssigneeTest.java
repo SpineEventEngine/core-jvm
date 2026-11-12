@@ -48,14 +48,13 @@ class AssigneeTest {
     @BeforeEach
     void setUp() {
         ModelTests.dropAllModels();
+        assignee = new TestCommandAssignee();
         var context = BoundedContextBuilder
                 .assumingTests(/* multiTenant = */ true)
+                .addAssignee(assignee)
                 .build();
         commandBus = context.commandBus();
         eventBus = context.eventBus();
-        assignee = new TestCommandAssignee();
-        context.internalAccess()
-               .registerCommandDispatcher(assignee);
     }
 
     @AfterEach

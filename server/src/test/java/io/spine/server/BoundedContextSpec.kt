@@ -15,7 +15,6 @@
 package io.spine.server
 
 import com.example.ForeignClass
-import com.example.ForeignContextConfig
 import com.google.common.testing.EqualsTester
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
@@ -66,14 +65,12 @@ import io.spine.testing.server.model.ModelTests
 import java.util.function.BooleanSupplier
 import java.util.logging.Level
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.function.Executable
 
 /**
  * Tests of [BoundedContext].
@@ -458,27 +455,26 @@ internal class BoundedContextSpec {
         }
     }
 
-    @Nested
-    @DisplayName("do not allow registration calls from outside the `io.spine.server` package for")
-    internal inner class RestrictRegistrationCalls {
+    @Nested internal inner class
+    `refuse a repository as an event dispatcher` {
 
         @Test
-        fun Repository() = assertThrowsOn {
-            ForeignContextConfig.repositoryRegistration()
+        fun `registered directly`() {
+            assertThrows<IllegalArgumentException> {
+                context.registerEventDispatcher(SecretProjectRepository())
+            }
         }
 
         @Test
-        fun CommandDispatcher() = assertThrowsOn {
-            ForeignContextConfig.commandDispatcherRegistration()
-        }
-
-        @Test
-        fun EventDispatcher() = assertThrowsOn {
-            ForeignContextConfig.eventDispatcherRegistration()
-        }
-
-        private fun assertThrowsOn(executable: Executable) {
-            Assertions.assertThrows(SecurityException::class.java, executable)
+        fun `exposed by a probe, leaving the probe not installed`() {
+            val probe = RepositoryExposingProbe()
+            assertThrows<IllegalArgumentException> {
+                context.install(probe)
+            }
+            context.hasProbe() shouldBe false
+            probe.isRegistered() shouldBe false
+            context.commandBus().hasListener(probe.commandListener()) shouldBe false
+            context.eventBus().hasListener(probe.eventListener()) shouldBe false
         }
     }
 
@@ -590,6 +586,28 @@ private class EmptyProbe : BoundedContext.Probe {
     override fun eventDispatchers(): Set<EventDispatcher> = mutableSetOf(
             StubReaction1(), StubReaction2(), StubReaction3()
         )
+}
+
+/**
+ * A probe that exposes a repository as its event dispatcher.
+ *
+ * Its listeners stay the same instances, so a test can look for them on the buses.
+ */
+private class RepositoryExposingProbe : BoundedContext.Probe {
+    private var context: BoundedContext? = null
+    private val commands = Listener<CommandEnvelope> { _ -> }
+    private val events = Listener<EventEnvelope> { _ -> }
+    override fun registerWith(context: BoundedContext) {
+        this.context = context
+    }
+    override fun isRegistered(): Boolean = context != null
+    override fun unregister() {
+        super.unregister()
+        context = null
+    }
+    override fun commandListener(): Listener<CommandEnvelope> = commands
+    override fun eventListener(): Listener<EventEnvelope> = events
+    override fun eventDispatchers(): Set<EventDispatcher> = setOf(SecretProjectRepository())
 }
 
 private class StubReaction1: Reaction<SomethingHappened>() {

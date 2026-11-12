@@ -60,14 +60,14 @@ class CommandRoutingRejectionTest {
 
     @BeforeEach
     void setUp() {
-        context = BoundedContextBuilder.assumingTests("Railway Station").build();
-        var contextAccess = context.internalAccess();
-        contextAccess.register(new SwitchmanBureau());
+        logRepository = new Log.Repository();
+        context = BoundedContextBuilder.assumingTests("Railway Station")
+                .add(new SwitchmanBureau())
+                .add(logRepository)
+                .build();
         switchmanObserver = new SwitchmanObserver();
         context.eventBus()
                .register(switchmanObserver);
-        logRepository = new Log.Repository();
-        contextAccess.register(logRepository);
         commandBus = context.commandBus();
     }
 

@@ -20,12 +20,14 @@ import io.spine.server.aggregate.AggregateRepository;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.testdata.Sample;
 import io.spine.testing.client.TestActorRequestFactory;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class AggregateRepositoryTestEnv {
 
     private static final TestActorRequestFactory requestFactory = newRequestFactory();
-    private static BoundedContext context = newBoundedContext();
+    private static @MonotonicNonNull BoundedContext context;
     private static ProjectAggregateRepository repository = newRepository();
 
     /** Prevent instantiation of this utility class. */
@@ -36,8 +38,15 @@ public class AggregateRepositoryTestEnv {
         return requestFactory;
     }
 
+    /**
+     * Obtains the test {@link #context}.
+     *
+     * @throws NullPointerException
+     *         if the context is not {@linkplain #resetBoundedContext(BoundedContextBuilder)
+     *         built} yet
+     */
     public static BoundedContext context() {
-        return context;
+        return checkNotNull(context, "The test context is not built yet.");
     }
 
     public static ProjectAggregateRepository repository() {
@@ -45,10 +54,12 @@ public class AggregateRepositoryTestEnv {
     }
 
     /**
-     * Assigns a new {@link BoundedContext} instance to the test {@link #context}.
+     * Builds a new {@link BoundedContext} by the given builder, with the test
+     * {@link #repository} added, and assigns it to the test {@link #context}.
      */
-    public static void resetBoundedContext() {
-        context = newBoundedContext();
+    public static void resetBoundedContext(BoundedContextBuilder builder) {
+        context = builder.add(repository)
+                .build();
     }
 
     /**
@@ -80,11 +91,6 @@ public class AggregateRepositoryTestEnv {
         var requestFactory =
                 new TestActorRequestFactory(AggregateRepositoryTestEnv.class);
         return requestFactory;
-    }
-
-    private static BoundedContext newBoundedContext() {
-        var context = BoundedContextBuilder.assumingTests().build();
-        return context;
     }
 
     private static ProjectAggregateRepository newRepository() {

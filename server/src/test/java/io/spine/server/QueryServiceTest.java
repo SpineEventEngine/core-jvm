@@ -130,17 +130,17 @@ class QueryServiceTest {
         closeContexts();
         responseObserver = memoizingObserver();
         // Create Projects Bounded Context with one repository and one projection.
-        var projectsContext = BoundedContextBuilder.assumingTests(PROJECTS_CONTEXT_NAME).build();
-        var projectRepo = new Given.ProjectAggregateRepository();
-        projectsContext.register(projectRepo);
-        projectsContext.register(repository);
+        var projectsContext = BoundedContextBuilder.assumingTests(PROJECTS_CONTEXT_NAME)
+                .add(new Given.ProjectAggregateRepository())
+                .add(repository)
+                .build();
 
         boundedContexts.add(projectsContext);
 
         // Create Customers Bounded Context with one repository.
-        var customersContext = BoundedContextBuilder.assumingTests(CUSTOMERS_CONTEXT_NAME).build();
-        var customerRepo = new Given.CustomerAggregateRepository();
-        customersContext.register(customerRepo);
+        var customersContext = BoundedContextBuilder.assumingTests(CUSTOMERS_CONTEXT_NAME)
+                .add(new Given.CustomerAggregateRepository())
+                .build();
         boundedContexts.add(customersContext);
 
         var queryService = QueryService.newBuilder();

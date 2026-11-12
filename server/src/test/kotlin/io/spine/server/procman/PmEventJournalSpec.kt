@@ -47,19 +47,25 @@ internal class PmEventJournalSpec {
     @BeforeEach
     fun setUp() {
         ModelTests.dropAllModels()
-        context = BoundedContextBuilder.assumingTests().build()
         id = newProjectId()
     }
 
     @AfterEach
     fun tearDown() {
-        context.close()
+        if (::context.isInitialized) {
+            context.closeIfOpen()
+        }
         ModelTests.dropAllModels()
     }
 
+    /**
+     * Builds the context with a new repository of the given journaling.
+     */
     private fun register(journaling: Boolean): JournalTestPmRepo {
         val repo = JournalTestPmRepo(journaling = journaling)
-        context.internalAccess().register(repo)
+        context = BoundedContextBuilder.assumingTests()
+            .add(repo)
+            .build()
         return repo
     }
 
@@ -132,8 +138,6 @@ internal class PmEventJournalSpec {
         context.close()
 
         journal.isOpen shouldBe false
-        // Re-create the context so that `tearDown()` closes a live one.
-        context = BoundedContextBuilder.assumingTests().build()
     }
 
     private companion object {

@@ -36,10 +36,10 @@ internal class ProjectionRepositoryCatchUpSpec {
 
     @BeforeEach
     fun setUp() {
-        context = BoundedContextBuilder.assumingTests().build()
         repository = TestProjectionRepository()
-        context.internalAccess()
-            .register(repository)
+        context = BoundedContextBuilder.assumingTests()
+            .add(repository)
+            .build()
     }
 
     @AfterEach

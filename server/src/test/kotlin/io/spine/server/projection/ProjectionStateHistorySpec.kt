@@ -50,10 +50,10 @@ internal class ProjectionStateHistorySpec {
     @BeforeEach
     fun setUp() {
         ModelTests.dropAllModels()
-        context = BoundedContextBuilder.assumingTests().build()
         repository = StateHistoryProjectionRepository()
-        context.internalAccess()
-            .register(repository)
+        context = BoundedContextBuilder.assumingTests()
+            .add(repository)
+            .build()
     }
 
     @AfterEach

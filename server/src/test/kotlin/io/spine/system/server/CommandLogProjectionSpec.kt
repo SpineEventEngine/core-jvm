@@ -31,7 +31,6 @@ import io.spine.protobuf.pack
 import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.CommandService
-import io.spine.server.DefaultRepository
 import io.spine.server.commandbus.CommandFilter
 import io.spine.server.entity.RecordBasedRepository
 import io.spine.server.event.AbstractEventSubscriber
@@ -60,18 +59,19 @@ internal class CommandLogProjectionSpec {
     private lateinit var context: BoundedContext
     private lateinit var commandLog:
             RecordBasedRepository<CommandId, CommandLogProjection, CommandLog>
+    private val monitor = DiagnosticMonitor()
 
     @BeforeEach
     fun createContext() {
         val builder = BoundedContextBuilder.assumingTests()
             .addCommandFilter(RefusingFilter)
             .addCommandFilter(FailingFilter)
+            .add(CompanyAggregate::class.java)
+            .add(CompanyNameProcmanRepo())
+            .addEventDispatcher(FailingOnEstablished())
+            .addEventDispatcher(monitor)
         builder.systemSettings().enableCommandLog()
         context = builder.build()
-        context.internalAccess().run {
-            register(DefaultRepository.of(CompanyAggregate::class.java))
-            register(CompanyNameProcmanRepo())
-        }
         commandLog = commandLogOf(context)
     }
 
@@ -115,12 +115,6 @@ internal class CommandLogProjectionSpec {
     @Test
     @MuteLogging
     fun `not record the failure of an event handler in the log of the originating command`() {
-        val monitor = DiagnosticMonitor()
-        context.internalAccess().run {
-            registerEventDispatcher(FailingOnEstablished())
-            registerEventDispatcher(monitor)
-        }
-
         val command = post(establishing(name = FailingOnEstablished.NAME))
 
         val failures = monitor.handlerFailureEvents()
