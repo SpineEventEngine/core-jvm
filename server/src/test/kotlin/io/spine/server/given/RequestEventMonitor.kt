@@ -24,9 +24,15 @@ import io.spine.core.TenantId
 import io.spine.server.event.AbstractEventSubscriber
 import io.spine.system.server.event.CommandPostingFailed
 import io.spine.system.server.event.QueryExecutionFailed
+import io.spine.system.server.event.QueryTenantNotExpected
+import io.spine.system.server.event.QueryTenantNotSpecified
 import io.spine.system.server.event.QueryValidationFailed
 import io.spine.system.server.event.SubscriptionServiceFailed
+import io.spine.system.server.event.SubscriptionTenantNotExpected
+import io.spine.system.server.event.SubscriptionTenantNotSpecified
 import io.spine.system.server.event.SubscriptionValidationFailed
+import io.spine.system.server.event.TopicTenantNotExpected
+import io.spine.system.server.event.TopicTenantNotSpecified
 import io.spine.system.server.event.TopicValidationFailed
 import io.spine.system.server.event.UnknownSubscriptionActivationRequested
 import io.spine.system.server.event.UnknownSubscriptionCancellationRequested
@@ -113,6 +119,36 @@ internal class RequestEventMonitor : AbstractEventSubscriber() {
 
     @Subscribe
     fun on(event: SubscriptionServiceFailed, context: EventContext) {
+        remember(event, context)
+    }
+
+    @Subscribe
+    fun on(event: QueryTenantNotSpecified, context: EventContext) {
+        remember(event, context)
+    }
+
+    @Subscribe
+    fun on(event: QueryTenantNotExpected, context: EventContext) {
+        remember(event, context)
+    }
+
+    @Subscribe
+    fun on(event: TopicTenantNotSpecified, context: EventContext) {
+        remember(event, context)
+    }
+
+    @Subscribe
+    fun on(event: TopicTenantNotExpected, context: EventContext) {
+        remember(event, context)
+    }
+
+    @Subscribe
+    fun on(event: SubscriptionTenantNotSpecified, context: EventContext) {
+        remember(event, context)
+    }
+
+    @Subscribe
+    fun on(event: SubscriptionTenantNotExpected, context: EventContext) {
         remember(event, context)
     }
 

@@ -17,6 +17,7 @@ package io.spine.server;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Ordering;
 import com.google.errorprone.annotations.CompileTimeConstant;
+import com.google.protobuf.Message;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
 import io.spine.annotation.VisibleForTesting;
@@ -34,13 +35,18 @@ import io.spine.core.Response;
 import io.spine.core.TenantId;
 import io.spine.grpc.StreamObservers;
 import io.spine.logging.WithLogging;
+import io.spine.server.app.RefusedRequest;
 import io.spine.server.stand.InvalidRequestException;
 import io.spine.server.stand.Stand;
 import io.spine.server.stand.SubscriptionCallback;
 import io.spine.server.stand.UnsupportedRequestException;
 import io.spine.server.transport.Statuses;
 import io.spine.system.server.event.SubscriptionServiceFailed;
+import io.spine.system.server.event.SubscriptionTenantNotExpected;
+import io.spine.system.server.event.SubscriptionTenantNotSpecified;
 import io.spine.system.server.event.SubscriptionValidationFailed;
+import io.spine.system.server.event.TopicTenantNotExpected;
+import io.spine.system.server.event.TopicTenantNotSpecified;
 import io.spine.system.server.event.TopicValidationFailed;
 import io.spine.system.server.event.UnknownSubscriptionActivationRequested;
 import io.spine.system.server.event.UnknownSubscriptionCancellationRequested;
@@ -53,6 +59,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -74,6 +81,11 @@ import static java.lang.String.format;
  * {@link StreamObservers#errorCaseOf(Throwable) StreamObservers.errorCaseOf(Throwable)}.
  * The details of the problem stay on the server side.
  *
+ * <p>The service serves the requests with the Bounded Contexts of an {@link Application}.
+ * The topic of a request to a multi-tenant context must have a tenant registered in
+ * the {@linkplain Application#tenantIndex() tenant index} of the application, and the topic of
+ * a request to a single-tenant context must have no tenant.
+ *
  * <p>For synchronous read-side updates please see {@link QueryService}.
  */
 public final class SubscriptionService
@@ -86,30 +98,33 @@ public final class SubscriptionService
     private final CancellationImpl cancellation;
 
     @SuppressWarnings("ThisEscapedInObjectConstruction" /* To simplify the implementation. */)
-    private SubscriptionService(TypeDictionary types) {
+    private SubscriptionService(TypeDictionary types, Application application) {
         super();
         this.types = types;
-        this.subscriptions = new SubscriptionImpl(this, types);
-        this.activation = new ActivationImpl(this, types);
-        this.cancellation = new CancellationImpl(this, types);
+        this.subscriptions = new SubscriptionImpl(this, types, application);
+        this.activation = new ActivationImpl(this, types, application);
+        this.cancellation = new CancellationImpl(this, types, application);
     }
 
     /**
-     * Creates a new builder for the service.
+     * Creates the service that serves the subscriptions with the Bounded Contexts
+     * of the given application.
      */
-    public static Builder newBuilder() {
-        return new Builder();
+    public static SubscriptionService of(Application application) {
+        checkNotNull(application);
+        var dictionary = TypeDictionary.newBuilder();
+        application.contexts().forEach(
+                context -> dictionary.putAll(context, c -> exposedTypes(c.stand()))
+        );
+        return new SubscriptionService(dictionary.build(), application);
     }
 
     /**
-     * Builds the service with a single Bounded Context.
+     * Obtains the types of the entity states and of the events to which the given
+     * {@code Stand} allows subscribing.
      */
-    public static SubscriptionService withSingle(BoundedContext context) {
-        checkNotNull(context);
-        var result = newBuilder()
-                .add(context)
-                .build();
-        return result;
+    private static Set<TypeUrl> exposedTypes(Stand stand) {
+        return union(stand.exposedTypes(), stand.exposedEventTypes());
     }
 
     /**
@@ -187,8 +202,10 @@ public final class SubscriptionService
 
     private static final class SubscriptionImpl extends ServiceDelegate<Topic, Subscription> {
 
-        private SubscriptionImpl(BindableService service, TypeDictionary types) {
-            super(service, types);
+        private SubscriptionImpl(BindableService service,
+                                 TypeDictionary types,
+                                 Application application) {
+            super(service, types, application);
         }
 
         @Override
@@ -201,6 +218,35 @@ public final class SubscriptionService
         protected TenantId tenantOf(Topic topic) {
             return topic.getContext()
                         .getTenantId();
+        }
+
+        @Override
+        protected Message idOf(Topic topic) {
+            return topic.getId();
+        }
+
+        @Override
+        protected RefusedRequest refusedRequest(Topic topic) {
+            return RefusedRequest.newBuilder()
+                    .setTopic(topic)
+                    .build();
+        }
+
+        @Override
+        protected EventMessage tenantNotSpecified(Topic topic) {
+            return TopicTenantNotSpecified.newBuilder()
+                    .setId(topic.getId())
+                    .setActorContext(topic.getContext())
+                    .build();
+        }
+
+        @Override
+        protected EventMessage tenantNotExpected(Topic topic, TenantId tenant) {
+            return TopicTenantNotExpected.newBuilder()
+                    .setId(topic.getId())
+                    .setActorContext(topic.getContext())
+                    .setTenant(tenant)
+                    .build();
         }
 
         @Override
@@ -230,16 +276,19 @@ public final class SubscriptionService
         }
 
         /**
-         * Creates a subscription in each Bounded Context known to {@code SubscriptionService}.
+         * Creates a subscription in each Bounded Context of the application.
          *
-         * <p>A topic that fails validation is refused with
-         * {@link io.spine.core.ErrorCase#INVALID_REQUEST INVALID_REQUEST}, even if the service
-         * knows no Bounded Context.
+         * <p>A topic with a tenant is refused unless the tenant is registered in
+         * the application. A topic that fails validation is refused with
+         * {@link io.spine.core.ErrorCase#INVALID_REQUEST INVALID_REQUEST}.
          */
         @Override
         protected void serveNoContext(Topic topic,
                                       StreamObserver<Subscription> observer,
                                       @Nullable Object params) {
+            if (!admittedToAll(topic, observer)) {
+                return;
+            }
             var violations = Validate.violationsOf(topic);
             if (!violations.isEmpty()) {
                 refuse(topic, INVALID_REQUEST, observer, ViolationText.ofAll(violations));
@@ -277,8 +326,10 @@ public final class SubscriptionService
     private abstract static class SubscriptionDelegate
             extends ServiceDelegate<Subscription, Response> {
 
-        SubscriptionDelegate(BindableService service, TypeDictionary types) {
-            super(service, types);
+        SubscriptionDelegate(BindableService service,
+                             TypeDictionary types,
+                             Application application) {
+            super(service, types, application);
         }
 
         @Override
@@ -291,6 +342,28 @@ public final class SubscriptionService
             return subscription.getTopic()
                                .getContext()
                                .getTenantId();
+        }
+
+        @Override
+        protected Message idOf(Subscription subscription) {
+            return subscription.getId();
+        }
+
+        @Override
+        protected EventMessage tenantNotSpecified(Subscription subscription) {
+            return SubscriptionTenantNotSpecified.newBuilder()
+                    .setId(subscription.getId())
+                    .setActorContext(actorOf(subscription))
+                    .build();
+        }
+
+        @Override
+        protected EventMessage tenantNotExpected(Subscription subscription, TenantId tenant) {
+            return SubscriptionTenantNotExpected.newBuilder()
+                    .setId(subscription.getId())
+                    .setActorContext(actorOf(subscription))
+                    .setTenant(tenant)
+                    .build();
         }
 
         @Override
@@ -323,7 +396,8 @@ public final class SubscriptionService
          * in each context known to the service that handled the subscribing. Another service
          * may know other contexts, which do not have the subscription.
          *
-         * <p>A subscription that fails validation is refused with
+         * <p>A subscription whose topic has a tenant is refused unless the tenant is
+         * registered in the application. A subscription that fails validation is refused with
          * {@link io.spine.core.ErrorCase#INVALID_REQUEST INVALID_REQUEST}. If no context has
          * the subscription, the request is {@linkplain #refuseNotServed refused}.
          *
@@ -337,6 +411,9 @@ public final class SubscriptionService
         protected final void serveNoContext(Subscription subscription,
                                             StreamObserver<Response> observer,
                                             @Nullable Object params) {
+            if (!admittedToAll(subscription, observer)) {
+                return;
+            }
             var violations = Validate.violationsOf(subscription);
             if (!violations.isEmpty()) {
                 refuse(subscription, INVALID_REQUEST, observer, ViolationText.ofAll(violations));
@@ -394,8 +471,17 @@ public final class SubscriptionService
 
     private static final class ActivationImpl extends SubscriptionDelegate {
 
-        private ActivationImpl(BindableService service, TypeDictionary types) {
-            super(service, types);
+        private ActivationImpl(BindableService service,
+                               TypeDictionary types,
+                               Application application) {
+            super(service, types, application);
+        }
+
+        @Override
+        protected RefusedRequest refusedRequest(Subscription subscription) {
+            return RefusedRequest.newBuilder()
+                    .setSubscriptionActivation(subscription)
+                    .build();
         }
 
         @Override
@@ -418,8 +504,17 @@ public final class SubscriptionService
 
     private static final class CancellationImpl extends SubscriptionDelegate {
 
-        private CancellationImpl(BindableService service, TypeDictionary types) {
-            super(service, types);
+        private CancellationImpl(BindableService service,
+                                 TypeDictionary types,
+                                 Application application) {
+            super(service, types, application);
+        }
+
+        @Override
+        protected RefusedRequest refusedRequest(Subscription subscription) {
+            return RefusedRequest.newBuilder()
+                    .setSubscriptionCancellation(subscription)
+                    .build();
         }
 
         @Override
@@ -442,35 +537,5 @@ public final class SubscriptionService
     private static String contextsAsString(Iterable<BoundedContext> contexts) {
         return Joiner.on(", ")
                      .join(contexts);
-    }
-
-    /**
-     * The builder for the {@link SubscriptionService}.
-     */
-    public static class Builder extends AbstractServiceBuilder<SubscriptionService, Builder> {
-
-        /**
-         * Builds the {@link SubscriptionService}.
-         *
-         * @throws IllegalStateException
-         *         if no Bounded Contexts were added.
-         */
-        @Override
-        public SubscriptionService build() throws IllegalStateException {
-            var dictionary = TypeDictionary.newBuilder();
-            contexts().forEach(
-                    context -> dictionary.putAll(context, (c) ->
-                            union(c.stand().exposedTypes(), c.stand().exposedEventTypes())
-                    )
-            );
-            var result = new SubscriptionService(dictionary.build());
-            warnIfEmpty(result);
-            return result;
-        }
-
-        @Override
-        Builder self() {
-            return this;
-        }
     }
 }

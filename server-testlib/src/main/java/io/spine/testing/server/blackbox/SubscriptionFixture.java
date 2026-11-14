@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.testing.server.blackbox;
@@ -33,7 +21,7 @@ import io.spine.base.EventMessage;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
 import io.spine.client.Topic;
-import io.spine.server.BoundedContext;
+import io.spine.server.Application;
 import io.spine.server.SubscriptionService;
 
 import java.util.ArrayList;
@@ -53,12 +41,12 @@ import static java.util.Collections.synchronizedList;
  */
 public final class SubscriptionFixture {
 
-    private final BoundedContext context;
+    private final Application application;
     private final Topic topic;
     private final List<SubscriptionUpdate> updates = synchronizedList(new ArrayList<>());
 
-    SubscriptionFixture(BoundedContext context, Topic topic) {
-        this.context = checkNotNull(context);
+    SubscriptionFixture(Application application, Topic topic) {
+        this.application = checkNotNull(application);
         this.topic = checkNotNull(topic);
     }
 
@@ -66,9 +54,7 @@ public final class SubscriptionFixture {
      * Creates and activates a subscription on the topic.
      */
     void activate() {
-        var service = SubscriptionService.newBuilder()
-                .add(context)
-                .build();
+        var service = SubscriptionService.of(application);
         var updateObserver = new Observer(updates::add);
         StreamObserver<Subscription> activator = new Activator(service, updateObserver);
         service.subscribe(topic, activator);

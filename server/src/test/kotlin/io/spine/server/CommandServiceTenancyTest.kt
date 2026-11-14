@@ -18,6 +18,7 @@ import io.spine.core.Ack
 import io.spine.grpc.MemoizingObserver
 import io.spine.grpc.StreamObservers.memoizingObserver
 import io.spine.testing.server.model.ModelTests
+import io.spine.testing.server.testApplication
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
@@ -27,22 +28,27 @@ import org.junit.jupiter.api.BeforeEach
  */
 abstract class CommandServiceTenancyTest {
 
-    protected lateinit var context: BoundedContext
+    protected lateinit var application: Application
     protected lateinit var service: CommandService
     protected lateinit var responseObserver: MemoizingObserver<Ack>
 
-    protected abstract fun createContext(): BoundedContext
+    /**
+     * Creates the builder of the only context of the application under the test.
+     */
+    protected abstract fun contextBuilder(): BoundedContextBuilder
 
     @BeforeEach
     fun setup() {
         ModelTests.dropAllModels()
         responseObserver = memoizingObserver()
-        context = createContext()
-        service = CommandService.withSingle(context)
+        application = testApplication {
+            add(contextBuilder())
+        }
+        service = CommandService.of(application)
     }
 
     @AfterEach
-    fun closeContext() {
-        context.close()
+    fun closeApplication() {
+        application.close()
     }
 }

@@ -41,6 +41,7 @@ import io.spine.test.commandservice.CmdServDontHandle
 import io.spine.test.commandservice.command.CsSuspendProject
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
+import io.spine.testing.server.testApplication
 import io.spine.type.TypeUrl
 import io.spine.validation.NonValidated
 import java.util.Optional
@@ -60,22 +61,25 @@ internal class CommandServiceErrorCaseSpec {
 
     private val requests = TestActorRequestFactory(javaClass)
     private val monitor = RequestEventMonitor()
-    private lateinit var context: BoundedContext
+    private lateinit var application: Application
     private lateinit var service: CommandService
 
     @BeforeEach
     fun createService() {
-        context = BoundedContextBuilder.assumingTests()
-            .add(Given.ProjectAggregateRepository())
-            .addCommandFilter(FailingFilter)
-            .addEventDispatcher(monitor)
-            .build()
-        service = CommandService.withSingle(context)
+        application = testApplication {
+            add(
+                BoundedContextBuilder.assumingTests()
+                    .add(Given.ProjectAggregateRepository())
+                    .addCommandFilter(FailingFilter)
+                    .addEventDispatcher(monitor)
+            )
+        }
+        service = CommandService.of(application)
     }
 
     @AfterEach
-    fun closeContext() {
-        context.close()
+    fun closeApplication() {
+        application.close()
     }
 
     @Nested inner class

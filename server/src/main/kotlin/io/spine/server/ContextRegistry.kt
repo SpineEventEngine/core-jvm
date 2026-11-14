@@ -66,16 +66,30 @@ internal class ContextRegistry(contexts: List<BoundedContext>) {
  *   context of another one;
  * - no two contexts may have repositories of one entity state type.
  *
- * The builders hold all the repositories of the domain contexts: the framework adds none
- * to a context after it is built. The repositories of System contexts are not compared:
+ * A command has one handler in the application, so no two contexts may handle commands
+ * of one type.
+ *
+ * The builders hold all the repositories and command dispatchers of the domain contexts:
+ * the framework adds none to a context after it is built. System contexts are not compared:
  * every System context has the same repositories of the framework.
  *
  * @throws DuplicateContextNameException If two contexts have one name, or a context has
  *   the name of the System context of another one.
  * @throws DuplicateEntityStateException If two contexts have repositories of one entity
  *   state type.
+ * @throws DuplicateCommandHandlerException If two contexts handle commands of one type.
  */
 internal fun checkUnique(builders: List<BoundedContextBuilder>) {
+    checkNames(builders)
+    checkStateTypes(builders)
+    checkCommandTypes(builders)
+}
+
+/**
+ * Checks that no two of the given builders have one name, and that no builder has the name
+ * of the System context of another one.
+ */
+private fun checkNames(builders: List<BoundedContextBuilder>) {
     val names = mutableSetOf<BoundedContextName>()
     builders.forEach { builder ->
         val name = builder.name()
@@ -85,6 +99,12 @@ internal fun checkUnique(builders: List<BoundedContextBuilder>) {
         names.add(name)
         names.add(name.toSystem())
     }
+}
+
+/**
+ * Checks that no two of the given builders have repositories of one entity state type.
+ */
+private fun checkStateTypes(builders: List<BoundedContextBuilder>) {
     val serving = mutableMapOf<TypeUrl, BoundedContextName>()
     builders.forEach { builder ->
         val name = builder.name()
@@ -96,5 +116,22 @@ internal fun checkUnique(builders: List<BoundedContextBuilder>) {
                     throw DuplicateEntityStateException(type, listOf(other, name))
                 }
             }
+    }
+}
+
+/**
+ * Checks that the contexts of no two of the given builders are going to handle
+ * commands of one type.
+ */
+private fun checkCommandTypes(builders: List<BoundedContextBuilder>) {
+    val handling = mutableMapOf<TypeUrl, BoundedContextName>()
+    builders.forEach { builder ->
+        val name = builder.name()
+        builder.commandTypes().forEach { type ->
+            val other = handling.putIfAbsent(type, name)
+            if (other != null) {
+                throw DuplicateCommandHandlerException(type, listOf(other, name))
+            }
+        }
     }
 }

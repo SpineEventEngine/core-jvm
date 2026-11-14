@@ -15,6 +15,8 @@
 package io.spine.server
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue
+import io.spine.server.app.ApplicationLog
+import io.spine.server.app.DefaultLog
 import io.spine.server.integration.ThirdPartyContext
 import io.spine.server.tenant.DefaultTenantStorage
 import io.spine.server.tenant.TenantIndex
@@ -26,7 +28,8 @@ import io.spine.util.withSuppressed
  * of one [ServerEnvironment].
  *
  * Holds what the contexts of the application share: the environment, the contexts
- * themselves, and the index of the tenants that the application serves.
+ * themselves, the index of the tenants that the application serves, and the [log]
+ * of the problems that concern none of the contexts.
  *
  * An application is created with a [Builder], which builds its contexts. In Java:
  * ```
@@ -49,9 +52,11 @@ import io.spine.util.withSuppressed
  *
  * The Bounded Contexts of an application work together: they share one `Delivery`, one
  * transport, and one storage factory. So each context of the application must have a name
- * of its own, and serve entity state types of its own. The [Builder] checks both before
- * building any context: it throws [DuplicateContextNameException] on a repeated name, and
- * [DuplicateEntityStateException] on a state type that two contexts serve.
+ * of its own, and serve entity state types of its own. A command has one handler in
+ * an application, so each context must also handle command types of its own. The [Builder]
+ * checks all three before building any context: it throws [DuplicateContextNameException] on
+ * a repeated name, [DuplicateEntityStateException] on a state type that two contexts serve,
+ * and [DuplicateCommandHandlerException] on a command type that two contexts handle.
  *
  * The contexts of an application are the ones given to its builder. A context cannot join
  * an application afterwards.
@@ -81,7 +86,12 @@ public class Application private constructor(
      *
      * See [tenantIndex] for the lifecycle of this property.
      */
-    private var index: TenantIndex?
+    private var index: TenantIndex?,
+
+    /**
+     * The log of the issues that concern none of the contexts of the application.
+     */
+    private val log: ApplicationLog
 ) : Closeable {
 
     /**
@@ -118,6 +128,18 @@ public class Application private constructor(
         check(open) { "The application is closed, so it has no tenant index." }
         return index ?: DefaultTenantStorage(environment.storageFactory()).also { index = it }
     }
+
+    /**
+     * Obtains the log of the issues that concern none of the Bounded Contexts
+     * of the application.
+     *
+     * The gRPC services of the application write there when they refuse a request before
+     * it reaches a Bounded Context. The application may write its own records too.
+     *
+     * Unless another log is [set][Builder.setApplicationLog] when the application is built,
+     * the records are written with Spine Logging.
+     */
+    public fun log(): ApplicationLog = log
 
     override fun isOpen(): Boolean = open
 
@@ -160,6 +182,8 @@ public class Application private constructor(
         private var environment: ServerEnvironment? = null
 
         private var index: TenantIndex? = null
+
+        private var log: ApplicationLog? = null
 
         /**
          * The builders of the contexts, in the order of adding.
@@ -206,6 +230,22 @@ public class Application private constructor(
             }
 
         /**
+         * The log of the problems that concern none of the contexts of the application.
+         *
+         * This property is for the [application] DSL. Java code calls [setApplicationLog].
+         */
+        @get:JvmSynthetic
+        @set:JvmSynthetic
+        @set:JvmName("assignApplicationLog")
+        public var applicationLog: ApplicationLog?
+            get() = log
+            set(value) {
+                setApplicationLog(requireNotNull(value) {
+                    "The log of an application cannot be `null`."
+                })
+            }
+
+        /**
          * Sets the environment that provides the technologies to the contexts
          * of the application.
          *
@@ -235,6 +275,22 @@ public class Application private constructor(
         public fun setTenantIndex(index: TenantIndex): Builder {
             checkNotBuilt()
             this.index = index
+            return this
+        }
+
+        /**
+         * Sets the log of the problems that concern none of the Bounded Contexts
+         * of the application.
+         *
+         * If not set, the application writes the records with Spine Logging.
+         *
+         * @return This builder, for call chaining.
+         * @see Application.log
+         */
+        @CanIgnoreReturnValue
+        public fun setApplicationLog(log: ApplicationLog): Builder {
+            checkNotBuilt()
+            this.log = log
             return this
         }
 
@@ -273,8 +329,9 @@ public class Application private constructor(
          * Creates the application, and builds its Bounded Contexts in the order of adding.
          *
          * Before building any context, checks that no two contexts have one name, or the name
-         * of the System context of another one, and that no two contexts serve one entity
-         * state type. If building a context fails, closes the contexts built before it.
+         * of the System context of another one, that no two contexts serve one entity
+         * state type, and that no two contexts handle commands of one type. If building
+         * a context fails, closes the contexts built before it.
          *
          * @throws IllegalStateException If the server environment is not set, if no context
          *   is added, if the environment is closed, if another application owns it, or if
@@ -283,6 +340,7 @@ public class Application private constructor(
          *   has the name of the System context of another one.
          * @throws DuplicateEntityStateException If two contexts have repositories of one
          *   entity state type.
+         * @throws DuplicateCommandHandlerException If two contexts handle commands of one type.
          */
         public fun build(): Application {
             checkNotBuilt()
@@ -305,7 +363,7 @@ public class Application private constructor(
             thirdParty.forEach { party ->
                 party.attach(registry.all().first { it.name() == party.builder.name() })
             }
-            return Application(environment, registry, index)
+            return Application(environment, registry, index, log ?: DefaultLog)
         }
 
         /**

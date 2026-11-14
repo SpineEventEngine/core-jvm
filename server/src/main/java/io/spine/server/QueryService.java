@@ -14,6 +14,7 @@
 
 package io.spine.server;
 
+import com.google.protobuf.Message;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
 import io.spine.base.Error;
@@ -23,9 +24,12 @@ import io.spine.client.QueryResponse;
 import io.spine.client.grpc.QueryServiceGrpc;
 import io.spine.core.TenantId;
 import io.spine.logging.WithLogging;
+import io.spine.server.app.RefusedRequest;
 import io.spine.server.stand.InvalidRequestException;
 import io.spine.server.stand.UnsupportedRequestException;
 import io.spine.system.server.event.QueryExecutionFailed;
+import io.spine.system.server.event.QueryTenantNotExpected;
+import io.spine.system.server.event.QueryTenantNotSpecified;
 import io.spine.system.server.event.QueryValidationFailed;
 import io.spine.system.server.event.UnsupportedQueryReceived;
 import io.spine.type.TypeUrl;
@@ -40,6 +44,11 @@ import static java.lang.String.format;
 /**
  * The {@code QueryService} provides a synchronous way to fetch read-side state from the server.
  *
+ * <p>The service serves the queries with the Bounded Contexts of an {@link Application}.
+ * A query to a multi-tenant context must have a tenant registered in
+ * the {@linkplain Application#tenantIndex() tenant index} of the application, and a query to
+ * a single-tenant context must have no tenant.
+ *
  * <p>For asynchronous read-side updates please see {@link SubscriptionService}.
  */
 public final class QueryService
@@ -49,25 +58,22 @@ public final class QueryService
     private final QueryServiceImpl impl;
 
     @SuppressWarnings("ThisEscapedInObjectConstruction") // Safe as we're injecting at the end.
-    private QueryService(TypeDictionary types) {
+    private QueryService(TypeDictionary types, Application application) {
         super();
-        this.impl = new QueryServiceImpl(this, types);
+        this.impl = new QueryServiceImpl(this, types, application);
     }
 
     /**
-     * Creates a new builder for the service.
+     * Creates the service that serves the queries with the Bounded Contexts
+     * of the given application.
      */
-    public static Builder newBuilder() {
-        return new Builder();
-    }
-
-    /**
-     * Builds the service with a single Bounded Context.
-     */
-    public static QueryService withSingle(BoundedContext context) {
-        checkNotNull(context);
-        var result = newBuilder().add(context).build();
-        return result;
+    public static QueryService of(Application application) {
+        checkNotNull(application);
+        var dictionary = TypeDictionary.newBuilder();
+        application.contexts().forEach(
+                context -> dictionary.putAll(context, c -> c.stand().exposedTypes())
+        );
+        return new QueryService(dictionary.build(), application);
     }
 
     /**
@@ -88,8 +94,8 @@ public final class QueryService
 
     private static final class QueryServiceImpl extends ServiceDelegate<Query, QueryResponse> {
 
-        QueryServiceImpl(BindableService service, TypeDictionary types) {
-            super(service, types);
+        QueryServiceImpl(BindableService service, TypeDictionary types, Application application) {
+            super(service, types, application);
         }
 
         @Override
@@ -102,6 +108,35 @@ public final class QueryService
         protected TenantId tenantOf(Query query) {
             return query.getContext()
                         .getTenantId();
+        }
+
+        @Override
+        protected Message idOf(Query query) {
+            return query.getId();
+        }
+
+        @Override
+        protected RefusedRequest refusedRequest(Query query) {
+            return RefusedRequest.newBuilder()
+                    .setQuery(query)
+                    .build();
+        }
+
+        @Override
+        protected EventMessage tenantNotSpecified(Query query) {
+            return QueryTenantNotSpecified.newBuilder()
+                    .setId(query.getId())
+                    .setActorContext(query.getContext())
+                    .build();
+        }
+
+        @Override
+        protected EventMessage tenantNotExpected(Query query, TenantId tenant) {
+            return QueryTenantNotExpected.newBuilder()
+                    .setId(query.getId())
+                    .setActorContext(query.getContext())
+                    .setTenant(tenant)
+                    .build();
         }
 
         @Override
@@ -148,34 +183,6 @@ public final class QueryService
                     .setError(error)
                     .setActorContext(query.getContext())
                     .build();
-        }
-    }
-
-    /**
-     * The builder for a {@code QueryService}.
-     */
-    public static class Builder extends AbstractServiceBuilder<QueryService, Builder> {
-
-        /**
-         * Builds the {@link QueryService}.
-         *
-         * @throws IllegalStateException if no bounded contexts were added.
-         */
-        @Override
-        public QueryService build() throws IllegalStateException {
-            var dictionary = TypeDictionary.newBuilder();
-            contexts().forEach(
-                    context -> dictionary.putAll(context, (c) -> c.stand().exposedTypes())
-            );
-
-            var service = new QueryService(dictionary.build());
-            warnIfEmpty(service);
-            return service;
-        }
-
-        @Override
-        Builder self() {
-            return this;
         }
     }
 }

@@ -20,22 +20,22 @@ import io.spine.grpc.MemoizingObserver;
 import io.spine.server.Given.ProjectDetailsRepository;
 import io.spine.server.Given.ThrowingProjectDetailsRepository;
 import io.spine.testing.logging.mute.MuteLogging;
+import io.spine.testing.server.TestApplications;
 import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
-import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
-import static com.google.common.collect.Sets.newHashSet;
+import java.util.Optional;
+
 import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
 import static io.spine.grpc.StreamObservers.errorCaseOf;
 import static io.spine.grpc.StreamObservers.memoizingObserver;
 import static io.spine.server.Given.CUSTOMERS_CONTEXT_NAME;
 import static io.spine.server.Given.PROJECTS_CONTEXT_NAME;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DisplayName("`QueryService` should")
 class QueryServiceTest {
 
-    private final Set<BoundedContext> boundedContexts = newHashSet();
+    private @Nullable Application application;
     private QueryService service;
     private MemoizingObserver<QueryResponse> responseObserver;
 
@@ -59,7 +59,7 @@ class QueryServiceTest {
 
     @AfterEach
     void tearDown() {
-        closeContexts();
+        closeApplication();
     }
 
     @Test
@@ -77,16 +77,6 @@ class QueryServiceTest {
         service.read(query, responseObserver);
 
         checkOkResponse(responseObserver);
-    }
-
-    @Test
-    @MuteLogging
-    @DisplayName("allow to create an instance serving no types")
-    void notCreateWithNoBc() {
-        assertDoesNotThrow(
-                () -> QueryService.newBuilder()
-                        .build()
-        );
     }
 
     @Test
@@ -123,37 +113,34 @@ class QueryServiceTest {
     /**
      * Sets up the {@link QueryService} based on a context with a single given repository.
      *
-     * <p>Closes the contexts of the previous service first, so that the new contexts can
+     * <p>Closes the application of the previous service first, so that the new contexts can
      * serve the same entity state types.
      */
     private void setUpService(ProjectDetailsRepository repository) {
-        closeContexts();
+        closeApplication();
         responseObserver = memoizingObserver();
         // Create Projects Bounded Context with one repository and one projection.
-        var projectsContext = BoundedContextBuilder.assumingTests(PROJECTS_CONTEXT_NAME)
+        var projects = BoundedContextBuilder.assumingTests(PROJECTS_CONTEXT_NAME)
                 .add(new Given.ProjectAggregateRepository())
-                .add(repository)
-                .build();
-
-        boundedContexts.add(projectsContext);
+                .add(repository);
 
         // Create Customers Bounded Context with one repository.
-        var customersContext = BoundedContextBuilder.assumingTests(CUSTOMERS_CONTEXT_NAME)
-                .add(new Given.CustomerAggregateRepository())
+        var customers = BoundedContextBuilder.assumingTests(CUSTOMERS_CONTEXT_NAME)
+                .add(new Given.CustomerAggregateRepository());
+
+        var app = TestApplications.newBuilder()
+                .add(projects)
+                .add(customers)
                 .build();
-        boundedContexts.add(customersContext);
-
-        var queryService = QueryService.newBuilder();
-        for (var context : boundedContexts) {
-            queryService.add(context);
-        }
-
-        service = queryService.build();
+        application = app;
+        service = QueryService.of(app);
     }
 
-    private void closeContexts() {
-        boundedContexts.forEach(BoundedContext::close);
-        boundedContexts.clear();
+    private void closeApplication() {
+        if (application != null) {
+            application.close();
+            application = null;
+        }
     }
 
     private static void checkOkResponse(MemoizingObserver<QueryResponse> responseObserver) {

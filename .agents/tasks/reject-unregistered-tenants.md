@@ -2,24 +2,39 @@
 
 ## Status
 
-**In progress.** The design was settled on 2026-11-04 (questions 1–10) and revised against
-`ErrorCase` on 2026-11-09 (questions 11–14), on top of the services slice of the `Status`
-rework (#1713, merged). The work is tracked by #1709.
+**In progress.** The design was settled on 2026-11-04 (questions 1–10), revised against
+`ErrorCase` on 2026-11-09 (questions 11–24), and redesigned on 2026-11-12 (questions 25–34),
+after `Application` and `ServerEnvironment` became instances (#1720). The work is tracked
+by #1709.
 
 Progress:
 
-- [ ] PR 1, the tenant index of the application: #1717, from branch
-  `claude/application-tenant-index` (`2.0.0-SNAPSHOT.670`).
-- [ ] PR 2, rejecting unregistered tenants: the record of `Application`, `TenantAdded`, and
-  the gate (Q24).
+- [x] PR 1, the tenant index of the application: #1717, merged on 2026-11-10.
+- [ ] PR 2, rejecting unregistered tenants (Q25, Q26): the gate, the checks of the tenant of
+  queries and subscriptions, and the `ApplicationLog` that reports the requests refused before
+  they reach a Bounded Context. Implemented on 2026-11-12 in branch
+  `claude/reject-unregistered-tenants-7939c6` (`2.0.0-SNAPSHOT.710`); see "As implemented".
 
-Since the rework, the client learns only the kind of a problem: `ErrorCase.TENANT_ERROR` for
-every tenant problem. The server records the details as System events. Sections 3–6 are
-rewritten for it, and section 10 is new.
+Since the redesign:
 
-Confirmed while revising: `UnregisteredTenantPolicy` is set on `Application`, which holds the
-tenant index (from Q5). The other two items of the former "To confirm" list described
-`TenantError`, which is dropped (Q11).
+- there is no `UnregisteredTenantPolicy`: a request of an unregistered tenant is always
+  refused (Q25);
+- `ApplicationLog` replaces the event store of `Application` (Q27);
+- the gRPC services are created from an `Application` (Q29);
+- `TenantAdded` and the removal of `CommandValidationError` are left out of PR 2 (Q26).
+
+Sections 2–7, 10, and 12 describe the design of 2026-11-12. Sections 8 and 11 describe PR 1 as
+merged; `application-instances.md` describes how #1720 changed them since. Section 9 waits for
+a later PR.
+
+To confirm (assumed while planning on 2026-11-12, not asked):
+
+1. The levels: `WARNING` for the requests refused because of their tenant or their type,
+   `ERROR` for a failure of the index (section 10).
+2. The services no longer log on their own the refusals that they report to `ApplicationLog`.
+3. A topic that no context serves is subscribed in every context; only the membership of its
+   tenant is checked (section 3).
+4. `Application.close()` does not close its `ApplicationLog`.
 
 Decisions:
 
@@ -30,14 +45,14 @@ Decisions:
   See section 3. A bus-level check may come later, together with tenant removal.
 - Q3 (2026-11-04): `REJECT` is the default in all environments, `Tests` included.
   `MtBlackBox.withTenant()` registers its tenant; `BlackBoxClients.create(tenant)` does not.
-  See sections 2 and 7.
+  See sections 2 and 7. Since Q25 there is no policy: such requests are always refused.
 - Q4 (2026-11-04, superseded by Q11): tenant errors use a Protobuf enum nested in a message,
   `spine.core.TenantError.Reason` (option B2).
 - Q5 (2026-11-04): one tenant index for the whole application, in this change. It is held
   by a new `Application` singleton, not by `ServerEnvironment`: `ServerEnvironment` is about
   the technologies that implement the server side, not about domain things like tenants.
   See section 8. Following the same principle, `UnregisteredTenantPolicy` is set on
-  `Application` too.
+  `Application` too. Superseded by Q25: there is no policy.
 - Q6 (2026-11-04, superseded by Q11): a tenant that is not in the index is reported as
   `TenantError.Reason.TENANT_NOT_REGISTERED`, and `CommandValidationError` gets the alias
   `TENANT_NOT_SPECIFIED` for the ambiguous `TENANT_UNKNOWN`.
@@ -48,6 +63,7 @@ Decisions:
   spine-ts revisits it when it adopts `ErrorCase`.
 - Q9 (2026-11-04): `TenantAdded` stays, and is posted when a tenant is added, so that the
   Bounded Contexts can prepare their internals for the new tenant's requests. See section 9.
+  Left out of PR 2 by Q26.
 - Q10 (2026-11-04): `TenantAdded` is a notification. The contexts may finish preparing after
   the tenant's first request; handlers are idempotent. A synchronous preparation step can be
   added later, when a storage needs per-tenant setup. See section 9.
@@ -55,17 +71,19 @@ Decisions:
   only `ErrorCase.TENANT_ERROR`. The server records the details as System events named after
   the kind of request and the check. `CommandValidationError` is removed: no code uses it
   since #1713, which removed the read-side enums for the same reason. See sections 4 and 6.
+  The removal is left out of PR 2 by Q26: the enum still reports `DUPLICATE_COMMAND`.
 - Q12 (2026-11-09): a request refused because its tenant is not registered, and a request that
   no Bounded Context serves, are recorded by `Application`, as part of #1709. The serving
   context does not record them: its System context would store data under a tenant that
   does not exist, and on Datastore the first write creates the tenant's namespace.
-  See section 10.
+  See section 10. Since Q27, `Application` reports them to its `ApplicationLog`.
 - Q13 (2026-11-09): the record of `Application` is a single-tenant `EventStore` of its own.
   The events are appended to it directly: no bus, no context, no subscribers. See section 10.
+  Superseded by Q27.
 - Q14 (2026-11-09): `Application` does not store the record unless told to, like
   `SystemSettings.persistEvents()`. Until then, a refusal is only logged, and the store is not
   created. So a flood of requests with made-up tenants does not grow the storage of an
-  application that has not opted in. See section 10.
+  application that has not opted in. See section 10. Superseded by Q27.
 - Q15 (2026-11-09, while reviewing PR 1): no index per context. `BoundedContextBuilder` loses
   `setTenantIndex()`, `hasTenantIndex()`, and `getTenantIndex()`, so every multitenant context
   and its System context use the index of `Application`. A per-context index served no need of
@@ -105,6 +123,69 @@ Decisions:
 - Q23 (2026-11-09): this change goes into PR 1, not a PR of its own.
 - Q24 (2026-11-10): the former PRs 2–4 become one PR, PR 2: the record of `Application`,
   `TenantAdded`, and rejecting unregistered tenants. See "Implementation plan".
+  Superseded by Q26.
+
+- Q25 (2026-11-12): no `UnregisteredTenantPolicy`. A request whose tenant is not in the index
+  of the application is refused, always. See section 2.
+- Q26 (2026-11-12): one PR for the rest of #1709: the membership check, the checks of the
+  tenant of queries and subscriptions, and reporting the requests that no Bounded Context
+  serves. `TenantAdded` (section 9) and the removal of `CommandValidationError` (section 6) are
+  left out: the enum still reports `DUPLICATE_COMMAND` (`DoubleDispatchGuard`,
+  `EntityLifecycle`).
+- Q27 (2026-11-12): `ApplicationLog` reports the problems that concern no Bounded Context,
+  instead of an event store of `Application`. An interface with `log(level, message)`,
+  `logEvent(level, event)`, and `logEvent(level, message, event)`. The arguments other than
+  the level are functions, called only if the level is enabled. See section 10.
+- Q28 (2026-11-12): `DefaultLog`, the internal implementation used unless the builder of
+  `Application` gets another one, writes with Spine Logging. `@LoggingDomain("Application")`
+  on the class prefixes its records with `[Application]`. An event is printed as compact JSON
+  of the event packed into `Any`, so that the record names its type. The callers choose
+  the levels. Revised by Q38: the event is not packed.
+- Q29 (2026-11-12): the gRPC services are created from an `Application`:
+  `CommandService.of(application)`, `QueryService.of(application)`, and
+  `SubscriptionService.of(application)`. The builders, `AbstractServiceBuilder`, and
+  `withSingle()` are removed. See section 12.
+- Q30 (2026-11-12): `BlackBox.from(BoundedContext)` is removed. A black box needs the
+  application of its context for its clients and for `MtBlackBox.withTenant()`.
+- Q31 (2026-11-12): `Application.log()` is public, so that an application can write to the
+  same log. The builder takes the log with `setApplicationLog()`, and the `application {}`
+  DSL with the `applicationLog` property.
+- Q32 (2026-11-12): three events of `spine.server.app` describe the problems, one per problem:
+  `RequestOfUnregisteredTenantRejected`, `UnsupportedRequestRejected`, and `TenantCheckFailed`.
+  See section 10.
+- Q33 (2026-11-12): the checks of the tenant of queries and subscriptions record six System
+  events in the serving context, one per kind of request and check, as `TenantFilter` does for
+  commands. See section 4.
+- Q34 (2026-11-12): `Application` and the code written for it so far stay in `io.spine.server`.
+  The new parts (the log, the gate, the events) go to `io.spine.server.app`, and the Protobuf
+  types to the `spine.server.app` package.
+- Q35 (2026-11-12, while reviewing PR 2): the check that no two contexts handle commands of
+  one type moves from `CommandService.of()` to `Application.Builder.build()`, which runs it
+  before building any context, with the checks of names and entity state types. An application
+  needs it even when no `Server` exposes it. `BoundedContextBuilder.commandTypes()` tells the
+  command types of the repositories and command dispatchers of a builder; the failure is
+  `DuplicateCommandHandlerException`. Options considered: check right after building, with
+  `BoundedContext.commandTypes()`, closing the built contexts on a failure.
+- Q36 (2026-11-12, while reviewing PR 2): `RefusedRequest` holds the refused request itself,
+  not its ID, type URL, and actor context, so that a record of the log is complete for
+  diagnostics. See section 10.
+- Q37 (2026-11-12, while reviewing PR 2): each event of `ApplicationLog` carries a required
+  `reason`, readable by a person or an agent: the refusal has a reason, the request does not.
+  The services write these records with `logEvent(level, event)`, with no separate message.
+  See section 10.
+- Q38 (2026-11-12, while reviewing PR 2): `DefaultLog` prints an event as its own compact JSON,
+  with `@type` added as the first field, and does not pack it into `Any`. It only prints:
+  the services compose events that JSON can hold. See section 10. Revised by Q40: the type
+  goes before the JSON.
+- Q39 (2026-11-12, while reviewing PR 2): a request of a type unknown to the server is written
+  to `ApplicationLog` as text, naming the type and the ID of the request, like a request whose
+  type cannot be read. JSON cannot hold such a request, and the events are composed so that
+  `DefaultLog` needs no conversion. `UnsupportedRequestRejected` covers the types that are
+  internal or served by no context. See section 10.
+- Q40 (2026-11-12, while reviewing PR 2): `DefaultLog` writes an event as the name of its type,
+  followed by its own compact JSON form. Adding `@type` to the JSON meant splicing a field into
+  a string that the JSON printer had produced, with a special case for an empty object.
+  See section 10.
 
 ## Problem
 
@@ -279,83 +360,40 @@ public final boolean contains(TenantId id) {
 `NamespaceIndex` in `gcloud-jvm` should override `contains` with its existing
 `contains(Namespace)` lookup.
 
-### 2. `UnregisteredTenantPolicy` — opt-in automatic registration
+### 2. No policy for unregistered tenants
 
-`REJECT` is the default in every environment, `Tests` included (decision Q3). Tests and
-production behave the same, and most tests are unaffected anyway: in-process posts are not
-checked (decision Q2). `REGISTER` is an explicit opt-in for applications that rely on
-automatic registration while they migrate, and for test suites that post through the gRPC
-services with generated tenant IDs.
+Decided by Q25. A request whose tenant is not in the index of the application is refused, in
+every environment. There is no switch for automatic registration. An application registers
+its tenants with `application.tenantIndex().keep(tenantId)` as a part of its onboarding, and
+a test does it before it sends requests through the gRPC services. Requests posted in-process
+are not checked (Q2), so most tests are not affected.
 
-```kotlin
-package io.spine.server.tenant
-
-/**
- * Tells how a multitenant Bounded Context treats a request from a tenant
- * that its [TenantIndex] does not contain.
- */
-public enum class UnregisteredTenantPolicy {
-
-    /**
-     * Rejects the request with [ErrorCase.TENANT_ERROR][io.spine.core.ErrorCase.TENANT_ERROR].
-     *
-     * A command is answered with an `Ack` that carries the error case. A query or
-     * a subscription request fails with the `INVALID_ARGUMENT` gRPC status.
-     * The request is recorded by [Application].
-     *
-     * This is the default in all environments.
-     */
-    REJECT,
-
-    /**
-     * Registers the tenant in the index and serves the request.
-     *
-     * Use it for an application that relies on automatic registration while it moves
-     * to its own onboarding, or for tests that send requests through the gRPC services
-     * on behalf of newly generated tenants.
-     */
-    REGISTER
-}
-```
-
-The policy is set on `Application` (section 8), not on `ServerEnvironment`: it is about
-tenants, not about the technologies the server runs on. An application that needs different
-policies in different environments chooses one itself, with `Environment.instance().is(...)`.
-
-```kotlin
-// An existing production app that needs time to migrate its onboarding.
-Application.instance().use(UnregisteredTenantPolicy.REGISTER)
-
-// A test suite that posts through the services with generated tenants, as before.
-@BeforeAll
-fun registerTenantsOnFirstRequest() {
-    Application.instance().use(UnregisteredTenantPolicy.REGISTER)
-}
-
-@AfterAll
-fun restoreDefaultPolicy() {
-    Application.instance().use(UnregisteredTenantPolicy.REJECT)
-}
-```
-
-The release notes point both kinds of users to these lines.
+The policy designed before, `UnregisteredTenantPolicy` with `REJECT` and `REGISTER`, stays in
+the questions below (Q3, Q5) for the record.
 
 ### 3. One gate at the service boundary
 
-A single gate checks the tenant of every request that comes through `CommandService`,
-`QueryService`, and `SubscriptionService` (`subscribe`, `activate`, `cancel`). It runs in
-`ServiceDelegate`, after the context is found and before the request reaches the context.
-The delegates already tell the tenant of a request: `tenantOf()` was added by #1713.
+The services check the tenant of every request that comes through `CommandService`,
+`QueryService`, and `SubscriptionService` (`subscribe`, `activate`, `cancel`). The check runs in
+`ServiceDelegate`, after the serving context is found and before the request reaches it.
+The services are created from the application they serve (section 12), so they ask it for
+the tenant index and for the log. The delegates already tell the tenant of a request:
+`tenantOf()` was added by #1713.
 
-The gate makes two checks:
+The gate makes two checks, in this order:
 
-- **Shape:** a tenant is given if, and only if, the context is multitenant. Only for queries
-  and subscriptions. The `TenantFilter` of the `CommandBus` checks commands, because
-  in-process posts must be checked too; its answer does not change. A refused request is
-  recorded in the System context of the serving context, as `TenantFilter` does for commands.
-- **Membership:** the tenant is registered in the index of a multitenant context. For all
-  three services. With `REGISTER`, the tenant is registered and the request is served. With
-  `REJECT`, the request is refused and recorded by `Application` (section 10).
+- **Shape:** a tenant is given if, and only if, the context is multi-tenant. Only for queries
+  and subscriptions. The `TenantFilter` of the `CommandBus` checks commands, because in-process
+  posts must be checked too; its answer does not change. A refused request is recorded in the
+  System context of the serving context (Q33), as `TenantFilter` does for commands.
+- **Membership:** the tenant is in the index of the application. For all three services, and
+  only in a multi-tenant context. A refused request is reported to `ApplicationLog`
+  (section 10). If the index fails to answer, the request fails with `INTERNAL_ERROR`, and the
+  failure is reported to `ApplicationLog` too.
+
+A topic that no context serves is subscribed in every context of the application. It has no
+serving context to compare the shape with, so only the membership of its tenant is checked,
+whenever the topic has a tenant.
 
 ```java
 // ServiceDelegate
@@ -366,101 +404,11 @@ private void serveIn(BoundedContext context,
     if (!admitted(context, request, observer)) {
         return;
     }
-    try {
-        serve(context, request, observer, params);
-    } catch (RuntimeException e) {
-        // As in #1713: `failureEvent()` is recorded in the context, `INTERNAL_ERROR`.
-    }
-}
-
-/**
- * Checks the tenant of the request, and refuses a request that does not pass.
- *
- * @return {@code true} if the request may be served
- */
-private boolean admitted(BoundedContext context, T request, StreamObserver<R> observer) {
-    var tenant = tenantOf(request);
-    try {
-        var misfit = tenantMisfit(context, request, tenant);
-        if (misfit != null) {
-            reject(context, request, misfit, TENANT_ERROR, observer);
-            return false;
-        }
-        if (!TenantGate.admits(context, tenant)) {
-            Application.instance().record(tenantNotRegistered(context, request, tenant),
-                                          validOriginOf(request));
-            refuse(request, TENANT_ERROR, observer, "The tenant is not registered.");
-            return false;
-        }
-        return true;
-    } catch (RuntimeException e) {
-        // The index cannot answer. Recorded by `Application`, not under the tenant.
-        Application.instance().record(failureEvent(request, Errors.fromThrowable(e)),
-                                      validOriginOf(request));
-        respondWithError(request, INTERNAL_ERROR, observer);
-        return false;
-    }
-}
-
-/**
- * Creates the event that records a request whose tenant does not fit the context.
- *
- * @return the event, or {@code null} if the tenant fits the context, or if the tenant of
- *         such requests is checked elsewhere
- */
-protected abstract @Nullable EventMessage tenantMisfit(BoundedContext context,
-                                                       T request,
-                                                       TenantId tenant);
-
-/**
- * Creates the event that records a request of a tenant that is not registered.
- */
-protected abstract EventMessage tenantNotRegistered(BoundedContext context,
-                                                    T request,
-                                                    TenantId tenant);
-```
-
-`CommandService` returns `null` from `tenantMisfit()`, because `TenantFilter` does that check.
-
-```kotlin
-package io.spine.server.tenant
-
-/**
- * Admits requests to a Bounded Context depending on their tenant.
- */
-internal object TenantGate {
-
-    /**
-     * Tells if a request of the given tenant may reach the context.
-     *
-     * Always `true` for a single-tenant context or a request without a tenant:
-     * the shape of the tenant is checked separately.
-     *
-     * Registers the tenant if it is not registered and the policy of [Application]
-     * is [REGISTER][UnregisteredTenantPolicy.REGISTER].
-     */
-    @JvmStatic
-    fun admits(context: BoundedContext, tenant: TenantId): Boolean {
-        if (!context.isMultitenant || tenant.isDefault()) {
-            return true
-        }
-        val index = Application.instance().tenantIndex()
-        if (index.contains(tenant)) {
-            return true
-        }
-        return when (Application.instance().unregisteredTenantPolicy()) {
-            UnregisteredTenantPolicy.REGISTER -> {
-                index.keep(tenant)
-                true
-            }
-            UnregisteredTenantPolicy.REJECT -> false
-        }
-    }
+    // Serves the request, as before.
 }
 ```
 
-`CommandBus` no longer registers tenants since PR 1 (Q19): `CommandBus.store()` does nothing,
-because the bus does not store commands.
+`CommandBus` does not register tenants since PR 1 (Q19).
 
 Why the boundary and not the buses:
 
@@ -473,11 +421,6 @@ Why the boundary and not the buses:
 - In-process posting (`context.commandBus().post(...)`, `BlackBox.receivesCommand`) keeps
   working unchanged, so most tests are unaffected.
 
-Open for PR 2: `SubscriptionService` subscribes a topic that no context serves in every
-context (`serveNoContext`). Such a topic has no serving context to check against. It can be
-checked against the index of `Application` and its policy, which every multitenant context
-uses.
-
 ### 4. What the client gets, and what is recorded
 
 Every tenant problem is answered with `ErrorCase.TENANT_ERROR` (Q11). Read failures use
@@ -487,15 +430,15 @@ Every tenant problem is answered with `ErrorCase.TENANT_ERROR` (Q11). Read failu
 
 | Problem | Commands | Queries and subscriptions | Recorded |
 |---|---|---|---|
-| No tenant, multitenant context | `Ack` with `TENANT_ERROR`, from `TenantFilter` (as today) | `INVALID_ARGUMENT`, `TENANT_ERROR` | In the serving context: `CommandTenantNotSpecified` (exists), `QueryTenantNotSpecified`, `TopicTenantNotSpecified`, `SubscriptionTenantNotSpecified` |
+| No tenant, multi-tenant context | `Ack` with `TENANT_ERROR`, from `TenantFilter` (as today) | `INVALID_ARGUMENT`, `TENANT_ERROR` | In the serving context: `CommandTenantNotSpecified` (exists), `QueryTenantNotSpecified`, `TopicTenantNotSpecified`, `SubscriptionTenantNotSpecified` |
 | A tenant, single-tenant context | `Ack` with `TENANT_ERROR`, from `TenantFilter` (as today) | `INVALID_ARGUMENT`, `TENANT_ERROR` | In the serving context: `CommandTenantNotExpected` (exists), `QueryTenantNotExpected`, `TopicTenantNotExpected`, `SubscriptionTenantNotExpected` |
-| The tenant is not registered (`REJECT`) | `Ack` with `TENANT_ERROR`, from `CommandService` | `INVALID_ARGUMENT`, `TENANT_ERROR` | By `Application`: `CommandTenantNotRegistered`, `QueryTenantNotRegistered`, `TopicTenantNotRegistered`, `SubscriptionTenantNotRegistered` |
-| The index cannot answer | The call fails with `INTERNAL_ERROR`, like other unexpected failures | `INTERNAL`, `INTERNAL_ERROR` | By `Application`: `CommandPostingFailed`, `QueryExecutionFailed`, `SubscriptionServiceFailed` |
+| The tenant is not registered | `Ack` with `TENANT_ERROR`, from `CommandService` | `INVALID_ARGUMENT`, `TENANT_ERROR` | `ApplicationLog`, `WARNING`: `RequestOfUnregisteredTenantRejected` |
+| The index cannot answer | The call fails with `INTERNAL_ERROR`, like other unexpected failures | `INTERNAL`, `INTERNAL_ERROR` | `ApplicationLog`, `ERROR`: `TenantCheckFailed` |
 
 `SubscriptionTenant*` events record the activation and the cancellation of a subscription.
 The events of a topic are `TopicTenant*`.
 
-The new events follow the rules of #1713:
+The six new System events follow the rules of #1713:
 
 - They go to a new `spine/system/server/tenant_events.proto`, with `(internal_all)` and
   `java_package = "io.spine.system.server.event"`. `CommandTenantNotSpecified` and
@@ -503,12 +446,11 @@ The new events follow the rules of #1713:
   subscribes to them.
 - The ID of the request is the first field. It is not `(required)`: the gate runs before the
   request is validated, so the request may have no ID. The field doc says so.
-- The read events carry the `core.ActorContext actor_context` of the request, like the other
-  read events of #1713.
-- `*TenantNotExpected` and `*TenantNotRegistered` carry `core.TenantId tenant`
-  `[(required) = true]`. `*TenantNotRegistered` also carries
-  `core.BoundedContextName context` `[(required) = true]`, because the record of
-  `Application` is shared by all contexts.
+- They carry the `core.ActorContext actor_context` of the request, like the other read events
+  of #1713.
+- `*TenantNotExpected` carry `core.TenantId tenant` `[(required) = true]`.
+
+The events of `ApplicationLog` are described in section 10.
 
 ### 5. Commands: an unregistered tenant is answered with an `Ack`
 
@@ -522,11 +464,16 @@ needed for the answer.
   changed by slice 4 of the rework), and cancels the subscriptions it made before posting.
 - Nothing is recorded under the unregistered tenant. The command never enters the
   `CommandBus`, so there is no `CommandReceived` and no `CommandLog` record.
-  `CommandTenantNotRegistered` goes to the record of `Application` (section 10).
+  The refusal is reported to `ApplicationLog` with `RequestOfUnregisteredTenantRejected`
+  (section 10).
 - spine-ts: Q8 kept `NOT_FOUND` there under the old wire contract. spine-ts adopts
   `ErrorCase` as a follow-up of the rework, and revisits Q8 then.
 
 ### 6. Removing `CommandValidationError`
+
+Left out of PR 2 by Q26. `DoubleDispatchGuard` and `EntityLifecycle` still report
+`DUPLICATE_COMMAND` with the enum, so it can go only when that value has another home.
+The plan, as decided before:
 
 Decided (Q11). Since #1713, no code uses `spine.core.CommandValidationError`: the
 `CommandBus` and the services report problems with `ErrorCase` and System events. #1713
@@ -541,21 +488,24 @@ the same reason. `CommandValidationError` is removed from `command.proto`:
 
 ### 7. Test library
 
-`MtBlackBox.withTenant()` registers the tenant. The test author says the tenant exists,
-so this matches the meaning of the call. It also keeps `BlackBox.clients()` working under
-the `REJECT` default, since those clients go through an in-process `GrpcContainer`.
+`MtBlackBox.withTenant()` registers the tenant in the index of the application of the black
+box. The test author says the tenant exists, so this matches the meaning of the call. It also
+keeps `BlackBox.clients()` working, since those clients go through an in-process
+`GrpcContainer`, whose services check the tenant.
 
 ```java
 @Override
 @CanIgnoreReturnValue
 public MtBlackBox withTenant(TenantId tenant) {
     this.tenantId = checkNotNull(tenant);
-    Application.instance()
-               .tenantIndex()
-               .keep(tenant);
+    application().tenantIndex()
+                 .keep(tenant);
     return this;
 }
 ```
+
+A black box always has an application: `BlackBox.from(BoundedContext)` is removed (Q30).
+Tests use `BlackBox.from(Application)` or `BlackBox.from(BoundedContextBuilder)`.
 
 `BlackBoxClients.create(TenantId)` does **not** register the tenant. A test can use it to
 check that a request of an unregistered tenant is rejected.
@@ -683,6 +633,8 @@ Changes elsewhere:
 
 ### 9. `TenantAdded` — contexts prepare for a new tenant
 
+Left out of PR 2 by Q26, for a later PR. The design, as decided before:
+
 Decided (Q9). `TenantAdded` stays and is posted when a tenant is added, so that Bounded
 Contexts can prepare their internals for the new tenant's requests.
 
@@ -760,67 +712,79 @@ internal class AnnouncingTenantIndex(
   before the tenant is registered) can be added when a storage needs per-tenant setup;
   none of the JVM storages does today.
 
-### 10. The record of `Application`
+### 10. `ApplicationLog`
 
-Decided by Q12–Q14. Some refused requests have no context to record them in:
+Decided by Q27, Q28, Q31, and Q32. It replaces the event store of `Application` that Q13 and
+Q14 planned. Some refused requests concern no Bounded Context:
 
 - a request that no Bounded Context serves, or of a type internal or unknown to the server
-  (`UNSUPPORTED_REQUEST`; since #1713 it is only logged);
+  (`UNSUPPORTED_REQUEST`), or whose type cannot be read (`INVALID_REQUEST`);
 - a request of an unregistered tenant (`TENANT_ERROR`, section 4): the serving context would
-  store it under a tenant that does not exist;
+  record it under a tenant that does not exist, and on Datastore the first write creates
+  the tenant's namespace;
 - a failure of the index to answer (`INTERNAL_ERROR`, section 4), for the same reason.
 
-`Application` records them in an `EventStore` of its own:
-
-- **Off by default.** `Application.instance().persistEvents()` turns storing on, and
-  `forgetEvents()` turns it off, as in `SystemSettings`. Until storing is on, a refusal is only
-  logged by `ServiceDelegate`, as today, and the store is not created.
-- **Single-tenant.** The store is created with the storage factory of `ServerEnvironment`, for
-  the reserved single-tenant spec `ContextSpec.singleTenant("__APPLICATION__")`. `Application`
-  refuses this name for a Bounded Context. The tenant of a request stays in its event: in the
-  `tenant` field, in the `actor_context` of a read event, and in the origin of a command event.
-- **Apart from the events of the contexts.** `DefaultEventStore` groups its storage by the
-  context name (`StorageGroup.of(BoundedContextName)`). Once `jdbc-storage` and `gcloud-jvm`
-  honor the group (`event-store-context-prefix.md`), the record has its own table or kind.
-- **No bus, no context.** The events are built the way the System contexts build theirs (the
-  producer is the first field of the message) and appended with `EventStore.append()`. Nothing
-  subscribes to them. Operations tooling reads them from the storage; tests read them through a
-  `@VisibleForTesting` accessor.
-- **Events.** A request that no context serves is recorded with the types the contexts use for
-  an unsupported request: `UnsupportedCommandReceived`, `UnsupportedQueryReceived`,
-  `UnsupportedTopicReceived`, `UnknownSubscriptionActivationRequested`, and
-  `UnknownSubscriptionCancellationRequested`. `UnsupportedCommandReceived.id` loses
-  `(required)`, because such a command is not validated. Their docs say that `Application`
-  records them too. Tenant problems use the events of section 4. A request whose type cannot be
-  read (`INVALID_REQUEST`) is only logged: nothing tells which kind of request it is.
-- **Closing.** `Application.close()` closes the store together with the tenant index, before
-  `ServerEnvironment` closes the storage factory.
+Such problems are few, so they get no `EventBus`, no `EventStore`, and no context. The
+services report them to the log of the application:
 
 ```kotlin
-// Application
+package io.spine.server.app
 
-/**
- * Tells the application to store the requests that are refused before they reach
- * a Bounded Context.
- */
-@CanIgnoreReturnValue
-public fun persistEvents(): Application
+public interface ApplicationLog {
 
-/**
- * Tells the application not to store the refused requests. This is the default.
- */
-@CanIgnoreReturnValue
-public fun forgetEvents(): Application
+    public fun log(level: Level, message: () -> String)
 
-/**
- * Records the event of a refused request, if storing is on.
- */
-@Internal
-public fun record(event: EventMessage, origin: Origin)
+    public fun logEvent(level: Level, event: () -> EventMessage)
+
+    public fun logEvent(level: Level, message: () -> String, event: () -> EventMessage)
+}
 ```
 
-`record()` is public with `@Internal`, not Kotlin `internal`: the services that call it are
-Java classes.
+- The level is `io.spine.logging.Level`. The other arguments are functions, so that nothing is
+  computed for a level that is not enabled.
+- The methods that take an event are named `logEvent`: `log(Level, () -> String)` and
+  `log(Level, () -> EventMessage)` would have one JVM signature, and `@JvmName` is not allowed
+  on the members of an interface.
+- `Application.Builder.setApplicationLog()`, and the `applicationLog` property of the
+  `application {}` DSL, set the log. `Application.log()` gives it, so that an application can
+  write there too, for example, when it registers a tenant.
+- Unless another log is set, the application uses `DefaultLog`, an `internal` class that writes
+  with Spine Logging:
+  - `@LoggingDomain("Application")` on the class prefixes each record with `[Application] `.
+    The name of its logger, `io.spine.server.app.DefaultLog`, lets a logging backend route the
+    records apart from the others.
+  - An event is written as the name of its type, followed by its own compact JSON form (Q40),
+    for example, `spine.server.app.UnsupportedRequestRejected {"request":{…},"reason":"…"}`.
+    The event is not packed into `Any` (Q38): packing serializes it, and printing the `Any`
+    reads the bytes back.
+  - `logEvent(level, message, event)` writes one record of two lines: the message, then the
+    event.
+- `Application.close()` does not close the log.
+
+The events, in `spine/server/app/events.proto`, with `java_package = "io.spine.server.app"`:
+
+| Event | Reported when | Level |
+|---|---|---|
+| `RequestOfUnregisteredTenantRejected` | The tenant is not in the index. | `WARNING` |
+| `TenantCheckFailed` | The index fails to tell if it has the tenant. | `ERROR` |
+| `UnsupportedRequestRejected` | No context serves the type, or the type is internal to the server. | `WARNING` |
+
+- Each event carries a `RefusedRequest`, declared in `spine/server/app/refused_request.proto`
+  because it is not an event: the request itself, as a `oneof` (`command`, `query`, `topic`,
+  `subscription_activation`, `subscription_cancellation`) (Q36). The request may be invalid: it
+  is refused before it is validated. The events must be valid when they are composed:
+  `request`, `tenant`, `error`, and `reason` are `(required)`, and so is the `oneof` of
+  `RefusedRequest` (`(choice).required`). The refused request itself is not validated.
+- The tenant events also carry the tenant and the name of the serving context, and
+  `TenantCheckFailed` carries the error.
+- Each event carries a required `reason`: why the request was refused, written for a person or
+  an agent reading the log (Q37). For `UnsupportedRequestRejected`, it tells which of the three
+  causes it was. The services write these records with `logEvent(level, event)`, so the text is
+  not written twice.
+- A request whose type cannot be read gets only `log(WARNING) { … }`, since nothing tells what
+  kind of request it is. So does a request of a type unknown to the server (Q39): JSON cannot
+  hold it, so the text names its type and its ID instead.
+- The services no longer log these refusals with their own loggers.
 
 ### 11. `Server` serves the contexts of `Application`
 
@@ -865,101 +829,134 @@ server serves them instead of building contexts of its own.
   the copy of hello in `documentation`, and the demo servlet of `delivery` build their
   contexts before the server.
 
+### 12. The services are created from `Application`
+
+Decided by Q29 and Q30. The gate needs the tenant index and the log of the application, and a
+Bounded Context keeps no reference to its application (Q5 of `application-instances.md`). So
+the services are created from the application, as `Server` is:
+
+- `CommandService.of(application)`, `QueryService.of(application)`, and
+  `SubscriptionService.of(application)` serve all the contexts of the application.
+  The builders, `AbstractServiceBuilder`, and `withSingle(BoundedContext)` are removed: they
+  held nothing but the contexts.
+- `Application.Builder.build()` refuses an application whose two contexts handle one command
+  type, before it builds any context (Q35). Before, `CommandService.Builder.build()` checked it
+  (section 11).
+- `Server.Builder` creates the services with `of(application)`.
+- `BlackBox.from(BoundedContext)` is removed (Q30): the clients of a black box are served by the
+  services of its application, and `MtBlackBox.withTenant()` registers the tenant in its index.
+
 ## Expected impact on existing tests
 
 - In-process posting does not go through the gate, so most tests that use generated
-  tenant IDs keep passing under the `REJECT` default.
+  tenant IDs keep passing.
 - Tests that post through the services with generated tenants must register them first:
   `CommandServiceTest`, `CommandServiceTenancyTest`, `CommandServiceMultiTenancySpec`, and the
-  multitenant cases of `QueryServiceTest`, `SubscriptionServiceTest`, and the
-  `*ErrorCaseSpec` classes. To be confirmed by a run in PR 2.
+  multi-tenant cases of `QueryServiceTest`, `SubscriptionServiceTest`, and the
+  `*ErrorCaseSpec` classes.
 - The shape checks of queries and subscriptions are new. A query or a subscription without
-  a tenant in a multitenant context was served from the `SINGLE_TENANT` partition; now it is
-  refused with `TENANT_ERROR`. Tests that rely on it are found by the run in PR 2.
+  a tenant in a multi-tenant context was served from the `SINGLE_TENANT` partition; now it is
+  refused with `TENANT_ERROR`.
 - The `BlackBox.clients()` tests pass because `withTenant()` registers.
-- No test asserts that posting a command registers a tenant. `ProjectionRepositoryTest`
-  already calls `keep` itself.
-- All multitenant contexts of a test JVM share the in-memory index of `Application`, and
-  `TenantAdded` goes to every open multitenant context. No context in the tests handles
-  `TenantAdded`, and it travels through the System contexts, not the domain `EventBus` that
-  `BlackBox.assertEvents()` watches, so existing assertions are not affected.
-- Tests that set a policy or turn the record on set the defaults back when they finish:
-  `use(UnregisteredTenantPolicy.REJECT)`, `forgetEvents()`.
-- New specs: the gate for each service and each row of the table in section 4, with the
-  event and where it is recorded; `contains` in `TenantStorage` (cache hit, point read, no
-  negative caching); the record of `Application` (off by default and not created; when on,
-  each kind of refused request is stored with its tenant; `close()`); no
-  `CommandReceived` for a command of an unregistered tenant.
+- The tests that create the services from contexts create them from an application
+  (section 12); the delivery tests that wrap a built context into a black box use
+  `BlackBox.from(Application)`.
+- New specs: the gate for each service and each row of the table in section 4, with the event
+  and where it is recorded; `DefaultLog` (the prefix, the type name and the JSON, the two-line
+  record, no call of the functions when the level is off); the log of `Application` (the
+  default, a log set on the builder); no `CommandReceived` for a command of an unregistered
+  tenant; the services reporting the requests that no context serves.
 
 ## Implementation plan
 
-Two PRs in core-jvm, in this order (Q24). Each one bumps the
-version (`bump-version`), regenerates the dependency reports with a full build, and passes
-`./gradlew clean build dokkaGenerate`. After every test run, read the test count, not only
-the exit code.
+PR 1 was merged as #1717. PR 2 does the rest, in one PR (Q26). It is breaking: it removes the
+service builders and `BlackBox.from(BoundedContext)`, and refuses requests that were served
+before. Bump the version (`bump-version`), regenerate the dependency reports with a full build,
+and pass `./gradlew clean build dokkaGenerate`. After every test run, read the test count, not
+only the exit code.
 
-1. **Tenant index for the application.** No change in how requests are served.
-   - `TenantIndex.contains()` (default method) and `TenantStorage.contains()` (section 1).
-   - `Application` (Kotlin, section 8): `tenantIndex()`, `use(TenantIndex)`, `close()`, and
-     the internal `closeIndex()`. `OpenContexts` becomes `ContextRegistry`, a part of
-     `Application` (Q16, Q20).
-   - Bounded Contexts keep no tenant index (Q18), and contexts cannot be given one (Q15):
-     `BoundedContextBuilder` loses `setTenantIndex()`, `hasTenantIndex()`, and
-     `getTenantIndex()`; `BoundedContext` its index and `InternalAccess.tenantIndex()`;
-     `BusBuilder` its tenant-index API.
-   - `CommandBus` no longer registers the tenants of the commands (Q19).
-   - `Server` serves the contexts of `Application`; `Server.Builder.add()` is removed;
-     `CommandService` refuses two contexts handling one command type (section 11).
-   - Specs: `contains` (cache hit, point read, no negative caching); `Application` (lazy
-     default, `use` after first use throws, `close` closes the contexts and then the index,
-     `closeIndex`); a multitenant `CommandBus` does not register the tenant of a posted
-     command.
-2. **Reject unregistered tenants.** The record of `Application`, `TenantAdded`, and
-   the behavior change, in one PR (Q24). Needs PR 1.
-   - **The record of `Application`.** Records the requests that no context serves.
-     - `persistEvents()`, `forgetEvents()`, the lazily created `EventStore`, and `record()`
-       (section 10).
-     - `ServiceDelegate` records the requests that no context serves, and those of a type
-       internal or unknown to the server, by `Application`. `UnsupportedCommandReceived.id`
-       loses `(required)`; the docs of the reused events say where they are recorded.
-     - `CommandValidationError` is removed (section 6).
-     - Specs: off by default, nothing created; when on, each kind of request that no context
-       serves is stored with its tenant; `close()`.
-   - **`TenantAdded`.**
-     - `AnnouncingTenantIndex`, returned by `Application.tenantIndex()` (section 9). Posting
-       through the System write side of each open multitenant context, under the new tenant.
-     - The documentation of `TenantAdded`: a notification, may arrive after the first
-       request, may arrive twice, reaches the contexts of the node that added the tenant.
-     - Specs: a reactor or process manager in each of two contexts receives `TenantAdded`
-       once per new tenant, and not for a tenant that is already in the index.
-   - **The gate.** The behavior change.
-     - `UnregisteredTenantPolicy` in `Application` (section 2); `TenantGate` and the gate in
-       `ServiceDelegate` (section 3).
-     - The events of section 4 in `tenant_events.proto`. The shape checks of queries and
-       subscriptions are recorded in the serving context; `*TenantNotRegistered` and the
-       failures of the index, by `Application`.
-     - `MtBlackBox.withTenant()` registers (section 7).
-     - Tests: register tenants where the services are called with generated tenants; new
-       specs from "Expected impact on existing tests".
-     - Check test isolation again: one case of `ApplicationSpec` (PR 1) closes the tenant
-       index of the `Application` of the test JVM, so the contexts that earlier tests left
-       open hold a closed index afterwards. No test uses a context across test classes today;
-       with the gate, such a context would fail on every request.
-     - Documentation: the Javadoc of `CommandService.post()` and of the query and subscription
-       services; release notes on `REJECT`, how to turn on `REGISTER`, the new shape checks
-       of queries and subscriptions, and `Application.persistEvents()`.
+1. **Protobuf.** `spine/server/app/refused_request.proto` (`RefusedRequest`) and
+   `spine/server/app/events.proto` (the three events of section 10), with
+   `java_package = "io.spine.server.app"`; `spine/system/server/tenant_events.proto` (the six
+   events of section 4).
+2. **`io.spine.server.app`.** `ApplicationLog`, `DefaultLog`, and the membership check of the
+   gate.
+3. **`Application`.** `log()`, `Builder.setApplicationLog()`, and the `applicationLog`
+   property; `DefaultLog` unless set.
+4. **The services** (section 12). `of(Application)`; the builders, `AbstractServiceBuilder`,
+   and `withSingle()` removed; `Server` creates the services from its application.
+5. **The gate** (section 3). `ServiceDelegate` checks the shape of the tenant of queries and
+   subscriptions, then its membership. The refusals and failures of section 4, and the
+   requests that no context serves, are reported to `ApplicationLog`.
+6. **`server-testlib`** (section 7). `BlackBox.from(BoundedContext)` removed; the clients of
+   a black box are served by the services of its application; `MtBlackBox.withTenant()`
+   registers.
+7. **Tests.** Create the services from applications; register the tenants that tests send
+   through the services; the new specs of "Expected impact on existing tests".
+8. **Docs.** The Javadoc of `TenantIndex`, the services, and `ServiceDelegate`; the migration
+   guide; the release notes on refusing unregistered tenants and on `ApplicationLog`.
 
 Follow-ups in other repositories, once PR 2 is merged:
 
-- **spine-ts:** drop `CommandValidationError` together with the enums that #1713 removed, when
-  it adopts `ErrorCase`; revisit how it answers a command of an unregistered tenant (Q8).
-- **gcloud-jvm:** set the index of `Application` instead of calling the removed
-  `setTenantIndex()` in `DatastoreStorageFactory.configureTenantIndex()`; override `contains`
-  in `NamespaceIndex`; make registration durable, so that other nodes do not reject a tenant
-  until it has data (item 5 below); honor the storage group of the event store, so that the
-  record of `Application` gets its own kind.
-- **jdbc-storage:** honor the storage group of the event store, so that the record of
-  `Application` gets its own table.
+- **spine-ts:** revisit how it answers a command of an unregistered tenant (Q8) when it adopts
+  `ErrorCase`.
+- **gcloud-jvm:** set the index of the application in `DatastoreStorageFactory`; override
+  `contains` in `NamespaceIndex`; make registration durable, so that other nodes do not reject
+  a tenant until it has data (item 5 below).
+
+Follow-ups in core-jvm: `TenantAdded` (section 9), and the removal of `CommandValidationError`
+(section 6), once `DUPLICATE_COMMAND` has another home.
+
+## As implemented
+
+Added while implementing PR 2, within the decisions above:
+
+- The gate checks the shape of the tenant through two hooks of `ServiceDelegate`,
+  `tenantNotSpecified()` and `tenantNotExpected()`, which create the System event of the
+  problem. `CommandService` returns `null` from both, so commands keep being checked by
+  `TenantFilter`. Each service also describes its requests for the log with `refusedRequest()`.
+- The membership check is the internal `TenantGate` of `io.spine.server.app`. It returns the
+  error case to answer with: `TENANT_ERROR` for an unregistered tenant, `INTERNAL_ERROR` if the
+  index fails.
+- The `context` field of `RequestOfUnregisteredTenantRejected` and `TenantCheckFailed` is not
+  required: a topic that no context serves is subscribed in every context, and has no serving
+  context. Such a topic, and the activation and cancellation of its subscription, get only the
+  membership check, and only if the application has a multi-tenant context.
+- The services serve all the contexts of the application. `TypeDictionary` loses `contexts()`
+  and `isEmpty()`, which nothing uses any more.
+- `GivenCommandService` (test fixtures) is removed: tests create the services from test
+  applications. `CommandServiceBuilderSpec` became `CommandServiceOfSpec`.
+- `AbstractDeliveryTest.newApplication()` is public, for tests that need the context and the
+  black box of one application. `blackBox()` builds a black box over an application of its own,
+  and closing the black box closes the application.
+- The routing fixtures `createFizzBuzzContext()`, `createSortingContext()`, and
+  `drawingContext()` return builders. `ProjectionEndToEndTest` checks the external delivery
+  between two contexts of one application without black boxes: a black box needs an
+  application of one context.
+- The migration guide is `docs/migration/unregistered-tenants.md`.
+- After merging #1725 (2026-11-12), activation and cancellation of a subscription to a topic
+  that no context serves share one path in `SubscriptionDelegate`, which checks the tenant first.
+  `SubscriptionServiceUnservedTopicSpec` creates its services from applications: the contexts
+  disagree because the subscription is created in one context's `Stand` directly, and the
+  multi-tenant case registers its tenants.
+
+Added after the pre-PR review (2026-11-12):
+
+- The KDoc of `ApplicationLog` states that an implementation must be thread-safe and must not
+  throw: the services write to it concurrently, while they answer requests. `DefaultLog` is
+  an `object`, since it holds no state.
+- `io.spine.server.given.FailingIndex` serves the specs of the gate, which no longer use `!!`.
+- Base is `2.0.0-SNAPSHOT.465` (SpineEventEngine/base-libraries#971): `runKeepingFailure()`
+  lets Java callers ignore its result, so IDEA does not report them.
+
+Added after the review of the PR (#1727, 2026-11-12):
+
+- `BoundedContextBuilder.commandTypes()` counts the commands of the event dispatchers that
+  delegate the dispatching of commands to them too: a context registers them with its
+  `CommandBus`.
+- `CommandRequest.post()` reports the error case of a refused subscription to its events, for
+  example, of an unregistered tenant, to the server error handler, cancels the subscriptions
+  already made, and does not post the command, instead of letting the gRPC exception escape.
 
 ## Other aspects to discuss
 
@@ -1000,10 +997,11 @@ Follow-ups in other repositories, once PR 2 is merged:
     `io.spine.server.Application`, in the files that use both.
 13. **`OpenContexts` belongs to `Application` too.** Resolved by Q16: in PR 1, the record of
     the open contexts and of the entity state types they serve became a part of `Application`.
-14. **Floods of refused requests.** `ServiceDelegate` logs every refusal at `WARNING`, with no
-    rate limit, as it does for the other refusals since #1713. With the record of `Application`
-    on, every refusal is also stored. An application open to anonymous callers should
-    authenticate them first (item 6).
+14. **Floods of refused requests.** Every refusal is reported to `ApplicationLog`, with no
+    rate limit, as `ServiceDelegate` logs the other refusals since #1713. Since Q36, each record
+    holds the whole request, so the volume of the log grows with the size of the requests, and
+    the log holds the data that the callers send. An application open to anonymous callers
+    should authenticate them first (item 6).
 
 ## Questions and the options considered
 
@@ -1238,3 +1236,77 @@ Questions 4, 6, and 8 were superseded on 2026-11-09 by question 11.
 23. ~~In PR 1, or a PR of its own?~~ Decided: PR 1.
 24. ~~Keep the record of `Application`, `TenantAdded`, and the gate in three PRs?~~ Decided: one
     PR, PR 2, after PR 1. So the plan has two PRs.
+25. ~~Keep `UnregisteredTenantPolicy`?~~ Decided: no. An unregistered tenant is always
+    refused. The option of `REGISTER` for applications that rely on automatic registration was
+    dropped with the policy.
+26. ~~What does PR 2 include?~~ Decided: the gate, the shape checks of queries and
+    subscriptions, and reporting the requests that no context serves. Left out: `TenantAdded`,
+    and the removal of `CommandValidationError`, which still reports `DUPLICATE_COMMAND`.
+27. ~~Where are the requests refused before a context recorded?~~ Decided: in `ApplicationLog`,
+    with no `EventBus` or `EventStore` of the application. On the level: the owner asked for
+    a level parameter, and for functions instead of values, so that the logging API computes
+    them only if the level is enabled. On the names, options were: `logEvent` for the
+    message-less form only; `logEvent` for both forms that take an event (chosen); no
+    message-less form.
+28. ~~How are the records of `DefaultLog` told from the others?~~ Decided:
+    `@LoggingDomain("Application")` on `DefaultLog` only. Options: the same annotation
+    (`@JvmLoggingDomain`) on the package, which would prefix the records of `Application` too;
+    a boolean `MetadataKey` that the default formatter prints as `[CONTEXT …]`. On the JSON of
+    an event: packed into `Any`, with `@type` (chosen); the simple type name before the JSON;
+    the fields only.
+29. ~~How do the services get the tenant index and the log?~~ Decided: they are created from
+    an `Application`, with `of(application)`. Options: the application gives each context its
+    index and log when it builds it (reverses Q18); the service builders take both the contexts
+    and the application. On the API: `of(Application)` (chosen); a builder with
+    `setApplication()`; services reachable only through `Server`.
+30. ~~Keep `BlackBox.from(BoundedContext)`?~~ Decided: remove it. Options: keep it without
+    clients and with a `withTenant()` that does not register; `from(BoundedContext, Application)`.
+31. ~~How does code reach the log of an application?~~ Decided: the public `Application.log()`.
+    Options: `applicationLog()`; an internal accessor only.
+32. ~~Which events describe the problems reported to `ApplicationLog`?~~ Decided: one event per
+    problem, with the request as a `oneof` of its ID. Options: one event per kind of request,
+    like the System events of #1713 (about 12 events); new events for tenants only, with the
+    System events reused for the requests that no context serves.
+33. ~~How are the shape checks of queries and subscriptions recorded?~~ Decided: six System
+    events, one per kind of request and check, in the serving context. Options: two System
+    events with the request as a `oneof`; `ApplicationLog`.
+34. ~~Move `Application` and its code to `io.spine.server.app`?~~ Decided: no. The owner keeps
+    `Application` and the code written for it in `io.spine.server`, to keep the imports few and
+    the structure visible from the top. Only the new parts go to `io.spine.server.app`.
+35. ~~Where does the application check that no two contexts handle commands of one type?~~
+    Decided: in `Application.Builder.build()`, before building any context (option A). Options:
+    - **Before building, from the builders** (chosen): the same moment as the checks of names
+      and entity state types; nothing is built for an application that fails.
+    - **Right after building, from the built contexts**: one source of truth, what each
+      `CommandBus` registered; the built contexts are closed on a failure.
+    A handler registered with `commandBus().register()` after the application is built is not
+    checked by either.
+36. ~~Should `RefusedRequest` hold the request, or a reference to it?~~ Decided: the request
+    itself. Options:
+    - **The request** (chosen): each record is complete for diagnostics, as `CommandReceived` of
+      the System context holds the whole command. The log then holds the data of untrusted
+      callers, and grows with the size of their requests.
+    - **A reference**, made of the ID, the type URL, and the actor context, as the read-side
+      System events of #1713 do.
+37. ~~Where does the reason of a refusal go?~~ Decided: a required `reason` in each event.
+    Options:
+    - **A field of each event** (chosen): the reason belongs to the refusal, and
+      `RefusedRequest` stays the request alone.
+    - **A field of `RefusedRequest`**: one place for all three events.
+    - **The message line only**, as before: a log that keeps only the events loses it.
+38. ~~How does `DefaultLog` print an event?~~ Decided: its own compact JSON, with `@type` added
+    as the first field. The owner does not want an event packed before it gets to the log, nor
+    bytes in a record: the fields go into the compact JSON. The services compose events that
+    JSON can hold, so `DefaultLog` converts nothing (Q39).
+39. ~~How is a request of a type unknown to the server written to the log?~~ Decided: as text,
+    naming the type and the ID of the request (option A). Options:
+    - **Text only** (chosen), like a request whose type cannot be read.
+    - **The request without its unreadable parts**, cleared by each service before it composes
+      the event: a command's message, the filters of a query or a topic.
+    - **A separate event**, with the type URL, the ID of the request, and its actor context.
+40. ~~Where does the type of a logged event go?~~ Decided: before the JSON, as the full name of
+    the type. The JSON is the event's own, with no splicing. Options:
+    - **Before the JSON** (chosen).
+    - **`@type` inside the JSON**: needs a field spliced into the printed JSON, since Protobuf
+      prints `@type` only for `Any`.
+    - **No type**: records of different events look alike apart from their fields.

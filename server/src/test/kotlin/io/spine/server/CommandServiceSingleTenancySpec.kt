@@ -25,10 +25,9 @@ import org.junit.jupiter.api.Test
 @DisplayName("`CommandService` in a single-tenant context should")
 internal class CommandServiceSingleTenancySpec : CommandServiceTenancyTest() {
 
-    override fun createContext(): BoundedContext =
+    override fun contextBuilder(): BoundedContextBuilder =
         BoundedContextBuilder.assumingTests("Projects")
             .add(Given.ProjectAggregateRepository())
-            .build()
 
     @Test
     fun `return the tenant error case for a command with 'TenantId'`() {

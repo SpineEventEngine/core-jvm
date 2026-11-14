@@ -40,6 +40,7 @@ import io.spine.system.server.event.EntityStateChanged;
 import io.spine.test.projection.ProjectTaskNames;
 import io.spine.testing.core.given.GivenUserId;
 import io.spine.testing.server.TestApplications;
+import io.spine.testing.server.TestEventFactory;
 import io.spine.testing.server.blackbox.BlackBox;
 import io.spine.type.TypeUrl;
 import org.junit.jupiter.api.DisplayName;
@@ -91,28 +92,32 @@ public class ProjectionEndToEndTest {
     void receiveExternal() {
         var established = GivenEventMessage.organizationEstablished();
 
+        var groupNames = new GroupNameProjection.Repository();
         // The contexts exchange external messages through the transport of their application.
         try (var application = TestApplications.newBuilder()
                 .add(BoundedContext.singleTenant("Organizations")
                                    .add(new OrganizationProjection.Repository()))
                 .add(BoundedContext.singleTenant("Groups")
-                                   .add(new GroupNameProjection.Repository()))
+                                   .add(groupNames))
                 .build()) {
-            var sender = BlackBox.from(application.contexts()
-                                                  .get(0));
-            var receiver = BlackBox.from(application.contexts()
-                                                    .get(1));
+            var organizations = application.contexts()
+                                           .get(0);
             var producerId = established.getId();
-            sender.receivesEventsProducedBy(producerId, established);
+            var event = TestEventFactory.newInstance(producerId, getClass())
+                                        .createEvent(established);
+            organizations.eventBus()
+                         .post(event);
             var groupId = GroupId.newBuilder()
                     .setUuid(producerId.getUuid())
                     .build();
-            receiver.assertEntityWithState(groupId, GroupName.class)
-                    .hasStateThat()
+            var groupName = groupNames.find(groupId);
+            assertTrue(groupName.isPresent());
+            assertThat(groupName.get()
+                                .state())
                     .isEqualTo(GroupName.newBuilder()
-                                        .setId(groupId)
-                                        .setName(established.getName())
-                                        .build());
+                                       .setId(groupId)
+                                       .setName(established.getName())
+                                       .build());
         }
     }
 

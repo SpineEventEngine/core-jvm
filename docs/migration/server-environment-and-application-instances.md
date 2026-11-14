@@ -160,7 +160,8 @@ environment. An application registers a tenant with `application.tenantIndex().k
   ```
 - `BlackBox.from(BoundedContextBuilder)` builds such an application, and closing the black box
   closes it. `BlackBox.from(Application)` takes an application of one context, and closing
-  the black box closes it too. `BlackBox.from(BoundedContext)` closes only the context.
+  the black box closes it too. `BlackBox.from(BoundedContext)` closed only the context; it is
+  removed in `2.0.0-SNAPSHOT.710` (see [Requests of unregistered tenants](unregistered-tenants.md)).
 - Tests no longer reset the server environment: each test builds its own.
 - Contexts that receive the external events of each other must share a transport: put them into
   one application, or build their environments with one `TransportFactory`.

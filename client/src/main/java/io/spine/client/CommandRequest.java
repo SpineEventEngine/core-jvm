@@ -17,6 +17,7 @@ package io.spine.client;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import io.grpc.StatusRuntimeException;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.CommandMessage;
 import io.spine.base.EventMessage;
@@ -31,6 +32,7 @@ import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.client.EventsAfterCommand.subscribe;
+import static io.spine.grpc.StreamObservers.errorCaseOf;
 import static io.spine.type.ProtoTexts.shortDebugString;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
@@ -155,6 +157,11 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
      * {@linkplain #onServerError(ServerErrorHandler) server error handler}, and return
      * an empty set.
      *
+     * <p>The server may also refuse to subscribe to the events, e.g. because the tenant of
+     * the client is not registered. Then the method reports the error case to the server error
+     * handler, cancels the subscriptions already made for the command, does not post
+     * the command, and returns an empty set.
+     *
      * @return subscription to the {@linkplain #observe(Class, EventConsumer) observed events}
      *         if the command was successfully posted, or
      *         an empty set if posting caused an error
@@ -219,7 +226,16 @@ public final class CommandRequest extends ClientRequestBase implements WithLoggi
                                 " please use `postAndForget()`."
                 );
             }
-            subscribeToEvents();
+            try {
+                subscribeToEvents();
+            } catch (StatusRuntimeException e) {
+                var errorCase = errorCaseOf(e);
+                if (errorCase.isEmpty()) {
+                    throw e;
+                }
+                reportErrorWhenPosting(errorCase.get());
+                return ImmutableSet.of();
+            }
             var ack = client().post(command);
             var status = ack.getStatus();
             return handleStatus(status);

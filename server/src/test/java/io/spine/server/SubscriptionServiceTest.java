@@ -31,6 +31,7 @@ import io.spine.grpc.StreamObservers;
 import io.spine.server.Given.AggProjectCreatedReactor;
 import io.spine.server.Given.ProjectAggregateRepository;
 import io.spine.server.Given.ReportSender;
+import io.spine.server.app.DefaultLog;
 import io.spine.test.aggregate.AggProject;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.event.AggOwnerNotified;
@@ -42,6 +43,7 @@ import io.spine.test.subscriptionservice.event.ReportSent;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.logging.LoggingTest;
 import io.spine.testing.logging.mute.MuteLogging;
+import io.spine.testing.server.TestApplications;
 import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,10 +51,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.logging.Level;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -65,8 +64,6 @@ import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.Given.CommandMessage.createProject;
 import static io.spine.server.Given.CommandMessage.sendReport;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("`SubscriptionService` should")
@@ -75,16 +72,9 @@ class SubscriptionServiceTest {
     private final TestActorRequestFactory requestFactory =
             new TestActorRequestFactory(SubscriptionServiceTest.class);
 
+    private Application application;
     private BoundedContext context;
     private SubscriptionService subscriptionService;
-
-    /**
-     * The other contexts built by the current test.
-     *
-     * <p>They are closed after each test, so that their names are free for the tests
-     * that run later.
-     */
-    private final List<BoundedContext> built = new ArrayList<>();
 
     /** The observer for creating a subscription. */
     private MemoizingObserver<Subscription> observer;
@@ -96,122 +86,28 @@ class SubscriptionServiceTest {
     private MemoizingObserver<Response> cancellationObserver;
 
     @BeforeEach
-    @SuppressWarnings("resource")  /* Fine for tests. */
     void setUp() {
         ModelTests.dropAllModels();
-        context = BoundedContextBuilder
+        var builder = BoundedContextBuilder
                 .assumingTests()
                 .add(new ProjectAggregateRepository())
                 .addEventDispatcher(new AggProjectCreatedReactor())
-                .addCommandDispatcher(new ReportSender())
+                .addCommandDispatcher(new ReportSender());
+        application = TestApplications.newBuilder()
+                .add(builder)
+                .add(BoundedContextBuilder.assumingTests(newUuid()))
+                .add(BoundedContextBuilder.assumingTests(newUuid()))
                 .build();
-        subscriptionService = SubscriptionService.newBuilder()
-                .add(context)
-                .add(randomCtx())
-                .add(randomCtx())
-                .build();
+        context = application.contexts().get(0);
+        subscriptionService = SubscriptionService.of(application);
         observer = new MemoizingObserver<>();
         activationObserver = new MemoizingObserver<>();
         cancellationObserver = new MemoizingObserver<>();
     }
 
-    private BoundedContext randomCtx() {
-        return remember(BoundedContextBuilder.assumingTests(newUuid()).build());
-    }
-
     @AfterEach
-    void tearDown() throws Exception {
-        try {
-            context.close();
-        } finally {
-            built.forEach(BoundedContext::closeIfOpen);
-            built.clear();
-        }
-    }
-
-    /*
-     * Tests of work with multiple Bounded Contexts
-     * ---------------------------------------------
-     */
-
-    /** Creates a new multi-tenant BoundedContext with the passed name. */
-    private BoundedContext ctx(String name) {
-        var builder = BoundedContextBuilder.assumingTests(name, /* multiTenant = */ true);
-        return remember(builder.build());
-    }
-
-    /** Adds the passed context to those closed after the current test. */
-    private BoundedContext remember(BoundedContext context) {
-        built.add(context);
-        return context;
-    }
-
-    @Nested
-    @DisplayName("initialize properly with")
-    class InitProperlyWith {
-
-        @Test
-        @DisplayName("one bounded context")
-        void oneBc() {
-            var oneContext = ctx("One");
-
-            var builder = SubscriptionService.newBuilder().add(oneContext);
-
-            var subscriptionService = builder.build();
-            assertNotNull(subscriptionService);
-
-            Set<BoundedContext> contexts = builder.contexts();
-            assertThat(contexts).hasSize(1);
-            assertTrue(contexts.contains(oneContext));
-        }
-
-        @Test
-        @DisplayName("several bounded contexts")
-        void severalBcs() {
-            var bc1 = ctx("First");
-            var bc2 = ctx("Second");
-            var bc3 = ctx("Third");
-
-            var builder = SubscriptionService.newBuilder()
-                    .add(bc1)
-                    .add(bc2)
-                    .add(bc3);
-            var service = builder.build();
-            assertNotNull(service);
-
-            Set<BoundedContext> contexts = builder.contexts();
-            assertThat(contexts).containsExactly(bc1, bc2, bc3);
-        }
-    }
-
-    @Test
-    @DisplayName("be able to remove bounded context from builder")
-    void removeBcFromBuilder() {
-        var bc1 = ctx("Removed");
-        var bc2 = ctx("Also removed");
-        var bc3 = ctx("The one to stay");
-
-        var builder = SubscriptionService.newBuilder()
-                .add(bc1)
-                .add(bc2)
-                .add(bc3)
-                .remove(bc2)
-                .remove(bc1);
-        var subscriptionService = builder.build();
-        assertNotNull(subscriptionService);
-
-        Set<BoundedContext> contexts = builder.contexts();
-        assertThat(contexts).containsExactly(bc3);
-    }
-
-    @Test
-    @MuteLogging
-    @DisplayName("allow a service instance serving no types")
-    void notInitFromEmptyBuilder() {
-        assertDoesNotThrow(
-                () -> SubscriptionService.newBuilder()
-                        .build()
-        );
+    void tearDown() {
+        application.close();
     }
 
     /*
@@ -465,7 +361,7 @@ class SubscriptionServiceTest {
     class WarnOnCancelling extends LoggingTest {
 
         WarnOnCancelling() {
-            super(SubscriptionService.class, Level.WARNING);
+            super(DefaultLog.class, Level.WARNING);
         }
 
         @BeforeEach

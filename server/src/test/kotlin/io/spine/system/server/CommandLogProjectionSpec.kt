@@ -28,6 +28,7 @@ import io.spine.core.TenantId
 import io.spine.core.tenantId
 import io.spine.grpc.StreamObservers.noOpObserver
 import io.spine.protobuf.pack
+import io.spine.server.Application
 import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.CommandService
@@ -44,6 +45,7 @@ import io.spine.test.commandbus.command.cmdBusStartProject
 import io.spine.test.commandbus.projectId
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
+import io.spine.testing.server.testApplication
 import io.spine.type.TypeUrl
 import java.util.Optional
 import org.junit.jupiter.api.AfterEach
@@ -56,6 +58,7 @@ internal class CommandLogProjectionSpec {
 
     private val requests = TestActorRequestFactory(CommandLogProjectionSpec::class.java)
 
+    private lateinit var application: Application
     private lateinit var context: BoundedContext
     private lateinit var commandLog:
             RecordBasedRepository<CommandId, CommandLogProjection, CommandLog>
@@ -71,13 +74,14 @@ internal class CommandLogProjectionSpec {
             .addEventDispatcher(FailingOnEstablished())
             .addEventDispatcher(monitor)
         builder.systemSettings().enableCommandLog()
-        context = builder.build()
+        application = testApplication { add(builder) }
+        context = application.contexts().single()
         commandLog = commandLogOf(context)
     }
 
     @AfterEach
-    fun closeContext() {
-        context.close()
+    fun closeApplication() {
+        application.close()
     }
 
     @Test
@@ -181,7 +185,7 @@ internal class CommandLogProjectionSpec {
     fun `record the error when the 'CommandService' fails to post a command`() {
         val command = establishing(name = FailingFilter.NAME)
 
-        CommandService.withSingle(context).post(command, noOpObserver())
+        CommandService.of(application).post(command, noOpObserver())
 
         howProcessed(command).postingError.type shouldBe
                 IllegalStateException::class.java.canonicalName

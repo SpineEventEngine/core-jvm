@@ -33,6 +33,7 @@ import static io.spine.testing.core.given.GivenTenantId.generate;
 import static io.spine.testing.server.blackbox.given.Given.createProject;
 import static io.spine.testing.server.blackbox.given.Given.createdProjectState;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Multi-tenant `BlackBox` context should")
 class MtBlackBoxTest
@@ -93,6 +94,18 @@ class MtBlackBoxTest
         newUserContext
                 .assertEvents()
                 .isEmpty();
+    }
+
+    @Test
+    @DisplayName("register the tenant in the application of the context")
+    void registerTenant() {
+        var tenant = generate();
+
+        var context = context().withTenant(tenant);
+
+        assertTrue(context.application()
+                          .tenantIndex()
+                          .contains(tenant));
     }
 
     @Test

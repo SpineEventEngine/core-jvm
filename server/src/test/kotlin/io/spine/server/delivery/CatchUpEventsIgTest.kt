@@ -62,10 +62,9 @@ internal class CatchUpEventsIgTest : AbstractCatchUpIgTest() {
     @Test
     fun `store none of its events by default`() {
         useDelivery(UniformAcrossAllShards.forNumber(1))
-        val context = BoundedContextBuilder.assumingTests()
-            .add(repository)
-            .let { build(it) }
-        BlackBox.from(context).use { box ->
+        val application = newApplication(BoundedContextBuilder.assumingTests().add(repository))
+        val context = application.contexts().single()
+        BlackBox.from(application).use { box ->
             val since = emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND)
             repository.catchUpAll(since)
 
@@ -87,8 +86,9 @@ internal class CatchUpEventsIgTest : AbstractCatchUpIgTest() {
         useDelivery(UniformAcrossAllShards.forNumber(1))
         val builder = BoundedContextBuilder.assumingTests().add(repository)
         builder.systemSettings().persistEvents()
-        val context = build(builder)
-        BlackBox.from(context).use { box ->
+        val application = newApplication(builder)
+        val context = application.contexts().single()
+        BlackBox.from(application).use { box ->
             val since = emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND)
             repository.catchUpAll(since)
 
@@ -110,11 +110,11 @@ internal class CatchUpEventsIgTest : AbstractCatchUpIgTest() {
     fun `pass its completion to a subscriber in the context of the projections`() {
         useDelivery(UniformAcrossAllShards.forNumber(1))
         val subscriber = CompletionSubscriber()
-        val context = build(singleTenantContext("CatchUpCompletion") {
+        val builder = singleTenantContext("CatchUpCompletion") {
             add(repository)
             addEventDispatcher(subscriber)
-        })
-        BlackBox.from(context).use { box ->
+        }
+        blackBox(builder).use { box ->
             val since = emitHistory(box, EVENTS_PER_TARGET, FIRST, SECOND)
             val job = repository.catchUpAll(since)
 

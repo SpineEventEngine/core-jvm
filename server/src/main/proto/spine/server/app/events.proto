@@ -1,0 +1,90 @@
+/*
+ * Copyright 2026 CodeMatters, Lda.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
+
+syntax = "proto3";
+
+package spine.server.app;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+
+option java_package = "io.spine.server.app";
+option java_outer_classname = "ApplicationEventsProto";
+option java_multiple_files = true;
+
+import "spine/base/error.proto";
+import "spine/core/bounded_context.proto";
+import "spine/core/tenant_id.proto";
+import "spine/server/app/refused_request.proto";
+
+// The gRPC services of an application refused a request because its tenant is not
+// registered in the application.
+message RequestOfUnregisteredTenantRejected {
+
+    // The refused request.
+    RefusedRequest request = 1 [(required) = true];
+
+    // The tenant of the request.
+    core.TenantId tenant = 2 [(required) = true];
+
+    // The name of the Bounded Context that serves the request.
+    //
+    // Not set for a request that every Bounded Context of the application serves,
+    // such as a subscription to a topic whose target type no context exposes.
+    //
+    core.BoundedContextName context = 3;
+
+    // Why the request was refused, written for a person or an agent reading the log.
+    string reason = 4 [(required) = true];
+}
+
+// The gRPC services of an application refused a request because no Bounded Context of
+// the application serves it.
+//
+// The type of the request is known to the application, but is either internal to
+// the framework or not served by any Bounded Context.
+//
+message UnsupportedRequestRejected {
+
+    // The refused request.
+    RefusedRequest request = 1 [(required) = true];
+
+    // Why the request was refused, written for a person or an agent reading the log.
+    string reason = 2 [(required) = true];
+}
+
+// The gRPC services of an application failed a request because they could not tell
+// whether its tenant is registered in the application.
+message TenantCheckFailed {
+
+    // The failed request.
+    RefusedRequest request = 1 [(required) = true];
+
+    // The tenant of the request.
+    core.TenantId tenant = 2 [(required) = true];
+
+    // The name of the Bounded Context that serves the request.
+    //
+    // Not set for a request that every Bounded Context of the application serves,
+    // such as a subscription to a topic whose target type no context exposes.
+    //
+    core.BoundedContextName context = 3;
+
+    // The error that stopped the check.
+    base.Error error = 4 [(required) = true];
+
+    // Why the request failed, written for a person or an agent reading the log.
+    string reason = 5 [(required) = true];
+}
