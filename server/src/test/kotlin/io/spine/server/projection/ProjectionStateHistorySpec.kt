@@ -25,7 +25,6 @@ import io.spine.server.entity.EntityRecord
 import io.spine.server.entity.storage.EntityStateHistoryStorage
 import io.spine.server.projection.given.TestProjection
 import io.spine.test.projection.ProjectId
-import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -49,7 +48,6 @@ internal class ProjectionStateHistorySpec {
 
     @BeforeEach
     fun setUp() {
-        ModelTests.dropAllModels()
         repository = StateHistoryProjectionRepository()
         context = BoundedContextBuilder.assumingTests()
             .add(repository)
@@ -60,7 +58,6 @@ internal class ProjectionStateHistorySpec {
     fun tearDown() {
         repository.close()
         context.close()
-        ModelTests.dropAllModels()
     }
 
     @Test

@@ -75,7 +75,6 @@ import io.spine.testing.logging.mute.MuteLogging
 import io.spine.testing.server.Assertions.assertCommandClasses
 import io.spine.testing.server.Assertions.assertEventClasses
 import io.spine.testing.server.blackbox.ContextAwareTest
-import io.spine.testing.server.model.ModelTests
 import io.spine.testing.time.BackToTheFuture
 import io.spine.testing.time.FrozenMadHatterParty
 import org.junit.jupiter.api.AfterEach
@@ -95,7 +94,6 @@ internal class AggregateSpec {
 
     @BeforeEach
     fun setUp() {
-        ModelTests.dropAllModels()
         aggregate = TestAggregate(ID)
         amishAggregate = AmishAggregate(ID)
         repository = TestAggregateRepository()
@@ -262,7 +260,6 @@ internal class AggregateSpec {
         @Test
         @MuteLogging
         fun `when dispatched a command it cannot handle`() {
-            ModelTests.dropAllModels()
             val aggregate = AggregateWithMissingApplier(ID)
 
             // The aggregate has no receptor for this command. Since the event-sourcing cutover
@@ -400,8 +397,6 @@ internal class AggregateSpec {
         @Test
         @MuteLogging
         fun handlers() {
-            ModelTests.dropAllModels()
-
             val faultyAggregate = FaultyAggregate(ID, true, false)
 
             val command = Given.ACommand.createProject()
@@ -420,7 +415,6 @@ internal class AggregateSpec {
         @Test
         @MuteLogging
         fun appliers() {
-            ModelTests.dropAllModels()
             val faultyAggregate = FaultyAggregate(ID, false, true)
 
             val command = Given.ACommand.createProject()

@@ -17,7 +17,6 @@ package io.spine.server
 import io.spine.core.Ack
 import io.spine.grpc.MemoizingObserver
 import io.spine.grpc.StreamObservers.memoizingObserver
-import io.spine.testing.server.model.ModelTests
 import io.spine.testing.server.testApplication
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -39,7 +38,6 @@ abstract class CommandServiceTenancyTest {
 
     @BeforeEach
     fun setup() {
-        ModelTests.dropAllModels()
         responseObserver = memoizingObserver()
         application = testApplication {
             add(contextBuilder())

@@ -20,7 +20,6 @@ import io.spine.server.BoundedContextBuilder
 import io.spine.server.entity.given.Given
 import io.spine.server.procman.given.pm.LastSignalMemo
 import io.spine.test.procman.ElephantProcess
-import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -32,7 +31,6 @@ internal class ProcessManagerLifecycleSpec {
 
     @BeforeEach
     fun setUp() {
-        ModelTests.dropAllModels()
         processManager = Given.processManagerOfClass(LastSignalMemo::class.java)
             .withId(LastSignalMemo.ID)
             .withVersion(1)

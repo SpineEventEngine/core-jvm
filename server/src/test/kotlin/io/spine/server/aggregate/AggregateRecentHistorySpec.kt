@@ -32,7 +32,6 @@ import io.spine.test.aggregate.ProjectId
 import io.spine.test.aggregate.event.AggProjectCreated
 import io.spine.test.aggregate.event.AggTaskAdded
 import io.spine.testing.logging.mute.MuteLogging
-import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -54,7 +53,6 @@ internal class AggregateRecentHistorySpec {
 
     @BeforeEach
     fun setUp() {
-        ModelTests.dropAllModels()
         repository = StateHistoryTestRepository()
         context = BoundedContextBuilder.assumingTests()
             .add(repository)
@@ -68,7 +66,6 @@ internal class AggregateRecentHistorySpec {
     fun tearDown() {
         repository.close()
         context.close()
-        ModelTests.dropAllModels()
     }
 
     @Test

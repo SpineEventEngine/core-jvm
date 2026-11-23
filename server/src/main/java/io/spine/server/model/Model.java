@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.model;
@@ -35,7 +23,6 @@ import io.spine.core.BoundedContext;
 import io.spine.core.BoundedContextName;
 import io.spine.core.BoundedContextNames;
 import io.spine.reflect.PackageInfo;
-import io.spine.security.InvocationGuard;
 
 import java.util.Map;
 import java.util.Optional;
@@ -143,46 +130,6 @@ public class Model {
     /** Obtains the name of the bounded context that encapsulates this model. */
     public BoundedContextName contextName() {
         return context;
-    }
-
-    /**
-     * Clears the classes already added to the {@code Model}.
-     *
-     * <p>This method can be useful when multiple Spine projects are processed under the same
-     * static context, e.g., in tests.
-     */
-    private void clear() {
-        classes.clear();
-    }
-
-    /**
-     * Clears all models, and then clears the {@link #models} map.
-     */
-    private static void reset() {
-        for (var model : models.values()) {
-            model.clear();
-        }
-        models.clear();
-    }
-
-    /**
-     * Clears all models and removes them.
-     *
-     * <p>This method must <em>not</em> be called from the production code.
-     *
-     * @throws SecurityException
-     *         if called directly by a non-authorized class
-     * @apiNote This method <em>may</em> be called indirectly from authorized tool classes
-     *         or test utility classes.
-     */
-    @VisibleForTesting
-    public static synchronized void dropAllModels() {
-        InvocationGuard.allowOnly(
-                "io.spine.server.model.ModelTest",
-                "io.spine.testing.server.model.ModelTests",
-                "io.spine.server.command.model.DuplicateHandlerCheck"
-        );
-        reset();
     }
 
     /**

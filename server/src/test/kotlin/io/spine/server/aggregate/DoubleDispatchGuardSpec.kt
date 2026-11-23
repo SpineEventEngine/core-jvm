@@ -38,7 +38,6 @@ import io.spine.server.entity.DoubleDispatchGuard
 import io.spine.server.type.CommandEnvelope
 import io.spine.server.type.EventEnvelope
 import io.spine.test.aggregate.ProjectId
-import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -54,7 +53,6 @@ internal class DoubleDispatchGuardSpec {
 
     @BeforeEach
     fun setUp() {
-        ModelTests.dropAllModels()
         repository = IgTestAggregateRepository()
         context = BoundedContextBuilder.assumingTests()
             .add(repository)
@@ -66,7 +64,6 @@ internal class DoubleDispatchGuardSpec {
     fun tearDown() {
         repository.close()
         context.close()
-        ModelTests.dropAllModels()
     }
 
     @Nested inner class

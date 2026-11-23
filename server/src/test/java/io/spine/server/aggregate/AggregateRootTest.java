@@ -24,7 +24,6 @@ import io.spine.server.aggregate.given.AggregateRootTestEnv.ProjectLifeCycleRepo
 import io.spine.test.aggregate.ProjectDefinition;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.ProjectLifecycle;
-import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,7 +43,6 @@ class AggregateRootTest {
 
     @BeforeEach
     void setUp() {
-        ModelTests.dropAllModels();
         context = BoundedContextBuilder.assumingTests()
                 .add(new ProjectDefinitionRepository())
                 .add(new ProjectLifeCycleRepository())

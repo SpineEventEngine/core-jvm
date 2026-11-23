@@ -4,7 +4,9 @@ This guide tells you what changes when you upgrade to `2.0.0-SNAPSHOT.710`. The 
 an application now refuse a request whose tenant is not registered in the application, and
 report it to the new `ApplicationLog`. Multi-tenant applications must register their tenants
 before the tenants send requests. Code that creates the services from contexts, and tests that
-wrap a built context in a `BlackBox`, need changes too.
+wrap a built context in a `BlackBox`, need changes too. `2.0.0-SNAPSHOT.720` also removes
+an older check of duplicate command handlers, which compared the classes of one
+`@BoundedContext` package; see section 2.
 
 ## What changed, in one paragraph
 
@@ -27,6 +29,9 @@ A request refused before it reaches a context is written to the log of the appli
 | `CommandService`, `QueryService`, `SubscriptionService` | `newBuilder().add(context).build()`, `withSingle(context)` | **removed**; use `of(application)` |
 | `AbstractServiceBuilder` | public | **removed** |
 | Two contexts that handle commands of one type | `CommandService.Builder.build()` throws `IllegalStateException` | `Application.Builder.build()` throws `DuplicateCommandHandlerException` |
+| Two classes of one `@BoundedContext` package that handle commands of one type | the first use of the second class throws `DuplicateCommandReceptorError` | allowed since `.720`; rejected only when one application dispatches commands to both |
+| `DuplicateCommandReceptorError`, `DuplicateHandlerCheck` | public | **removed** in `.720` |
+| `ModelTests.dropAllModels()` | public | **removed** in `.720`; delete the calls |
 | `Application.log()`, `Application.Builder.setApplicationLog()` | — | **new** |
 | `io.spine.server.app.ApplicationLog` | — | **new** |
 | `BlackBox.from(BoundedContext)` | public | **removed**; use `from(Application)` or `from(BoundedContextBuilder)` |
@@ -63,6 +68,13 @@ The services serve all the Bounded Contexts of the application. An application w
 contexts handle commands of one type is not built: `Application.Builder.build()` throws
 `DuplicateCommandHandlerException`, before it builds any context. So the check works for an
 application that no `Server` exposes, too.
+
+Since `2.0.0-SNAPSHOT.720`, the application and its contexts are the only places that check
+for duplicate command handlers. Two handlers of one command type in one context are rejected
+when the context is built, as before. The framework no longer compares the classes of one
+`@BoundedContext` package when it first uses them, and no longer throws
+`DuplicateCommandReceptorError`. That check rejected classes that never ran together, for
+example, the classes of two applications running in one JVM.
 
 ## 3. The log of the application
 
@@ -107,3 +119,5 @@ enabled costs nothing. The application may write its own records with `applicati
 - `BlackBox.from(BoundedContext)` is removed: a black box needs the application of its context.
   Build the black box from the builder of the context, or from an application of one context.
   Closing the black box closes the application.
+- `ModelTests.dropAllModels()` is removed in `2.0.0-SNAPSHOT.720`. What the framework learns
+  about the classes of one test no longer affects other tests, so delete the calls.

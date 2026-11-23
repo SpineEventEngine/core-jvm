@@ -39,7 +39,6 @@ import io.spine.server.storage.StorageFactory
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import io.spine.test.model.modProjectCreated
 import io.spine.testing.server.blackbox.BlackBox
-import io.spine.testing.server.model.ModelTests.dropAllModels
 import java.lang.reflect.InvocationTargetException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -49,11 +48,6 @@ import org.junit.jupiter.api.Test
 
 @DisplayName("Handler methods with field filters should")
 internal class FilterSpec {
-
-    @AfterEach
-    fun clearModel() {
-        dropAllModels()
-    }
 
     @Nested inner class
     `be OK on a` {
@@ -117,7 +111,6 @@ internal class FilterSpec {
         @AfterEach
         fun closeEnv() {
             storageFactory.close()
-            dropAllModels()
         }
 
         @Test

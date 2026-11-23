@@ -27,7 +27,6 @@ import io.spine.test.aggregate.AggProject;
 import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.command.AggCreateProject;
 import io.spine.test.aggregate.event.AggProjectCreated;
-import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -50,7 +49,6 @@ class AggregateCommandEndpointTest {
 
     @BeforeEach
     void setUp() {
-        ModelTests.dropAllModels();
         repository = new ProjectAggregateRepository();
         context = BoundedContextBuilder.assumingTests()
                 .add(repository)

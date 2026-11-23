@@ -29,7 +29,6 @@ import io.spine.server.commandbus.given.ThrowingScheduledExecutor;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.core.given.GivenCommandContext;
 import io.spine.testing.logging.mute.MuteLogging;
-import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -67,7 +66,6 @@ class ExecutorCommandSchedulerTest {
 
     @BeforeEach
     void setUp() {
-        ModelTests.dropAllModels();
         ScheduledExecutorService executorService = new DirectScheduledExecutor();
         scheduler = new ExecutorCommandScheduler(executorService);
         commandContext = GivenCommandContext.withScheduledDelayOf(DELAY);

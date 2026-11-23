@@ -51,7 +51,6 @@ import io.spine.testdata.Sample;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.TestEventFactory;
 import io.spine.testing.server.blackbox.BlackBox;
-import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -88,7 +87,6 @@ class AggregateRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        ModelTests.dropAllModels();
         resetRepository();
         resetBoundedContext(assumingTests());
     }

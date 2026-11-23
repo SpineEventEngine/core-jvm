@@ -21,7 +21,6 @@ import io.spine.server.Given.ProjectDetailsRepository;
 import io.spine.server.Given.ThrowingProjectDetailsRepository;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.TestApplications;
-import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -52,8 +51,6 @@ class QueryServiceTest {
     @BeforeEach
     @SuppressWarnings("CheckReturnValue") // Calling builder.
     void setUp() {
-        ModelTests.dropAllModels();
-
         setUpService(new ProjectDetailsRepository());
     }
 

@@ -23,8 +23,6 @@ import io.spine.server.integration.broker.PhotosUploaded;
 import io.spine.server.integration.broker.TotalPhotosUploadedIncreased;
 import io.spine.server.integration.broker.UploadPhotos;
 import io.spine.server.transport.memory.InMemoryTransportFactory;
-import io.spine.testing.server.model.ModelTests;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -49,18 +47,12 @@ class IntegrationBrokerTest {
 
     @BeforeEach
     void setUp() {
-        ModelTests.dropAllModels();
         transport = InMemoryTransportFactory.newInstance();
     }
 
     @AfterEach
     void closeTransport() {
         transport.close();
-    }
-
-    @AfterAll
-    static void cleanUpSuite() {
-        ModelTests.dropAllModels();
     }
 
     @Nested

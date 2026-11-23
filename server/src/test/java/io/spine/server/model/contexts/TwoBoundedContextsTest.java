@@ -17,7 +17,6 @@ package io.spine.server.model.contexts;
 import io.spine.server.BoundedContext;
 import io.spine.server.model.contexts.orders.OrdersContext;
 import io.spine.server.model.contexts.tasks.TasksContext;
-import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,8 +31,7 @@ class TwoBoundedContextsTest {
     private BoundedContext ordersContext;
 
     @BeforeEach
-    void clearModel() {
-        ModelTests.dropAllModels();
+    void createContexts() {
         tasksContext = TasksContext.newInstance();
         ordersContext = OrdersContext.newInstance();
     }

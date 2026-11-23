@@ -37,7 +37,6 @@ import io.spine.system.server.SystemWriteSide;
 import io.spine.test.commandbus.command.CmdBusCreateProject;
 import io.spine.test.commandbus.event.CmdBusProjectCreated;
 import io.spine.testing.client.TestActorRequestFactory;
-import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -125,8 +124,6 @@ abstract class AbstractCommandBusTestSuite {
 
     @BeforeEach
     void setUp() {
-        ModelTests.dropAllModels();
-
         ScheduledExecutorService executorService = new DirectScheduledExecutor();
         CommandScheduler scheduler = new ExecutorCommandScheduler(executorService);
         var environment = ServerEnvironment.newBuilder()
