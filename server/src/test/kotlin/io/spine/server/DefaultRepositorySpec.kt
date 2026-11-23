@@ -21,7 +21,6 @@ import io.spine.server.bc.given.ProjectAggregate
 import io.spine.server.bc.given.ProjectProcessManager
 import io.spine.server.bc.given.ProjectReport
 import io.spine.server.entity.TestEntity
-import io.spine.system.server.given.entity.PersonNamePart
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -34,12 +33,6 @@ internal class DefaultRepositorySpec {
     fun `create an aggregate repository with a readable 'toString'`() {
         DefaultRepository.of(ProjectAggregate::class.java).toString() shouldBe
             "DefaultRepository.of(ProjectAggregate.class)"
-    }
-
-    @Test
-    fun `create an aggregate part repository with a readable 'toString'`() {
-        DefaultRepository.of(PersonNamePart::class.java).toString() shouldBe
-            "DefaultRepository.of(PersonNamePart.class)"
     }
 
     @Test

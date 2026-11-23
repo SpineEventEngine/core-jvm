@@ -21,8 +21,6 @@ import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.core.BoundedContextName;
 import io.spine.logging.WithLogging;
-import io.spine.server.aggregate.AggregateRootDirectory;
-import io.spine.server.aggregate.InMemoryRootDirectory;
 import io.spine.server.bus.BusFilter;
 import io.spine.server.bus.Listener;
 import io.spine.server.bus.MessageDispatcher;
@@ -162,8 +160,6 @@ public final class BoundedContextBuilder implements WithLogging {
     private @Nullable TracerFactory tracerFactory;
 
     private @MonotonicNonNull Stand stand;
-    @SuppressWarnings("deprecation") // The `AggregateRootDirectory` API is deprecated.
-    private @MonotonicNonNull Supplier<AggregateRootDirectory> rootDirectory;
 
     /** Repositories to be registered with the Bounded Context being built after its creation. */
     private final Collection<Repository<?, ?>> repositories = new ArrayList<>();
@@ -585,40 +581,6 @@ public final class BoundedContextBuilder implements WithLogging {
         return Stream.concat(ofDelegates, ofDispatchers)
                 .map(MessageClass::typeUrl)
                 .collect(toImmutableSet());
-    }
-
-    /**
-     * Obtains the {@link AggregateRootDirectory} to be used in the built context.
-     *
-     * <p>If no custom implementation is specified, an in-mem implementation is used.
-     */
-    @SuppressWarnings("deprecation") // The `AggregateRootDirectory` API is deprecated.
-    AggregateRootDirectory aggregateRootDirectory() {
-        if (rootDirectory == null) {
-            rootDirectory = InMemoryRootDirectory::new;
-        }
-        return rootDirectory.get();
-    }
-
-    /**
-     * Sets the supplier of {@link AggregateRootDirectory}-s to use in the built context.
-     *
-     * <p>By default, an in-mem implementation is used.
-     *
-     * @param directory
-     *         the supplier of aggregate root directories
-     * @deprecated This API does not provide isolation for an invariant.
-     *         To coordinate the work of several
-     *         {@link io.spine.server.aggregate.Aggregate Aggregate}s, please use
-     *         a {@link io.spine.server.procman.ProcessManager ProcessManager} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    @SuppressWarnings("DeprecatedIsStillUsed" /* `AggregateRootDirectory` */)
-    public BoundedContextBuilder
-    setAggregateRootDirectory(Supplier<AggregateRootDirectory> directory) {
-        this.rootDirectory = checkNotNull(directory);
-        return this;
     }
 
     /**

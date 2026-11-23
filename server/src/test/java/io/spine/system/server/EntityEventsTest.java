@@ -35,7 +35,7 @@ import io.spine.system.server.event.EventDispatchedToReactor;
 import io.spine.system.server.event.EventDispatchedToSubscriber;
 import io.spine.system.server.given.entity.HistoryEventWatcher;
 import io.spine.system.server.given.entity.PersonAggregate;
-import io.spine.system.server.given.entity.PersonNamePart;
+import io.spine.system.server.given.entity.PersonNameAggregate;
 import io.spine.system.server.given.entity.PersonProcman;
 import io.spine.system.server.given.entity.PersonProcmanRepository;
 import io.spine.system.server.given.entity.PersonProjection;
@@ -71,7 +71,7 @@ class EntityEventsTest {
         context = BoundedContextBuilder.assumingTests(/* multiTenant = */ false)
                 .add(PersonAggregate.class)
                 .add(PersonProjection.class)
-                .add(PersonNamePart.class)
+                .add(PersonNameAggregate.class)
                 .add(new PersonProcmanRepository())
                 .build();
         var system = systemOf(context);
@@ -156,14 +156,6 @@ class EntityEventsTest {
     }
 
     @Test
-    @DisplayName("command is dispatched to handler in aggregate part")
-    void commandToPart() {
-        Message domainCommand = createPersonName();
-        assertCommandDispatched(domainCommand);
-        checkEntityCreated(AGGREGATE, PersonNamePart.TYPE);
-    }
-
-    @Test
     @DisplayName("command is dispatched to handler in procman")
     void commandToPm() {
         var startCommand = StartPersonCreation.newBuilder()
@@ -201,7 +193,7 @@ class EntityEventsTest {
         createPersonName();
 
         eventAccumulator.assertReceivedEvent(CommandDispatchedToHandler.class);
-        eventAccumulator.assertReceivedEvent(EntityCreated.class);
+        checkEntityCreated(AGGREGATE, PersonNameAggregate.TYPE);
         eventAccumulator.assertReceivedEvent(EntityStateChanged.class);
 
         var dispatchedToReactor =

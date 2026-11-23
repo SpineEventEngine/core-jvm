@@ -113,8 +113,8 @@ widened to fire on a state change, not only on emitted events or lifecycle chang
 
 ### `@Apply` now fails fast
 
-Declaring any `@Apply` method (on an `Aggregate` **or** an `AggregatePart`) raises a
-`ModelError` when the context is built:
+Declaring any `@Apply` method on an `Aggregate` raises a `ModelError` when the context
+is built:
 
 ```
 The aggregate class `<Class>` declares `@Apply`-annotated event applier(s) for <events>.
@@ -123,8 +123,8 @@ receptor that emits the event (mutating the state via `builder()`), and delete t
 `@Apply` method(s).
 ```
 
-`AggregatePart`s were event-sourced no differently and migrate the same way. The `@Apply`
-annotation is retained only so the model can detect it and fail; it is removed in v2.0.0.
+The `@Apply` annotation is retained only so the model can detect it and fail; it is removed
+in v2.0.0.
 
 ## 2. Preventive validation (optional): `tryAlter` and `validate()`
 
@@ -398,6 +398,10 @@ The legacy records stay on disk as inert data; the current runtime does not read
   `EntityRecordStorage` (`createEntityRecordStorage`); the repository accessor is
   `recordStorage()`; vendor suites extend the published `AbstractStorageTest` /
   `DelegatingRecordStorageTest` bases (§9)
+- `AggregatePart`, `AggregateRoot`, `AggregatePartRepository`, `AggregateRootDirectory`,
+  `InMemoryRootDirectory`, `AggregatePartClass`, and
+  `BoundedContextBuilder.setAggregateRootDirectory` (as of `2.0.0-SNAPSHOT.740`) → make
+  each former part a plain `Aggregate`, and coordinate the aggregates with a `ProcessManager`
 
 **Deprecated** (still compile; removed in v2.0.0):
 

@@ -26,7 +26,7 @@
 
 package io.spine.system.server.given.entity;
 
-import io.spine.server.aggregate.AggregatePart;
+import io.spine.server.aggregate.Aggregate;
 import io.spine.server.command.Assign;
 import io.spine.server.event.NoReaction;
 import io.spine.server.event.React;
@@ -38,16 +38,15 @@ import io.spine.system.server.PersonRenamed;
 import io.spine.type.TypeUrl;
 
 /**
- * An aggregate part that handles a person first name.
+ * An aggregate that handles a person first name.
  */
-@SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
-public class PersonNamePart
-        extends AggregatePart<PersonId, PersonFirstName, PersonFirstName.Builder, PersonRoot> {
+public class PersonNameAggregate
+        extends Aggregate<PersonId, PersonFirstName, PersonFirstName.Builder> {
 
     public static final TypeUrl TYPE = TypeUrl.of(PersonFirstName.class);
 
-    private PersonNamePart(PersonRoot root) {
-        super(root);
+    protected PersonNameAggregate(PersonId id) {
+        super(id);
     }
 
     @React
