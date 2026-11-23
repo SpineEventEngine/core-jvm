@@ -151,13 +151,4 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
     public ImmutableSet<EventClass> reactionOutput() {
         return delegate.reactionOutput();
     }
-
-    /**
-     * Obtains the event applier method for the passed class of events.
-     */
-    public final Applier applierOf(EventEnvelope event) {
-        return stateEvents.findReceptorFor(event).orElseThrow(() -> new ModelError(
-                "Aggregate `%s` does not handle event `%s`.", this, event.typeUrl()
-        ));
-    }
 }
