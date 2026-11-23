@@ -398,6 +398,8 @@ The legacy records stay on disk as inert data; the current runtime does not read
   `InMemoryRootDirectory`, `AggregatePartClass`, and
   `BoundedContextBuilder.setAggregateRootDirectory` (as of `2.0.0-SNAPSHOT.740`) → make
   each former part a plain `Aggregate`, and coordinate the aggregates with a `ProcessManager`
+- `AggregateClass.applierOf(EventEnvelope)` (as of `2.0.0-SNAPSHOT.750`) — nothing invokes
+  appliers any more, so there is no replacement
 
 **Deprecated** (still compile; removed in v2.0.0):
 

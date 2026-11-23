@@ -46,13 +46,9 @@ public abstract class ModelClass<T> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof ModelClass<?> other)) {
-            return false;
-        }
-        return Objects.equals(this.rawClass, other.rawClass);
+        return this == obj
+                || (obj instanceof ModelClass<?> other
+                        && Objects.equals(this.rawClass, other.rawClass));
     }
 
     @Override
