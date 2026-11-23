@@ -21,9 +21,6 @@ import io.spine.server.event.model.EventReactorMethod;
 import io.spine.server.event.model.ReactingClass;
 import io.spine.server.event.model.ReactorClassDelegate;
 import io.spine.server.model.ModelClassValue;
-import io.spine.server.model.ModelError;
-import io.spine.server.model.ReceptorMap;
-import io.spine.server.type.EmptyClass;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 
@@ -50,36 +47,12 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
     private static final ModelClassValue<AggregateClass<?>> classValue =
             new ModelClassValue<>(cls -> new AggregateClass<>((Class<Aggregate<?, ?, ?>>) cls));
 
-    private final ReceptorMap<EventClass, EmptyClass, Applier> stateEvents;
     private final ReactorClassDelegate<A> delegate;
 
     /** Creates a new instance. */
     protected AggregateClass(Class<A> cls) {
         super(checkNotNull(cls));
-        this.stateEvents = ReceptorMap.create(cls, new EventApplierSignature());
-        failIfHasAppliers(cls);
         this.delegate = new ReactorClassDelegate<>(cls);
-    }
-
-    /**
-     * Fails fast if the aggregate class still declares any
-     * {@code @Apply}-annotated event applier.
-     *
-     * <p>Event sourcing has been removed: an aggregate mutates its state directly in
-     * {@code @Assign} / {@code @React} receptors via {@code builder()} and loads from its latest
-     * persisted state, so appliers are never invoked. Silently ignoring them would drop state
-     * transitions, hence the hard {@link ModelError}.
-     */
-    private void failIfHasAppliers(Class<A> cls) {
-        var appliers = stateEvents.messageClasses();
-        if (!appliers.isEmpty()) {
-            throw new ModelError(
-                    "The aggregate class `%s` declares `@Apply`-annotated event applier(s) for " +
-                            "%s. Event sourcing has been removed: move each applier's body into " +
-                            "the `@Assign` / `@React` receptor that emits the event (mutating " +
-                            "the state via `builder()`), and delete the `@Apply` method(s).",
-                    cls.getName(), appliers);
-        }
     }
 
     /**
@@ -128,18 +101,6 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
         var methodResults = union(commandOutput(), reactionOutput());
         var result = union(methodResults, rejections());
         return result.immutableCopy();
-    }
-
-    /**
-     * Obtains the set of classes of events used as arguments of applier methods.
-     *
-     * <p>Since the event-sourcing cutover, an aggregate class must not declare any
-     * {@code @Apply}-annotated appliers (see the constructor), so for a successfully built class
-     * this set is always empty. It is used only to <em>detect</em> lingering appliers and fail
-     * fast with a {@link ModelError}.
-     */
-    public final ImmutableSet<EventClass> stateEvents() {
-        return stateEvents.messageClasses();
     }
 
     @Override
