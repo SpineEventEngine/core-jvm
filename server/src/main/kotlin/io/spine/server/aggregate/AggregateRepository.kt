@@ -139,7 +139,8 @@ protected constructor() :
     @Suppress("UNCHECKED_CAST")
     protected fun aggregateClass(): AggregateClass<A> = entityModelClass() as AggregateClass<A>
 
-    override fun toModelClass(cls: Class<A>): AggregateClass<A> = asAggregateClass(cls)
+    @Internal
+    final override fun toModelClass(cls: Class<A>): AggregateClass<A> = asAggregateClass(cls)
 
     /**
      * Always `true`: an aggregate repository journals the events emitted by

@@ -38,6 +38,8 @@ Production code (`server`):
 - [x] `AggregateClass`: remove the Javadoc sentence about `AggregatePartClass`.
 - [x] Reword the prose about aggregate parts in `Commander` and in the `@BoundedContext`
       annotation of `core`.
+- [x] Make `Aggregate.modelClass()` and `AggregateRepository.toModelClass()` `final`, like
+      their `ProcessManager` and `Projection` siblings: only the part classes overrode them.
 
 Tests and fixtures:
 
