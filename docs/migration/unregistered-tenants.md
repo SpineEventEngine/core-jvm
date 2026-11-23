@@ -6,7 +6,8 @@ report it to the new `ApplicationLog`. Multi-tenant applications must register t
 before the tenants send requests. Code that creates the services from contexts, and tests that
 wrap a built context in a `BlackBox`, need changes too. `2.0.0-SNAPSHOT.720` also removes
 an older check of duplicate command handlers, which compared the classes of one
-`@BoundedContext` package; see section 2.
+`@BoundedContext` package; see section 2. `2.0.0-SNAPSHOT.730` keeps one model class of each
+kind per Java class; see the table below.
 
 ## What changed, in one paragraph
 
@@ -32,6 +33,8 @@ A request refused before it reaches a context is written to the log of the appli
 | Two classes of one `@BoundedContext` package that handle commands of one type | the first use of the second class throws `DuplicateCommandReceptorError` | allowed since `.720`; rejected only when one application dispatches commands to both |
 | `DuplicateCommandReceptorError`, `DuplicateHandlerCheck` | public | **removed** in `.720` |
 | `ModelTests.dropAllModels()` | public | **removed** in `.720`; delete the calls |
+| `EntityClass.asEntityClass()` of an aggregate, process manager, or projection class | the most specific model class built so far | a plain `EntityClass` since `.730` |
+| `ModelClass.get(Class, Class, Supplier)` | protected | **removed** in `.730`; cache the model classes of a kind with `ModelClass.cacheOf(Function)` |
 | `Application.log()`, `Application.Builder.setApplicationLog()` | — | **new** |
 | `io.spine.server.app.ApplicationLog` | — | **new** |
 | `BlackBox.from(BoundedContext)` | public | **removed**; use `from(Application)` or `from(BoundedContextBuilder)` |

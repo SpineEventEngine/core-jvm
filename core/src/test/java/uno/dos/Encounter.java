@@ -28,7 +28,7 @@ package uno.dos;
 
 /**
  * This class is a part of test environment for
- * {@link io.spine.server.model.ModelTest#findBoundedContextAnnotation()}.
+ * {@code io.spine.core.BoundedContextNamesSpec}.
  */
 @SuppressWarnings("unused")
 public class Encounter {

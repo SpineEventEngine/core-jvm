@@ -1,27 +1,15 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.projection.model;
@@ -54,6 +42,15 @@ public final class ProjectionClass<P extends Projection<?, ?, ?>>
         extends EntityClass<P>
         implements EventReceiverClass, SubscribingClass, StateSubscribingClass {
 
+    /**
+     * The projection classes of Java classes.
+     *
+     * @see #asProjectionClass(Class)
+     */
+    @SuppressWarnings("unchecked") // `asProjectionClass()` accepts only classes of projections.
+    private static final ClassValue<ProjectionClass<?>> cache =
+            cacheOf(cls -> new ProjectionClass<>((Class<Projection<?, ?, ?>>) cls));
+
     private final EventReceivingClassDelegate<P, EmptyClass, SubscriberMethod> delegate;
 
     private ProjectionClass(Class<P> cls) {
@@ -67,9 +64,8 @@ public final class ProjectionClass<P extends Projection<?, ?, ?>>
     public static <P extends Projection<?, ?, ?>> ProjectionClass<P>
     asProjectionClass(Class<P> cls) {
         checkNotNull(cls);
-        @SuppressWarnings("unchecked")
-        var result = (ProjectionClass<P>)
-                get(cls, ProjectionClass.class, () -> new ProjectionClass<>(cls));
+        @SuppressWarnings("unchecked") // The cache creates the model class of `cls`.
+        var result = (ProjectionClass<P>) cache.get(cls);
         return result;
     }
 
