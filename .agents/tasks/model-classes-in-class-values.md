@@ -45,7 +45,7 @@ backed by a `ClassValue` too, and remove `Model`.
 - [x] Note the changes in `docs/migration/unregistered-tenants.md`.
 - [x] Bump the version to `.750`: a breaking change, since a protected method of a public
       class is removed.
-- [ ] Verify with `./gradlew build dokkaGenerate`.
+- [x] Verify with `./gradlew build dokkaGenerate`.
 
 ## Log
 

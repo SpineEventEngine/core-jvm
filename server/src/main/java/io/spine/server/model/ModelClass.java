@@ -49,10 +49,9 @@ public abstract class ModelClass<T> {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof ModelClass)) {
+        if (!(obj instanceof ModelClass<?> other)) {
             return false;
         }
-        var other = (ModelClass<?>) obj;
         return Objects.equals(this.rawClass, other.rawClass);
     }
 

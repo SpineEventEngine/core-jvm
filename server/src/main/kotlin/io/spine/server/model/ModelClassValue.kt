@@ -23,7 +23,11 @@ package io.spine.server.model
  * they request it concurrently. If the function throws, nothing is kept, and the next
  * request calls the function again.
  *
- * Each kind of model classes has its own `ModelClassValue`. So, one Java class may have
+ * When several threads make the first request for one Java class at the same time,
+ * the function may be called more than once, and only one of its results is kept.
+ * So, the function must be safe to call concurrently and must have no side effects.
+ *
+ * Each kind of model class has its own `ModelClassValue`. So, one Java class may have
  * model classes of several kinds. For example, an aggregate class has both a plain
  * [EntityClass][io.spine.server.entity.model.EntityClass] and
  * an [AggregateClass][io.spine.server.aggregate.model.AggregateClass].

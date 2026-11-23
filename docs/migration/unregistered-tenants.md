@@ -6,8 +6,9 @@ report it to the new `ApplicationLog`. Multi-tenant applications must register t
 before the tenants send requests. Code that creates the services from contexts, and tests that
 wrap a built context in a `BlackBox`, need changes too. `2.0.0-SNAPSHOT.720` also removes
 an older check of duplicate command handlers, which compared the classes of one
-`@BoundedContext` package; see section 2. `2.0.0-SNAPSHOT.750` keeps one model class of each
-kind per Java class; see the table below.
+`@BoundedContext` package; see section 2. Unrelated to tenants, `2.0.0-SNAPSHOT.750` changes
+how the framework obtains model classes: `EntityClass.asEntityClass()` gives a plain
+`EntityClass` for any class of entities, and `ModelClass.get()` is removed; see the table below.
 
 ## What changed, in one paragraph
 
