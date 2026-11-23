@@ -55,11 +55,11 @@ Docs:
 
 ## Verification
 
-- [ ] No code references to `Apply`, `Applier`, `EventApplierSignature`, `applierOf`,
+- [x] No code references to `Apply`, `Applier`, `EventApplierSignature`, `applierOf`,
       `stateEvents` outside prose.
-- [ ] `./gradlew build dokkaGenerate` green; `server` test count drops only by the deleted
-      cases.
-- [ ] `spine-code-review` and `review-docs` on the branch diff.
+- [x] `./gradlew clean build dokkaGenerate --no-build-cache` green; `server` runs 2,607
+      tests (#1731: 2,621), fewer by the 13 `ApplierTest` cases and `rejectAppliers()`.
+- [x] `spine-code-review` and `review-docs` on the branch diff: nothing to fix.
 
 ## Follow-ups
 
