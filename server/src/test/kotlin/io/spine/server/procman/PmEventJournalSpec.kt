@@ -32,7 +32,6 @@ import io.spine.server.procman.given.journal.JournalTestPmRepo
 import io.spine.test.procman.ProjectId
 import io.spine.test.procman.event.PmProjectCreated
 import io.spine.test.procman.event.PmTaskAdded
-import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -46,7 +45,6 @@ internal class PmEventJournalSpec {
 
     @BeforeEach
     fun setUp() {
-        ModelTests.dropAllModels()
         id = newProjectId()
     }
 
@@ -55,7 +53,6 @@ internal class PmEventJournalSpec {
         if (::context.isInitialized) {
             context.closeIfOpen()
         }
-        ModelTests.dropAllModels()
     }
 
     /**

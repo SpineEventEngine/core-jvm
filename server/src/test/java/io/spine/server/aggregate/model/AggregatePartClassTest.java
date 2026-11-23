@@ -20,7 +20,6 @@ import io.spine.server.aggregate.given.part.AnAggregateRoot;
 import io.spine.server.aggregate.given.part.WrongAggregatePart;
 import io.spine.server.model.ModelError;
 import io.spine.test.aggregate.ProjectId;
-import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,7 +38,6 @@ class AggregatePartClassTest {
 
     @BeforeEach
     void setUp() {
-        ModelTests.dropAllModels();
         var boundedContext = BoundedContextBuilder.assumingTests().build();
         var projectId = ProjectId.generate();
         root = new AnAggregateRoot(boundedContext, projectId);

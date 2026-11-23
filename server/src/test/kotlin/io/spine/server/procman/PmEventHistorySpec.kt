@@ -37,7 +37,6 @@ import io.spine.test.procman.event.PmProjectCreated
 import io.spine.test.procman.event.PmProjectStarted
 import io.spine.test.procman.event.PmTaskAdded
 import io.spine.testing.logging.mute.MuteLogging
-import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -52,7 +51,6 @@ internal class PmEventHistorySpec {
 
     @BeforeEach
     fun setUp() {
-        ModelTests.dropAllModels()
         id = newProjectId()
     }
 
@@ -61,7 +59,6 @@ internal class PmEventHistorySpec {
         if (::context.isInitialized) {
             context.close()
         }
-        ModelTests.dropAllModels()
     }
 
     /**

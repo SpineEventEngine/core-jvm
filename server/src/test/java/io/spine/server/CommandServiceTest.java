@@ -25,7 +25,6 @@ import io.spine.testing.TestValues;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.TestApplications;
-import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -53,7 +52,6 @@ class CommandServiceTest {
 
     @BeforeEach
     void setUp() {
-        ModelTests.dropAllModels();
         responseObserver = memoizingObserver();
         // Create the Projects and Customers Bounded Contexts with one repository each.
         var projects = BoundedContextBuilder

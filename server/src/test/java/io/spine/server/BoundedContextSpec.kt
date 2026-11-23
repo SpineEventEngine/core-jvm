@@ -61,7 +61,6 @@ import io.spine.test.shared.event.SomethingElseHappened
 import io.spine.test.shared.event.SomethingHappened
 import io.spine.testing.TestValues
 import io.spine.testing.logging.Interceptor
-import io.spine.testing.server.model.ModelTests
 import java.util.function.BooleanSupplier
 import java.util.logging.Level
 import org.junit.jupiter.api.AfterEach
@@ -93,7 +92,6 @@ internal class BoundedContextSpec {
 
     @BeforeEach
     fun setUp() {
-        ModelTests.dropAllModels()
         context = assumingTests(/* multiTenant = */ true)
             .build()
     }
@@ -357,7 +355,6 @@ internal class BoundedContextSpec {
 
     @Test
     fun `not expose invisible aggregates`() {
-        ModelTests.dropAllModels()
         context.register(SecretProjectRepository())
         context.internalAccess().findRepository(SecretProject::class.java).shouldBeEmpty()
     }

@@ -29,7 +29,6 @@ import io.spine.client.IdFilter;
 import io.spine.client.ResponseFormat;
 import io.spine.client.TargetFilters;
 import io.spine.testing.TestValues;
-import io.spine.testing.server.model.ModelTests;
 import io.spine.testing.server.tenant.TenantAwareTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -109,7 +108,6 @@ class RecordBasedRepositoryTest<E extends AbstractEntity<I, S>, I, S extends Ent
 
     @BeforeEach
     protected void setUp() {
-        ModelTests.dropAllModels();
         this.repository = createRepository();
         setCurrentTenant(generate());
     }
@@ -117,7 +115,6 @@ class RecordBasedRepositoryTest<E extends AbstractEntity<I, S>, I, S extends Ent
     @AfterEach
     protected void tearDown() throws Exception {
         clearCurrentTenant();
-        ModelTests.dropAllModels();
     }
 
     /*

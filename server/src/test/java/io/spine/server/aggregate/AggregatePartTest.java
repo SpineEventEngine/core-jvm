@@ -32,7 +32,6 @@ import io.spine.test.aggregate.ProjectId;
 import io.spine.test.aggregate.task.AggTask;
 import io.spine.test.aggregate.task.AggTaskComments;
 import io.spine.testing.client.TestActorRequestFactory;
-import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -70,7 +69,6 @@ class AggregatePartTest {
 
     @BeforeEach
     void setUp() {
-        ModelTests.dropAllModels();
         taskRepository = new TaskRepository();
         taskCommentsRepository = new TaskCommentsRepository();
         context = BoundedContextBuilder.assumingTests()

@@ -25,7 +25,6 @@ import io.spine.server.commandbus.given.CommandHandlerTestEnv.TestCommandAssigne
 import io.spine.server.event.EventBus;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.testing.client.TestActorRequestFactory;
-import io.spine.testing.server.model.ModelTests;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,7 +46,6 @@ class AssigneeTest {
 
     @BeforeEach
     void setUp() {
-        ModelTests.dropAllModels();
         assignee = new TestCommandAssignee();
         var context = BoundedContextBuilder
                 .assumingTests(/* multiTenant = */ true)

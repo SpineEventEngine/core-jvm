@@ -37,7 +37,6 @@ import io.spine.server.procman.given.journal.JournalTestProcman
 import io.spine.server.type.CommandEnvelope
 import io.spine.server.type.EventEnvelope
 import io.spine.test.procman.ProjectId
-import io.spine.testing.server.model.ModelTests
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -52,7 +51,6 @@ internal class PmDoubleDispatchGuardSpec {
 
     @BeforeEach
     fun setUp() {
-        ModelTests.dropAllModels()
         id = newProjectId()
     }
 
@@ -61,7 +59,6 @@ internal class PmDoubleDispatchGuardSpec {
         if (::context.isInitialized) {
             context.close()
         }
-        ModelTests.dropAllModels()
     }
 
     /**
