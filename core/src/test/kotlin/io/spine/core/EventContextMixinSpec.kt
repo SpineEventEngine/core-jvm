@@ -23,7 +23,6 @@ import io.spine.base.Time.currentTime
 import io.spine.protobuf.AnyPacker
 import io.spine.testing.core.given.GivenTenantId
 import io.spine.testing.core.given.GivenUserId
-import io.spine.validation.FieldAwareMessage
 import io.spine.validation.NonValidated
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -177,9 +176,8 @@ internal class EventContextMixinSpec {
             .setExternal(true)
             .setRejection(RejectionEventContext.newBuilder().setStacktrace("at Some.method()"))
             .buildPartial()
-        val fa = ctx as FieldAwareMessage
         ctx.descriptorForType.fields.forEach { field ->
-            fa.readValue(field) shouldBe ctx.getField(field)
+            ctx.readValue(field) shouldBe ctx.getField(field)
         }
     }
 

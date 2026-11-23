@@ -33,8 +33,8 @@ final class ScheduledCommand
 
     @Subscribe
     void on(CommandScheduled event, EventContext context) {
-        // The record keeps the scheduling time in its own field,
-        // so the command is stored as it was posted.
+        // The command scheduler stamps the scheduling time into the system properties.
+        // The record keeps that time in its own field, so store the command as it was posted.
         var command = event.getPayload()
                 .toBuilder()
                 .clearSystemProperties()

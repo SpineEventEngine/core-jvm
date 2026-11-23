@@ -27,11 +27,17 @@ current users of the Spine SDK do not use it.
   moves `external` and `rejection` from 11 and 12 to 10 and 11.
 - `EntityEventStorage.write()` validates the event only as a side effect of
   `clearEnrichments()` rebuilding it. Three tests expect a `ValidationException`.
-- `DefaultEventStore` also validated events through that rebuild. It no longer does,
-  and that is deliberate. Its production callers are `EventBus.store()` and
-  `DeadEventTap`, and both run after the bus's `ValidatingFilter`. `EventValidator`
-  checks the whole `Event` with `Validate.violationsOf()`, the same check `build()`
-  ran. So the rebuild only validated every event a second time.
+- The rebuild in `clearEnrichments()` also validated the *contents* of the context
+  (`EventContext.Builder.build()`: timestamp, producer, origin), in both
+  `EntityEventStorage` and `DefaultEventStore`. The stores no longer check that,
+  as the owner decided (2026-11-23). `Event.context` is `(required)` without
+  `(validate)`, so `checkValid()` and the `EventBus` validator check only that the
+  context is set — as `CommandValidator` does for commands. The framework builds
+  every event context with a validating `build()` (`EventFactoryBase.createContext()`),
+  so a bad context comes only from hand-built (`buildPartial()`) events or from
+  a non-Spine publisher on the integration broker. Validating contexts where such
+  input enters, in both buses, is a separate concern. The `EntityEventStorage` KDoc
+  no longer promises that an event without a producer is rejected.
 
 ## Plan
 
@@ -87,12 +93,14 @@ current users of the Spine SDK do not use it.
 
 ### Wrap-up
 
-- [x] Bump the version (breaking): `.760`, as `.750` is taken by #1731 (not committed).
+- [x] Bump the version (breaking): `.760`, as `.750` was taken by #1731; then `.770`,
+      as #1732 took `.760` on `master`.
 - [x] `./gradlew clean build dokkaGenerate`; read the test counts.
 - [x] `EventContextMixinSpec`: `readValue()` now must equal `getField()` for every field,
       with `external` and `rejection` set; the old 11/12 indexes fail it (mutation-checked).
-- [x] Reviewers: `spine-code-review` (approve; the `DefaultEventStore` point is answered
-      in Context), `review-docs` (approve).
+- [x] Reviewers: `spine-code-review`, `review-docs`, `kotlin-engineer`; the follow-up
+      findings (context validation, explicit-identifier rejection test, the
+      `ScheduledCommand` comment) are addressed, the first by the KDoc (see Context).
 
 Not changed: the ADR (a historical record), the archived and other task notes,
 `.idea/dictionaries`. No migration guide, as no user relies on the feature.
@@ -105,3 +113,6 @@ Not changed: the ADR (a historical record), the archived and other task notes,
   scheduling-time stamp); fixed in `ScheduledCommand`. Rebuild green: `core` 172,
   `core-testlib` 21, `client` 186, `client-testlib` 2, `server` 2589 (1 skipped),
   `server-testlib` 162, `server-otel` 22 tests, 0 failures.
+- 2026-11-23 — committed; `master` merged (#1731). Pre-PR review: the stores lost the
+  context-content check; owner chose the KDoc fix. `master` merged again (#1732, which
+  took `.760`), so re-bumped to `.770`.

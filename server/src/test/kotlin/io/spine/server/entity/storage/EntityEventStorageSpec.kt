@@ -31,7 +31,6 @@ import io.spine.core.Versions.zero
 import io.spine.server.ContextSpec
 import io.spine.server.storage.given.EntityRecordStorageTestEnv.TestCounterEntity
 import io.spine.server.storage.memory.InMemoryStorageFactory
-import io.spine.test.storage.StgProject
 import io.spine.test.storage.StgProjectId
 import io.spine.test.storage.event.StgProjectCreated
 import io.spine.test.storage.stgProjectId
@@ -136,6 +135,15 @@ internal class EntityEventStorageSpec {
         fun `rejecting an event with a blank identifier`() {
             shouldThrow<ValidationException> {
                 storage.write(withBlankId())
+            }
+        }
+
+        @Test
+        fun `rejecting an incomplete event also under an explicit identifier`() {
+            val incomplete = withoutMessage()
+
+            shouldThrow<ValidationException> {
+                storage.write(incomplete.id, incomplete)
             }
         }
 

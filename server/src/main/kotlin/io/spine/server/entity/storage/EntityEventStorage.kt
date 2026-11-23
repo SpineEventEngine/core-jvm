@@ -73,7 +73,7 @@ public class EntityEventStorage<I : Any>(
      * the event is determined by the producer ID of the event context.
      *
      * Before storing, the event is validated: an incomplete instance — e.g., missing
-     * its identifier, context, message, or producer — is rejected.
+     * its identifier, context, or message — is rejected.
      *
      * @param message The event to journal.
      * @throws io.spine.validation.ValidationException If the event is incomplete.
