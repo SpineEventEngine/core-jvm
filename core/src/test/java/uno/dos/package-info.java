@@ -26,9 +26,9 @@
 
 /**
  * This package is a part of the test environment for
- * {@link io.spine.server.model.ModelTest#findBoundedContextAnnotation()}.
+ * {@code io.spine.core.BoundedContextNamesSpec}.
  */
 @BoundedContext("Counting")
-package tres.quattro;
+package uno.dos;
 
 import io.spine.core.BoundedContext;

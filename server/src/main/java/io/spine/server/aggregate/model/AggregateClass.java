@@ -20,6 +20,7 @@ import io.spine.server.entity.model.AssigneeEntityClass;
 import io.spine.server.event.model.EventReactorMethod;
 import io.spine.server.event.model.ReactingClass;
 import io.spine.server.event.model.ReactorClassDelegate;
+import io.spine.server.model.ModelClassValue;
 import io.spine.server.model.ModelError;
 import io.spine.server.model.ReceptorMap;
 import io.spine.server.type.EmptyClass;
@@ -39,6 +40,15 @@ import static com.google.common.collect.Sets.union;
 public class AggregateClass<A extends Aggregate<?, ?, ?>>
         extends AssigneeEntityClass<A>
         implements ReactingClass {
+
+    /**
+     * Associates an {@code AggregateClass} with a Java class of aggregates.
+     *
+     * @see #asAggregateClass(Class)
+     */
+    @SuppressWarnings("unchecked") // `asAggregateClass()` accepts only classes of aggregates.
+    private static final ModelClassValue<AggregateClass<?>> classValue =
+            new ModelClassValue<>(cls -> new AggregateClass<>((Class<Aggregate<?, ?, ?>>) cls));
 
     private final ReceptorMap<EventClass, EmptyClass, Applier> stateEvents;
     private final ReactorClassDelegate<A> delegate;
@@ -77,9 +87,8 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
      */
     public static <A extends Aggregate<?, ?, ?>> AggregateClass<A> asAggregateClass(Class<A> cls) {
         checkNotNull(cls);
-        @SuppressWarnings("unchecked")
-        var result = (AggregateClass<A>)
-                get(cls, AggregateClass.class, () -> new AggregateClass<>(cls));
+        @SuppressWarnings("unchecked") // The class value creates the model class of `cls`.
+        var result = (AggregateClass<A>) classValue.get(cls);
         return result;
     }
 
@@ -141,14 +150,5 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
     @Override
     public ImmutableSet<EventClass> reactionOutput() {
         return delegate.reactionOutput();
-    }
-
-    /**
-     * Obtains the event applier method for the passed class of events.
-     */
-    public final Applier applierOf(EventEnvelope event) {
-        return stateEvents.findReceptorFor(event).orElseThrow(() -> new ModelError(
-                "Aggregate `%s` does not handle event `%s`.", this, event.typeUrl()
-        ));
     }
 }
