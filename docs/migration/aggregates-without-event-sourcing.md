@@ -11,8 +11,8 @@ An aggregate no longer reconstructs its state by replaying events. It loads from
 **latest persisted state** (an `EntityRecord`) and mutates that state **inside the command
 handler or event reactor** that emits the events. Events remain first-class — versioned,
 stored in an append-only journal, and posted to the `EventBus` — but they are traceability
-records, never replayed into state. Event appliers (`@Apply`) are gone: a class that still
-declares one now fails fast at model-building time.
+records, never replayed into state. Event appliers are gone with the `@Apply` annotation:
+a class that still declares one does not compile.
 
 ## At a glance
 
@@ -20,7 +20,7 @@ declares one now fails fast at model-building time.
 |------|------------------------|----------------------|
 | State change | `@Apply` applier mutates state from a played event | `@Assign` / `@React` mutates `builder()` in-body |
 | Loading | replay the journal (± a snapshot) | read the latest `EntityRecord` |
-| `@Apply` | required for every state transition | **`ModelError` at model build** — deprecated, removed in v2.0.0 |
+| `@Apply` | required for every state transition | **removed** — a leftover applier is a compile error |
 | Version | advanced per emitted event (`v+1..v+N`) | **+1 per command**, like a `ProcessManager` |
 | Event import | `@Apply(allowImport = true)` + `ImportBus` | **removed** — use external reactions / gateways |
 | Dedup | always-on aggregate `DoubleDispatchGuard` | guard **opt-in, off** (performance); delivery has its own time-window dedup |
@@ -111,20 +111,14 @@ accumulate in one builder and are validated atomically, an aggregate can no long
 A zero-event reactor that only changes business state **is** persisted — the store gate was
 widened to fire on a state change, not only on emitted events or lifecycle changes.
 
-### `@Apply` now fails fast
+### `@Apply` is removed
 
-Declaring any `@Apply` method on an `Aggregate` raises a `ModelError` when the context
-is built:
+As of `2.0.0-SNAPSHOT.760`, the `@Apply` annotation no longer exists, so an aggregate that
+still declares an applier fails to compile: `io.spine.server.aggregate.Apply` cannot be
+resolved. Move the body of each such method as shown above, and delete the method.
 
-```
-The aggregate class `<Class>` declares `@Apply`-annotated event applier(s) for <events>.
-Event sourcing has been removed: move each applier's body into the `@Assign` / `@React`
-receptor that emits the event (mutating the state via `builder()`), and delete the
-`@Apply` method(s).
-```
-
-The `@Apply` annotation is retained only so the model can detect it and fail; it is removed
-in v2.0.0.
+Earlier 2.0 snapshots kept the annotation as deprecated, and rejected such a class with a
+`ModelError` when the context was built.
 
 ## 2. Preventive validation (optional): `tryAlter` and `validate()`
 
@@ -189,7 +183,7 @@ Prefer `tryAlter` in a reactor (there is no way to un-mutate the live builder); 
 Event import is gone with event sourcing (D1, revised). Its replay-era purpose —
 rebuilding state from imported events — no longer exists. Removed from the runtime:
 
-- `@Apply(allowImport = true)` (the attribute is ignored),
+- `@Apply(allowImport = true)`,
 - `ImportBus`, `EventImportEndpoint`, `EventImportDispatcher`,
   `UnsupportedImportEventException`,
 - `AggregateRepository.setupImportRouting` / `eventImportRouting`,
@@ -380,7 +374,8 @@ The legacy records stay on disk as inert data; the current runtime does not read
 
 **Removed** (compile errors — migrate the call site):
 
-- `Aggregate` `@Apply` appliers → move bodies into `@Assign` / `@React` (§1)
+- `@Apply` with its `allowImport` attribute, `Applier`, and `AggregateClass.stateEvents()`
+  (as of `2.0.0-SNAPSHOT.760`) → move applier bodies into `@Assign` / `@React` (§1)
 - `AggregateRepository.setSnapshotTrigger(int)` / `snapshotTrigger()` → `setEventHistoryDepth` /
   `eventHistoryDepth` (§7)
 - `Aggregate.toSnapshot()` (§7)
@@ -407,7 +402,6 @@ The legacy records stay on disk as inert data; the current runtime does not read
 
 **Deprecated** (still compile; removed in v2.0.0):
 
-- `@Apply` and `@Apply#allowImport` — detection-only; a declared applier is a `ModelError`
 - `Aggregate.historyBackward()` / `historyContains(Predicate)` →
   `eventHistoryBackward(depth)` / `eventHistoryContains(depth, predicate)` (§6)
 

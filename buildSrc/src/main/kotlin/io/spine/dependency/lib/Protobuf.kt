@@ -62,7 +62,7 @@ object Protobuf {
          *
          * When changing the version, also change the version used in the `build.gradle.kts`.
          */
-        const val version = "0.10.0"
+        const val version = "0.10.1"
         const val id = "com.google.protobuf"
         const val lib = "$group:protobuf-gradle-plugin:$version"
     }

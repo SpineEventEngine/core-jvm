@@ -83,9 +83,8 @@ import java.util.function.Predicate
  *    and otherwise leaving the state untouched and returning the constraint violations — a
  *    validate-before-apply guard for conditionally withholding a change.
  *
- * Event sourcing has been removed: an aggregate no longer declares `@Apply` event
- * appliers, and its state is not reconstructed by replaying events. Declaring an applier now
- * fails model building with a [ModelError][io.spine.server.model.ModelError].
+ * Event sourcing has been removed: an aggregate has no event appliers, and its state is not
+ * reconstructed by replaying events.
  *
  * @param I The type for IDs of this class of aggregates.
  * @param S The type of the state held by the aggregate.
