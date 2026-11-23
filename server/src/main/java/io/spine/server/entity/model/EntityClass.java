@@ -1,27 +1,15 @@
 /*
- * Copyright 2025, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.entity.model;
@@ -35,6 +23,7 @@ import io.spine.server.entity.Entity;
 import io.spine.server.entity.EntityFactory;
 import io.spine.server.entity.EntityVisibility;
 import io.spine.server.model.ModelClass;
+import io.spine.server.model.ModelClassValue;
 import io.spine.server.model.ModelError;
 import io.spine.system.server.EntityTypeName;
 import io.spine.type.MessageType;
@@ -54,6 +43,15 @@ import static io.spine.util.Exceptions.newIllegalStateException;
  */
 @SuppressWarnings("SynchronizeOnThis") // Double-check idiom for lazy init.
 public class EntityClass<E extends Entity<?, ?>> extends ModelClass<E> {
+
+    /**
+     * Associates a plain {@code EntityClass} with a Java class of entities.
+     *
+     * @see #asEntityClass(Class)
+     */
+    @SuppressWarnings("unchecked") // `asEntityClass()` accepts only classes of entities.
+    private static final ModelClassValue<EntityClass<?>> classValue =
+            new ModelClassValue<>(cls -> new EntityClass<>((Class<Entity<?, ?>>) cls));
 
     /** The class of entity IDs. */
     private final Class<?> idClass;
@@ -92,11 +90,14 @@ public class EntityClass<E extends Entity<?, ?>> extends ModelClass<E> {
 
     /**
      * Obtains an entity class for the passed raw class.
+     *
+     * <p>The returned instance is a plain {@code EntityClass}, even if the passed class
+     * is of a more specific kind, such as an aggregate class.
      */
     public static <E extends Entity<?, ?>> EntityClass<E> asEntityClass(Class<E> cls) {
         checkNotNull(cls);
-        @SuppressWarnings("unchecked")
-        var result = (EntityClass<E>) get(cls, EntityClass.class, () -> new EntityClass<>(cls));
+        @SuppressWarnings("unchecked") // The class value creates the model class of `cls`.
+        var result = (EntityClass<E>) classValue.get(cls);
         return result;
     }
 

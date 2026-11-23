@@ -14,7 +14,7 @@
 
 package io.spine.testing.server.model;
 
-import io.spine.server.model.Model;
+import io.spine.server.model.ModelClass;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -22,7 +22,7 @@ import java.util.Arrays;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
- * Utilities for tests that deal with {@link Model}.
+ * Utilities for tests that deal with {@linkplain ModelClass model classes}.
  */
 public final class ModelTests {
 

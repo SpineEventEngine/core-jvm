@@ -22,7 +22,7 @@ import io.spine.test.reflect.command.RefCreateProject;
 import io.spine.test.reflect.command.RefStartProject;
 
 /**
- * Test environment for {@linkplain io.spine.server.model.ModelTest Model tests}.
+ * Test environment for the tests of model classes, such as {@code ModelClassValueSpec}.
  */
 public class ModelTestEnv {
 

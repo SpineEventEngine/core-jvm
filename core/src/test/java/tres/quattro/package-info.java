@@ -24,12 +24,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * This package is a part of the test environment for
+ * {@code io.spine.core.BoundedContextNamesSpec}.
+ */
+@BoundedContext("Counting")
 package tres.quattro;
 
-/**
- * This class is a part of test environment for
- * {@link io.spine.server.model.ModelTest#findBoundedContextAnnotation()}.
- */
-@SuppressWarnings("unused")
-public class Counter {
-}
+import io.spine.core.BoundedContext;
