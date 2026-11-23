@@ -374,9 +374,8 @@ The legacy records stay on disk as inert data; the current runtime does not read
 
 **Removed** (compile errors — migrate the call site):
 
-- `@Apply` with its `allowImport` attribute, `Applier`, and `AggregateClass.stateEvents()` /
-  `applierOf()` (as of `2.0.0-SNAPSHOT.760`) → move applier bodies into `@Assign` /
-  `@React` (§1)
+- `@Apply` with its `allowImport` attribute, `Applier`, and `AggregateClass.stateEvents()`
+  (as of `2.0.0-SNAPSHOT.760`) → move applier bodies into `@Assign` / `@React` (§1)
 - `AggregateRepository.setSnapshotTrigger(int)` / `snapshotTrigger()` → `setEventHistoryDepth` /
   `eventHistoryDepth` (§7)
 - `Aggregate.toSnapshot()` (§7)
