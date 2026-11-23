@@ -60,8 +60,9 @@ Docs:
 
 - [x] No code references to `Apply`, `Applier`, `EventApplierSignature`, `applierOf`,
       `stateEvents` outside prose.
-- [x] `./gradlew clean build dokkaGenerate --no-build-cache` green; `server` runs 2,607
-      tests (#1731: 2,621), fewer by the 13 `ApplierTest` cases and `rejectAppliers()`.
+- [x] `./gradlew clean build dokkaGenerate --no-build-cache` green; `server` runs 2,606
+      tests, none skipped (#1731: 2,621 with 1 skipped). The difference is the 13
+      `ApplierTest` cases, `rejectAppliers()`, and the skipped `EventReactionRoutingSpec` case.
 - [x] `spine-code-review` and `review-docs` on the branch diff: nothing to fix.
 
 ## Follow-ups
