@@ -20,7 +20,6 @@ import io.spine.base.EntityState;
 import io.spine.core.BoundedContextName;
 import io.spine.logging.WithLogging;
 import io.spine.option.EntityOption.Visibility;
-import io.spine.server.aggregate.AggregateRootDirectory;
 import io.spine.server.bus.Listener;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcher;
@@ -127,10 +126,6 @@ public abstract class BoundedContext
     /** Controls access to entities of all registered repositories. */
     private final VisibilityGuard guard = VisibilityGuard.newInstance();
 
-    /** Provides access to data parts of aggregate roots of this context. */
-    @SuppressWarnings("deprecation") // The `AggregateRootDirectory` API is deprecated.
-    private final AggregateRootDirectory aggregateRootDirectory;
-
     /** Provides access to internally used features of the context. */
     private final InternalAccess internalAccess;
 
@@ -164,7 +159,6 @@ public abstract class BoundedContext
         this.stand = builder.stand();
         this.broker = new IntegrationBroker();
         this.commandBus = builder.buildCommandBus();
-        this.aggregateRootDirectory = builder.aggregateRootDirectory();
         this.internalAccess = new InternalAccess();
         this.onBeforeClose = builder.getOnBeforeClose();
     }
@@ -843,14 +837,6 @@ public abstract class BoundedContext
          */
         public TransportFactory transportFactory() {
             return self().transportFactory;
-        }
-
-        /**
-         * Obtains an {@link AggregateRootDirectory} of this {@code BoundedContext}.
-         */
-        @SuppressWarnings("deprecation") // The `AggregateRootDirectory` API is deprecated.
-        public AggregateRootDirectory aggregateRootDirectory() {
-            return aggregateRootDirectory;
         }
 
         private BoundedContext self() {

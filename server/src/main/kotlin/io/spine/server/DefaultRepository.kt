@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server
@@ -59,10 +47,7 @@ public interface DefaultRepository {
          * @return a new repository instance.
          */
         @JvmStatic
-        @Suppress(
-            "UNCHECKED_CAST", // Casts are ensured by the class assignability checks below.
-            "DEPRECATION"     // The deprecated `AggregatePart` API is supported until its removal.
-        )
+        @Suppress("UNCHECKED_CAST") // Casts are ensured by the class assignability checks below.
         public fun <I : Any, E : Entity<I, *>> of(cls: Class<E>): Repository<I, E> {
             /*
              * We deliberately "save" on OOP here and detect the class by the chain of `when`
@@ -72,8 +57,6 @@ public interface DefaultRepository {
              */
             val anyClass = cls as Class<Nothing>
             val repository: Repository<*, *> = when {
-                io.spine.server.aggregate.AggregatePart::class.java.isAssignableFrom(cls) ->
-                    defaultAggregatePartRepository(anyClass)
                 Aggregate::class.java.isAssignableFrom(cls) ->
                     DefaultAggregateRepository<Nothing, Nothing, Nothing>(anyClass)
                 ProcessManager::class.java.isAssignableFrom(cls) ->
@@ -88,14 +71,6 @@ public interface DefaultRepository {
         }
     }
 }
-
-// Extracted from `of()` because the deprecated type's fully qualified name,
-// together with its type arguments, does not fit on one line at the call site.
-@Suppress("DEPRECATION")
-private fun defaultAggregatePartRepository(cls: Class<Nothing>): Repository<*, *> =
-    io.spine.server.aggregate.DefaultAggregatePartRepository<Nothing, Nothing, Nothing, Nothing>(
-        cls
-    )
 
 /**
  * Obtains the logging name of a default repository that manages entities described

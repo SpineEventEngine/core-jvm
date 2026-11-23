@@ -15,8 +15,6 @@
 package io.spine.server;
 
 import com.google.common.testing.NullPointerTester;
-import io.spine.server.aggregate.AggregateRootDirectory;
-import io.spine.server.aggregate.InMemoryRootDirectory;
 import io.spine.server.bc.given.Given.CommandDispatchingRepository;
 import io.spine.server.bc.given.Given.NoOpCommandDispatcher;
 import io.spine.server.bc.given.Given.NoOpEventDispatcher;
@@ -75,15 +73,6 @@ class BoundedContextBuilderTest {
                                                    .name()
                                                    .getValue());
         }
-
-        @Test
-        @DisplayName("`AggregateRootDirectory` if it was set")
-        @SuppressWarnings("deprecation") // Tests the deprecated aggregate parts API.
-        void aggregateRootDirectory() {
-            AggregateRootDirectory directory = new InMemoryRootDirectory();
-            builder.setAggregateRootDirectory(() -> directory);
-            assertEquals(directory, builder.aggregateRootDirectory());
-        }
     }
 
     @Nested
@@ -96,14 +85,6 @@ class BoundedContextBuilderTest {
             var boundedContext = builder.build();
             assertNotNull(boundedContext.commandBus());
             assertNotNull(boundedContext.eventBus());
-        }
-
-        @Test
-        @DisplayName("`AggregateRootDirectory`")
-        void aggregateRootDirectory() {
-            var context = builder.build();
-            assertNotNull(context.internalAccess()
-                                 .aggregateRootDirectory());
         }
     }
 
