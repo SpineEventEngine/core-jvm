@@ -173,10 +173,13 @@ internal class EventContextMixinSpec {
 
     @Test
     fun `readValue dispatches to each field by index`() {
-        val ctx = importContextOrigin()
+        val ctx = importContextOrigin().toBuilder()
+            .setExternal(true)
+            .setRejection(RejectionEventContext.newBuilder().setStacktrace("at Some.method()"))
+            .buildPartial()
         val fa = ctx as FieldAwareMessage
         ctx.descriptorForType.fields.forEach { field ->
-            fa.readValue(field)
+            fa.readValue(field) shouldBe ctx.getField(field)
         }
     }
 

@@ -37,7 +37,6 @@ import static java.lang.String.format;
 interface EventContextMixin extends EventContextOrBuilder,
                                     SignalContext,
                                     WithTime,
-                                    EnrichableMessageContext,
                                     FieldAwareMessage,
                                     WithLogging {
 
@@ -170,9 +169,8 @@ interface EventContextMixin extends EventContextOrBuilder,
             case 7 -> getRootCommandId();
             case 8 -> getProducerId();
             case 9 -> getVersion();
-            case 10 -> getEnrichment();
-            case 11 -> getExternal();
-            case 12 -> getRejection();
+            case 10 -> getExternal();
+            case 11 -> getRejection();
             default -> getField(field);
         };
     }

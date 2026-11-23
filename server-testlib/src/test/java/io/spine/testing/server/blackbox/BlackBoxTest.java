@@ -31,7 +31,6 @@ import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.entity.Repository;
 import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcher;
-import io.spine.server.event.EventEnricher;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.server.type.EventEnvelope;
@@ -468,14 +467,12 @@ abstract class BlackBoxTest<T extends BlackBox> {
         private final Set<TypeName> types = toTypes(repositories);
 
         private BlackBox blackBox;
-        private EventEnricher enricher;
         private CommandDispatcher commandDispatcher;
         private EventDispatcher eventDispatcher;
 
         @BeforeEach
         void setUp() {
             closeSetUpContext();
-            enricher = EventEnricher.newBuilder().build();
             commandDispatcher = new BbCommandDispatcher(commandClass);
             eventDispatcher = new BbEventDispatcher();
         }
@@ -489,15 +486,13 @@ abstract class BlackBoxTest<T extends BlackBox> {
 
         @Test
         void singleTenant() {
-            var builder = BoundedContextBuilder.assumingTests(/* multiTenant = */ false)
-                    .enrichEventsUsing(enricher);
+            var builder = BoundedContextBuilder.assumingTests(/* multiTenant = */ false);
             assertBlackBox(builder, StBlackBox.class);
         }
 
         @Test
         void multiTenant() {
-            var builder = BoundedContextBuilder.assumingTests(/* multiTenant = */ true)
-                    .enrichEventsUsing(enricher);
+            var builder = BoundedContextBuilder.assumingTests(/* multiTenant = */ true);
             assertBlackBox(builder, MtBlackBox.class);
         }
 
@@ -516,7 +511,6 @@ abstract class BlackBoxTest<T extends BlackBox> {
             assertEntityTypes();
             assertDispatchers();
             assertListeners();
-            assertEnricher();
             assertDisabledPosting();
         }
 
@@ -557,11 +551,6 @@ abstract class BlackBoxTest<T extends BlackBox> {
 
         private CommandBus commandBus() {
             return context().commandBus();
-        }
-
-        private void assertEnricher() {
-            assertThat(eventBus().getEnricher())
-                  .isEqualTo(enricher);
         }
 
         private boolean postsEventsInParallel() {

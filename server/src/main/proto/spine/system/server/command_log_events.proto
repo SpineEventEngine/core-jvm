@@ -61,6 +61,9 @@ message CommandScheduled {
 
     // The schedule to execute the command.
     core.CommandContext.Schedule schedule = 2 [(required) = true];
+
+    // The scheduled command.
+    core.Command payload = 3 [(required) = true];
 }
 
 // An event emitted when a command is passed to a dispatcher after being acknowledged.

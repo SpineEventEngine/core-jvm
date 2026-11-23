@@ -71,8 +71,6 @@ public final class SystemContext extends BoundedContext {
      */
     public static SystemContext newInstance(BoundedContextBuilder builder) {
         var commandLog = new CommandLogRepository();
-        var enricher = SystemEnricher.create(commandLog);
-        builder.enrichEventsUsing(enricher);
         var result = new SystemContext(builder);
         // Registers the buses with the context, as a domain context does,
         // before the repositories are added.

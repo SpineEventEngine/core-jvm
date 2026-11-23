@@ -15,7 +15,6 @@
 package io.spine.server.event.store;
 
 import com.google.common.collect.ImmutableSet;
-import io.spine.base.Time;
 import io.spine.core.ActorContext;
 import io.spine.core.Event;
 import io.spine.core.EventContext;
@@ -23,7 +22,6 @@ import io.spine.core.Origin;
 import io.spine.core.TenantId;
 import io.spine.environment.Tests;
 import io.spine.grpc.MemoizingObserver;
-import io.spine.protobuf.AnyPacker;
 import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
@@ -37,7 +35,6 @@ import io.spine.server.storage.memory.InMemoryStorageFactory;
 import io.spine.server.type.given.GivenEvent;
 import io.spine.test.event.TaskAdded;
 import io.spine.testing.SlowTest;
-import io.spine.testing.TestValues;
 import io.spine.type.TypeName;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.jupiter.api.AfterEach;
@@ -61,18 +58,15 @@ import static com.google.protobuf.util.Timestamps.subtract;
 import static io.spine.base.Time.currentTime;
 import static io.spine.grpc.StreamObservers.memoizingObserver;
 import static io.spine.protobuf.Durations2.seconds;
-import static io.spine.protobuf.Messages.isDefault;
 import static io.spine.server.event.given.EventStoreTestEnv.assertDone;
 import static io.spine.server.event.given.EventStoreTestEnv.projectCreated;
 import static io.spine.server.event.given.EventStoreTestEnv.taskAdded;
 import static io.spine.testing.TestValues.random;
-import static io.spine.testing.core.given.GivenEnrichment.withOneAttribute;
 import static java.time.Duration.ofMillis;
 import static java.util.concurrent.CompletableFuture.allOf;
 import static java.util.concurrent.CompletableFuture.runAsync;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * An abstract base for the tests of the {@link EventStore} of a Bounded Context.
@@ -411,55 +405,5 @@ public abstract class DefaultEventStoreTest {
     private void waitAndStore(Event event) {
         sleepUninterruptibly(ofMillis(random(20, 40)));
         eventStore.append(event);
-    }
-
-    @Nested
-    @DisplayName("not store enrichment for")
-    class NotStoreEnrichmentFor {
-
-        @Test
-        @DisplayName("`EventContext`")
-        void eventContext() {
-            var event = projectCreated(Time.currentTime());
-            var enriched = event.toBuilder()
-                    .setContext(event.context()
-                                        .toBuilder()
-                                        .setEnrichment(withOneAttribute()))
-                    .build();
-            eventStore.append(enriched);
-            MemoizingObserver<Event> observer = memoizingObserver();
-            eventStore.read(EventStreamQuery.getDefaultInstance(), observer);
-            var context = observer.responses().get(0).context();
-            assertTrue(isDefault(context.getEnrichment()));
-        }
-
-        @SuppressWarnings("deprecation")
-            // Enrichment cleanup still checks for the deprecated fields, so keep the test.
-        @Test
-        @DisplayName("origin of `EventContext` type")
-        void eventContextOrigin() {
-            var event = projectCreated(Time.currentTime());
-            var pastMessage = event.context().getPastMessage();
-            var originContext = EventContext.newBuilder()
-                    .setEnrichment(withOneAttribute())
-                    .setPastMessage(pastMessage)
-                    .setTimestamp(event.context()
-                                       .getTimestamp())
-                    .setProducerId(AnyPacker.pack(TestValues.newUuidValue()))
-                    .build();
-            var enriched = event.toBuilder()
-                    .setContext(event.getContext()
-                                        .toBuilder()
-                                        .setEventContext(originContext))
-                    .build();
-            eventStore.append(enriched);
-            MemoizingObserver<Event> observer = memoizingObserver();
-            eventStore.read(EventStreamQuery.getDefaultInstance(), observer);
-            var loadedOriginContext = observer.responses()
-                                              .get(0)
-                                              .context()
-                                              .getEventContext();
-            assertTrue(isDefault(loadedOriginContext.getEnrichment()));
-        }
     }
 }

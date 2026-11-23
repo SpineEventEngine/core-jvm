@@ -30,12 +30,10 @@ import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.commandbus.CommandDispatcherDelegate;
 import io.spine.server.commandbus.CommandScheduler;
 import io.spine.server.delivery.Delivery;
-import io.spine.server.enrich.Enricher;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.Repository;
 import io.spine.server.event.EventBus;
 import io.spine.server.event.EventDispatcher;
-import io.spine.server.event.EventEnricher;
 import io.spine.server.stand.Stand;
 import io.spine.server.storage.StorageFactory;
 import io.spine.server.trace.TracerFactory;
@@ -296,22 +294,6 @@ public final class BoundedContextBuilder implements WithLogging {
      */
     Stand stand() {
         return checkNotNull(stand);
-    }
-
-    /**
-     * Sets a custom {@link Enricher} for events posted to
-     * the {@code EventBus} of the context being built.
-     *
-     * <p>If the {@code Enricher} is not set, the enrichments
-     * will <strong>NOT</strong> be supported in this context.
-     *
-     * @param enricher
-     *         the {@code Enricher} for events or {@code null} if enrichment is not supported
-     */
-    @CanIgnoreReturnValue
-    public BoundedContextBuilder enrichEventsUsing(EventEnricher enricher) {
-        eventBus.injectEnricher(enricher);
-        return this;
     }
 
     /**
