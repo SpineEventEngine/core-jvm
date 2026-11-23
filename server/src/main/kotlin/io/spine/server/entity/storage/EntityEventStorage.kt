@@ -21,7 +21,6 @@ import io.spine.server.entity.Entity
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.StorageFactory
 import io.spine.server.storage.StorageGroup
-import io.spine.validation.checkValid
 
 /**
  * The journal of events emitted by an entity.
@@ -72,14 +71,10 @@ public class EntityEventStorage<I : Any>(
      * The event is stored as-is, keyed by its identifier; the entity which emitted
      * the event is determined by the producer ID of the event context.
      *
-     * Before storing, the event is validated: an incomplete instance — e.g., missing
-     * its identifier, context, or message — is rejected.
-     *
      * @param message The event to journal.
-     * @throws io.spine.validation.ValidationException If the event is incomplete.
      */
     public override fun write(message: Event) {
-        super.write(message.checkValid())
+        super.write(message)
     }
 
     /**
@@ -89,20 +84,17 @@ public class EntityEventStorage<I : Any>(
      * identifier must match the [id][Event.getId] of the event; prefer the
      * one-argument [write].
      *
-     * The event is validated the same way as by the one-argument [write].
-     *
      * @param id The identifier of the record.
      * @param message The event to journal.
      * @throws IllegalArgumentException If the identifier does not match
      *   the identifier of the event.
-     * @throws io.spine.validation.ValidationException If the event is incomplete.
      */
     @Synchronized
     public override fun write(id: EventId, message: Event) {
         require(id == message.id) {
             "The passed identifier does not match the identifier of the event."
         }
-        super.write(id, message.checkValid())
+        super.write(id, message)
     }
 }
 

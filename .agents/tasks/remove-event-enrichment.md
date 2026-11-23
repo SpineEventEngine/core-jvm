@@ -25,19 +25,21 @@ current users of the Spine SDK do not use it.
     `FlightRescheduled` and `FlightCanceled` by an enriched `AirportId`.
 - `EventContextMixin.readValue()` switches on the field *index*. Removing field 5
   moves `external` and `rejection` from 11 and 12 to 10 and 11.
-- `EntityEventStorage.write()` validates the event only as a side effect of
-  `clearEnrichments()` rebuilding it. Three tests expect a `ValidationException`.
-- The rebuild in `clearEnrichments()` also validated the *contents* of the context
-  (`EventContext.Builder.build()`: timestamp, producer, origin), in both
-  `EntityEventStorage` and `DefaultEventStore`. The stores no longer check that,
-  as the owner decided (2026-11-23). `Event.context` is `(required)` without
-  `(validate)`, so `checkValid()` and the `EventBus` validator check only that the
-  context is set — as `CommandValidator` does for commands. The framework builds
-  every event context with a validating `build()` (`EventFactoryBase.createContext()`),
-  so a bad context comes only from hand-built (`buildPartial()`) events or from
-  a non-Spine publisher on the integration broker. Validating contexts where such
-  input enters, in both buses, is a separate concern. The `EntityEventStorage` KDoc
-  no longer promises that an event without a producer is rejected.
+- `EntityEventStorage` and `DefaultEventStore` validated each event as a side effect
+  of `clearEnrichments()` rebuilding it, the context contents included
+  (`EventContext.Builder.build()`: timestamp, producer, origin). `d31f5a3b83b`
+  (2026-07-10) turned that side effect into the documented contract of
+  `EntityEventStorage.write()`, pinned by three spec cases.
+- The owner decided (2026-11-23) that the stores do not validate events. Events are
+  validated where they are created and where they enter: the framework builds every
+  event with validating `build()` calls (`EventFactoryBase`), and the `EventBus`
+  validates posted events. `Event.context` is `(required)` without `(validate)`, so
+  the bus checks only that the context is set — as `CommandValidator` does for
+  commands. A bad context thus comes only from hand-built (`buildPartial()`) events
+  or from a non-Spine publisher on the integration broker; validating contexts where
+  such input enters, in both buses, is a separate concern. The only production writer
+  of the journal, `SignalDispatchingRepository.doStore()`, journals the events its
+  entity emitted, which the framework built.
 
 ## Plan
 
@@ -70,9 +72,8 @@ current users of the Spine SDK do not use it.
       watcher, and the record keeps that time in its own `scheduling_time` field. The old
       enrichment read the command as posted (from `CommandLog`), which carries no stamp.
       Storing the payload as is failed `ScheduledCommandTest` (2 cases).
-- [x] `DefaultEventStore`: store events as is (see Context for why no validation).
-- [x] `EntityEventStorage.write()`: validate with `checkValid()` explicitly,
-      instead of through `clearEnrichments()`; update the KDoc.
+- [x] `DefaultEventStore` and `EntityEventStorage.write()`: store events as is, without
+      validation (see Context); drop the validation wording from the KDoc.
 - [x] `RecentEventHistory.toItem()`: drop the enrichment wording from the KDoc.
 
 ### Tests and fixtures
@@ -83,7 +84,7 @@ current users of the Spine SDK do not use it.
       `GivenEnrichment` with its test (`core-testlib`).
 - [x] Trim: `EventMixinSpec`, `SignalExtrasSpec`, `EventTest`, `EventBusTest`,
       `EventBusBuilderTest`, `DefaultEventStoreTest`, `EntityEventStorageSpec`
-      (keep the validation cases; the explicit-identifier case now checks storing as is),
+      (the rejection cases go; the explicit-identifier case now checks storing as is),
       `BlackBoxTest`, `GivenEvent`.
 - [x] `enrichments_test_events.proto`: keep only `EtProjectCreated` (`GivenEvent.message()`);
       `git mv` it to `core_test_events.proto`, as "enrichments" would mislead.
@@ -99,8 +100,8 @@ current users of the Spine SDK do not use it.
 - [x] `EventContextMixinSpec`: `readValue()` now must equal `getField()` for every field,
       with `external` and `rejection` set; the old 11/12 indexes fail it (mutation-checked).
 - [x] Reviewers: `spine-code-review`, `review-docs`, `kotlin-engineer`; the follow-up
-      findings (context validation, explicit-identifier rejection test, the
-      `ScheduledCommand` comment) are addressed, the first by the KDoc (see Context).
+      findings (context validation, the `ScheduledCommand` comment) are addressed —
+      the first by dropping validation from the stores (see Context).
 
 Not changed: the ADR (a historical record), the archived and other task notes,
 `.idea/dictionaries`. No migration guide, as no user relies on the feature.
@@ -115,4 +116,6 @@ Not changed: the ADR (a historical record), the archived and other task notes,
   `server-testlib` 162, `server-otel` 22 tests, 0 failures.
 - 2026-11-23 — committed; `master` merged (#1731). Pre-PR review: the stores lost the
   context-content check; owner chose the KDoc fix. `master` merged again (#1732, which
-  took `.760`), so re-bumped to `.770`.
+  took `.760`), so re-bumped to `.770`. PR #1733 opened.
+- 2026-11-23 — owner: `EntityEventStorage.write()` does not validate either; the check
+  and its spec cases are removed.

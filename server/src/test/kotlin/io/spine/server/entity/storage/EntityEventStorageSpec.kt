@@ -25,7 +25,6 @@ import io.kotest.matchers.shouldBe
 import io.spine.base.Identifier
 import io.spine.base.Time.currentTime
 import io.spine.core.Event
-import io.spine.core.EventId
 import io.spine.core.Versions.increment
 import io.spine.core.Versions.zero
 import io.spine.server.ContextSpec
@@ -36,8 +35,6 @@ import io.spine.test.storage.event.StgProjectCreated
 import io.spine.test.storage.stgProjectId
 import io.spine.testdata.Sample
 import io.spine.testing.server.TestEventFactory
-import io.spine.validation.NonValidated
-import io.spine.validation.ValidationException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -115,59 +112,6 @@ internal class EntityEventStorageSpec {
             shouldThrow<IllegalArgumentException> {
                 storage.write(anotherId, event)
             }
-        }
-
-        @Test
-        fun `rejecting an event without a context`() {
-            shouldThrow<ValidationException> {
-                storage.write(withoutContext())
-            }
-        }
-
-        @Test
-        fun `rejecting an event without a message`() {
-            shouldThrow<ValidationException> {
-                storage.write(withoutMessage())
-            }
-        }
-
-        @Test
-        fun `rejecting an event with a blank identifier`() {
-            shouldThrow<ValidationException> {
-                storage.write(withBlankId())
-            }
-        }
-
-        @Test
-        fun `rejecting an incomplete event also under an explicit identifier`() {
-            val incomplete = withoutMessage()
-
-            shouldThrow<ValidationException> {
-                storage.write(incomplete.id, incomplete)
-            }
-        }
-
-        private fun withoutContext(): @NonValidated Event {
-            val valid = newEvent()
-            return Event.newBuilder()
-                .setId(valid.id)
-                .setMessage(valid.message)
-                .buildPartial()
-        }
-
-        private fun withoutMessage(): @NonValidated Event {
-            val valid = newEvent()
-            return Event.newBuilder()
-                .setId(valid.id)
-                .setContext(valid.context)
-                .buildPartial()
-        }
-
-        private fun withBlankId(): @NonValidated Event {
-            val valid = newEvent()
-            return valid.toBuilder()
-                .setId(EventId.getDefaultInstance())
-                .buildPartial()
         }
 
         private fun newEvent(): Event =
