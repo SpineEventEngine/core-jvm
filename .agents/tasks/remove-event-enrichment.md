@@ -91,6 +91,7 @@ current users of the Spine SDK do not use it.
 - [x] Airport fixture: add `AirportId from` to `FlightRescheduled` and `FlightCanceled`;
       `FlightAggregate` fills it from its state; `TimetableRepository` routes by it;
       remove `FlightRepository.departureAirport()`.
+      `TracingTest` covers the new `FlightRescheduled` route (a Codecov patch miss).
 
 ### Wrap-up
 
