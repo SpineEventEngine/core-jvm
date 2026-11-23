@@ -9,9 +9,9 @@ started: 2026-11-23
 
 ## Goal
 
-Cache model classes in `ClassValue`s, one per kind, instead of `ClassMap`. Move the lookup of
-the Bounded Context of a class into `BoundedContextNames`, backed by a `ClassValue` too, and
-remove `Model`.
+Associate model classes with Java classes through `ClassValue`s, one per kind, instead of
+`ClassMap`. Move the lookup of the Bounded Context of a class into `BoundedContextNames`,
+backed by a `ClassValue` too, and remove `Model`.
 
 ## Context
 
@@ -22,10 +22,12 @@ remove `Model`.
 - The cache was keyed by the class name, so two classes of one name in two class loaders
   shared an entry, and it kept classes and their loaders forever.
 - A more specific kind replaced the stored one, so the result of `asEntityClass(MyAggregate)`
-  depended on which kind was built first. Now each kind has its own `ClassValue`:
+  depended on which kind was built first. Now each kind has its own `ModelClassValue`:
   `asEntityClass(MyAggregate)` always gives a plain `EntityClass`.
-- `ClassValue` keeps a value as long as its class lives, gives every caller one instance,
-  and caches nothing when the computation throws.
+- A `ClassValue` keeps a value as long as its class lives, gives every caller one instance,
+  and keeps nothing when the computation throws. It is not a cache, so the names follow
+  `LoggerClassValue` of Spine Logging: `ModelClassValue` (Kotlin), held in private static
+  `classValue` fields; the enclosing model class names the kind.
 - Without `ClassMap`, `Model` held only the lookup of the context of a class. The lookup
   implements the convention of `@BoundedContext`, which lives in `io.spine.core`, so it moved
   to `BoundedContextNames`. `core` now declares `implementation(Reflect.lib)` for
@@ -33,17 +35,17 @@ remove `Model`.
 
 ## Plan
 
-- [x] Replace `ModelClass.get(...)` with `ModelClass.cacheOf(...)`, and give each of the
-      8 kinds its own `ClassValue`.
+- [x] Replace `ModelClass.get(...)` with `ModelClassValue`, and give each of the 8 kinds
+      its own instance.
 - [x] Remove `ClassMap`.
 - [x] Move the context lookup into `BoundedContextNames.contextOf(Class)`; remove `Model`;
       `StateSubscriberMethod` uses the new method.
-- [x] Add `ModelClassSpec`; move the lookup cases and the `tres.quattro`/`uno.dos` fixtures
-      to `core`'s tests; remove `ModelTest`.
+- [x] Add `ModelClassValueSpec`; move the lookup cases and the `tres.quattro`/`uno.dos`
+      fixtures to `core`'s tests; remove `ModelTest`.
 - [x] Note the changes in `docs/migration/unregistered-tenants.md`.
-- [x] Bump the version to `.730`: a breaking change, since a protected method of a public
+- [x] Bump the version to `.750`: a breaking change, since a protected method of a public
       class is removed.
-- [x] Verify with `./gradlew check dokkaGenerate`, then `./gradlew build`.
+- [ ] Verify with `./gradlew build dokkaGenerate`.
 
 ## Log
 
@@ -54,3 +56,5 @@ remove `Model`.
   then the context lookup moved from `Model` to `BoundedContextNames`.
 - 2026-11-23 — rebased onto `claude/remove-deprecated-api-cad139` (`b38561b4f2f`, `.740`),
   which removes `AggregatePartClass`; the `.730` bump was dropped for `.750`.
+- 2026-11-23 — `ModelClass.cacheOf()` replaced with the Kotlin `ModelClassValue`; the
+  `cache` fields renamed to `classValue`.

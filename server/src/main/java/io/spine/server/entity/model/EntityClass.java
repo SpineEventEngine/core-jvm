@@ -23,6 +23,7 @@ import io.spine.server.entity.Entity;
 import io.spine.server.entity.EntityFactory;
 import io.spine.server.entity.EntityVisibility;
 import io.spine.server.model.ModelClass;
+import io.spine.server.model.ModelClassValue;
 import io.spine.server.model.ModelError;
 import io.spine.system.server.EntityTypeName;
 import io.spine.type.MessageType;
@@ -44,13 +45,13 @@ import static io.spine.util.Exceptions.newIllegalStateException;
 public class EntityClass<E extends Entity<?, ?>> extends ModelClass<E> {
 
     /**
-     * The plain entity classes of Java classes.
+     * Associates a plain {@code EntityClass} with a Java class of entities.
      *
      * @see #asEntityClass(Class)
      */
     @SuppressWarnings("unchecked") // `asEntityClass()` accepts only classes of entities.
-    private static final ClassValue<EntityClass<?>> cache =
-            cacheOf(cls -> new EntityClass<>((Class<Entity<?, ?>>) cls));
+    private static final ModelClassValue<EntityClass<?>> classValue =
+            new ModelClassValue<>(cls -> new EntityClass<>((Class<Entity<?, ?>>) cls));
 
     /** The class of entity IDs. */
     private final Class<?> idClass;
@@ -95,8 +96,8 @@ public class EntityClass<E extends Entity<?, ?>> extends ModelClass<E> {
      */
     public static <E extends Entity<?, ?>> EntityClass<E> asEntityClass(Class<E> cls) {
         checkNotNull(cls);
-        @SuppressWarnings("unchecked") // The cache creates the model class of `cls`.
-        var result = (EntityClass<E>) cache.get(cls);
+        @SuppressWarnings("unchecked") // The class value creates the model class of `cls`.
+        var result = (EntityClass<E>) classValue.get(cls);
         return result;
     }
 

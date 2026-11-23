@@ -20,6 +20,7 @@ import io.spine.server.command.Commander;
 import io.spine.server.event.model.EventReceiverClass;
 import io.spine.server.event.model.EventReceivingClassDelegate;
 import io.spine.server.model.ExternalCommandReceiverMethodError;
+import io.spine.server.model.ModelClassValue;
 import io.spine.server.model.Receptor;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.EventClass;
@@ -42,13 +43,13 @@ public final class CommanderClass<C extends Commander>
         implements EventReceiverClass, CommandingClass {
 
     /**
-     * The commander classes of Java classes.
+     * Associates a {@code CommanderClass} with a Java class of commanders.
      *
      * @see #asCommanderClass(Class)
      */
     @SuppressWarnings("unchecked") // `asCommanderClass()` accepts only classes of commanders.
-    private static final ClassValue<CommanderClass<?>> cache =
-            cacheOf(cls -> new CommanderClass<>((Class<AbstractCommander>) cls));
+    private static final ModelClassValue<CommanderClass<?>> classValue =
+            new ModelClassValue<>(cls -> new CommanderClass<>((Class<AbstractCommander>) cls));
 
     private final EventReceivingClassDelegate<C, CommandClass, CommandingReaction> delegate;
 
@@ -76,8 +77,8 @@ public final class CommanderClass<C extends Commander>
     public static <C extends AbstractCommander>
     CommanderClass<C> asCommanderClass(Class<C> cls) {
         checkNotNull(cls);
-        @SuppressWarnings("unchecked") // The cache creates the model class of `cls`.
-        var result = (CommanderClass<C>) cache.get(cls);
+        @SuppressWarnings("unchecked") // The class value creates the model class of `cls`.
+        var result = (CommanderClass<C>) classValue.get(cls);
         return result;
     }
 

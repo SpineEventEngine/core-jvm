@@ -20,6 +20,7 @@ import io.spine.server.entity.model.AssigneeEntityClass;
 import io.spine.server.event.model.EventReactorMethod;
 import io.spine.server.event.model.ReactingClass;
 import io.spine.server.event.model.ReactorClassDelegate;
+import io.spine.server.model.ModelClassValue;
 import io.spine.server.model.ModelError;
 import io.spine.server.model.ReceptorMap;
 import io.spine.server.type.EmptyClass;
@@ -41,13 +42,13 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
         implements ReactingClass {
 
     /**
-     * The aggregate classes of Java classes.
+     * Associates an {@code AggregateClass} with a Java class of aggregates.
      *
      * @see #asAggregateClass(Class)
      */
     @SuppressWarnings("unchecked") // `asAggregateClass()` accepts only classes of aggregates.
-    private static final ClassValue<AggregateClass<?>> cache =
-            cacheOf(cls -> new AggregateClass<>((Class<Aggregate<?, ?, ?>>) cls));
+    private static final ModelClassValue<AggregateClass<?>> classValue =
+            new ModelClassValue<>(cls -> new AggregateClass<>((Class<Aggregate<?, ?, ?>>) cls));
 
     private final ReceptorMap<EventClass, EmptyClass, Applier> stateEvents;
     private final ReactorClassDelegate<A> delegate;
@@ -86,8 +87,8 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
      */
     public static <A extends Aggregate<?, ?, ?>> AggregateClass<A> asAggregateClass(Class<A> cls) {
         checkNotNull(cls);
-        @SuppressWarnings("unchecked") // The cache creates the model class of `cls`.
-        var result = (AggregateClass<A>) cache.get(cls);
+        @SuppressWarnings("unchecked") // The class value creates the model class of `cls`.
+        var result = (AggregateClass<A>) classValue.get(cls);
         return result;
     }
 

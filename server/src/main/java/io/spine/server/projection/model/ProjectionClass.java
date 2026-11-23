@@ -23,6 +23,7 @@ import io.spine.server.event.model.EventReceivingClassDelegate;
 import io.spine.server.event.model.SubscriberMethod;
 import io.spine.server.event.model.SubscriberSignature;
 import io.spine.server.event.model.SubscribingClass;
+import io.spine.server.model.ModelClassValue;
 import io.spine.server.projection.Projection;
 import io.spine.server.type.EmptyClass;
 import io.spine.server.type.EventClass;
@@ -43,13 +44,13 @@ public final class ProjectionClass<P extends Projection<?, ?, ?>>
         implements EventReceiverClass, SubscribingClass, StateSubscribingClass {
 
     /**
-     * The projection classes of Java classes.
+     * Associates a {@code ProjectionClass} with a Java class of projections.
      *
      * @see #asProjectionClass(Class)
      */
     @SuppressWarnings("unchecked") // `asProjectionClass()` accepts only classes of projections.
-    private static final ClassValue<ProjectionClass<?>> cache =
-            cacheOf(cls -> new ProjectionClass<>((Class<Projection<?, ?, ?>>) cls));
+    private static final ModelClassValue<ProjectionClass<?>> classValue =
+            new ModelClassValue<>(cls -> new ProjectionClass<>((Class<Projection<?, ?, ?>>) cls));
 
     private final EventReceivingClassDelegate<P, EmptyClass, SubscriberMethod> delegate;
 
@@ -64,8 +65,8 @@ public final class ProjectionClass<P extends Projection<?, ?, ?>>
     public static <P extends Projection<?, ?, ?>> ProjectionClass<P>
     asProjectionClass(Class<P> cls) {
         checkNotNull(cls);
-        @SuppressWarnings("unchecked") // The cache creates the model class of `cls`.
-        var result = (ProjectionClass<P>) cache.get(cls);
+        @SuppressWarnings("unchecked") // The class value creates the model class of `cls`.
+        var result = (ProjectionClass<P>) classValue.get(cls);
         return result;
     }
 

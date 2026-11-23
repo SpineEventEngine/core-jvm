@@ -17,6 +17,7 @@ package io.spine.server.event.model;
 import com.google.common.collect.ImmutableSet;
 import io.spine.server.event.EventReactor;
 import io.spine.server.model.ModelClass;
+import io.spine.server.model.ModelClassValue;
 import io.spine.server.model.Receptor;
 import io.spine.server.model.ReceptorMap;
 import io.spine.server.type.EventClass;
@@ -36,13 +37,13 @@ public final class EventReactorClass<S extends EventReactor> extends ModelClass<
         implements ReactingClass {
 
     /**
-     * The event reactor classes of Java classes.
+     * Associates an {@code EventReactorClass} with a Java class of event reactors.
      *
      * @see #asReactorClass(Class)
      */
     @SuppressWarnings("unchecked") // `asReactorClass()` accepts only classes of event reactors.
-    private static final ClassValue<EventReactorClass<?>> cache =
-            cacheOf(cls -> new EventReactorClass<>((Class<EventReactor>) cls));
+    private static final ModelClassValue<EventReactorClass<?>> classValue =
+            new ModelClassValue<>(cls -> new EventReactorClass<>((Class<EventReactor>) cls));
 
     private final ReceptorMap<EventClass, EventClass, EventReactorMethod> reactors;
     private final ImmutableSet<EventClass> events;
@@ -61,8 +62,8 @@ public final class EventReactorClass<S extends EventReactor> extends ModelClass<
     public static <S extends EventReactor> EventReactorClass<S>
     asReactorClass(Class<S> cls) {
         checkNotNull(cls);
-        @SuppressWarnings("unchecked") // The cache creates the model class of `cls`.
-        var result = (EventReactorClass<S>) cache.get(cls);
+        @SuppressWarnings("unchecked") // The class value creates the model class of `cls`.
+        var result = (EventReactorClass<S>) classValue.get(cls);
         return result;
     }
 

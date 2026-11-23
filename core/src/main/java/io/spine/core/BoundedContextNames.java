@@ -34,11 +34,11 @@ public final class BoundedContextNames {
     private static final BoundedContextName ASSUMING_TESTS = newName("AssumingTests");
 
     /**
-     * The names of the Bounded Contexts of the classes.
+     * Associates the name of a Bounded Context with a Java class.
      *
      * @see #contextOf(Class)
      */
-    private static final ClassValue<BoundedContextName> contexts = new ClassValue<>() {
+    private static final ClassValue<BoundedContextName> classValue = new ClassValue<>() {
         @Override
         protected BoundedContextName computeValue(Class<?> type) {
             // If no name of a Bounded Context found, assume the default name.
@@ -132,7 +132,7 @@ public final class BoundedContextNames {
     @Internal
     public static BoundedContextName contextOf(Class<?> cls) {
         checkNotNull(cls);
-        return contexts.get(cls);
+        return classValue.get(cls);
     }
 
     /**

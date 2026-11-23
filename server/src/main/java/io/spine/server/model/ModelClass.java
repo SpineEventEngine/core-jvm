@@ -15,7 +15,6 @@
 package io.spine.server.model;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -38,36 +37,6 @@ public abstract class ModelClass<T> {
      */
     public Class<?> rawClass() {
         return rawClass;
-    }
-
-    /**
-     * Creates a cache of the model classes of one kind.
-     *
-     * <p>The cache creates the model class of a Java class with the passed function when
-     * the model class is requested for the first time. Then the cache keeps the model class
-     * as long as the Java class is loaded. All the callers obtain the same instance, even when
-     * they request it concurrently. If the function throws, the cache keeps nothing, and
-     * the next request calls the function again.
-     *
-     * <p>Each kind of model classes has its own cache. So, one Java class may have model
-     * classes of several kinds. For example, an aggregate class has both a plain
-     * {@code EntityClass} and an {@code AggregateClass}.
-     *
-     * @param create
-     *         the function that creates the model class of the passed Java class
-     * @param <M>
-     *         the type of the model classes
-     * @return the new cache
-     */
-    protected static <M extends ModelClass<?>>
-    ClassValue<M> cacheOf(Function<Class<?>, M> create) {
-        checkNotNull(create);
-        return new ClassValue<>() {
-            @Override
-            protected M computeValue(Class<?> type) {
-                return create.apply(type);
-            }
-        };
     }
 
     @Override

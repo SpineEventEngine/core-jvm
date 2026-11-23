@@ -17,6 +17,7 @@ package io.spine.server.event.model;
 import com.google.common.collect.ImmutableSet;
 import io.spine.server.event.EventSubscriber;
 import io.spine.server.model.ModelClass;
+import io.spine.server.model.ModelClassValue;
 import io.spine.server.type.EmptyClass;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
@@ -35,13 +36,13 @@ public final class EventSubscriberClass<S extends EventSubscriber> extends Model
     implements EventReceiverClass, SubscribingClass {
 
     /**
-     * The event subscriber classes of Java classes.
+     * Associates an {@code EventSubscriberClass} with a Java class of event subscribers.
      *
      * @see #asEventSubscriberClass(Class)
      */
     @SuppressWarnings("unchecked") // `asEventSubscriberClass()` accepts only subscriber classes.
-    private static final ClassValue<EventSubscriberClass<?>> cache =
-            cacheOf(cls -> new EventSubscriberClass<>((Class<EventSubscriber>) cls));
+    private static final ModelClassValue<EventSubscriberClass<?>> classValue =
+            new ModelClassValue<>(cls -> new EventSubscriberClass<>((Class<EventSubscriber>) cls));
 
     private final EventReceivingClassDelegate<S, EmptyClass, SubscriberMethod> delegate;
 
@@ -56,8 +57,8 @@ public final class EventSubscriberClass<S extends EventSubscriber> extends Model
     public static <S extends EventSubscriber>
     EventSubscriberClass<S> asEventSubscriberClass(Class<S> cls) {
         checkNotNull(cls);
-        @SuppressWarnings("unchecked") // The cache creates the model class of `cls`.
-        var result = (EventSubscriberClass<S>) cache.get(cls);
+        @SuppressWarnings("unchecked") // The class value creates the model class of `cls`.
+        var result = (EventSubscriberClass<S>) classValue.get(cls);
         return result;
     }
 

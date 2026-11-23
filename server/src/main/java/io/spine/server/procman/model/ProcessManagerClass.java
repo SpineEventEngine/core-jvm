@@ -23,6 +23,7 @@ import io.spine.server.entity.model.AssigneeEntityClass;
 import io.spine.server.event.model.EventReactorMethod;
 import io.spine.server.event.model.ReactingClass;
 import io.spine.server.event.model.ReactorClassDelegate;
+import io.spine.server.model.ModelClassValue;
 import io.spine.server.procman.ProcessManager;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
@@ -45,13 +46,14 @@ public final class ProcessManagerClass<P extends ProcessManager<?, ?, ?>>
         implements ReactingClass, CommandingClass {
 
     /**
-     * The process manager classes of Java classes.
+     * Associates a {@code ProcessManagerClass} with a Java class of process managers.
      *
      * @see #asProcessManagerClass(Class)
      */
     @SuppressWarnings("unchecked") // `asProcessManagerClass()` accepts only process managers.
-    private static final ClassValue<ProcessManagerClass<?>> cache =
-            cacheOf(cls -> new ProcessManagerClass<>((Class<ProcessManager<?, ?, ?>>) cls));
+    private static final ModelClassValue<ProcessManagerClass<?>> classValue =
+            new ModelClassValue<>(cls ->
+                    new ProcessManagerClass<>((Class<ProcessManager<?, ?, ?>>) cls));
 
     private final ReactorClassDelegate<P> reactorDelegate;
     private final CommanderClass<P> commanderDelegate;
@@ -68,8 +70,8 @@ public final class ProcessManagerClass<P extends ProcessManager<?, ?, ?>>
     public static <P extends ProcessManager<?, ?, ?>>
     ProcessManagerClass<P> asProcessManagerClass(Class<P> cls) {
         checkNotNull(cls);
-        @SuppressWarnings("unchecked") // The cache creates the model class of `cls`.
-        var result = (ProcessManagerClass<P>) cache.get(cls);
+        @SuppressWarnings("unchecked") // The class value creates the model class of `cls`.
+        var result = (ProcessManagerClass<P>) classValue.get(cls);
         return result;
     }
 

@@ -15,6 +15,7 @@
 package io.spine.server.command.model;
 
 import io.spine.server.command.AbstractAssignee;
+import io.spine.server.model.ModelClassValue;
 import io.spine.server.type.EventClass;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -29,13 +30,13 @@ public final class AssigneeClass<C extends AbstractAssignee>
         extends AbstractCommandHandlingClass<C, EventClass, AssigneeReceptor> {
 
     /**
-     * The command assignee classes of Java classes.
+     * Associates an {@code AssigneeClass} with a Java class of command assignees.
      *
      * @see #asCommandAssigneeClass(Class)
      */
     @SuppressWarnings("unchecked") // `asCommandAssigneeClass()` accepts only assignee classes.
-    private static final ClassValue<AssigneeClass<?>> cache =
-            cacheOf(cls -> new AssigneeClass<>((Class<AbstractAssignee>) cls));
+    private static final ModelClassValue<AssigneeClass<?>> classValue =
+            new ModelClassValue<>(cls -> new AssigneeClass<>((Class<AbstractAssignee>) cls));
 
     private AssigneeClass(Class<C> cls) {
         super(cls, new AssigneeSignature());
@@ -47,8 +48,8 @@ public final class AssigneeClass<C extends AbstractAssignee>
     public static <C extends AbstractAssignee>
     AssigneeClass<C> asCommandAssigneeClass(Class<C> cls) {
         checkNotNull(cls);
-        @SuppressWarnings("unchecked") // The cache creates the model class of `cls`.
-        var result = (AssigneeClass<C>) cache.get(cls);
+        @SuppressWarnings("unchecked") // The class value creates the model class of `cls`.
+        var result = (AssigneeClass<C>) classValue.get(cls);
         return result;
     }
 }
