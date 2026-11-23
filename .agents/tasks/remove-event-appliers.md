@@ -43,6 +43,9 @@ Tests and fixtures:
 - [x] Delete `ApplierTest` and the `EngineAggregateWithApplier` fixture; remove
       `AggregateClassTest.rejectAppliers()`.
 - [x] `RcWrongAnnotation`: drop `@Apply`; keep `@Command` and `@Subscribe`.
+- [x] Delete `EventReactionRoutingSpec`: its only test was `@Disabled` since 2023 and its
+      issue #925 is closed as not planned. Its `users` context fixtures (`UsersContext.kt`,
+      `given/context/users/{entities,events}.proto`) served only it.
 - Test and fixture names that still say "applier" (`FaultyAggregate.brokenApplier`,
   `ReceptionistAggregate.makeApplierFail`, some `AggregateSpec` titles) stay: they do not
   refer to the removed types.
