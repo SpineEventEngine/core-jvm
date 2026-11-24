@@ -35,6 +35,6 @@ only. If you find `@Nullable` on a local in code you are already touching, drop 
 diff appears to have "lost" a `@Nullable` on a local, that removal is **correct** — do
 not restore it, and do not attribute it to a stray formatter. Pre-existing instances in
 untouched files (e.g. `GrpcContainer`, `SpecScanner`, `ArgumentFilter`, `CatchUpProcess`,
-`Enricher`, `RecordQueryMatcher`) are not worth a dedicated sweep; fix them opportunistically.
+`RecordQueryMatcher`) are not worth a dedicated sweep; fix them opportunistically.
 
 Related: [[feedback_non_validated_annotation]].

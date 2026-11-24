@@ -40,7 +40,6 @@ import io.spine.testing.SlowTest;
 import io.spine.testing.logging.mute.MuteLogging;
 import io.spine.testing.server.TestEventFactory;
 import io.spine.validation.Validated;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -75,22 +74,15 @@ class EventBusTest {
     private CommandBus commandBus;
     private BoundedContext context;
 
-    private void setUp(@Nullable EventEnricher enricher) {
-        this.eventFactory = TestEventFactory.newInstance(EventBusTest.class);
-        var builder = assumingTests(/* multiTenant = */ true)
-                .addEventFilter(new TaskCreatedFilter())
-                .add(ProjectAggregate.class);
-        if (enricher != null) {
-            builder.enrichEventsUsing(enricher);
-        }
-        this.context = builder.build();
-        this.commandBus = context.commandBus();
-        this.eventBus = context.eventBus();
-    }
-
     @BeforeEach
     void setUp() {
-        setUp(null);
+        this.eventFactory = TestEventFactory.newInstance(EventBusTest.class);
+        this.context = assumingTests(/* multiTenant = */ true)
+                .addEventFilter(new TaskCreatedFilter())
+                .add(ProjectAggregate.class)
+                .build();
+        this.commandBus = context.commandBus();
+        this.eventBus = context.eventBus();
     }
 
     @AfterEach
@@ -232,7 +224,6 @@ class EventBusTest {
                     .isTrue();
         }
     }
-
 
     @Nested
     @DisplayName("when closed")

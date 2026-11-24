@@ -35,7 +35,6 @@ import io.spine.server.bus.DispatcherRegistry;
 import io.spine.server.bus.EnvelopeValidator;
 import io.spine.server.bus.InvalidMessageHandler;
 import io.spine.server.bus.MulticastBus;
-import io.spine.server.enrich.Enricher;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.EventValidationFailed;
@@ -123,15 +122,9 @@ public final class EventBus
     @LazyInit
     private @MonotonicNonNull EventValidator eventValidator;
 
-    /**
-     *  The enricher for posted events or {@code null} if the enrichment is not supported.
-     */
-    private final @Nullable EventEnricher enricher;
-
     /** Creates new instance by the passed builder. */
     private EventBus(Builder builder) {
         super(builder);
-        this.enricher = builder.enricher;
         this.observer = requireNonNull(builder.observer);
         this.deadMessageHandler = new DeadEventTap(this::eventStore, this::systemFor);
     }
@@ -268,50 +261,9 @@ public final class EventBus
         return observer;
     }
 
-    /**
-     * Checks whether the {@code EventEnricher} is used by this Event Bus.
-     *
-     * @return {@code true} if the enricher is set, {@code false} otherwise
-     */
-    @VisibleForTesting
-    public boolean hasEnricher() {
-        return enricher != null;
-    }
-
-    /**
-     * Obtains the {@code EventEnricher} used by this Event Bus.
-     *
-     * @return the enricher
-     * @throws NullPointerException if the enricher was not set
-     */
-    @VisibleForTesting
-    public EventEnricher getEnricher() {
-        return checkNotNull(enricher);
-    }
-
-    /**
-     * Obtains the {@code EventEnricher} used by this Event Bus.
-     *
-     * @deprecated Use {@link #getEnricher()} and {@link #hasEnricher()} instead.
-     */
-    @Deprecated
-    @VisibleForTesting
-    public Optional<EventEnricher> enricher() {
-        return Optional.ofNullable(enricher);
-    }
-
-    private EventEnvelope enrich(EventEnvelope event) {
-        if (enricher == null) {
-            return event;
-        }
-        var maybeEnriched = enricher.enrich(event);
-        return maybeEnriched;
-    }
-
     @Override
     protected void dispatch(EventEnvelope event) {
-        var enrichedEnvelope = enrich(event);
-        var dispatchersCalled = callDispatchers(enrichedEnvelope);
+        var dispatchersCalled = callDispatchers(event);
         checkState(dispatchersCalled != 0,
                    "Message of type `%s` and ID `%s` has no dispatchers.",
                    event.messageClass(),
@@ -359,14 +311,6 @@ public final class EventBus
     public static class Builder
             extends BusBuilder<Builder, Event, EventEnvelope, EventClass, EventDispatcher> {
 
-        /**
-         * Optional enricher for events.
-         *
-         * <p>If not set, the enrichments will NOT be supported
-         * in the {@code EventBus} instance built.
-         */
-        private @Nullable EventEnricher enricher;
-
         /** The observer for {@link #post(Signal, StreamObserver)} operations. */
         private @Nullable StreamObserver<Ack> observer;
 
@@ -378,49 +322,6 @@ public final class EventBus
         @Override
         protected DispatcherRegistry<EventClass, EventEnvelope, EventDispatcher> newRegistry() {
             return new EventDispatcherRegistry();
-        }
-
-        /**
-         * Sets a custom {@link Enricher} for events posted to
-         * the {@code EventBus} that is being built.
-         *
-         * <p>If the {@code Enricher} is not set, the enrichments
-         * will <strong>NOT</strong> be supported for the {@code EventBus} instance built.
-         *
-         * @param enricher
-         *         the {@code Enricher} for events or {@code null} if enrichment is not supported
-         */
-        public void injectEnricher(EventEnricher enricher) {
-            this.enricher = checkNotNull(enricher);
-        }
-
-        /**
-         * Checks whether the {@code EventEnricher} has been set.
-         *
-         * @return {@code true} if the enricher was set, {@code false} otherwise
-         */
-        public boolean hasEnricher() {
-            return enricher != null;
-        }
-
-        /**
-         * Obtains the {@code EventEnricher} assigned to the bus to be built.
-         *
-         * @return the enricher
-         * @throws NullPointerException if the enricher was not set
-         */
-        public EventEnricher getEnricher() {
-            return checkNotNull(enricher);
-        }
-
-        /**
-         * Obtains the {@code Enricher} assigned to the bus to be built.
-         *
-         * @deprecated Use {@link #getEnricher()} and {@link #hasEnricher()} instead.
-         */
-        @Deprecated
-        public Optional<EventEnricher> enricher() {
-            return Optional.ofNullable(enricher);
         }
 
         /**

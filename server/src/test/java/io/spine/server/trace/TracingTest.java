@@ -28,7 +28,9 @@ import io.spine.test.trace.BoardingStarted;
 import io.spine.test.trace.CancelBoarding;
 import io.spine.test.trace.CancelFlight;
 import io.spine.test.trace.FlightCanceled;
+import io.spine.test.trace.FlightRescheduled;
 import io.spine.test.trace.FlightScheduled;
+import io.spine.test.trace.RescheduleFlight;
 import io.spine.test.trace.ScheduleFlight;
 import io.spine.testing.client.TestActorRequestFactory;
 import io.spine.type.TypeUrl;
@@ -44,6 +46,7 @@ import static io.spine.server.trace.given.TracingTestEnv.FLIGHT_TYPE;
 import static io.spine.server.trace.given.TracingTestEnv.FROM;
 import static io.spine.server.trace.given.TracingTestEnv.TIMETABLE_TYPE;
 import static io.spine.server.trace.given.TracingTestEnv.cancelFlight;
+import static io.spine.server.trace.given.TracingTestEnv.rescheduleFlight;
 import static io.spine.server.trace.given.TracingTestEnv.scheduleFlight;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -109,6 +112,16 @@ class TracingTest {
         assertReceiver(FlightCanceled.class, FLIGHT, BOARDING_TYPE);
         assertReceiver(CancelBoarding.class, FLIGHT, BOARDING_TYPE);
         assertReceiver(BoardingCanceled.class, FLIGHT, BOARDING_TYPE);
+    }
+
+    @Test
+    @DisplayName("trace a rescheduled flight to the timetable of its departure airport")
+    void traceRescheduledFlight() {
+        post(scheduleFlight());
+        post(rescheduleFlight());
+
+        assertReceiver(RescheduleFlight.class, FLIGHT, FLIGHT_TYPE);
+        assertReceiver(FlightRescheduled.class, FROM, TIMETABLE_TYPE);
     }
 
     /**

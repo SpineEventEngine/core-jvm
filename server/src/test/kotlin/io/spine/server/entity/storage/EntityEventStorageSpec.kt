@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.entity.storage
@@ -36,22 +24,17 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.spine.base.Identifier
 import io.spine.base.Time.currentTime
-import io.spine.core.Enrichment
 import io.spine.core.Event
-import io.spine.core.EventId
 import io.spine.core.Versions.increment
 import io.spine.core.Versions.zero
 import io.spine.server.ContextSpec
 import io.spine.server.storage.given.EntityRecordStorageTestEnv.TestCounterEntity
 import io.spine.server.storage.memory.InMemoryStorageFactory
-import io.spine.test.storage.StgProject
 import io.spine.test.storage.StgProjectId
 import io.spine.test.storage.event.StgProjectCreated
 import io.spine.test.storage.stgProjectId
 import io.spine.testdata.Sample
 import io.spine.testing.server.TestEventFactory
-import io.spine.validation.NonValidated
-import io.spine.validation.ValidationException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -112,23 +95,13 @@ internal class EntityEventStorageSpec {
         }
 
         @Test
-        fun `clearing the enrichments before storing`() {
-            val enriched = withEnrichment()
+        fun `storing the event as-is also under an explicit identifier`() {
+            val event = newEvent()
 
-            storage.write(enriched)
-
-            val read = storage.historyBackward(entityId, batchSize = 1).next()
-            read shouldBe enriched.clearEnrichments()
-        }
-
-        @Test
-        fun `clearing the enrichments also when stored under an explicit identifier`() {
-            val enriched = withEnrichment()
-
-            storage.write(enriched.id, enriched)
+            storage.write(event.id, event)
 
             val read = storage.historyBackward(entityId, batchSize = 1).next()
-            read shouldBe enriched.clearEnrichments()
+            read shouldBe event
         }
 
         @Test
@@ -139,61 +112,6 @@ internal class EntityEventStorageSpec {
             shouldThrow<IllegalArgumentException> {
                 storage.write(anotherId, event)
             }
-        }
-
-        @Test
-        fun `rejecting an event without a context`() {
-            shouldThrow<ValidationException> {
-                storage.write(withoutContext())
-            }
-        }
-
-        @Test
-        fun `rejecting an event without a message`() {
-            shouldThrow<ValidationException> {
-                storage.write(withoutMessage())
-            }
-        }
-
-        @Test
-        fun `rejecting an event with a blank identifier`() {
-            shouldThrow<ValidationException> {
-                storage.write(withBlankId())
-            }
-        }
-
-        private fun withoutContext(): @NonValidated Event {
-            val valid = newEvent()
-            return Event.newBuilder()
-                .setId(valid.id)
-                .setMessage(valid.message)
-                .buildPartial()
-        }
-
-        private fun withoutMessage(): @NonValidated Event {
-            val valid = newEvent()
-            return Event.newBuilder()
-                .setId(valid.id)
-                .setContext(valid.context)
-                .buildPartial()
-        }
-
-        private fun withBlankId(): @NonValidated Event {
-            val valid = newEvent()
-            return valid.toBuilder()
-                .setId(EventId.getDefaultInstance())
-                .buildPartial()
-        }
-
-        private fun withEnrichment(): Event {
-            val valid = newEvent()
-            val enrichment = Enrichment.newBuilder()
-                .setDoNotEnrich(true)
-                .build()
-            return valid.toBuilder()
-                .setContext(valid.context.toBuilder()
-                    .setEnrichment(enrichment))
-                .build()
         }
 
         private fun newEvent(): Event =

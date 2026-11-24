@@ -23,7 +23,6 @@ import io.spine.base.Time.currentTime
 import io.spine.protobuf.AnyPacker
 import io.spine.testing.core.given.GivenTenantId
 import io.spine.testing.core.given.GivenUserId
-import io.spine.validation.FieldAwareMessage
 import io.spine.validation.NonValidated
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -173,10 +172,12 @@ internal class EventContextMixinSpec {
 
     @Test
     fun `readValue dispatches to each field by index`() {
-        val ctx = importContextOrigin()
-        val fa = ctx as FieldAwareMessage
+        val ctx = importContextOrigin().toBuilder()
+            .setExternal(true)
+            .setRejection(RejectionEventContext.newBuilder().setStacktrace("at Some.method()"))
+            .buildPartial()
         ctx.descriptorForType.fields.forEach { field ->
-            fa.readValue(field)
+            ctx.readValue(field) shouldBe ctx.getField(field)
         }
     }
 

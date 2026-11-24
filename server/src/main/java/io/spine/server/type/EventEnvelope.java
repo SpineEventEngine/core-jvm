@@ -1,38 +1,24 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.type;
 
 import io.spine.base.EventMessage;
-import io.spine.core.Enrichment;
 import io.spine.core.Event;
 import io.spine.core.EventContext;
 import io.spine.core.EventId;
 import io.spine.core.TenantId;
-import io.spine.server.enrich.EnrichmentService;
 import io.spine.type.MessageClass;
 import io.spine.type.TypeName;
 import io.spine.type.TypeUrl;
@@ -46,8 +32,7 @@ public final class EventEnvelope
         extends AbstractMessageEnvelope<EventId, Event, EventContext>
         implements
         SignalEnvelope<EventId, Event, EventContext>,
-        EnvelopeWithOrigin<EventId, Event, EventContext>,
-        EnrichableMessageEnvelope<EventId, Event, EventMessage, EventContext, EventEnvelope> {
+        EnvelopeWithOrigin<EventId, Event, EventContext> {
 
     private final EventClass eventClass;
     private final boolean rejection;
@@ -162,39 +147,5 @@ public final class EventEnvelope
     public boolean isExternal() {
         var external = context().getExternal();
         return external;
-    }
-
-    @Override
-    public EventEnvelope toEnriched(EnrichmentService<EventMessage, EventContext> service) {
-        if (!isEnrichmentEnabled()) {
-            return this;
-        }
-        var enrichment = service.createEnrichment(message(), this.context());
-        var result = enrichment.map(this::withEnrichment)
-                               .orElse(this);
-        return result;
-    }
-
-    /**
-     * Verifies if the enrichment of the message is enabled.
-     */
-    public final boolean isEnrichmentEnabled() {
-        var result = enrichment().getModeCase() != Enrichment.ModeCase.DO_NOT_ENRICH;
-        return result;
-    }
-
-    private Enrichment enrichment() {
-        return context().getEnrichment();
-    }
-
-    private EventEnvelope withEnrichment(Enrichment enrichment) {
-        var context = this.context()
-                .toBuilder()
-                .setEnrichment(enrichment)
-                .build();
-        var enrichedCopy = outerObject().toBuilder()
-                .setContext(context)
-                .build();
-        return of(enrichedCopy);
     }
 }

@@ -14,8 +14,6 @@
 
 package io.spine.core
 
-import com.google.protobuf.StringValue
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.optional.shouldBeEmpty
 import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
@@ -28,7 +26,6 @@ import io.spine.test.core.projectId
 import io.spine.testing.core.given.GivenCommandContext
 import io.spine.testing.core.given.GivenTenantId
 import io.spine.testing.core.given.GivenUserId
-import io.spine.type.TypeName
 import io.spine.validation.NonValidated
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -36,7 +33,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * Covers `Signal` default methods, `EventField`, `EventContextField`,
- * `EnrichableMessageContext`, `CommandContextMixin`, and `ResponseMixin`.
+ * `CommandContextMixin`, and `ResponseMixin`.
  */
 @DisplayName("Signal and context supplementary tests should")
 internal class SignalExtrasSpec {
@@ -105,37 +102,6 @@ internal class SignalExtrasSpec {
             }
             val ctx = commandContext { actorContext = actorCtx }
             ctx.tenant() shouldBe tenant
-        }
-    }
-
-    @Nested inner class
-    `EnrichableMessageContext` {
-
-        @Test
-        fun `find an enrichment by type when present`() {
-            val ctx = enrichedContext()
-            val result = ctx.find(StringValue::class.java)
-            result.shouldBePresent()
-        }
-
-        @Test
-        fun `return empty when enrichment is absent`() {
-            val ctx = bareContext()
-            val result = ctx.find(StringValue::class.java)
-            result.shouldBeEmpty()
-        }
-
-        @Test
-        fun `get an enrichment by type when present`() {
-            val sv = StringValue.of("enriched")
-            val ctx = enrichedContext(sv)
-            ctx.get(StringValue::class.java) shouldBe sv
-        }
-
-        @Test
-        fun `throw when getting an absent enrichment`() {
-            val ctx = bareContext()
-            shouldThrow<IllegalStateException> { ctx.get(StringValue::class.java) }
         }
     }
 
@@ -230,27 +196,4 @@ internal class SignalExtrasSpec {
             .setContext(ctx)
             .buildPartial()
     }
-
-    private fun containerWith(sv: StringValue): Enrichment.Container {
-        val typeName = TypeName.of(StringValue::class.java).value()
-        return Enrichment.Container.newBuilder()
-            .putItems(typeName, AnyPacker.pack(sv))
-            .build()
-    }
-
-    private fun enrichedContext(sv: StringValue = StringValue.of("test")):
-        @NonValidated EventContext {
-        val enrich = enrichment { container = containerWith(sv) }
-        return EventContext.newBuilder()
-            .setImportContext(actorContext())
-            .setTimestamp(currentTime())
-            .setEnrichment(enrich)
-            .buildPartial()
-    }
-
-    private fun bareContext(): @NonValidated EventContext =
-        EventContext.newBuilder()
-            .setImportContext(actorContext())
-            .setTimestamp(currentTime())
-            .buildPartial()
 }
