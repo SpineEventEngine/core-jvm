@@ -18,6 +18,7 @@ import com.google.protobuf.util.Durations
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.server.async.given.AcmeRpcHandler
 import io.spine.server.async.given.newOrder
@@ -68,6 +69,54 @@ internal class AsyncExecutionSpec {
                     .setCloseTimeout(Durations.MAX_VALUE)
                     .build()
                     .close()
+            }
+        }
+    }
+
+    @Nested inner class
+    `be built by the 'asyncExecution' function, whose block` {
+
+        @Test
+        fun `starts with the default values`() {
+            asyncExecution {
+                limit shouldBe 8
+                closeTimeout shouldBe Durations.fromSeconds(30)
+            }.close()
+        }
+
+        @Test
+        fun `keeps the assigned values`() {
+            asyncExecution {
+                limit = 16
+                closeTimeout = Durations.fromSeconds(10)
+
+                limit shouldBe 16
+                closeTimeout shouldBe Durations.fromSeconds(10)
+            }.close()
+        }
+
+        @Test
+        fun `may be empty`() {
+            val execution = asyncExecution { }
+
+            execution.shouldBeInstanceOf<LimitingExecution>()
+            execution.close()
+        }
+
+        @Test
+        fun `cannot assign a limit that is not positive`() {
+            shouldThrow<IllegalArgumentException> {
+                asyncExecution { limit = 0 }
+            }
+            shouldThrow<IllegalArgumentException> {
+                asyncExecution { limit<AcmeRpcHandler>(-1) }
+            }
+        }
+
+        @Test
+        fun `cannot assign a negative close timeout`() {
+            shouldThrow<IllegalArgumentException> {
+                asyncExecution { closeTimeout = Durations.fromSeconds(-1) }
             }
         }
     }

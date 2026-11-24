@@ -17,6 +17,7 @@ package io.spine.server.async
 import com.google.errorprone.annotations.CanIgnoreReturnValue
 import com.google.protobuf.Duration
 import com.google.protobuf.util.Durations
+import io.spine.server.ServerDsl
 
 /**
  * Runs the work of the asynchronous handlers of a Bounded Context.
@@ -40,12 +41,12 @@ import com.google.protobuf.util.Durations
  * cannot use one instance.
  *
  * The execution built by [newBuilder] limits the number of invocations that are ongoing
- * at once for a handler class. In Kotlin:
+ * at once for a handler class. In Kotlin, the [asyncExecution] function builds it:
  *
  * ```kotlin
- * val execution = AsyncExecution.newBuilder()
- *     .setLimit(AcmeRpcHandler::class.java, 2)
- *     .build()
+ * val execution = asyncExecution {
+ *     limit<AcmeRpcHandler>(2)
+ * }
  * ```
  *
  * In Java:
@@ -131,12 +132,70 @@ public fun interface AsyncExecution : AutoCloseable {
      * the [close timeout][setCloseTimeout], the execution interrupts the running ones, drops
      * the waiting ones, and logs a warning that tells how many invocations of each handler
      * class were lost.
+     *
+     * In Kotlin, the [asyncExecution] function creates a builder, passes it to a block,
+     * and builds the execution.
      */
+    @ServerDsl
     public class Builder internal constructor() {
 
-        private var limit = defaultLimit
+        /**
+         * The limits of the handler classes that have a limit of their own.
+         */
         private val limits = mutableMapOf<Class<*>, Int>()
-        private var closeTimeout = Durations.fromSeconds(defaultCloseTimeoutSeconds)
+
+        /**
+         * The number of invocations that can be ongoing at once for a handler class
+         * that has no limit of its own.
+         *
+         * The default value is 8. The assigned value must be positive.
+         *
+         * This property is for the [asyncExecution] DSL. Java code calls [setLimit].
+         */
+        @get:JvmSynthetic
+        @set:JvmSynthetic
+        @set:JvmName("assignLimit")
+        public var limit: Int = defaultLimit
+            set(value) {
+                requirePositive(value)
+                field = value
+            }
+
+        /**
+         * How long the execution waits, when it is closed, for the submitted invocations
+         * to finish.
+         *
+         * The default value is 30 seconds. The assigned value cannot be negative.
+         *
+         * This property is for the [asyncExecution] DSL. Java code calls [setCloseTimeout].
+         */
+        @get:JvmSynthetic
+        @set:JvmSynthetic
+        @set:JvmName("assignCloseTimeout")
+        public var closeTimeout: Duration = Durations.fromSeconds(defaultCloseTimeoutSeconds)
+            set(value) {
+                require(!Durations.isNegative(value)) {
+                    "The close timeout cannot be negative." +
+                            " Encountered: `${Durations.toString(value)}`."
+                }
+                field = value
+            }
+
+        /**
+         * Sets the number of invocations that can be ongoing at once for the handlers of
+         * the class [H].
+         *
+         * All the handlers of the class registered in the Bounded Context share the limit.
+         *
+         * This function is for the [asyncExecution] DSL. Java code calls [setLimit].
+         *
+         * @param H The class of asynchronous handlers. The limit is for the handlers of
+         *   exactly this class.
+         * @param max The number of invocations, which must be positive.
+         */
+        public inline fun <reified H : Any> limit(max: Int) {
+            setLimit(H::class.java, max)
+        }
 
         /**
          * Sets the number of invocations that can be ongoing at once for a handler class
@@ -149,7 +208,6 @@ public fun interface AsyncExecution : AutoCloseable {
          */
         @CanIgnoreReturnValue
         public fun setLimit(max: Int): Builder {
-            requirePositive(max)
             limit = max
             return this
         }
@@ -183,10 +241,6 @@ public fun interface AsyncExecution : AutoCloseable {
          */
         @CanIgnoreReturnValue
         public fun setCloseTimeout(timeout: Duration): Builder {
-            require(!Durations.isNegative(timeout)) {
-                "The close timeout cannot be negative." +
-                        " Encountered: `${Durations.toString(timeout)}`."
-            }
             closeTimeout = timeout
             return this
         }
@@ -228,6 +282,8 @@ public fun interface AsyncExecution : AutoCloseable {
         /**
          * Creates a builder of the execution that runs the invocations on its own threads
          * and limits the number of ongoing invocations per handler class.
+         *
+         * @see asyncExecution
          */
         @JvmStatic
         public fun newBuilder(): Builder = Builder()

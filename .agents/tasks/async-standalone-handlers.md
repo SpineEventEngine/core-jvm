@@ -316,3 +316,17 @@ durable storage of accepted work.
   `ServerEnvironment` and `Application`. Not touched, because their Java and Kotlin
   samples show different things: `ContractFor`, the guides of aggregates and of
   unregistered tenants.
+- 2026-11-24 — by the owner's request, the Kotlin DSL for the default execution:
+  `asyncExecution { }` in `AsyncExecutionExts.kt`, as `application { }` and
+  `serverEnvironment { }`. `AsyncExecution.Builder` is marked with `@ServerDsl` and has
+  the members for the block: the properties `limit` and `closeTimeout`, and
+  `limit<H>(max)` for a handler class. The properties are hidden from Java
+  (`@JvmSynthetic`), which keeps using the setters.
+  Each property holds its own value; there is no second, private field with another name
+  (the owner found `timeout` ambiguous as the name behind `closeTimeout`).
+- 2026-11-24 — Copilot: two handlers that close the execution at once waited for each
+  other, as each skipped only itself. Fixed in `4ececfcb473`: the execution keeps the threads
+  of the running invocations (`running`) and of those that called `close()` (`closers`);
+  `close()` waits only while more invocations are ongoing than there are closers, and
+  interrupts the threads of the other invocations one by one instead of `shutdownNow()`.
+  The regression test fails when each closer sees only itself.

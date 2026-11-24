@@ -461,6 +461,63 @@ internal class LimitingExecutionSpec {
     }
 
     @Nested inner class
+    `built by the 'asyncExecution' function` {
+
+        @Test
+        fun `apply the limit of a handler class`() {
+            val built = asyncExecution { limit<AcmeRpcHandler>(1) }
+            val first = submit(AcmeRpcHandler::class.java, built)
+            val second = submit(AcmeRpcHandler::class.java, built)
+            try {
+                first.awaitStarted()
+
+                second.hasStarted() shouldBe false
+
+                first.finish()
+                second.awaitStarted()
+            } finally {
+                finishAndClose(built, first, second)
+            }
+        }
+
+        @Test
+        fun `apply the limit for the classes without their own`() {
+            val built = asyncExecution { limit = 1 }
+            val first = submit(ShipmentPlanner::class.java, built)
+            val second = submit(ShipmentPlanner::class.java, built)
+            try {
+                first.awaitStarted()
+
+                second.hasStarted() shouldBe false
+
+                first.finish()
+                second.awaitStarted()
+            } finally {
+                finishAndClose(built, first, second)
+            }
+        }
+
+        @Test
+        @MuteLogging
+        fun `apply the close timeout`() {
+            val built = asyncExecution { closeTimeout = Durations.fromMillis(1) }
+            val held = submit(AcmeRpcHandler::class.java, built)
+            held.awaitStarted()
+
+            built.close()
+
+            // The execution did not wait for the default 30 seconds.
+            held.awaitFinished()
+            held.wasInterrupted() shouldBe true
+        }
+
+        private fun finishAndClose(execution: AsyncExecution, vararg works: Work) {
+            works.forEach { it.finish() }
+            execution.close()
+        }
+    }
+
+    @Nested inner class
     `given to a Bounded Context` {
 
         @Test
