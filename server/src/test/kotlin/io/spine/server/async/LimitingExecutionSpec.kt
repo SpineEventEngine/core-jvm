@@ -310,6 +310,27 @@ internal class LimitingExecutionSpec {
         }
 
         @Test
+        @MuteLogging
+        fun `not make two invocations that close it wait for each other`() {
+            val patient = AsyncExecution.newBuilder()
+                .setCloseTimeout(Durations.MAX_VALUE)
+                .build()
+            val interrupted = CopyOnWriteArrayList<Boolean>()
+            val closers = listOf(limitedByDefault, limitedToTwo).map { handlerClass ->
+                submit(handlerClass, patient) {
+                    patient.close()
+                    interrupted.add(Thread.currentThread().isInterrupted)
+                }
+            }
+            closers.forEach { it.awaitStarted() }
+
+            closers.forEach { it.finish() }
+
+            closers.forEach { it.awaitFinished() }
+            interrupted shouldContainExactly listOf(false, false)
+        }
+
+        @Test
         fun `refuse new invocations afterwards`() {
             execution.close()
 

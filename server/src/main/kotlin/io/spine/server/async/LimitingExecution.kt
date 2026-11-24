@@ -94,10 +94,17 @@ internal class LimitingExecution(
     }
 
     /**
-     * The lane of the invocation that the current thread runs, if the thread is one of
-     * the [workers] and runs an invocation now.
+     * The lanes of the invocations that run now, by the thread that runs each of them.
      */
-    private val laneOfThread = ThreadLocal<Lane?>()
+    private val running = mutableMapOf<Thread, Lane>()
+
+    /**
+     * The threads whose invocations have called [close].
+     *
+     * Such an invocation cannot finish before `close()` returns. So `close()` does not wait
+     * for it, does not count it as lost, and does not interrupt it.
+     */
+    private val closers = mutableSetOf<Thread>()
 
     /**
      * Remembers the context, to name the threads after it.
@@ -162,14 +169,18 @@ internal class LimitingExecution(
      */
     private fun runAndRelease(lane: Lane, invocation: AsyncInvocation) {
         try {
-            if (lock.withLock { !closed }) {
-                laneOfThread.set(lane)
+            val mayRun = lock.withLock {
+                if (!closed) {
+                    running[Thread.currentThread()] = lane
+                }
+                !closed
+            }
+            if (mayRun) {
                 invocation.run()
             }
         } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
             // The invocation has logged the failure. The thread goes on to serve the others.
         } finally {
-            laneOfThread.remove()
             release(lane)
         }
     }
@@ -179,6 +190,7 @@ internal class LimitingExecution(
      * the longest in the lane, if any.
      */
     private fun release(lane: Lane): Unit = lock.withLock {
+        running.remove(Thread.currentThread())
         lane.ongoing--
         try {
             startWaiting(lane)
@@ -191,15 +203,18 @@ internal class LimitingExecution(
     /**
      * Tells if `close()` has an invocation to wait for.
      *
-     * @param own The lane of the invocation that calls `close()`, or `null` if the method
-     *   is not called by an invocation of this execution. That invocation cannot finish
-     *   before `close()` returns, and the invocations of its lane that wait for its slot
-     *   cannot start. So in this lane only the other ongoing invocations count.
+     * The invocations that have called `close()` themselves do not count: none of them can
+     * finish before `close()` returns. Once only they are ongoing, an invocation that still
+     * waits for a slot waits for one of theirs, so it cannot start either.
      */
-    private fun busy(own: Lane?): Boolean =
-        lanes.values.any { lane ->
-            if (lane === own) lane.ongoing > 1 else lane.busy()
+    private fun busy(): Boolean {
+        val ongoing = lanes.values.sumOf { it.ongoing }
+        return if (closers.isEmpty()) {
+            ongoing > 0 || lanes.values.any { it.waiting.isNotEmpty() }
+        } else {
+            ongoing > closers.size
         }
+    }
 
     /**
      * Stops accepting invocations, and waits for the submitted ones to finish.
@@ -215,20 +230,26 @@ internal class LimitingExecution(
      *
      * A handler run by this execution may call the method, for example, by closing its
      * Bounded Context. The method does not wait for that handler, which cannot finish
-     * before the method returns, and does not interrupt it.
+     * before the method returns, and does not interrupt it. This holds for several such
+     * handlers at once: they do not wait for each other.
      */
     override fun close() {
-        val own: Lane? = laneOfThread.get()
         val (lost, contextName) = lock.withLock {
             open = false
-            awaitIdle(own)
+            val caller = Thread.currentThread()
+            if (caller in running && closers.add(caller)) {
+                // The other threads that wait in this method have one invocation less
+                // to wait for.
+                idle.signalAll()
+            }
+            awaitIdle()
             if (closed) {
                 // Another call has closed the execution, earlier or while this one waited.
                 return
             }
             closed = true
-            val remaining = dropRemaining(own)
-            workers.shutDown(interrupt = remaining.isNotEmpty(), callerIsWorker = own != null)
+            val remaining = abandonRemaining()
+            workers.shutDown()
             // Wakes the other threads that wait in this method.
             idle.signalAll()
             remaining to context?.name()?.value
@@ -244,17 +265,15 @@ internal class LimitingExecution(
     }
 
     /**
-     * Waits until no invocation is ongoing or waiting, but not longer than the close timeout.
-     * Does not wait if the execution is closed.
+     * Waits until `close()` has no invocation to wait for, but not longer than the close
+     * timeout. Does not wait if the execution is closed.
      *
      * Called under the [lock].
-     *
-     * @param own The lane of the invocation that calls `close()`, if any.
      */
-    private fun awaitIdle(own: Lane?) {
+    private fun awaitIdle() {
         var remaining = closeTimeout.toNanosOrMax()
         try {
-            while (!closed && busy(own) && remaining > 0) {
+            while (!closed && busy() && remaining > 0) {
                 remaining = idle.awaitNanos(remaining)
             }
         } catch (@Suppress("SwallowedException") e: InterruptedException) {
@@ -264,23 +283,28 @@ internal class LimitingExecution(
     }
 
     /**
-     * Empties the queues of the lanes.
+     * Gives up on the invocations that have not finished: empties the queues of the lanes,
+     * and interrupts the threads of the running invocations.
+     *
+     * The invocations that have called `close()` are left alone. They go on when `close()`
+     * returns, so they are not lost.
      *
      * Called under the [lock].
      *
-     * @param own The lane of the invocation that calls `close()`, if any. That invocation
-     *   goes on after `close()` returns, so it is not lost.
-     * @return The number of ongoing and waiting invocations by handler class, for
-     *   the classes that have such invocations.
+     * @return The number of the invocations given up on, by handler class.
      */
-    private fun dropRemaining(own: Lane?): Map<Class<*>, Int> {
+    private fun abandonRemaining(): Map<Class<*>, Int> {
+        val lanesOfClosers = closers.mapNotNull { running[it] }
         val lost = lanes
             .mapValues { (_, lane) ->
-                val goingOn = if (lane === own) lane.ongoing - 1 else lane.ongoing
-                goingOn + lane.waiting.size
+                val closing = lanesOfClosers.count { it === lane }
+                lane.ongoing - closing + lane.waiting.size
             }
             .filterValues { it > 0 }
         lanes.values.forEach { it.waiting.clear() }
+        running.keys
+            .filterNot { it in closers }
+            .forEach { it.interrupt() }
         return lost
     }
 
@@ -301,11 +325,6 @@ internal class LimitingExecution(
          * The invocations that wait for a slot, in the order of submission.
          */
         val waiting = ArrayDeque<AsyncInvocation>()
-
-        /**
-         * Tells if the lane has an invocation that is ongoing or waiting.
-         */
-        fun busy(): Boolean = ongoing > 0 || waiting.isNotEmpty()
     }
 }
 
@@ -328,26 +347,11 @@ private class WorkerPool(factory: () -> ThreadFactory) {
     }
 
     /**
-     * Makes the threads end: after the tasks they run now, or at once.
-     *
-     * @param interrupt If `true`, the threads are interrupted.
-     * @param callerIsWorker Tells if the calling thread is one of these threads.
-     *   Such a thread is interrupted with the others, so its interruption status is
-     *   put back to what it was before the call.
+     * Makes the threads end after the tasks they run now. Takes no more tasks.
      */
-    fun shutDown(interrupt: Boolean, callerIsWorker: Boolean) {
-        if (!pool.isInitialized()) {
-            return
-        }
-        if (!interrupt) {
+    fun shutDown() {
+        if (pool.isInitialized()) {
             pool.value.shutdown()
-            return
-        }
-        val wasInterrupted = Thread.currentThread().isInterrupted
-        pool.value.shutdownNow()
-        if (callerIsWorker && !wasInterrupted) {
-            // Clears the status set by `shutdownNow()`.
-            Thread.interrupted()
         }
     }
 }
