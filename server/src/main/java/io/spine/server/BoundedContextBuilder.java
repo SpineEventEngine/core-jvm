@@ -78,7 +78,7 @@ import static java.lang.String.format;
  * <p>A builder created for tests, by one of the {@code assumingTests()} methods, can also
  * {@linkplain #build() build} its context by itself.
  */
-@SuppressWarnings("ClassWithTooManyMethods" /* OK for this central piece. */)
+@SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass"})
 public final class BoundedContextBuilder implements WithLogging {
 
     /**
@@ -848,6 +848,25 @@ public final class BoundedContextBuilder implements WithLogging {
     /**
      * Sets the execution that runs the work of the asynchronous handlers of the context,
      * such as {@link io.spine.server.command.AsyncAssignee AsyncAssignee}.
+     *
+     * <p>In Kotlin, the {@code asyncExecution} function builds the execution:
+     * <pre>{@code
+     * val shipping = singleTenantContext("Shipping") {
+     *     setAsyncExecution(asyncExecution {
+     *         limit<AcmeRpcHandler>(2)
+     *     })
+     *     addAssignee(AcmeRpcHandler(acme))
+     * }
+     * }</pre>
+     *
+     * <p>In Java:
+     * <pre>{@code
+     * var shipping = BoundedContext.singleTenant("Shipping")
+     *         .setAsyncExecution(AsyncExecution.newBuilder()
+     *                 .setLimit(AcmeRpcHandler.class, 2)
+     *                 .build())
+     *         .addAssignee(new AcmeRpcHandler(acme));
+     * }</pre>
      *
      * <p>If no execution is set, the builder gives the context a default one, which depends
      * on the environment in which the context is built:
