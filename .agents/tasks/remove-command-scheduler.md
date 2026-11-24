@@ -98,3 +98,7 @@ Follow-ups in other repositories, when each bumps CoreJvm: `compiler`
 - 2026-11-24 — `clean build dokkaGenerate` at `.780` green: the counts above, `server` 2559 with
   the new dispatching test. Mutation check: without the posting of `CommandDispatched`, 4 tests
   fail (3 of `CommandLogTest`, 1 of `CommandBusSpec`).
+- 2026-11-24 — PR #1734 opened. Codex: stored `CommandScheduled` System events. Probe: queries by
+  event types and queries without filters are fine; a query with filters but no event type, and
+  code that unpacks the event, fail. Documented in the guide; the type stays removed, as
+  `CommandErrored` was in #1711.

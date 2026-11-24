@@ -52,6 +52,10 @@ with `reject(envelope, ErrorCase)`.
 2. **Post the commands that still wait for their time.** The server kept them in memory only.
 3. **Update the senders.** The server ignores a delay set by a sender that was not updated, and
    runs its command at once.
-4. **Remove the leftovers, if you want.** If the command log was enabled, the System contexts
+4. **Remove the stored System events of scheduled commands.** The System contexts stored them if
+   `SystemSettings.persistEvents()` was called. Their type is removed, so the code that unpacks
+   them fails. So does a query of the stored System events that has filters, but none of them by
+   the type of the event. Catch-up and other queries by event types are not affected.
+5. **Remove the other leftovers, if you want.** If the command log was enabled, the System contexts
    stored a record for each scheduled command. The inboxes may hold scheduled commands that were
    never delivered. The server acts on neither of them.
