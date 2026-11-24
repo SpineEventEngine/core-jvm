@@ -18,8 +18,11 @@ import com.google.common.collect.ImmutableSet;
 import io.spine.annotation.Internal;
 import io.spine.base.EntityState;
 import io.spine.core.BoundedContextName;
+import io.spine.environment.Environment;
+import io.spine.environment.Tests;
 import io.spine.logging.WithLogging;
 import io.spine.option.EntityOption.Visibility;
+import io.spine.server.async.AsyncExecution;
 import io.spine.server.bus.Listener;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcher;
@@ -89,7 +92,7 @@ import static java.lang.String.format;
  * @see <a href="https://martinfowler.com/bliki/BoundedContext.html">
  *         Martin Fowler on Bounded Contexts</a>
  */
-@SuppressWarnings("ClassWithTooManyMethods")
+@SuppressWarnings({"ClassWithTooManyMethods", "OverlyComplexClass"})
 public abstract class BoundedContext
         implements Comparable<BoundedContext>,
                    Closeable,
@@ -128,6 +131,20 @@ public abstract class BoundedContext
     private final @Nullable Consumer<BoundedContext> onBeforeClose;
 
     /**
+     * Guards {@link #asyncExecution}.
+     */
+    private final Object asyncExecutionLock = new Object();
+
+    /**
+     * The execution of the asynchronous handlers of this context.
+     *
+     * <p>If the builder of the context has no execution, the field is {@code null} until
+     * the first asynchronous handler asks for it. So a context without such handlers
+     * creates no execution.
+     */
+    private @Nullable AsyncExecution asyncExecution;
+
+    /**
      * The currently installed probe.
      */
     private @Nullable Probe probe;
@@ -156,6 +173,7 @@ public abstract class BoundedContext
         this.commandBus = builder.buildCommandBus();
         this.internalAccess = new InternalAccess();
         this.onBeforeClose = builder.getOnBeforeClose();
+        this.asyncExecution = builder.getAsyncExecution();
     }
 
     /**
@@ -165,8 +183,58 @@ public abstract class BoundedContext
      * perform dependency injections steps that cannot be performed in the constructor.
      */
     protected final void init() {
+        synchronized (asyncExecutionLock) {
+            if (asyncExecution != null) {
+                introduceTo(asyncExecution);
+            }
+        }
         eventBus.registerWith(this);
         broker.registerWith(this);
+    }
+
+    /**
+     * Registers the given execution with this context, if the execution wants to know
+     * the context it serves.
+     *
+     * <p>This method always passes this context to such an execution, even if the execution
+     * is already registered, so that an execution that serves another context can refuse.
+     */
+    private void introduceTo(AsyncExecution execution) {
+        if (execution instanceof ContextAware contextAware) {
+            contextAware.registerWith(this);
+        }
+    }
+
+    /**
+     * Obtains the execution of the asynchronous handlers of this context, creating it
+     * if the context has none yet.
+     *
+     * <p>The created execution runs a handler on the calling thread under
+     * the {@link Tests} environment, and on its own threads otherwise.
+     */
+    private AsyncExecution asyncExecution() {
+        synchronized (asyncExecutionLock) {
+            if (asyncExecution == null) {
+                asyncExecution = Environment.instance().is(Tests.class)
+                                 ? AsyncExecution.onCallingThread()
+                                 : AsyncExecution.newBuilder().build();
+                introduceTo(asyncExecution);
+            }
+            return asyncExecution;
+        }
+    }
+
+    /**
+     * Closes the execution of the asynchronous handlers, if this context has one.
+     */
+    private void closeAsyncExecution() {
+        AsyncExecution execution;
+        synchronized (asyncExecutionLock) {
+            execution = asyncExecution;
+        }
+        if (execution != null) {
+            execution.close();
+        }
     }
 
     /**
@@ -518,6 +586,8 @@ public abstract class BoundedContext
      * <ol>
      *     <li>Invokes {@link BoundedContextBuilder#getOnBeforeClose onBeforeClose} if it was
      *      configured when the context was {@linkplain BoundedContextBuilder built}.
+     *     <li>Closes the {@linkplain BoundedContextBuilder#setAsyncExecution execution} of
+     *      asynchronous handlers. The execution waits for the handlers that are still running.
      *     <li>Closes {@link CommandBus}.
      *     <li>Closes {@link EventBus}.
      *     <li>Closes {@link IntegrationBroker}.
@@ -543,11 +613,15 @@ public abstract class BoundedContext
     }
 
     /**
-     * Closes the buses, the repositories, and the probe of this context.
+     * Closes the execution of asynchronous handlers, the buses, the repositories, and
+     * the probe of this context.
      *
      * <p>Closes each of them even if closing another one fails, and then throws the first
      * failure, with the later ones suppressed. A context that failed to close is no longer
      * open, so it cannot be closed again to retry.
+     *
+     * <p>Closes the execution first. It waits for the asynchronous handlers that are still
+     * running, and they need the buses to post their results.
      *
      * <p>Shuts down the repositories last. Until then, the context keeps its name and its
      * entity state types, so another context cannot take them while the buses of this one
@@ -558,6 +632,9 @@ public abstract class BoundedContext
      */
     private void closeComponents(boolean wasOpen) {
         Throwable failure = null;
+        if (wasOpen) {
+            failure = runKeepingFailure(failure, this::closeAsyncExecution);
+        }
         for (var component : List.of(commandBus, eventBus, broker, stand)) {
             failure = runKeepingFailure(failure, component::closeIfOpen);
         }
@@ -824,6 +901,14 @@ public abstract class BoundedContext
          */
         public TransportFactory transportFactory() {
             return self().transportFactory;
+        }
+
+        /**
+         * Obtains the execution that runs the work of the asynchronous handlers of this
+         * {@code BoundedContext}.
+         */
+        public AsyncExecution asyncExecution() {
+            return self().asyncExecution();
         }
 
         private BoundedContext self() {

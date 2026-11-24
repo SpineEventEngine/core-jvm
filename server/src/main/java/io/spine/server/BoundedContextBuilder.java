@@ -21,6 +21,7 @@ import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.core.BoundedContextName;
 import io.spine.logging.WithLogging;
+import io.spine.server.async.AsyncExecution;
 import io.spine.server.bus.BusFilter;
 import io.spine.server.bus.Listener;
 import io.spine.server.bus.MessageDispatcher;
@@ -152,6 +153,14 @@ public final class BoundedContextBuilder implements WithLogging {
     private final Collection<Repository<?, ?>> repositories = new ArrayList<>();
 
     private @Nullable Consumer<BoundedContext> onBeforeClose = null;
+
+    /**
+     * The execution of the asynchronous handlers of the built context.
+     *
+     * <p>If not set, the context creates an execution when the first asynchronous handler
+     * is registered with it.
+     */
+    private @Nullable AsyncExecution asyncExecution;
 
     /**
      * Creates a new builder with the given spec.
@@ -755,8 +764,9 @@ public final class BoundedContextBuilder implements WithLogging {
      * <p>The name of the System Bounded Context is derived from the name of the Domain Bounded
      * Context.
      *
-     * <p>If registering the repositories or the dispatchers fails, the method closes
-     * the context before throwing.
+     * <p>If the domain context cannot be created, the method closes the System context
+     * before throwing. If registering the repositories or the dispatchers fails, the method
+     * closes the context before throwing.
      *
      * @param environment
      *         the environment of the application of the context
@@ -766,7 +776,14 @@ public final class BoundedContextBuilder implements WithLogging {
     BoundedContext build(ServerEnvironment environment) {
         useTechnologiesOf(environment);
         var system = buildSystem();
-        var result = buildDomain(system);
+        BoundedContext result;
+        try {
+            result = buildDomain(system);
+        } catch (Throwable t) {
+            // The domain context, which would close its System context, does not exist.
+            closeAfterFailure(system, t);
+            throw t;
+        }
         try {
             logger().atDebug()
                     .log(() -> format("%s created.", result.nameForLogging()));
@@ -821,6 +838,31 @@ public final class BoundedContextBuilder implements WithLogging {
 
     @Nullable Consumer<BoundedContext> getOnBeforeClose() {
         return onBeforeClose;
+    }
+
+    /**
+     * Sets the execution that runs the work of the asynchronous handlers of the context,
+     * such as {@link io.spine.server.command.AsyncAssignee AsyncAssignee}.
+     *
+     * <p>If not set, the context uses the execution that {@link AsyncExecution#newBuilder()}
+     * builds with its default settings. Under the {@link io.spine.environment.Tests Tests}
+     * environment, the context uses {@link AsyncExecution#onCallingThread()} instead, so that
+     * a test sees the results of an asynchronous handler as soon as the signal is posted.
+     *
+     * <p>The context closes the execution when the context is closed, so each context needs
+     * an execution of its own.
+     *
+     * @param execution
+     *         the execution to use
+     */
+    @CanIgnoreReturnValue
+    public BoundedContextBuilder setAsyncExecution(AsyncExecution execution) {
+        this.asyncExecution = checkNotNull(execution);
+        return this;
+    }
+
+    @Nullable AsyncExecution getAsyncExecution() {
+        return asyncExecution;
     }
 
     CommandBus buildCommandBus() {
