@@ -115,10 +115,11 @@ internal class LimitingExecution(
      * @throws IllegalStateException If the execution already serves another context.
      */
     override fun registerWith(context: BoundedContext): Unit = lock.withLock {
-        val served = this.context
-        check(served == null || served === context) {
-            "The asynchronous execution serves the context `${served?.name()?.value}`," +
-                    " so it cannot serve another context, `${context.name().value}`."
+        this.context?.let { served ->
+            check(served === context) {
+                "The asynchronous execution serves the context `${served.name().value}`," +
+                        " so it cannot serve another context, `${context.name().value}`."
+            }
         }
         this.context = context
     }
@@ -203,18 +204,15 @@ internal class LimitingExecution(
     /**
      * Tells if `close()` has an invocation to wait for.
      *
+     * Only the ongoing invocations are counted. An invocation that waits for a slot is
+     * started by an ongoing invocation of its class, when that one finishes. So when nothing
+     * is ongoing, nothing can start.
+     *
      * The invocations that have called `close()` themselves do not count: none of them can
      * finish before `close()` returns. Once only they are ongoing, an invocation that still
      * waits for a slot waits for one of theirs, so it cannot start either.
      */
-    private fun busy(): Boolean {
-        val ongoing = lanes.values.sumOf { it.ongoing }
-        return if (closers.isEmpty()) {
-            ongoing > 0 || lanes.values.any { it.waiting.isNotEmpty() }
-        } else {
-            ongoing > closers.size
-        }
-    }
+    private fun busy(): Boolean = lanes.values.sumOf { it.ongoing } > closers.size
 
     /**
      * Stops accepting invocations, and waits for the submitted ones to finish.
@@ -237,9 +235,10 @@ internal class LimitingExecution(
         val (lost, contextName) = lock.withLock {
             open = false
             val caller = Thread.currentThread()
-            if (caller in running && closers.add(caller)) {
-                // The other threads that wait in this method have one invocation less
-                // to wait for.
+            if (caller in running) {
+                // An invocation of this execution closes it. The other threads that wait
+                // in this method have one invocation less to wait for.
+                closers.add(caller)
                 idle.signalAll()
             }
             awaitIdle()

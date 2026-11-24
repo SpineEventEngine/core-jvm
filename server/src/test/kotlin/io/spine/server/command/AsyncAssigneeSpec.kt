@@ -14,9 +14,11 @@
 
 package io.spine.server.command
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.spine.server.async.given.AbstractAsyncHandlerSpec
 import io.spine.server.async.given.AcmeRpcHandler
 import io.spine.server.async.given.all
@@ -119,6 +121,17 @@ internal class AsyncAssigneeSpec : AbstractAsyncHandlerSpec() {
 
         outcome.sentToAsyncExecution shouldBe true
         outcome.propagatedSignal shouldBe command.messageId()
+    }
+
+    @Test
+    fun `refuse a command if it is not registered with a context`() {
+        val command = envelopeOf(reserveShipment { order = orderId })
+
+        val failure = shouldThrow<IllegalStateException> {
+            handler.dispatch(command)
+        }
+
+        failure.message shouldContain "is not registered with a Bounded Context"
     }
 
     @Test

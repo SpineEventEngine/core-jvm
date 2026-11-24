@@ -24,6 +24,7 @@ import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import io.spine.server.BoundedContextBuilder.assumingTests
+import io.spine.server.ContextAware
 import io.spine.server.async.given.AcmeRpcHandler
 import io.spine.server.async.given.ShipmentPlanner
 import io.spine.server.async.given.newOrder
@@ -38,6 +39,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit.SECONDS
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.logging.Level
 import kotlin.concurrent.thread
@@ -362,6 +364,72 @@ internal class LimitingExecutionSpec {
                 it.isAlive shouldBe false
             }
         }
+
+        @Test
+        @MuteLogging
+        fun `stop waiting if the closing thread is interrupted`() {
+            val patient = AsyncExecution.newBuilder()
+                .setCloseTimeout(Durations.MAX_VALUE)
+                .build()
+            val running = submit(limitedByDefault, patient)
+            running.awaitStarted()
+            var interruptedAfterClosing = false
+            val closing = thread {
+                patient.close()
+                interruptedAfterClosing = Thread.currentThread().isInterrupted
+            }
+            closing.awaitWaiting()
+
+            closing.interrupt()
+
+            closing.join(SECONDS.toMillis(waitSeconds))
+            closing.isAlive shouldBe false
+            // The thread stays interrupted for the code that called `close()`.
+            interruptedAfterClosing shouldBe true
+            // The execution gives up on the invocation, as it does when the timeout is over.
+            running.awaitFinished()
+            running.wasInterrupted() shouldBe true
+        }
+
+        @Test
+        @MuteLogging
+        fun `not wait for a waiting invocation that nothing can start`() {
+            val refusing = AtomicBoolean(false)
+            val threads = ThreadFactory { task ->
+                if (refusing.get()) {
+                    null
+                } else {
+                    Thread(task).apply {
+                        isDaemon = true
+                        // The thread fails when it cannot pass the next invocation on.
+                        setUncaughtExceptionHandler { _, _ -> }
+                    }
+                }
+            }
+            val shortOfThreads = LimitingExecution(
+                defaultLimit = 1,
+                limits = mapOf(),
+                closeTimeout = Durations.MAX_VALUE,
+                threads = threads
+            )
+            val running = submit(limitedByDefault, shortOfThreads)
+            running.awaitStarted()
+            // Both wait for the only slot of their class.
+            val next = submit(limitedByDefault, shortOfThreads)
+            val last = submit(limitedByDefault, shortOfThreads)
+            // The thread of the finished invocation cannot pass the next one to a new thread.
+            // So the last one stays in the queue, while nothing is ongoing to start it.
+            refusing.set(true)
+            running.finish()
+            running.thread().join(SECONDS.toMillis(waitSeconds))
+
+            val closing = thread { shortOfThreads.close() }
+
+            closing.join(SECONDS.toMillis(waitSeconds))
+            closing.isAlive shouldBe false
+            next.hasStarted() shouldBe false
+            last.hasStarted() shouldBe false
+        }
     }
 
     @Nested inner class
@@ -458,6 +526,22 @@ internal class LimitingExecutionSpec {
                 hasMessageThat().contains("`${limitedByDefault.name}`: 2")
             }
         }
+
+        @Test
+        fun `name its context in the log`() {
+            assumingTests("Shipping")
+                .setAsyncExecution(impatient)
+                .build().use {
+                    val running = submit(limitedByDefault, impatient)
+                    running.awaitStarted()
+                    interceptor.intercept()
+                    // The context closes the execution here, while the invocation is running.
+                }
+
+            interceptor.assertLog().record()
+                .hasMessageThat()
+                .contains("of the context `Shipping`")
+        }
     }
 
     @Nested inner class
@@ -532,6 +616,29 @@ internal class LimitingExecutionSpec {
                     work.finish()
 
                     work.thread().name shouldStartWith "Shipping-async-"
+                }
+        }
+
+        @Test
+        fun `tell if it is registered with a context`() {
+            val contextAware = execution as ContextAware
+            contextAware.isRegistered() shouldBe false
+
+            assumingTests("Shipping")
+                .setAsyncExecution(execution)
+                .build().use {
+                    contextAware.isRegistered() shouldBe true
+                }
+        }
+
+        @Test
+        fun `accept its context again`() {
+            assumingTests("Shipping")
+                .setAsyncExecution(execution)
+                .build().use { context ->
+                    shouldNotThrowAny {
+                        (execution as ContextAware).registerWith(context)
+                    }
                 }
         }
 

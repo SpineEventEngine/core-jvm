@@ -330,3 +330,12 @@ durable storage of accepted work.
   `close()` waits only while more invocations are ongoing than there are closers, and
   interrupts the threads of the other invocations one by one instead of `shutdownNow()`.
   The regression test fails when each closer sees only itself.
+- 2026-11-24 — Codecov: 12 added lines were not covered (no check fails; the patch status
+  is off). Ten of them got tests or simpler code. Tests: a handler that is not registered
+  with a context refuses a signal; `isRegistered()`; the same context registers again;
+  the lost-invocations warning names the context; an interrupted `close()` stops waiting
+  and stays interrupted. Code: `busy()` counts only the ongoing invocations. The old clause
+  about the waiting ones decided the answer only after a thread could not be created, and
+  then it made `close()` wait the whole timeout for invocations that nothing could start.
+  The new test fails with the old clause. Two lines stay uncovered: the body of
+  `inline fun <reified H> limit(max)`, which is copied into each caller.
