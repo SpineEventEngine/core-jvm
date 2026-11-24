@@ -69,7 +69,7 @@ object Compiler : Dependency() {
      * transitive dependencies, this is the version used to build the project itself.
      */
     val dogfoodingVersion: String
-    private const val fallbackDfVersion = "2.0.0-SNAPSHOT.083"
+    private const val fallbackDfVersion = "2.0.0-SNAPSHOT.084"
 
     /**
      * The artifact for the Compiler Gradle plugin.
