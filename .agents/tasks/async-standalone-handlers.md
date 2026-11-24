@@ -121,6 +121,9 @@ AsyncExecution.newBuilder()
   is ongoing or waiting, or until the timeout; then discard the waiting invocations,
   interrupt the running ones, and log a warning with the number of lost invocations per
   handler class.
+- A handler run by the execution may call `close()`, for example, by closing its context.
+  `close()` does not wait for that handler and does not interrupt it.
+- The execution tells its context from another one by the instance, not by the name.
   Several threads may call `close()` at once; each returns when the execution is closed.
 - A close timeout too long to be counted in nanoseconds, such as `Durations.MAX_VALUE`,
   means waiting for as long as it takes.
@@ -284,3 +287,10 @@ durable storage of accepted work.
   an invocation which has not started when the wait is given up is not run. Not taken:
   logging the invocation dropped when a thread cannot be created in `release()`, which
   needs a JVM that is out of threads.
+- 2026-11-24 — PR #1737 opened. Codex, two findings, both confirmed by tests that failed
+  first: the execution compared the names of contexts, so two contexts with one name
+  (two applications in one JVM) could share it; `close()` called by a handler of
+  the execution waited for that handler, forever with a long timeout. Fixed: the context
+  is compared by the instance; `close()` skips the invocation of the calling thread
+  (`laneOfThread`), and `WorkerPool.shutDown()` puts back the interruption status of
+  the caller. `server`: 80 tests of the feature.

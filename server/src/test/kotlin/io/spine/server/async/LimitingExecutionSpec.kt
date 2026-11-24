@@ -276,6 +276,23 @@ internal class LimitingExecutionSpec {
         }
 
         @Test
+        @MuteLogging
+        fun `not wait for the invocation that closes it`() {
+            val patient = AsyncExecution.newBuilder()
+                .setLimit(1)
+                .setCloseTimeout(Durations.MAX_VALUE)
+                .build()
+            val closer = submit(limitedByDefault, patient) { patient.close() }
+            // This one waits for the slot of the closing invocation, so it cannot start.
+            val behind = submit(limitedByDefault, patient)
+
+            closer.finish()
+
+            closer.awaitFinished()
+            behind.hasStarted() shouldBe false
+        }
+
+        @Test
         fun `refuse new invocations afterwards`() {
             execution.close()
 
@@ -366,6 +383,29 @@ internal class LimitingExecutionSpec {
         }
 
         @Test
+        fun `spare the invocation that closes the execution`() {
+            val other = submit(limitedToTwo, impatient)
+            other.awaitStarted()
+            var interruptedAfterClosing = true
+            val closer = submit(limitedByDefault, impatient) {
+                impatient.close()
+                interruptedAfterClosing = Thread.currentThread().isInterrupted
+            }
+            interceptor.intercept()
+
+            closer.finish()
+            closer.awaitFinished()
+
+            // Only the other invocation is interrupted and counted as lost.
+            interruptedAfterClosing shouldBe false
+            other.awaitFinished()
+            other.wasInterrupted() shouldBe true
+            interceptor.assertLog().record()
+                .hasMessageThat()
+                .contains("1 invocation(s)")
+        }
+
+        @Test
         fun `log how many invocations of each handler class were lost`() {
             val running = submit(limitedByDefault, impatient)
             submit(limitedByDefault, impatient)
@@ -412,6 +452,19 @@ internal class LimitingExecutionSpec {
                     }
                     failure.message shouldContain "`Shipping`"
                     failure.message shouldContain "`Billing`"
+                }
+        }
+
+        @Test
+        fun `refuse to serve another context with the same name`() {
+            assumingTests("Shipping")
+                .setAsyncExecution(execution)
+                .build().use {
+                    shouldThrow<IllegalStateException> {
+                        assumingTests("Shipping")
+                            .setAsyncExecution(execution)
+                            .build()
+                    }
                 }
         }
     }
