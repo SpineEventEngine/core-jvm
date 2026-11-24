@@ -35,6 +35,17 @@ through `builder()`. Then delete the `@Apply` method.
 
 **Before** — the handler returns the event; a separate applier mutates state:
 
+```kotlin
+@Assign
+fun handle(c: AddItem): ItemAdded =
+    itemAdded { item = c.item }
+
+@Apply
+private fun on(e: ItemAdded) {
+    builder().addItem(e.item)   // state change lived here
+}
+```
+
 ```java
 @Assign
 ItemAdded handle(AddItem c) {
@@ -49,7 +60,17 @@ private void on(ItemAdded e) {
 }
 ```
 
-**After** — the handler mutates state and returns the event:
+**After** — the handler mutates state and returns the event. In Kotlin, prefer the builder
+DSL inherited from `TransactionalEntity` over calling `builder()` directly — `alter { }`
+applies changes, while `update { }` applies and returns the builder:
+
+```kotlin
+@Assign
+fun handle(c: AddItem): ItemAdded {
+    alter { addItem(c.item) }   // moved into the handler
+    return itemAdded { item = c.item }
+}
+```
 
 ```java
 @Assign
@@ -61,23 +82,19 @@ ItemAdded handle(AddItem c) {
 }
 ```
 
-In Kotlin, prefer the builder DSL inherited from `TransactionalEntity` over calling
-`builder()` directly — `alter { }` applies changes, while `update { }` applies and
-returns the builder:
-
-```kotlin
-@Assign
-fun handle(c: AddItem): ItemAdded {
-    alter { addItem(c.item) }
-    return itemAdded { item = c.item }
-}
-```
-
 ### Lifecycle flags move too
 
 If an applier flipped a lifecycle flag with `setArchived(true)` / `setDeleted(true)`, that
 call moves into the command handler or reactor body (D4). Both `@Assign` and `@React` may
 set lifecycle flags directly:
+
+```kotlin
+@Assign
+fun handle(c: ArchiveProject): ProjectArchived {
+    setArchived(true)   // was in the @Apply applier
+    return projectArchived { project = id() }
+}
+```
 
 ```java
 @Assign
@@ -242,6 +259,14 @@ The guard is **opt-in, per repository, and off by default**, and the reason is p
 enabling it adds a bounded journal read to every dispatch. It is *not* off because the delivery
 layer makes it redundant — the two cover different windows (time vs. signal count).
 
+```kotlin
+class OrdersRepository : AggregateRepository<OrderId, Order, OrderState>() {
+    init {
+        useDoubleDispatchGuard()   // enable the journal-backed guard for this repository
+    }
+}
+```
+
 ```java
 final class OrdersRepository extends AggregateRepository<OrderId, Order, OrderState> {
     OrdersRepository() {
@@ -259,6 +284,11 @@ twice, since state now changes directly in the handler — so size that window a
 ## 6. Recent-history access states its window
 
 Business logic that reads recent history now states how far back it looks, in events (D10):
+
+```kotlin
+protected fun eventHistoryBackward(depth: Int): Iterator<Event>
+protected fun eventHistoryContains(depth: Int, predicate: Predicate<Event>): Boolean
+```
 
 ```java
 protected final Iterator<Event> eventHistoryBackward(int depth);
@@ -295,8 +325,14 @@ it could only ever trim by snapshot positions, and the current journal contains 
 snapshots. Its replacement is **time-based truncation** on the journal owned by
 the repository:
 
+```kotlin
+// In the repository class: `eventStorage()` is `protected`.
+eventStorage().truncate(olderThan)   // drop journal events older than the time
+```
+
 ```java
-repository.eventStorage().truncate(olderThan); // drop journal events older than the time
+// In the repository class: `eventStorage()` is `protected`.
+eventStorage().truncate(olderThan);   // drop journal events older than the time
 ```
 
 The journal is append-only on the write path, so production systems run the truncation

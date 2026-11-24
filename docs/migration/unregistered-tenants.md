@@ -45,6 +45,11 @@ A request refused before it reaches a context is written to the log of the appli
 
 Register a tenant when your onboarding of the tenant is done, before the tenant sends requests:
 
+```kotlin
+application.tenantIndex()
+    .keep(tenantId)
+```
+
 ```java
 application.tenantIndex()
            .keep(tenantId);
@@ -61,6 +66,12 @@ since the server refuses to subscribe to the events of the command.
 
 `Server` creates the services from the application given to `Server.Builder.setApplication()`,
 so a server needs no changes. Code that creates the services itself passes the application:
+
+```kotlin
+val commandService = CommandService.of(application)
+val queryService = QueryService.of(application)
+val subscriptionService = SubscriptionService.of(application)
+```
 
 ```java
 var commandService = CommandService.of(application);
