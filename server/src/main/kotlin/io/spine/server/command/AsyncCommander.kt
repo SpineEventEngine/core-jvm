@@ -29,7 +29,20 @@ import io.spine.server.type.EventEnvelope
  * an [AbstractCommander], whoever posts the incoming command or event waits for the commander.
  *
  * A commanding method of an asynchronous commander is declared the same way as in
- * an `AbstractCommander`, and may wait for as long as it needs:
+ * an `AbstractCommander`, and may wait for as long as it needs. In Kotlin:
+ *
+ * ```kotlin
+ * class ShipmentPlanner : AsyncCommander() {
+ *
+ *     @Command
+ *     internal fun on(event: OrderPaid): ReserveShipment {
+ *         val carrier = carriers.chooseFor(event.order)
+ *         return reserveWith(carrier, event)
+ *     }
+ * }
+ * ```
+ *
+ * In Java:
  *
  * ```java
  * final class ShipmentPlanner extends AsyncCommander {

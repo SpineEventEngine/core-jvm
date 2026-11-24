@@ -30,7 +30,18 @@ import io.spine.server.type.CommandEnvelope
  * waits too.
  *
  * A command-handling method of an asynchronous assignee is declared the same way as in
- * an `AbstractAssignee`, and may wait for as long as it needs:
+ * an `AbstractAssignee`, and may wait for as long as it needs. In Kotlin:
+ *
+ * ```kotlin
+ * class AcmeRpcHandler : AsyncAssignee() {
+ *
+ *     @Assign
+ *     internal fun reserve(command: ReserveShipment): ShipmentReserved =
+ *         acme.reserve(command)
+ * }
+ * ```
+ *
+ * In Java:
  *
  * ```java
  * final class AcmeRpcHandler extends AsyncAssignee {

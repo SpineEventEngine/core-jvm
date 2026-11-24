@@ -28,7 +28,18 @@ import io.spine.server.type.EventEnvelope
  * whoever posts the event waits for the reactor.
  *
  * A reacting method of an asynchronous reactor is declared the same way as in
- * an `AbstractEventReactor`, and may wait for as long as it needs:
+ * an `AbstractEventReactor`, and may wait for as long as it needs. In Kotlin:
+ *
+ * ```kotlin
+ * class ApplicationVerifier : AsyncEventReactor() {
+ *
+ *     @React
+ *     internal fun on(event: ApplicationSubmitted): ApplicationVerified =
+ *         verification.verify(event)
+ * }
+ * ```
+ *
+ * In Java:
  *
  * ```java
  * final class ApplicationVerifier extends AsyncEventReactor {

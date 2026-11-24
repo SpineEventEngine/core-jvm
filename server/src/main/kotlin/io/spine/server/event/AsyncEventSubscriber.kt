@@ -28,7 +28,19 @@ import io.spine.server.type.EventEnvelope
  * whoever posts the event waits for the subscriber.
  *
  * A subscribing method of an asynchronous subscriber is declared the same way as in
- * an `AbstractEventSubscriber`, and may wait for as long as it needs:
+ * an `AbstractEventSubscriber`, and may wait for as long as it needs. In Kotlin:
+ *
+ * ```kotlin
+ * class DocumentArchiver : AsyncEventSubscriber() {
+ *
+ *     @Subscribe
+ *     internal fun on(event: DocumentGenerated) {
+ *         archive.upload(event.document)
+ *     }
+ * }
+ * ```
+ *
+ * In Java:
  *
  * ```java
  * final class DocumentArchiver extends AsyncEventSubscriber {

@@ -309,3 +309,10 @@ durable storage of accepted work.
   30 seconds, daemon threads named after the context) are in the Javadoc of
   `setAsyncExecution()`. Tests: the default under `Tests` and under `DefaultMode`
   (both fail with the two defaults swapped), and the default limit of eight.
+- 2026-11-24 — docs, by the owner's request: the KDoc of `AsyncExecution` and of the four
+  `Async*` types shows each sample in Kotlin first, then in Java (the Kotlin ones were
+  compiled in a throwaway file). The same order in the existing docs that show one sample
+  in both languages: `Application`, `ServerEnvironment`, and the migration guide of
+  `ServerEnvironment` and `Application`. Not touched, because their Java and Kotlin
+  samples show different things: `ContractFor`, the guides of aggregates and of
+  unregistered tenants.

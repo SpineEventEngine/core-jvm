@@ -40,7 +40,15 @@ import com.google.protobuf.util.Durations
  * cannot use one instance.
  *
  * The execution built by [newBuilder] limits the number of invocations that are ongoing
- * at once for a handler class:
+ * at once for a handler class. In Kotlin:
+ *
+ * ```kotlin
+ * val execution = AsyncExecution.newBuilder()
+ *     .setLimit(AcmeRpcHandler::class.java, 2)
+ *     .build()
+ * ```
+ *
+ * In Java:
  *
  * ```java
  * var execution = AsyncExecution.newBuilder()
@@ -51,7 +59,19 @@ import com.google.protobuf.util.Durations
  * ## Implementing
  *
  * An application may give a context an execution of its own, which runs the invocations on
- * its threads or coroutines:
+ * its threads or coroutines. In Kotlin, with coroutines, where a semaphore allows
+ * two ongoing invocations:
+ *
+ * ```kotlin
+ * val permits = Semaphore(2)
+ * val execution = AsyncExecution { invocation ->
+ *     scope.launch(Dispatchers.IO) {
+ *         permits.withPermit { invocation.run() }
+ *     }
+ * }
+ * ```
+ *
+ * In Java, with an executor:
  *
  * ```java
  * AsyncExecution execution = invocation -> executor.execute(invocation::run);
