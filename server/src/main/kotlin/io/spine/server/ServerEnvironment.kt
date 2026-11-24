@@ -44,17 +44,7 @@ import java.util.function.Function
  * [type of environment][EnvironmentType]. When a technology is requested, the environment
  * gives the one configured for the [current type][Environment.type]. Two environment types
  * exist out of the box: [Tests] and [DefaultMode][io.spine.environment.DefaultMode].
- * For example, in Java:
- * ```
- * var environment = ServerEnvironment.newBuilder()
- *         .under(Production.class, env -> {
- *             env.use(productionStorageFactory);
- *             env.use(memoizingTracerFactory);
- *         })
- *         .under(Tests.class, env -> env.use(testingStorageFactory))
- *         .build();
- * ```
- * In Kotlin:
+ * For example, in Kotlin:
  * ```
  * val environment = serverEnvironment {
  *     under<Production> {
@@ -65,6 +55,16 @@ import java.util.function.Function
  *         use(testingStorageFactory)
  *     }
  * }
+ * ```
+ * In Java:
+ * ```
+ * var environment = ServerEnvironment.newBuilder()
+ *         .under(Production.class, env -> {
+ *             env.use(productionStorageFactory);
+ *             env.use(memoizingTracerFactory);
+ *         })
+ *         .under(Tests.class, env -> env.use(testingStorageFactory))
+ *         .build();
  * ```
  * A custom environment type may also be used:
  * ```
