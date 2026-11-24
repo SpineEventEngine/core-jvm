@@ -14,7 +14,7 @@ private static final AtomicLong testContextCounter = new AtomicLong();
 
 No lint rule here asks for `SCREAMING_SNAKE_CASE`: PMD checks only class, method and type
 parameter names, and Checkstyle checks no names. The existing code agrees:
-`CommandScheduler.scheduledCommandIds`, `Model.models`. For Kotlin, the style guide prefers
+`BoundedContextBuilder.testContextCounter`. For Kotlin, the style guide prefers
 `lowerCamelCase` even for real constants (`.agents/guidelines/kotlin-code-style.md`).
 
 **Why:** User feedback (2026-10-27, branch `claude/one-context-per-name`): a counter named

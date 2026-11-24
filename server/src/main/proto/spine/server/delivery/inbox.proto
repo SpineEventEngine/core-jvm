@@ -79,8 +79,8 @@ enum InboxMessageStatus {
     // The message is ready to be delivered.
     TO_DELIVER = 1;
 
-    // The message is scheduled for the delivery.
-    SCHEDULED = 2;
+    reserved 2;
+    reserved "SCHEDULED";
 
     // The message is already delivered and can be removed once it's no longer needed
     // for deduplication.

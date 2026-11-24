@@ -14,16 +14,27 @@
 
 package io.spine.server.commandbus
 
+import com.google.common.collect.ImmutableSet
+import com.google.protobuf.Message
 import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.shouldBe
 import io.spine.grpc.StreamObservers.noOpObserver
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.commandbus.given.CommandDispatcherRegistryTestEnv.CreateProjectAssignee
+import io.spine.server.dispatch.DispatchOutcome
+import io.spine.server.dispatch.DispatchOutcomes.successfulOutcome
+import io.spine.server.type.CommandClass
+import io.spine.server.type.CommandEnvelope
+import io.spine.system.server.MemoizingWriteSide
+import io.spine.system.server.event.commandDispatched
+import io.spine.test.commandbus.command.CmdBusCreateProject
 import io.spine.testing.server.testApplication
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 /**
- * Checks how [CommandBus] treats the tenants of the commands.
+ * Checks how [CommandBus] treats the tenants of the commands, and how it records
+ * the dispatching of the commands in the System context.
  *
  * Supplements `MultiTenantCommandBusTest` and `SingleTenantCommandBusTest`.
  */
@@ -48,5 +59,41 @@ internal class CommandBusSpec {
                 .contains(command.tenant())
                 .shouldBeFalse()
         }
+    }
+
+    @Test
+    fun `record the dispatching of a command before passing it to the dispatcher`() {
+        val writeSide = MemoizingWriteSide.multiTenant()
+        val dispatcher = RecordingDispatcher(writeSide)
+        val command = Given.ACommand.createProject()
+        CommandBus.newBuilder()
+            .setMultiTenant(true)
+            .injectSystem(writeSide)
+            .build()
+            .use { commandBus ->
+                commandBus.register(dispatcher)
+
+                commandBus.post(command, noOpObserver())
+            }
+
+        dispatcher.lastSystemEvent shouldBe commandDispatched { id = command.id }
+    }
+}
+
+/**
+ * Remembers the last event posted to the given System write side by the time
+ * a command is passed to this dispatcher.
+ */
+private class RecordingDispatcher(private val writeSide: MemoizingWriteSide) : CommandDispatcher {
+
+    var lastSystemEvent: Message? = null
+        private set
+
+    override fun messageClasses(): ImmutableSet<CommandClass> =
+        CommandClass.setOf(CmdBusCreateProject::class.java)
+
+    override fun dispatch(envelope: CommandEnvelope): DispatchOutcome {
+        lastSystemEvent = writeSide.lastSeenEvent().message()
+        return successfulOutcome(envelope)
     }
 }

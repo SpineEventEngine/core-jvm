@@ -23,7 +23,6 @@ import io.spine.server.type.MessageEnvelope;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.spine.server.bus.MessageIdExtensions.acknowledge;
 import static io.spine.server.bus.MessageIdExtensions.causedError;
 
 /**
@@ -45,15 +44,13 @@ public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends Closeable
      * <ul>
      *     <li>accept the message (by returning {@code Optional.empty()});
      *     <li>reject the message with an {@link ErrorCase}, for example, if it fails to pass
-     *         the validation;
-     *     <li>reject the message with an {@code OK} status. For example, a scheduled command
-     *         may not pass a filter.
+     *         the validation.
      * </ul>
      *
      * @param envelope
      *         the envelope with the message to filter
      * @return {@code Optional.empty()} if the message passes the filter,
-     *         {@linkplain Ack posting result} with either status otherwise
+     *         {@linkplain Ack posting result} with the error case otherwise
      */
     Optional<Ack> filter(E envelope);
 
@@ -65,22 +62,6 @@ public interface BusFilter<E extends MessageEnvelope<?, ?, ?>> extends Closeable
      */
     default Optional<Ack> letPass() {
         return Optional.empty();
-    }
-
-    /**
-     * Rejects the message with the {@code OK} status.
-     *
-     * <p>This method is a shortcut that can be used in {@link #filter(MessageEnvelope)} when the
-     * message does not pass the filter and this is expected.
-     *
-     * @param envelope
-     *          the envelope with the message to filter
-     * @return the {@code Optional.of(Ack)} signaling that the message does not pass the filter
-     */
-    default Optional<Ack> reject(E envelope) {
-        checkNotNull(envelope);
-        var ack = acknowledge(envelope.id());
-        return Optional.of(ack);
     }
 
     /**

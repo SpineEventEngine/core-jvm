@@ -95,7 +95,6 @@ public final class SystemContext extends BoundedContext {
         register(new ShardMaintenanceRepository());
         if (config.includeCommandLog()) {
             register(commandLog);
-            register(new ScheduledCommandRepository());
         }
     }
 

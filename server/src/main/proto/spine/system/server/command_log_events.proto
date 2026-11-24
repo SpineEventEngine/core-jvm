@@ -53,19 +53,6 @@ message CommandAcknowledged {
     core.CommandId id = 1 [(required) = true];
 }
 
-// An event emitted when the command is scheduled.
-message CommandScheduled {
-
-    // The ID of the command.
-    core.CommandId id = 1 [(required) = true];
-
-    // The schedule to execute the command.
-    core.CommandContext.Schedule schedule = 2 [(required) = true];
-
-    // The scheduled command.
-    core.Command payload = 3 [(required) = true];
-}
-
 // An event emitted when a command is passed to a dispatcher after being acknowledged.
 message CommandDispatched {
 
