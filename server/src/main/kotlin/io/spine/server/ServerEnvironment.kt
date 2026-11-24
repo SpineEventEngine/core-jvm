@@ -21,8 +21,6 @@ import io.spine.environment.CustomEnvironmentType
 import io.spine.environment.Environment
 import io.spine.environment.EnvironmentType
 import io.spine.environment.Tests
-import io.spine.server.commandbus.CommandScheduler
-import io.spine.server.commandbus.ExecutorCommandScheduler
 import io.spine.server.delivery.Delivery
 import io.spine.server.storage.StorageFactory
 import io.spine.server.storage.memory.InMemoryStorageFactory
@@ -35,11 +33,10 @@ import java.util.Optional
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.Consumer
 import java.util.function.Function
-import java.util.function.Supplier
 
 /**
  * The technologies on which the Bounded Contexts of an [Application] run: storage,
- * transport, delivery, command scheduling, and tracing.
+ * transport, delivery, and tracing.
  *
  * ## Configuration
  *
@@ -136,11 +133,6 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
     private val transportFactory: EnvSetting<TransportFactory> = builder.transportFactorySetting
 
     /**
-     * Provides schedulers used by all `CommandBus` instances of this environment.
-     */
-    private val commandScheduler: Supplier<CommandScheduler> = builder.schedulerFactorySetting
-
-    /**
      * Tells if an [Application] owns this environment.
      *
      * An environment belongs to one application, which closes it.
@@ -182,11 +174,6 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         delivery.use(localDelivery, currentType)
         return localDelivery
     }
-
-    /**
-     * Obtains command scheduling mechanism used by `CommandBus` in this environment.
-     */
-    public fun newCommandScheduler(): CommandScheduler = commandScheduler.get()
 
     /**
      * Obtains the [TracerFactory] associated with the current environment, if it was set.
@@ -297,13 +284,6 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         }
 
         /**
-         * Creates a scheduler of the commands for the `CommandBus` of each context.
-         */
-        internal var schedulerFactorySetting: Supplier<CommandScheduler> =
-            Supplier { ExecutorCommandScheduler() }
-            private set
-
-        /**
          * Tells if this builder has built its environment.
          */
         private var built = false
@@ -341,24 +321,6 @@ public class ServerEnvironment private constructor(builder: Builder) : Closeable
         public inline fun <reified E : EnvironmentType<*>> under(
             noinline block: TypeConfigurator.() -> Unit
         ): Builder = under(E::class.java) { it.block() }
-
-        /**
-         * Sets the factory of the schedulers of commands for the `CommandBus` of each
-         * Bounded Context.
-         *
-         * A scheduler serves one `CommandBus`, and is closed with it, so each context obtains
-         * a scheduler of its own from the factory.
-         *
-         * If not set, a new [ExecutorCommandScheduler] is created for each context.
-         *
-         * @return This builder, for call chaining.
-         */
-        @CanIgnoreReturnValue
-        public fun scheduleCommandsUsing(factory: Supplier<CommandScheduler>): Builder {
-            checkNotBuilt()
-            schedulerFactorySetting = factory
-            return this
-        }
 
         /**
          * Creates a new environment with the configured technologies.

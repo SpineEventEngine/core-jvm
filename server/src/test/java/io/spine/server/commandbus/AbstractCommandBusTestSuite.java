@@ -29,8 +29,6 @@ import io.spine.server.BoundedContext;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.command.AbstractAssignee;
 import io.spine.server.command.Assign;
-import io.spine.server.commandbus.given.DirectScheduledExecutor;
-import io.spine.server.commandbus.given.MemoizingCommandFlowWatcher;
 import io.spine.server.event.EventBus;
 import io.spine.system.server.NoOpSystemWriteSide;
 import io.spine.system.server.SystemWriteSide;
@@ -44,7 +42,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -70,7 +67,6 @@ abstract class AbstractCommandBusTestSuite {
     protected EventBus eventBus;
     protected CreateProjectAssignee createProjectAssignee;
     protected MemoizingObserver<Ack> observer;
-    protected MemoizingCommandFlowWatcher watcher;
     protected SystemWriteSide systemWriteSide;
     protected BoundedContext context;
 
@@ -124,28 +120,19 @@ abstract class AbstractCommandBusTestSuite {
 
     @BeforeEach
     void setUp() {
-        ScheduledExecutorService executorService = new DirectScheduledExecutor();
-        CommandScheduler scheduler = new ExecutorCommandScheduler(executorService);
-        var environment = ServerEnvironment.newBuilder()
-                .scheduleCommandsUsing(() -> scheduler)
-                .build();
-
         createProjectAssignee = new CreateProjectAssignee();
-        application = createApplication(environment);
+        application = createApplication();
         context = application.contexts()
                              .get(0);
 
         systemWriteSide = NoOpSystemWriteSide.INSTANCE;
 
         eventBus = context.eventBus();
-        watcher = new MemoizingCommandFlowWatcher();
         commandBus = CommandBus.newBuilder()
                 .setMultiTenant(this.multiTenant)
                 .injectContext(context)
                 .injectSystem(systemWriteSide)
-                .setWatcher(watcher)
                 .build();
-        commandBus.registerWith(context);
         requestFactory =
                 multiTenant
                 ? new TestActorRequestFactory(getClass(), generate())
@@ -158,14 +145,14 @@ abstract class AbstractCommandBusTestSuite {
      *
      * <p>The context has the {@link #createProjectAssignee}.
      */
-    private Application createApplication(ServerEnvironment environment) {
+    private Application createApplication() {
         var cls = getClass();
         var name = cls.getSimpleName();
         var builder = multiTenant
                       ? BoundedContext.multiTenant(name)
                       : BoundedContext.singleTenant(name);
         return Application.newBuilder()
-                .setServerEnvironment(environment)
+                .setServerEnvironment(ServerEnvironment.newBuilder().build())
                 .add(builder.addAssignee(createProjectAssignee))
                 .build();
     }

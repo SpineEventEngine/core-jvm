@@ -24,7 +24,6 @@ import io.spine.server.bus.Listener;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.commandbus.CommandDispatcherDelegate;
-import io.spine.server.commandbus.CommandScheduler;
 import io.spine.server.commandbus.DelegatingCommandDispatcher;
 import io.spine.server.delivery.Delivery;
 import io.spine.server.entity.Entity;
@@ -105,9 +104,6 @@ public abstract class BoundedContext
     /** The delivery in which the repositories of the context register their inboxes. */
     private final Delivery delivery;
 
-    /** The scheduler of the commands posted to the context. */
-    private final CommandScheduler commandScheduler;
-
     /** The transport through which the context exchanges messages with other contexts. */
     private final TransportFactory transportFactory;
 
@@ -153,7 +149,6 @@ public abstract class BoundedContext
         this.spec = builder.spec();
         this.storageFactory = checkNotNull(builder.getStorageFactory());
         this.delivery = checkNotNull(builder.getDelivery());
-        this.commandScheduler = checkNotNull(builder.getCommandSchedulerFactory()).get();
         this.transportFactory = checkNotNull(builder.getTransportFactory());
         this.eventBus = builder.buildEventBus(this);
         this.stand = builder.stand();
@@ -171,7 +166,6 @@ public abstract class BoundedContext
      */
     protected final void init() {
         eventBus.registerWith(this);
-        commandBus.registerWith(this);
         broker.registerWith(this);
     }
 
@@ -822,13 +816,6 @@ public abstract class BoundedContext
          */
         public Delivery delivery() {
             return self().delivery;
-        }
-
-        /**
-         * Obtains the scheduler of the commands posted to this {@code BoundedContext}.
-         */
-        public CommandScheduler commandScheduler() {
-            return self().commandScheduler;
         }
 
         /**
