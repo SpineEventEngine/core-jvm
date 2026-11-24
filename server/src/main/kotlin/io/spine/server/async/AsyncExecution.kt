@@ -31,10 +31,10 @@ import com.google.protobuf.util.Durations
  *
  * A Bounded Context has one execution. It is set with
  * [setAsyncExecution][io.spine.server.BoundedContextBuilder.setAsyncExecution].
- * If none is set, the context creates the one built by [newBuilder] with its default settings.
- * Under the [Tests][io.spine.environment.Tests] environment, the context uses
- * the [onCallingThread] execution instead, so that a test sees the results of a handler
- * as soon as the signal is posted.
+ * If none is set, the builder of the context gives it the one built by [newBuilder] with
+ * its default settings. Under the [Tests][io.spine.environment.Tests] environment,
+ * the builder gives the [onCallingThread] execution instead, so that a test sees the results
+ * of a handler as soon as the signal is posted.
  *
  * A context [closes][close] its execution when the context is closed, so two contexts
  * cannot use one instance.

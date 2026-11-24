@@ -18,8 +18,6 @@ import com.google.common.collect.ImmutableSet;
 import io.spine.annotation.Internal;
 import io.spine.base.EntityState;
 import io.spine.core.BoundedContextName;
-import io.spine.environment.Environment;
-import io.spine.environment.Tests;
 import io.spine.logging.WithLogging;
 import io.spine.option.EntityOption.Visibility;
 import io.spine.server.async.AsyncExecution;
@@ -92,7 +90,7 @@ import static java.lang.String.format;
  * @see <a href="https://martinfowler.com/bliki/BoundedContext.html">
  *         Martin Fowler on Bounded Contexts</a>
  */
-@SuppressWarnings({"ClassWithTooManyMethods", "OverlyComplexClass"})
+@SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass"})
 public abstract class BoundedContext
         implements Comparable<BoundedContext>,
                    Closeable,
@@ -130,23 +128,10 @@ public abstract class BoundedContext
 
     private final @Nullable Consumer<BoundedContext> onBeforeClose;
 
-    /**
-     * Guards {@link #asyncExecution}.
-     */
-    private final Object asyncExecutionLock = new Object();
+    /** The execution of the asynchronous handlers of this context. */
+    private final AsyncExecution asyncExecution;
 
-    /**
-     * The execution of the asynchronous handlers of this context.
-     *
-     * <p>If the builder of the context has no execution, the field is {@code null} until
-     * the first asynchronous handler asks for it. So a context without such handlers
-     * creates no execution.
-     */
-    private @Nullable AsyncExecution asyncExecution;
-
-    /**
-     * The currently installed probe.
-     */
+    /** The currently installed probe. */
     private @Nullable Probe probe;
 
     /**
@@ -173,7 +158,7 @@ public abstract class BoundedContext
         this.commandBus = builder.buildCommandBus();
         this.internalAccess = new InternalAccess();
         this.onBeforeClose = builder.getOnBeforeClose();
-        this.asyncExecution = builder.getAsyncExecution();
+        this.asyncExecution = checkNotNull(builder.getAsyncExecution());
     }
 
     /**
@@ -183,11 +168,7 @@ public abstract class BoundedContext
      * perform dependency injections steps that cannot be performed in the constructor.
      */
     protected final void init() {
-        synchronized (asyncExecutionLock) {
-            if (asyncExecution != null) {
-                introduceTo(asyncExecution);
-            }
-        }
+        introduceTo(asyncExecution);
         eventBus.registerWith(this);
         broker.registerWith(this);
     }
@@ -202,38 +183,6 @@ public abstract class BoundedContext
     private void introduceTo(AsyncExecution execution) {
         if (execution instanceof ContextAware contextAware) {
             contextAware.registerWith(this);
-        }
-    }
-
-    /**
-     * Obtains the execution of the asynchronous handlers of this context, creating it
-     * if the context has none yet.
-     *
-     * <p>The created execution runs a handler on the calling thread under
-     * the {@link Tests} environment, and on its own threads otherwise.
-     */
-    private AsyncExecution asyncExecution() {
-        synchronized (asyncExecutionLock) {
-            if (asyncExecution == null) {
-                asyncExecution = Environment.instance().is(Tests.class)
-                                 ? AsyncExecution.onCallingThread()
-                                 : AsyncExecution.newBuilder().build();
-                introduceTo(asyncExecution);
-            }
-            return asyncExecution;
-        }
-    }
-
-    /**
-     * Closes the execution of the asynchronous handlers, if this context has one.
-     */
-    private void closeAsyncExecution() {
-        AsyncExecution execution;
-        synchronized (asyncExecutionLock) {
-            execution = asyncExecution;
-        }
-        if (execution != null) {
-            execution.close();
         }
     }
 
@@ -633,7 +582,7 @@ public abstract class BoundedContext
     private void closeComponents(boolean wasOpen) {
         Throwable failure = null;
         if (wasOpen) {
-            failure = runKeepingFailure(failure, this::closeAsyncExecution);
+            failure = runKeepingFailure(failure, asyncExecution::close);
         }
         for (var component : List.of(commandBus, eventBus, broker, stand)) {
             failure = runKeepingFailure(failure, component::closeIfOpen);
@@ -908,7 +857,7 @@ public abstract class BoundedContext
          * {@code BoundedContext}.
          */
         public AsyncExecution asyncExecution() {
-            return self().asyncExecution();
+            return self().asyncExecution;
         }
 
         private BoundedContext self() {

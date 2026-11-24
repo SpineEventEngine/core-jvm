@@ -17,21 +17,31 @@ package io.spine.server
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.spine.base.Identifier.newUuid
+import io.spine.environment.DefaultMode
+import io.spine.environment.Environment
 import io.spine.grpc.StreamObservers.noOpObserver
 import io.spine.logging.Level.Companion.DEBUG
 import io.spine.logging.toJavaLogging
 import io.spine.server.BoundedContextBuilder.assumingTests
 import io.spine.server.async.AsyncExecution
 import io.spine.server.async.AsyncInvocation
+import io.spine.server.async.LimitingExecution
 import io.spine.server.async.given.AcmeRpcHandler
 import io.spine.server.async.given.RemoteService
 import io.spine.server.async.given.newOrder
+import io.spine.server.delivery.Delivery
 import io.spine.server.given.context.shipping.command.reserveShipment
+import io.spine.server.storage.memory.InMemoryStorageFactory
+import io.spine.server.transport.memory.InMemoryTransportFactory
 import io.spine.system.server.SystemContext
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.Interceptor
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 /**
@@ -89,6 +99,47 @@ internal class BoundedContextAsyncExecutionSpec {
         context.close()
 
         execution.closed shouldBe 1
+    }
+
+    @Nested inner class
+    `get from its builder, if no execution is set,` {
+
+        @Test
+        fun `the execution on the calling thread under 'Tests'`() {
+            assumingTests("Orders").build().use { orders ->
+                val execution = orders.internalAccess().asyncExecution()
+
+                execution shouldBeSameInstanceAs AsyncExecution.onCallingThread()
+            }
+        }
+
+        @Test
+        fun `the execution with its own threads in another environment`() {
+            val environment = Environment.instance()
+            environment.setTo(DefaultMode::class.java)
+            try {
+                val storage = InMemoryStorageFactory.newInstance()
+                val server = serverEnvironment {
+                    under<DefaultMode> {
+                        use(storage)
+                        use(Delivery.local(nodeId { value = newUuid() }, storage))
+                        use(InMemoryTransportFactory.newInstance())
+                    }
+                }
+                application {
+                    serverEnvironment = server
+                    add(BoundedContext.singleTenant("Orders"))
+                }.use { orders ->
+                    val execution = orders.contexts().single()
+                        .internalAccess()
+                        .asyncExecution()
+
+                    execution.shouldBeInstanceOf<LimitingExecution>()
+                }
+            } finally {
+                environment.reset()
+            }
+        }
     }
 
     @Test

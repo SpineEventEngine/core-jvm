@@ -20,6 +20,8 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.core.BoundedContextName;
+import io.spine.environment.Environment;
+import io.spine.environment.Tests;
 import io.spine.logging.WithLogging;
 import io.spine.server.async.AsyncExecution;
 import io.spine.server.bus.BusFilter;
@@ -157,8 +159,8 @@ public final class BoundedContextBuilder implements WithLogging {
     /**
      * The execution of the asynchronous handlers of the built context.
      *
-     * <p>If not set, the context creates an execution when the first asynchronous handler
-     * is registered with it.
+     * <p>If not set, the builder {@linkplain #defaultAsyncExecution() creates} the default
+     * one when the context is built.
      */
     private @Nullable AsyncExecution asyncExecution;
 
@@ -775,6 +777,9 @@ public final class BoundedContextBuilder implements WithLogging {
     @SuppressWarnings("ProhibitedExceptionThrown" /* Rethrowing what was caught. */)
     BoundedContext build(ServerEnvironment environment) {
         useTechnologiesOf(environment);
+        if (asyncExecution == null) {
+            asyncExecution = defaultAsyncExecution();
+        }
         var system = buildSystem();
         BoundedContext result;
         try {
@@ -844,10 +849,26 @@ public final class BoundedContextBuilder implements WithLogging {
      * Sets the execution that runs the work of the asynchronous handlers of the context,
      * such as {@link io.spine.server.command.AsyncAssignee AsyncAssignee}.
      *
-     * <p>If not set, the context uses the execution that {@link AsyncExecution#newBuilder()}
-     * builds with its default settings. Under the {@link io.spine.environment.Tests Tests}
-     * environment, the context uses {@link AsyncExecution#onCallingThread()} instead, so that
-     * a test sees the results of an asynchronous handler as soon as the signal is posted.
+     * <p>If no execution is set, the builder gives the context a default one, which depends
+     * on the environment in which the context is built:
+     * <ul>
+     *     <li>Under the {@link Tests} environment, it is
+     *         {@link AsyncExecution#onCallingThread()}. A handler works on the thread that posts
+     *         the signal, so a test sees the results of the handler as soon as the posting
+     *         returns.
+     *     <li>In any other environment, it is the execution that
+     *         {@link AsyncExecution#newBuilder()} builds with its default settings:
+     *         <ul>
+     *             <li>At most 8 invocations of a handler class are ongoing at once.
+     *                 See {@link AsyncExecution.Builder#setLimit(int) setLimit(int)}.
+     *             <li>When the context is closed, the execution waits for its invocations
+     *                 for 30 seconds at most. See {@link AsyncExecution.Builder#setCloseTimeout
+     *                 setCloseTimeout(Duration)}.
+     *             <li>The invocations run on daemon threads named after the context.
+     *                 The threads are created when the first invocation arrives, so a context
+     *                 without asynchronous handlers has none.
+     *         </ul>
+     * </ul>
      *
      * <p>The context closes the execution when the context is closed, so each context needs
      * an execution of its own.
@@ -861,8 +882,28 @@ public final class BoundedContextBuilder implements WithLogging {
         return this;
     }
 
+    /**
+     * Obtains the execution of the asynchronous handlers of the built context.
+     *
+     * @return the execution, or {@code null} if none was {@linkplain #setAsyncExecution set},
+     *         and the context is not being built yet
+     */
     @Nullable AsyncExecution getAsyncExecution() {
         return asyncExecution;
+    }
+
+    /**
+     * Creates the execution for a context whose builder has none.
+     *
+     * <p>The execution runs a handler on the calling thread under the {@link Tests} environment,
+     * and on its own threads otherwise.
+     *
+     * @see #setAsyncExecution(AsyncExecution) for the settings of the created execution
+     */
+    private static AsyncExecution defaultAsyncExecution() {
+        return Environment.instance().is(Tests.class)
+               ? AsyncExecution.onCallingThread()
+               : AsyncExecution.newBuilder().build();
     }
 
     CommandBus buildCommandBus() {
@@ -895,6 +936,8 @@ public final class BoundedContextBuilder implements WithLogging {
         var system = new BoundedContextBuilder(systemSpec(), systemSettings,
                                                /* forTests = */ false);
         shareTechnologiesWith(system);
+        // A System context has no asynchronous handlers, so it needs no threads for them.
+        system.asyncExecution = AsyncExecution.onCallingThread();
         var result = system.doBuild(SystemContext::newInstance, NoOpSystemClient.INSTANCE);
         return result;
     }

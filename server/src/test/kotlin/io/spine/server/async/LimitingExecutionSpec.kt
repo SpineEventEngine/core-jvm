@@ -153,6 +153,23 @@ internal class LimitingExecutionSpec {
         }
 
         @Test
+        fun `allowing eight at once, unless its builder is told otherwise`() {
+            val byDefault = AsyncExecution.newBuilder().build()
+            val all = (1..9).map { submit(limitedByDefault, byDefault) }
+            try {
+                all.take(8).forEach { it.awaitStarted() }
+
+                all.last().hasStarted() shouldBe false
+
+                all.first().finish()
+                all.last().awaitStarted()
+            } finally {
+                all.forEach { it.finish() }
+                byDefault.close()
+            }
+        }
+
+        @Test
         fun `apart from the invocations of other classes`() {
             val first = submit(limitedByDefault)
             first.awaitStarted()

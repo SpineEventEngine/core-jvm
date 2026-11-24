@@ -141,9 +141,11 @@ because some of them end while the commanding method is running.
 ### The context
 
 - `BoundedContextBuilder.setAsyncExecution(AsyncExecution)`, public.
-- `BoundedContext` creates the default lazily, when the first async handler is registered:
-  `onCallingThread()` under `Tests`, `newBuilder().build()` otherwise. A context without async
-  handlers creates no pool.
+- If no execution is set, the builder creates the default one when the context is built:
+  `onCallingThread()` under `Tests`, `newBuilder().build()` otherwise. The Javadoc of
+  `setAsyncExecution()` lists the default values. The builder gives `onCallingThread()` to
+  the System context, which has no asynchronous handlers. So `BoundedContext` always has
+  an execution; the threads appear with the first invocation.
 - `BoundedContext.InternalAccess.asyncExecution()` gives it to the handlers.
 - `closeComponents()` closes the execution first, while the buses are still open, so that
   the draining handlers can post their results.
@@ -301,3 +303,9 @@ durable storage of accepted work.
   `dispatchEvent()` got `onError`, which posts `HandlerFailedUnexpectedly`.
   `AbstractCommanderSpec` (a command, an event) and the failure case of `AsyncCommanderSpec`
   fail without the two lines.
+- 2026-11-24 — by the owner's request the default execution is created by
+  `BoundedContextBuilder` (`defaultAsyncExecution()`), not lazily by `BoundedContext`,
+  which lost its lock and its nullable field. The default values (8 per handler class,
+  30 seconds, daemon threads named after the context) are in the Javadoc of
+  `setAsyncExecution()`. Tests: the default under `Tests` and under `DefaultMode`
+  (both fail with the two defaults swapped), and the default limit of eight.
