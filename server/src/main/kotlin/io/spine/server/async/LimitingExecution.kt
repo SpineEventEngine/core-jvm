@@ -127,7 +127,7 @@ internal class LimitingExecution(
     }
 
     /**
-     * Passes the invocations that wait the longest in the lane to threads, one per free slot.
+     * Passes the longest-waiting invocations of the lane to threads, one per free slot.
      *
      * If a thread cannot take an invocation, for example, because the thread cannot be
      * created, the invocation is dropped, its slot stays free, and the failure goes to
@@ -311,7 +311,7 @@ private class WorkerThreads(contextName: String?) : ThreadFactory, WithLogging {
 /**
  * Converts this duration to nanoseconds.
  *
- * A duration too long to be counted in nanoseconds gives the largest number, which
+ * A duration too long to be counted in nanoseconds gives [Long.MAX_VALUE], which
  * a wait takes as "for as long as it takes".
  */
 private fun Duration.toNanosOrMax(): Long =

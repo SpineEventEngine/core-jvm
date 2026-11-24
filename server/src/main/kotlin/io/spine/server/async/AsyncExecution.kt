@@ -79,7 +79,7 @@ public fun interface AsyncExecution : AutoCloseable {
      * The method is called on the thread that dispatches the signal, so it must return
      * promptly. An invocation that cannot be run yet waits within the execution.
      *
-     * @throws IllegalStateException If the execution is [closed][close].
+     * @throws IllegalStateException If [close] has been called.
      */
     public fun submit(invocation: AsyncInvocation)
 

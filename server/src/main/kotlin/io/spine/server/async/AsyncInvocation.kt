@@ -74,7 +74,7 @@ public class AsyncInvocation internal constructor(
      * handler, and this method returns normally. The method throws only if the handling
      * could not be completed for a reason other than the handler method, for example, if
      * the produced messages could not be posted. Such an exception is logged before it is
-     * thrown. An [Error] is thrown as it is.
+     * thrown. An [Error] is thrown as it is, without being logged.
      *
      * The signal is handled under its tenant, whatever the tenant of the calling thread is.
      *

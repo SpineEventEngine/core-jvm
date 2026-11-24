@@ -231,6 +231,8 @@ internal class LimitingExecutionSpec {
         failing.finish()
 
         next.awaitStarted()
+        // The thread of the failed invocation logs the error and ends, while logging is muted.
+        failing.thread().join(SECONDS.toMillis(waitSeconds))
     }
 
     @Nested inner class
@@ -334,6 +336,33 @@ internal class LimitingExecutionSpec {
             running.awaitFinished()
             running.wasInterrupted() shouldBe true
             waiting.hasStarted() shouldBe false
+        }
+
+        @Test
+        @MuteLogging
+        fun `not run an invocation that has not started when the wait is given up`() {
+            val mayStart = CountDownLatch(1)
+            val threads = CopyOnWriteArrayList<Thread>()
+            // A thread that gets the invocation, but starts it only when the test says so.
+            val lateThreads = ThreadFactory { task ->
+                Thread {
+                    mayStart.await()
+                    task.run()
+                }.apply { isDaemon = true }.also { threads.add(it) }
+            }
+            val execution = LimitingExecution(
+                defaultLimit = 1,
+                limits = mapOf(),
+                closeTimeout = Durations.ZERO,
+                threads = lateThreads
+            )
+            val late = submit(limitedByDefault, execution)
+
+            execution.close()
+            mayStart.countDown()
+            threads.single().join(SECONDS.toMillis(waitSeconds))
+
+            late.hasStarted() shouldBe false
         }
 
         @Test

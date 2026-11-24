@@ -30,6 +30,7 @@ import io.spine.server.given.context.shipping.command.reserveShipment
 import io.spine.system.server.SystemContext
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.Interceptor
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -45,6 +46,14 @@ internal class BoundedContextAsyncExecutionSpec {
         .setAsyncExecution(execution)
         .addAssignee(AcmeRpcHandler(service))
         .build()
+
+    /**
+     * Closes the context of the test. Closing it again does nothing.
+     */
+    @AfterEach
+    fun closeContext() {
+        context.close()
+    }
 
     @Test
     fun `pass the signal of an asynchronous handler to the execution set in the builder`() {
@@ -104,7 +113,6 @@ internal class BoundedContextAsyncExecutionSpec {
                         .contains("Billing")
                 } finally {
                     systemLog.release()
-                    context.close()
                 }
             }
     }

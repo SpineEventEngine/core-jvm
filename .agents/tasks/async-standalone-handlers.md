@@ -209,10 +209,10 @@ because some of them end while the commanding method is running.
 ### Wrap-up
 
 - [x] KDoc of the new types and the package.
-- [ ] Bump the version (not breaking): `.782` (#1736 took `.781` on 2026-11-24).
+- [x] Bump the version (not breaking): `.782` (#1736 took `.781` on 2026-11-24).
 - [x] `./gradlew check dokkaGenerate`; read the test counts; mutation checks (the slot
       released before `run()` returns; the tenant wrapping removed).
-- [ ] The full `./gradlew build` at PR prep, after the version bump.
+- [x] The full `./gradlew build` at PR prep, after the version bump.
 - [x] Reviewers: `spine-code-review`, `kotlin-engineer`, `review-docs`.
 
 Not in this PR: handler methods that wait without a thread (`suspend` methods, or methods
@@ -276,3 +276,11 @@ durable storage of accepted work.
 - 2026-11-24 — the owner asked to bump, commit and open the PR. `master` had moved to
   `.781` with #1736 (dependency versions only), so the branch, which had no commits, was
   fast-forwarded to it, and the version to take is `.782`.
+- 2026-11-24 — committed; `./config/pull` committed (Base for the build script `.465`,
+  CoreJvm `.781`, ToolBase `.460`, the `config` pointer, the publish workflow); version
+  `.782`; `clean build dokkaGenerate` green; dependency reports updated.
+- 2026-11-24 — second pass of the three reviewers on the committed code: no must-fix.
+  Taken: `@throws` of `submit()` says "if `close()` has been called"; a test that
+  an invocation which has not started when the wait is given up is not run. Not taken:
+  logging the invocation dropped when a thread cannot be created in `release()`, which
+  needs a JVM that is out of threads.

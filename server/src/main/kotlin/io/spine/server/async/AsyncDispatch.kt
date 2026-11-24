@@ -52,7 +52,7 @@ internal class AsyncDispatch {
      * @param handling Passes the signal to the handler and posts the produced messages,
      *   as the synchronous counterpart of the handler does.
      * @throws IllegalStateException If the handler is not registered with a Bounded Context,
-     *   or the execution is closed.
+     *   or the execution refuses the invocation because its closing has started.
      */
     fun submit(
         handler: Any,
