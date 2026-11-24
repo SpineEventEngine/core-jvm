@@ -830,8 +830,8 @@ public final class BoundedContextBuilder implements WithLogging {
     /**
      * Sets the action to be performed before the context is closed.
      *
-     * <p>The action is performed after the context is closed, but before the
-     * {@linkplain BoundedContext#close() context's own action} is performed.
+     * <p>The action is performed when {@link BoundedContext#close()} is called for the open
+     * context, before any of its parts is closed. The action gets the context.
      *
      * @param consumer
      *         the action to perform

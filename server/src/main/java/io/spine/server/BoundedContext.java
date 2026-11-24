@@ -126,6 +126,16 @@ public abstract class BoundedContext
     /** Provides access to internally used features of the context. */
     private final InternalAccess internalAccess;
 
+    /**
+     * The action to perform when {@link #close()} is called for this context while it is
+     * open, before any of its parts is closed.
+     *
+     * <p>The action gets this context. If the action throws, the parts of the context are
+     * still closed, and then the exception goes to the caller of {@code close()}.
+     *
+     * <p>The field is {@code null} if no action was
+     * {@linkplain BoundedContextBuilder#setOnBeforeClose set} in the builder of the context.
+     */
     private final @Nullable Consumer<BoundedContext> onBeforeClose;
 
     /** The execution of the asynchronous handlers of this context. */
