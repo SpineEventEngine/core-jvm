@@ -76,6 +76,7 @@ public abstract class AbstractCommander
                 .from(outcome)
                 .onCommands(this::postCommands)
                 .onRejection(this::postRejection)
+                .onError(error -> onError(command, error))
                 .handle();
         return outcome;
     }
@@ -104,6 +105,7 @@ public abstract class AbstractCommander
             DispatchOutcomeHandler
                     .from(outcome)
                     .onCommands(this::postCommands)
+                    .onError(error -> onError(event, error))
                     .handle();
             return outcome;
         } else {

@@ -27,6 +27,7 @@ import io.spine.server.async.given.newOrder
 import io.spine.server.given.context.shipping.command.ReserveShipment
 import io.spine.server.given.context.shipping.command.planShipment
 import io.spine.server.given.context.shipping.event.orderPaid
+import io.spine.system.server.HandlerFailedUnexpectedly
 import io.spine.testing.logging.mute.MuteLogging
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -143,16 +144,15 @@ internal class AsyncCommanderSpec : AbstractAsyncHandlerSpec() {
 
     @Test
     @MuteLogging
-    fun `post no command if the commanding method fails`() {
+    fun `report a failure of the commanding method`() {
         open { shipmentPlanning() }
         service.failWith { IllegalStateException("No carrier can be chosen.") }
         service.release()
 
         post(planShipment { order = orderId })
-        service.awaitCalls()
 
-        // Closing the context waits for the commanding method to end.
-        context.close()
+        val failed = monitor.await<HandlerFailedUnexpectedly>()
+        failed.error.message shouldBe "No carrier can be chosen."
         monitor.all<ReserveShipment>().shouldBeEmpty()
     }
 

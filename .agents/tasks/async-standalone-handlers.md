@@ -161,7 +161,10 @@ because some of them end while the commanding method is running.
 - Each override is final. It wraps the call to `super` into an `AsyncInvocation`, submits it,
   and returns at once. The synchronous code of the bases stays as it is.
 - `AbstractCommander.dispatch()` and `dispatchEvent()` lose `final`, as in `AbstractAssignee`
-  and `AbstractEventReactor`. This is the only change to the existing bases.
+  and `AbstractEventReactor`.
+- `AbstractCommander` reports a failed commanding method with `HandlerFailedUnexpectedly`,
+  as the other three bases do (asked by the owner on 2026-11-24). Before, the failure was
+  reported nowhere. `AsyncCommander` inherits the reporting.
 - The shared part (get the execution in `registerWith()`, build the invocation) lives in
   one internal class of `io.spine.server.async`. The tenant and the logging of framework
   failures are in `AsyncInvocation.run()`.
@@ -294,3 +297,7 @@ durable storage of accepted work.
   is compared by the instance; `close()` skips the invocation of the calling thread
   (`laneOfThread`), and `WorkerPool.shutDown()` puts back the interruption status of
   the caller. `server`: 80 tests of the feature.
+- 2026-11-24 — by the owner's request, in this PR: `AbstractCommander.dispatch()` and
+  `dispatchEvent()` got `onError`, which posts `HandlerFailedUnexpectedly`.
+  `AbstractCommanderSpec` (a command, an event) and the failure case of `AsyncCommanderSpec`
+  fail without the two lines.
