@@ -35,13 +35,41 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
-      # Mirrors the pagefile step in build-on-windows.yml. The Linux runner
-      # ships with effectively no swap, so a memory peak becomes an instant
-      # OOM kill; this gives the kernel somewhere to fall back to.
+      # Mirrors the pagefile step in build-on-windows.yml. Without enough swap,
+      # a memory peak becomes an instant OOM kill; this gives the kernel
+      # somewhere to fall back to.
+      #
+      # Hosted runners differ in the swap they come with: those on Azure have
+      # a 3 GiB `/swapfile`, those on AWS a zram device (`ubuntu-24.04`) or no
+      # swap at all (`ubuntu-26.04`). So the step does not resize whatever swap
+      # it finds. It deletes the swap files, so that their disk space goes to
+      # the new one, leaves swap devices as they are, and adds its own file.
+      #
+      # More swap is a safety net, not a precondition of the build, so a
+      # failure here does not stop the job. Its error still shows in the run
+      # summary.
       - name: Add swap space
-        uses: pierotofy/set-swap-space@v1.0
-        with:
-          swap-size-gb: 8
+        continue-on-error: true
+        shell: bash
+        env:
+          SWAP_FILE: /swapfile
+          SWAP_SIZE: 8G
+        run: |
+          swapon --show
+          df -h /
+          swapon --noheadings --raw --show=NAME,TYPE | while read -r name type; do
+            if [ "$type" = file ]; then
+              sudo swapoff "$name"
+              sudo rm -f "$name"
+            fi
+          done
+          sudo rm -f "$SWAP_FILE"
+          sudo fallocate -l "$SWAP_SIZE" "$SWAP_FILE"
+          sudo chmod 600 "$SWAP_FILE"
+          sudo mkswap "$SWAP_FILE"
+          sudo swapon "$SWAP_FILE"
+          free -h
+          swapon --show
 
       - name: Build project, run tests
         shell: bash
