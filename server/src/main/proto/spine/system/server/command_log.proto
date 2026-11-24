@@ -76,8 +76,8 @@ message CommandTimeline {
     // The instant when the command is acknowledged by the `CommandBus`.
     google.protobuf.Timestamp when_acknowledged = 2;
 
-    // The instant when the command is scheduled for the last time.
-    google.protobuf.Timestamp when_scheduled = 3;
+    reserved 3;
+    reserved "when_scheduled";
 
     // The instant when the command is sent to a dispatcher.
     google.protobuf.Timestamp when_dispatched = 4;

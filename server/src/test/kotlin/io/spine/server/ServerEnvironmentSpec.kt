@@ -17,15 +17,12 @@ package io.spine.server
 import com.google.protobuf.Message
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.booleans.shouldBeFalse
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.spine.environment.Tests
-import io.spine.server.commandbus.CommandScheduler
-import io.spine.server.commandbus.ExecutorCommandScheduler
 import io.spine.server.storage.RecordSpec
 import io.spine.server.storage.RecordStorage
 import io.spine.server.storage.StorageFactory
@@ -68,19 +65,6 @@ internal class ServerEnvironmentSpec {
         environment.transportFactory().shouldBeInstanceOf<InMemoryTransportFactory>()
         environment.delivery() shouldBeSameInstanceAs environment.delivery()
         environment.tracing().isPresent.shouldBeFalse()
-    }
-
-    @Test
-    fun `create a command scheduler for each call`() {
-        val created = mutableListOf<CommandScheduler>()
-        val environment = serverEnvironment {
-            scheduleCommandsUsing { ExecutorCommandScheduler().also(created::add) }
-        }
-
-        environment.newCommandScheduler()
-        environment.newCommandScheduler()
-
-        created shouldHaveSize 2
     }
 
     @Test

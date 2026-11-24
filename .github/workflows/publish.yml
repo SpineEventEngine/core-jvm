@@ -30,7 +30,7 @@ on:
 jobs:
   publish:
     name: Publish to Maven repositories
-    uses: SpineEventEngine/config/.github/workflows/publishing.yml@dcf68a24adc78c21b7e48be79fa5ba0ebe4225bb
+    uses: SpineEventEngine/config/.github/workflows/publishing.yml@fab073c0399c8b49d56fce7b816583379664d940
     permissions:
       contents: read
       packages: write

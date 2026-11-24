@@ -27,9 +27,7 @@ import io.spine.core.Ack;
 import io.spine.core.Command;
 import io.spine.core.TenantId;
 import io.spine.grpc.CompositeObserver;
-import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
-import io.spine.server.ContextAware;
 import io.spine.server.bus.BusBuilder;
 import io.spine.server.bus.BusFilter;
 import io.spine.server.bus.DeadMessageHandler;
@@ -39,6 +37,7 @@ import io.spine.server.bus.UnicastBus;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 import io.spine.system.server.SystemWriteSide;
+import io.spine.system.server.event.CommandDispatched;
 import io.spine.system.server.event.CommandValidationFailed;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
@@ -46,7 +45,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static io.spine.system.server.WriteSideFunction.delegatingTo;
 
 /**
@@ -54,17 +52,7 @@ import static io.spine.system.server.WriteSideFunction.delegatingTo;
  */
 @Internal
 public final class CommandBus
-        extends UnicastBus<Command, CommandEnvelope, CommandClass, CommandDispatcher>
-        implements ContextAware {
-
-    /** Consumes commands dispatched by this bus. */
-    private final CommandFlowWatcher watcher;
-
-    /**
-     * The scheduler of the commands, which the bus obtains from the context when it is
-     * {@linkplain #registerWith(BoundedContext) registered} with it.
-     */
-    private @MonotonicNonNull CommandScheduler scheduler;
+        extends UnicastBus<Command, CommandEnvelope, CommandClass, CommandDispatcher> {
 
     private final SystemWriteSide systemWriteSide;
 
@@ -96,7 +84,6 @@ public final class CommandBus
         super(builder);
         this.multiTenant = builder.multiTenant != null && builder.multiTenant;
         this.systemWriteSide = builder.ensureSystem();
-        this.watcher = checkNotNull(builder.watcher);
         this.deadCommandHandler = new DeadCommandHandler(this::systemFor);
     }
 
@@ -113,40 +100,8 @@ public final class CommandBus
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Creates the {@link CommandScheduler} of this bus with the context.
-     *
-     * @throws IllegalStateException
-     *         if the bus is already registered with a context
-     */
-    @Override
-    @Internal
-    public void registerWith(BoundedContext context) {
-        checkNotNull(context);
-        checkState(!isRegistered(),
-                   "The `CommandBus` is already registered with a Bounded Context.");
-        var scheduler = context.internalAccess()
-                               .commandScheduler();
-        scheduler.setWatcher(watcher);
-        scheduler.setCommandBus(this);
-        this.scheduler = scheduler;
-    }
-
-    @Override
-    public boolean isRegistered() {
-        return scheduler != null;
-    }
-
-    private CommandScheduler scheduler() {
-        checkState(scheduler != null,
-                   "The `CommandBus` is not registered with a Bounded Context.");
-        return scheduler;
-    }
-
-    /**
-     * Places a {@link CommandReceivedTap} and a {@link TenantFilter} first, and
-     * a {@link CommandScheduler} last in the filter chain.
+     * Places a {@link CommandReceivedTap} and a {@link TenantFilter} first
+     * in the filter chain.
      */
     @Override
     @OverridingMethodsMustInvokeSuper
@@ -157,7 +112,6 @@ public final class CommandBus
                 .add(new CommandReceivedTap(this::systemFor))
                 .add(new TenantFilter(multiTenant, this::systemFor))
                 .addAll(fromSuper)
-                .add(scheduler())
                 .build();
     }
 
@@ -208,8 +162,18 @@ public final class CommandBus
             /* Dispatching outcome is reported via system events, if needed. */)
     protected void dispatch(CommandEnvelope command) {
         var dispatcher = dispatcherOf(command);
-        watcher.onDispatchCommand(command);
+        recordDispatching(command);
         dispatcher.dispatch(command);
+    }
+
+    /**
+     * Records in the System context that the command is passed to its dispatcher.
+     */
+    private void recordDispatching(CommandEnvelope command) {
+        var dispatched = CommandDispatched.newBuilder()
+                .setId(command.id())
+                .build();
+        systemFor(command.tenantId()).postEvent(dispatched, command.asMessageOrigin());
     }
 
     /**
@@ -254,14 +218,6 @@ public final class CommandBus
     }
 
     /**
-     * Passes a previously scheduled command to the corresponding dispatcher.
-     */
-    void postPreviouslyScheduled(Command command) {
-        var commandEnvelope = CommandEnvelope.of(command);
-        dispatch(commandEnvelope);
-    }
-
-    /**
      * Does nothing, because the {@code CommandBus} does not store commands.
      */
     @Override
@@ -299,7 +255,6 @@ public final class CommandBus
          * {@code BoundedContext}.
          */
         private @Nullable Boolean multiTenant;
-        private @Nullable CommandFlowWatcher watcher;
 
         /** Prevents direct instantiation. */
         private Builder() {
@@ -318,43 +273,22 @@ public final class CommandBus
             return this;
         }
 
-        @Internal
-        @CanIgnoreReturnValue
-        public Builder setWatcher(CommandFlowWatcher watcher) {
-            this.watcher = watcher;
-            return this;
-        }
-
         /**
          * Builds an instance of {@link CommandBus}.
          *
          * <p>This method is supposed to be called internally when building an enclosing
-         * {@code BoundedContext}. The bus gets its {@link CommandScheduler} when it is
-         * {@linkplain CommandBus#registerWith(BoundedContext) registered} with the context.
+         * {@code BoundedContext}.
          */
         @Override
         @CheckReturnValue
         public CommandBus build() {
-            var writeSide = ensureSystem();
-            if (watcher == null) {
-                watcher = new FlightRecorder(
-                        (tenantId) -> delegatingTo(writeSide).get(tenantId)
-                );
-            }
-            return createCommandBus();
+            return new CommandBus(this);
         }
 
         @Override
         @CheckReturnValue
         protected Builder self() {
             return this;
-        }
-
-        @CheckReturnValue
-        @SuppressWarnings("CheckReturnValue")
-        private CommandBus createCommandBus() {
-            var commandBus = new CommandBus(this);
-            return commandBus;
         }
     }
 }

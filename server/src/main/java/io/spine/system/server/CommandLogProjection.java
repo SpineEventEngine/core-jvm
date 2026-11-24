@@ -15,8 +15,6 @@
 package io.spine.system.server;
 
 import com.google.protobuf.Empty;
-import io.spine.core.Command;
-import io.spine.core.CommandContext.Schedule;
 import io.spine.core.CommandId;
 import io.spine.core.Subscribe;
 import io.spine.server.projection.Projection;
@@ -27,7 +25,6 @@ import io.spine.system.server.event.CommandHandled;
 import io.spine.system.server.event.CommandReceived;
 import io.spine.system.server.event.CommandPostingFailed;
 import io.spine.system.server.event.CommandRejected;
-import io.spine.system.server.event.CommandScheduled;
 import io.spine.system.server.event.CommandSplit;
 import io.spine.system.server.event.CommandTenantNotExpected;
 import io.spine.system.server.event.CommandTenantNotSpecified;
@@ -56,13 +53,6 @@ final class CommandLogProjection
     @Subscribe
     void on(@SuppressWarnings("unused") CommandAcknowledged event) {
         timeline().setWhenAcknowledged(currentTime());
-    }
-
-    @Subscribe
-    void on(CommandScheduled event) {
-        var updatedCommand = updateSchedule(event.getSchedule());
-        timeline().setWhenScheduled(currentTime());
-        builder().setCommand(updatedCommand);
     }
 
     @Subscribe
@@ -164,18 +154,6 @@ final class CommandLogProjection
                 .build();
         timeline().setSubstituted(substituted);
 
-    }
-
-    private Command updateSchedule(Schedule schedule) {
-        var command = builder().getCommand();
-        var updatedContext = command.context()
-                .toBuilder()
-                .setSchedule(schedule)
-                .build();
-        var updatedCommand = command.toBuilder()
-                .setContext(updatedContext)
-                .build();
-        return updatedCommand;
     }
 
     private CommandTimeline.Builder timeline() {

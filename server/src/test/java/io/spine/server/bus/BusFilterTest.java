@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.core.Status.StatusCase.ERROR_CASE;
-import static io.spine.core.Status.StatusCase.OK;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.testing.DisplayNames.NOT_ACCEPT_NULLS;
 
@@ -44,7 +43,8 @@ class BusFilterTest {
     @Test
     @DisplayName(NOT_ACCEPT_NULLS)
     void passNullToleranceCheck() {
-        new NullPointerTester().testAllPublicInstanceMethods(new BusFilters.RejectingWithOk());
+        var filter = new BusFilters.RejectingWithErrorCase(ErrorCase.INVALID_REQUEST);
+        new NullPointerTester().testAllPublicInstanceMethods(filter);
     }
 
     @Test
@@ -53,18 +53,6 @@ class BusFilterTest {
         BusFilter<CommandEnvelope> filter = new BusFilters.Accepting();
         var ack = filter.filter(commandEnvelope);
         assertThat(ack).isEmpty();
-    }
-
-    @Test
-    @DisplayName("reject the message with the `OK` status")
-    void rejectWithOk() {
-        BusFilter<CommandEnvelope> filter = new BusFilters.RejectingWithOk();
-        var ack = filter.filter(commandEnvelope);
-        assertThat(ack).isPresent();
-
-        var theAck = ack.get();
-        assertIdEquals(theAck);
-        assertStatusEquals(theAck, OK);
     }
 
     @Test

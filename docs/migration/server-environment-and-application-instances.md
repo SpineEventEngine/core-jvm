@@ -23,7 +23,7 @@ since several servers may serve one application.
 |------|--------|-------|
 | `ServerEnvironment.instance()`, `under()`, `when()`, `reset()` | public | **removed**; use `ServerEnvironment.newBuilder()` |
 | `under<E> {}` (Kotlin, top level) | configures the singleton | **removed**; use `serverEnvironment { under<E> {} }` |
-| `ServerEnvironment.scheduleCommandsUsing()` | on the instance | on `ServerEnvironment.Builder` |
+| `ServerEnvironment.scheduleCommandsUsing()` | on the instance | **removed** in `.780`; see [Command scheduling is removed](command-scheduling-removal.md) |
 | `ServerEnvironment.nodeId()`, `type()` | methods | Kotlin properties; Java calls stay the same |
 | `Application.instance()`, `use(TenantIndex)`, `defaultMultitenantIndex()` | public | **removed**; use `Application.newBuilder()` and `setTenantIndex()` |
 | `Application.contexts()` | internal | public: the contexts the application built |

@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 syntax = "proto3";
@@ -35,8 +23,6 @@ option java_package = "io.spine.core";
 option java_outer_classname = "CommandProto";
 option java_multiple_files = true;
 
-import "google/protobuf/timestamp.proto";
-import "google/protobuf/duration.proto";
 import "google/protobuf/any.proto";
 
 import "spine/core/actor_context.proto";
@@ -78,28 +64,8 @@ message Command {
     // Service information about the environment in which the command was created.
     CommandContext context = 3 [(required) = true];
 
-    // Properties that may be set by the framework as the command is delivered and handled.
-    //
-    // All fields of this type are reserved for internal framework needs, and are not visible to
-    // the business logic code of an application.
-    //
-    message SystemProperties {
-
-        option (internal_type) = true;
-
-        reserved 1 to 10; // for future priority properties.
-
-        // The time when the command was scheduled.
-        //
-        // Set automatically and used only by Spine when re-scheduling a command.
-        //
-        google.protobuf.Timestamp scheduling_time = 11;
-
-        reserved 12 to 20; // for other scheduling-related properties.
-    }
-
-    // Service information used by the framework.
-    SystemProperties system_properties = 4 [(internal) = true];
+    reserved 4;
+    reserved "system_properties";
 }
 
 // Meta-information about the command and the environment, which generated the command.
@@ -123,18 +89,8 @@ message CommandContext {
     //
     map<string, google.protobuf.Any> attributes = 3;
 
-    // A command may be scheduled. This type defines scheduling options.
-    message Schedule {
-
-        // The delay between the moment of receiving a command at the server
-        // and its delivery to the target.
-        google.protobuf.Duration delay = 1;
-
-        // See: https://github.com/SpineEventEngine/core-java/issues/994
-    }
-
-    // The schedule to execute the command.
-    Schedule schedule = 4;
+    reserved 4;
+    reserved "schedule";
 
     Origin origin = 5 [(required) = false, (validate) = true];
 }
@@ -159,8 +115,8 @@ enum CommandValidationError {
     // to a single-tenant application.
     TENANT_INAPPLICABLE = 4;
 
-    // The scheduled command was not delivered to the target in time.
-    EXPIRED = 5;
+    reserved 5;
+    reserved "EXPIRED";
 
     // The command is a duplicate of the command that was already dispatched.
     //

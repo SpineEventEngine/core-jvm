@@ -37,14 +37,6 @@ public final class BusFilters {
         }
     }
 
-    public static final class RejectingWithOk implements BusFilter<CommandEnvelope> {
-
-        @Override
-        public Optional<Ack> filter(CommandEnvelope envelope) {
-            return reject(envelope);
-        }
-    }
-
     public static final class RejectingWithErrorCase implements BusFilter<CommandEnvelope> {
 
         private final ErrorCase errorCase;

@@ -14,13 +14,9 @@
 
 package io.spine.system.server
 
-import com.google.protobuf.util.Durations
 import io.kotest.matchers.collections.shouldContainExactly
-import io.spine.base.EntityState
 import io.spine.core.Command
-import io.spine.core.CommandContextKt
 import io.spine.core.CommandId
-import io.spine.core.copy
 import io.spine.grpc.StreamObservers.noOpObserver
 import io.spine.server.Application
 import io.spine.server.BoundedContext
@@ -32,7 +28,6 @@ import io.spine.server.entity.Repository
 import io.spine.server.serverEnvironment
 import io.spine.system.server.SystemBoundedContexts.systemOf
 import io.spine.system.server.given.command.CompanyAggregate
-import io.spine.system.server.given.schedule.TestCommandScheduler
 import io.spine.testing.client.TestActorRequestFactory
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -60,9 +55,7 @@ internal class SystemProjectionsIgTest {
     @BeforeEach
     fun buildContexts() {
         application = application {
-            serverEnvironment = serverEnvironment {
-                scheduleCommandsUsing { TestCommandScheduler() }
-            }
+            serverEnvironment = serverEnvironment {}
             add(contextWithCommandLog(FIRST, DefaultRepository.of(CompanyAggregate::class.java)))
             add(contextWithCommandLog(LAST))
         }
@@ -81,22 +74,7 @@ internal class SystemProjectionsIgTest {
 
         first.commandBus().post(command, noOpObserver())
 
-        systemContextsStoring(CommandLog::class.java, command.id) shouldContainExactly
-                listOf(FIRST)
-    }
-
-    @Test
-    fun `store a scheduled command by the System context of the context that received it`() {
-        val command = establishing("A company with the scheduled command").copy {
-            context = context.copy {
-                schedule = CommandContextKt.schedule { delay = Durations.fromMinutes(1) }
-            }
-        }
-
-        first.commandBus().post(command, noOpObserver())
-
-        systemContextsStoring(ScheduledCommandRecord::class.java, command.id) shouldContainExactly
-                listOf(FIRST)
+        systemContextsStoringLogOf(command.id) shouldContainExactly listOf(FIRST)
     }
 
     private fun establishing(name: String): Command =
@@ -107,14 +85,11 @@ internal class SystemProjectionsIgTest {
 
     /**
      * Obtains the names of the domain contexts whose System contexts store
-     * the entity with the given state type and ID.
+     * the log of the command with the given ID.
      */
-    private fun systemContextsStoring(
-        stateType: Class<out EntityState<*>>,
-        id: CommandId
-    ): List<String> =
+    private fun systemContextsStoringLogOf(id: CommandId): List<String> =
         listOf(first, last)
-            .filter { systemRepositoryOf(it, stateType).find(id).isPresent }
+            .filter { commandLogRepositoryOf(it).find(id).isPresent }
             .map { it.name().value }
 
     private companion object {
@@ -132,14 +107,13 @@ internal class SystemProjectionsIgTest {
             return builder
         }
 
-        fun systemRepositoryOf(
-            context: BoundedContext,
-            stateType: Class<out EntityState<*>>
+        fun commandLogRepositoryOf(
+            context: BoundedContext
         ): RecordBasedRepository<CommandId, *, *> {
             val repository = systemOf(context).internalAccess()
-                .findRepository(stateType)
+                .findRepository(CommandLog::class.java)
                 .orElseThrow()
-            @Suppress("UNCHECKED_CAST") // The System repositories of the commands are such.
+            @Suppress("UNCHECKED_CAST") // The repository of the command logs is such.
             return repository as RecordBasedRepository<CommandId, *, *>
         }
     }

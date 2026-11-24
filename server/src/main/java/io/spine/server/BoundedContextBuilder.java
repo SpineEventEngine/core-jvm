@@ -28,7 +28,6 @@ import io.spine.server.command.AbstractAssignee;
 import io.spine.server.commandbus.CommandBus;
 import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.commandbus.CommandDispatcherDelegate;
-import io.spine.server.commandbus.CommandScheduler;
 import io.spine.server.delivery.Delivery;
 import io.spine.server.entity.Entity;
 import io.spine.server.entity.Repository;
@@ -55,7 +54,6 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -131,15 +129,6 @@ public final class BoundedContextBuilder implements WithLogging {
      * environment is used.
      */
     private @Nullable Delivery delivery;
-
-    /**
-     * Creates the scheduler of the commands posted to the built context.
-     *
-     * <p>If not set, the context obtains its scheduler
-     * {@linkplain ServerEnvironment#newCommandScheduler() from} the server environment
-     * of the application.
-     */
-    private @Nullable Supplier<CommandScheduler> commandSchedulerFactory;
 
     /**
      * The transport through which the built context exchanges messages with other contexts.
@@ -634,37 +623,6 @@ public final class BoundedContextBuilder implements WithLogging {
     }
 
     /**
-     * Sets the factory of the scheduler of the commands posted to the built context.
-     *
-     * <p>A scheduler serves the {@code CommandBus} of a single context, and is closed with it.
-     * So, the built context and its System context each obtain their own scheduler from
-     * the factory.
-     *
-     * <p>If not set, the contexts obtain their schedulers
-     * {@linkplain ServerEnvironment#newCommandScheduler() from} the server environment
-     * of the application.
-     *
-     * @param factory
-     *         creates a new scheduler on each call
-     */
-    @CanIgnoreReturnValue
-    BoundedContextBuilder setCommandSchedulerFactory(Supplier<CommandScheduler> factory) {
-        this.commandSchedulerFactory = checkNotNull(factory);
-        return this;
-    }
-
-    /**
-     * Obtains the factory of the scheduler of the commands posted to the built context.
-     *
-     * @return the factory, or {@code null} if it was not
-     *         {@linkplain #setCommandSchedulerFactory(Supplier) set} and the context
-     *         was not built yet
-     */
-    @Nullable Supplier<CommandScheduler> getCommandSchedulerFactory() {
-        return commandSchedulerFactory;
-    }
-
-    /**
      * Sets the transport through which the built context exchanges messages with
      * other contexts.
      *
@@ -788,8 +746,6 @@ public final class BoundedContextBuilder implements WithLogging {
      *     <li>tenancy;
      *     <li>the {@linkplain #setStorageFactory(StorageFactory) storage factory};
      *     <li>the {@linkplain #setDelivery(Delivery) delivery};
-     *     <li>the {@linkplain #setCommandSchedulerFactory(Supplier) factory of command schedulers},
-     *         from which each context obtains its own scheduler;
      *     <li>the {@linkplain #setTransportFactory(TransportFactory) transport factory};
      *     <li>the {@linkplain #setTracerFactory(TracerFactory) tracer factory}.
      * </ul>
@@ -907,7 +863,6 @@ public final class BoundedContextBuilder implements WithLogging {
     private void shareTechnologiesWith(BoundedContextBuilder system) {
         system.storageFactory = storageFactory;
         system.delivery = delivery;
-        system.commandSchedulerFactory = commandSchedulerFactory;
         system.transportFactory = transportFactory;
         system.tracerFactory = tracerFactory;
     }
@@ -922,9 +877,6 @@ public final class BoundedContextBuilder implements WithLogging {
         }
         if (delivery == null) {
             delivery = environment.delivery();
-        }
-        if (commandSchedulerFactory == null) {
-            commandSchedulerFactory = environment::newCommandScheduler;
         }
         if (transportFactory == null) {
             transportFactory = environment.transportFactory();

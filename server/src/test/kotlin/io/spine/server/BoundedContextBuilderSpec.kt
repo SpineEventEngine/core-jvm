@@ -18,9 +18,7 @@ import com.google.protobuf.Message
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -30,8 +28,6 @@ import io.spine.base.CommandMessage
 import io.spine.core.BoundedContextName
 import io.spine.environment.Tests
 import io.spine.grpc.StreamObservers.noOpObserver
-import io.spine.server.commandbus.CommandScheduler
-import io.spine.server.commandbus.ExecutorCommandScheduler
 import io.spine.server.delivery.Delivery
 import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.storage.RecordSpec
@@ -49,9 +45,7 @@ import io.spine.test.trace.ScheduleFlight
 import io.spine.testing.Assertions.assertNpe
 import io.spine.testing.TestValues.nullRef
 import io.spine.testing.client.TestActorRequestFactory
-import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CopyOnWriteArraySet
-import java.util.function.Supplier
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -147,7 +141,6 @@ internal class BoundedContextBuilderSpec {
 
             builder.storageFactory shouldBe null
             builder.delivery shouldBe null
-            builder.commandSchedulerFactory shouldBe null
             builder.transportFactory shouldBe null
         }
 
@@ -157,7 +150,6 @@ internal class BoundedContextBuilderSpec {
 
             assertNpe { builder.setStorageFactory(nullRef()) }
             assertNpe { builder.setDelivery(nullRef()) }
-            assertNpe { builder.setCommandSchedulerFactory(nullRef()) }
             assertNpe { builder.setTransportFactory(nullRef()) }
         }
 
@@ -166,19 +158,16 @@ internal class BoundedContextBuilderSpec {
             val storageFactory = InMemoryStorageFactory.newInstance()
             val environment = serverEnvironment {}
             val delivery = Delivery.local(environment.nodeId, storageFactory)
-            val schedulers = RecordingSchedulerFactory()
             val transportFactory = InMemoryTransportFactory.newInstance()
             val builder = BoundedContextBuilder.assumingTests()
                 .setStorageFactory(storageFactory)
                 .setDelivery(delivery)
-                .setCommandSchedulerFactory(schedulers)
                 .setTransportFactory(transportFactory)
 
             val access = build(builder, environment).internalAccess()
 
             access.storageFactory() shouldBeSameInstanceAs storageFactory
             access.delivery() shouldBeSameInstanceAs delivery
-            schedulers.created shouldContain access.commandScheduler()
             access.transportFactory() shouldBeSameInstanceAs transportFactory
             transportFactory.close()
         }
@@ -193,9 +182,7 @@ internal class BoundedContextBuilderSpec {
             access.storageFactory() shouldBeSameInstanceAs environment.storageFactory()
             access.delivery() shouldBeSameInstanceAs environment.delivery()
             access.transportFactory() shouldBeSameInstanceAs environment.transportFactory()
-            access.commandScheduler().shouldNotBeNull()
             builder.storageFactory shouldBeSameInstanceAs environment.storageFactory()
-            builder.commandSchedulerFactory.shouldNotBeNull()
         }
 
         @Test
@@ -208,20 +195,6 @@ internal class BoundedContextBuilderSpec {
 
             storageFactory.contexts shouldContainAll
                     listOf(built.name(), built.spec().toSystem().name())
-        }
-
-        @Test
-        fun `give each context its own command scheduler`() {
-            val schedulers = RecordingSchedulerFactory()
-            val builder = BoundedContextBuilder.assumingTests()
-                .setCommandSchedulerFactory(schedulers)
-
-            val built = build(builder)
-
-            // One scheduler is for the built context, the other is for its System context.
-            schedulers.created shouldHaveSize 2
-            schedulers.created.toSet() shouldHaveSize 2
-            schedulers.created shouldContain built.internalAccess().commandScheduler()
         }
     }
 
@@ -400,15 +373,4 @@ private class CalculatorsFailingOnRegistration : CalculatorRepository() {
         storage = context().internalAccess().storageFactory()
         error("The repository failed on registration.")
     }
-}
-
-/**
- * Creates a new executor-based command scheduler on each call, remembering each of them.
- */
-private class RecordingSchedulerFactory : Supplier<CommandScheduler> {
-
-    val created = CopyOnWriteArrayList<CommandScheduler>()
-
-    override fun get(): CommandScheduler =
-        ExecutorCommandScheduler().also { created.add(it) }
 }
