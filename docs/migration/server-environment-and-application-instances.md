@@ -44,15 +44,6 @@ since several servers may serve one application.
 Configure the technologies for each type of environment on the builder. The values you do not
 set keep their defaults: in-memory storage and transport under `Tests`, and a local `Delivery`.
 
-```java
-var environment = ServerEnvironment.newBuilder()
-        .under(Production.class, env -> {
-            env.use(productionStorageFactory);
-            env.use(memoizingTracerFactory);
-        })
-        .build();
-```
-
 ```kotlin
 val environment = serverEnvironment {
     under<Production> {
@@ -60,6 +51,15 @@ val environment = serverEnvironment {
         use(memoizingTracerFactory)
     }
 }
+```
+
+```java
+var environment = ServerEnvironment.newBuilder()
+        .under(Production.class, env -> {
+            env.use(productionStorageFactory);
+            env.use(memoizingTracerFactory);
+        })
+        .build();
 ```
 
 A built environment cannot be changed. It still resolves the current type of environment each
@@ -72,17 +72,9 @@ Add the builders of the contexts to the builder of the application, instead of c
 context. Before building any context, the builder checks that no two contexts have one name,
 and that no two contexts serve one entity state type.
 
-```java
-var application = Application.newBuilder()
-        .setServerEnvironment(environment)
-        .add(BoundedContext.singleTenant("Users").add(new UserRepository()))
-        .add(BoundedContext.singleTenant("Tasks").add(new TaskRepository()))
-        .build();
-```
-
 In Kotlin, `singleTenantContext(name) {}` and `multiTenantContext(name) {}` configure a context
 builder in a block and return it, so a context with several repositories does not need a chain
-of calls. `BoundedContext.singleTenant(name)` and `multiTenant(name)` stay, and Java uses them.
+of calls:
 
 ```kotlin
 val application = application {
@@ -95,6 +87,16 @@ val application = application {
         add(TaskViewRepository())
     })
 }
+```
+
+`BoundedContext.singleTenant(name)` and `multiTenant(name)` stay, and Java uses them:
+
+```java
+var application = Application.newBuilder()
+        .setServerEnvironment(environment)
+        .add(BoundedContext.singleTenant("Users").add(new UserRepository()))
+        .add(BoundedContext.singleTenant("Tasks").add(new TaskRepository()))
+        .build();
 ```
 
 `application.contexts()` gives the built contexts. An environment belongs to one application:

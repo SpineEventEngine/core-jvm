@@ -25,7 +25,7 @@ package io.spine.dependency.local
 )
 object Base {
     const val version = "2.0.0-SNAPSHOT.465"
-    const val versionForBuildScript = "2.0.0-SNAPSHOT.463"
+    const val versionForBuildScript = "2.0.0-SNAPSHOT.465"
     const val group = Spine.group
     private const val prefix = "spine"
     const val libModule = "$prefix-base"

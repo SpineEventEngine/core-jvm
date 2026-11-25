@@ -20,7 +20,10 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import io.spine.annotation.Internal;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.core.BoundedContextName;
+import io.spine.environment.Environment;
+import io.spine.environment.Tests;
 import io.spine.logging.WithLogging;
+import io.spine.server.async.AsyncExecution;
 import io.spine.server.bus.BusFilter;
 import io.spine.server.bus.Listener;
 import io.spine.server.bus.MessageDispatcher;
@@ -75,7 +78,7 @@ import static java.lang.String.format;
  * <p>A builder created for tests, by one of the {@code assumingTests()} methods, can also
  * {@linkplain #build() build} its context by itself.
  */
-@SuppressWarnings("ClassWithTooManyMethods" /* OK for this central piece. */)
+@SuppressWarnings({"ClassWithTooManyMethods", "OverlyCoupledClass"})
 public final class BoundedContextBuilder implements WithLogging {
 
     /**
@@ -152,6 +155,14 @@ public final class BoundedContextBuilder implements WithLogging {
     private final Collection<Repository<?, ?>> repositories = new ArrayList<>();
 
     private @Nullable Consumer<BoundedContext> onBeforeClose = null;
+
+    /**
+     * The execution of the asynchronous handlers of the built context.
+     *
+     * <p>If not set, the builder {@linkplain #defaultAsyncExecution() creates} the default
+     * one when the context is built.
+     */
+    private @Nullable AsyncExecution asyncExecution;
 
     /**
      * Creates a new builder with the given spec.
@@ -755,8 +766,9 @@ public final class BoundedContextBuilder implements WithLogging {
      * <p>The name of the System Bounded Context is derived from the name of the Domain Bounded
      * Context.
      *
-     * <p>If registering the repositories or the dispatchers fails, the method closes
-     * the context before throwing.
+     * <p>If the domain context cannot be created, the method closes the System context
+     * before throwing. If registering the repositories or the dispatchers fails, the method
+     * closes the context before throwing.
      *
      * @param environment
      *         the environment of the application of the context
@@ -765,8 +777,18 @@ public final class BoundedContextBuilder implements WithLogging {
     @SuppressWarnings("ProhibitedExceptionThrown" /* Rethrowing what was caught. */)
     BoundedContext build(ServerEnvironment environment) {
         useTechnologiesOf(environment);
+        if (asyncExecution == null) {
+            asyncExecution = defaultAsyncExecution();
+        }
         var system = buildSystem();
-        var result = buildDomain(system);
+        BoundedContext result;
+        try {
+            result = buildDomain(system);
+        } catch (Throwable t) {
+            // The domain context, which would close its System context, does not exist.
+            closeAfterFailure(system, t);
+            throw t;
+        }
         try {
             logger().atDebug()
                     .log(() -> format("%s created.", result.nameForLogging()));
@@ -808,8 +830,8 @@ public final class BoundedContextBuilder implements WithLogging {
     /**
      * Sets the action to be performed before the context is closed.
      *
-     * <p>The action is performed after the context is closed, but before the
-     * {@linkplain BoundedContext#close() context's own action} is performed.
+     * <p>The action is performed when {@link BoundedContext#close()} is called for the open
+     * context, before any of its parts is closed. The action gets the context.
      *
      * @param consumer
      *         the action to perform
@@ -821,6 +843,86 @@ public final class BoundedContextBuilder implements WithLogging {
 
     @Nullable Consumer<BoundedContext> getOnBeforeClose() {
         return onBeforeClose;
+    }
+
+    /**
+     * Sets the execution that runs the work of the asynchronous handlers of the context,
+     * such as {@link io.spine.server.command.AsyncAssignee AsyncAssignee}.
+     *
+     * <p>In Kotlin, the {@code asyncExecution} function builds the execution:
+     * <pre>{@code
+     * val shipping = singleTenantContext("Shipping") {
+     *     setAsyncExecution(asyncExecution {
+     *         limit<AcmeRpcHandler>(2)
+     *     })
+     *     addAssignee(AcmeRpcHandler(acme))
+     * }
+     * }</pre>
+     *
+     * <p>In Java:
+     * <pre>{@code
+     * var shipping = BoundedContext.singleTenant("Shipping")
+     *         .setAsyncExecution(AsyncExecution.newBuilder()
+     *                 .setLimit(AcmeRpcHandler.class, 2)
+     *                 .build())
+     *         .addAssignee(new AcmeRpcHandler(acme));
+     * }</pre>
+     *
+     * <p>If no execution is set, the builder gives the context a default one, which depends
+     * on the environment in which the context is built:
+     * <ul>
+     *     <li>Under the {@link Tests} environment, it is
+     *         {@link AsyncExecution#onCallingThread()}. A handler works on the thread that posts
+     *         the signal, so a test sees the results of the handler as soon as the posting
+     *         returns.
+     *     <li>In any other environment, it is the execution that
+     *         {@link AsyncExecution#newBuilder()} builds with its default settings:
+     *         <ul>
+     *             <li>At most 8 invocations of a handler class are ongoing at once.
+     *                 See {@link AsyncExecution.Builder#setLimit(int) setLimit(int)}.
+     *             <li>When the context is closed, the execution waits for its invocations
+     *                 for 30 seconds at most. See {@link AsyncExecution.Builder#setCloseTimeout
+     *                 setCloseTimeout(Duration)}.
+     *             <li>The invocations run on daemon threads named after the context.
+     *                 The threads are created when the first invocation arrives, so a context
+     *                 without asynchronous handlers has none.
+     *         </ul>
+     * </ul>
+     *
+     * <p>The context closes the execution when the context is closed, so each context needs
+     * an execution of its own.
+     *
+     * @param execution
+     *         the execution to use
+     */
+    @CanIgnoreReturnValue
+    public BoundedContextBuilder setAsyncExecution(AsyncExecution execution) {
+        this.asyncExecution = checkNotNull(execution);
+        return this;
+    }
+
+    /**
+     * Obtains the execution of the asynchronous handlers of the built context.
+     *
+     * @return the execution, or {@code null} if none was {@linkplain #setAsyncExecution set},
+     *         and the context is not being built yet
+     */
+    @Nullable AsyncExecution getAsyncExecution() {
+        return asyncExecution;
+    }
+
+    /**
+     * Creates the execution for a context whose builder has none.
+     *
+     * <p>The execution runs a handler on the calling thread under the {@link Tests} environment,
+     * and on its own threads otherwise.
+     *
+     * @see #setAsyncExecution(AsyncExecution) for the settings of the created execution
+     */
+    private static AsyncExecution defaultAsyncExecution() {
+        return Environment.instance().is(Tests.class)
+               ? AsyncExecution.onCallingThread()
+               : AsyncExecution.newBuilder().build();
     }
 
     CommandBus buildCommandBus() {
@@ -853,6 +955,8 @@ public final class BoundedContextBuilder implements WithLogging {
         var system = new BoundedContextBuilder(systemSpec(), systemSettings,
                                                /* forTests = */ false);
         shareTechnologiesWith(system);
+        // A System context has no asynchronous handlers, so it needs no threads for them.
+        system.asyncExecution = AsyncExecution.onCallingThread();
         var result = system.doBuild(SystemContext::newInstance, NoOpSystemClient.INSTANCE);
         return result;
     }

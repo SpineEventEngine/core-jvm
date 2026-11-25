@@ -31,21 +31,21 @@ import io.spine.util.withSuppressed
  * themselves, the index of the tenants that the application serves, and the [log]
  * of the problems that concern none of the contexts.
  *
- * An application is created with a [Builder], which builds its contexts. In Java:
- * ```
- * var application = Application.newBuilder()
- *         .setServerEnvironment(environment)
- *         .add(BoundedContext.singleTenant("Users").add(new UserRepository()))
- *         .add(BoundedContext.singleTenant("Tasks").add(new TaskRepository()))
- *         .build();
- * ```
- * In Kotlin:
+ * An application is created with a [Builder], which builds its contexts. In Kotlin:
  * ```
  * val application = application {
  *     serverEnvironment = environment
  *     add(singleTenantContext("Users") { add(UserRepository()) })
  *     add(singleTenantContext("Tasks") { add(TaskRepository()) })
  * }
+ * ```
+ * In Java:
+ * ```
+ * var application = Application.newBuilder()
+ *         .setServerEnvironment(environment)
+ *         .add(BoundedContext.singleTenant("Users").add(new UserRepository()))
+ *         .add(BoundedContext.singleTenant("Tasks").add(new TaskRepository()))
+ *         .build();
  * ```
  *
  * ## Contexts
