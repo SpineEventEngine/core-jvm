@@ -100,12 +100,17 @@ internal class StateDelivery<S : EntityState<*>>(
     /**
      * Passes the ID of the entity that no longer matches the target to the given consumer,
      * logging an error that the consumer throws.
+     *
+     * As the consumers of states do, it logs any `Throwable` of the consumer, such as
+     * an `AssertionError`. A `VirtualMachineError` propagates.
      */
     @Suppress("TooGenericExceptionCaught") // The consumer is the code of the client.
     private fun reportTo(consumer: NoLongerMatchingConsumer<*>, update: EntityStateUpdate) {
         try {
             consumer.accept(update.id)
-        } catch (e: Exception) {
+        } catch (e: VirtualMachineError) {
+            throw e
+        } catch (e: Throwable) {
             logger.atError().withCause(e).log {
                 "The consumer of the entities of the type `${target.type}` that no longer" +
                         " match the target could not handle the entity update."

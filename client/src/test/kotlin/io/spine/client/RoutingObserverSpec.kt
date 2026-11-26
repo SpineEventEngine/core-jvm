@@ -19,8 +19,12 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.string.shouldContain
+import io.spine.base.Identifier
 import io.spine.core.Event
 import io.spine.core.EventId
+import io.spine.protobuf.AnyPacker
+import io.spine.test.client.TestEntity
+import io.spine.test.client.TestEntityId
 import io.spine.testing.logging.LoggingTest
 import io.spine.testing.logging.mute.MuteLogging
 import io.spine.validation.NonValidated
@@ -34,10 +38,13 @@ import org.junit.jupiter.api.Test
 @DisplayName("`RoutingObserver` should")
 internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Level.ALL) {
 
-    private val first = RecordingObserver()
-    private val second = RecordingObserver()
+    private val first = RecordingObserver<Event>()
+    private val second = RecordingObserver<Event>()
     private val observer = RoutingObserver(
-        targets = listOf(EventDelivery(target(), first), EventDelivery(target(), second)),
+        targets = listOf(
+            EventDelivery(target(), first),
+            EventDelivery(target(), second)
+        ),
         streamingErrors = null
     )
 
@@ -53,8 +60,8 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
 
         observer.onNext(eventUpdate(targetIndex = 1, event))
 
-        first.events.shouldBeEmpty()
-        second.events shouldContainExactly listOf(event)
+        first.messages.shouldBeEmpty()
+        second.messages shouldContainExactly listOf(event)
     }
 
     @Test
@@ -80,7 +87,10 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
     fun `pass a streaming error to the handler once`() {
         val errors = mutableListOf<Throwable>()
         val withHandler = RoutingObserver(
-            targets = listOf(EventDelivery(target(), first), EventDelivery(target(), second)),
+            targets = listOf(
+                EventDelivery(target(), first),
+                EventDelivery(target(), second)
+            ),
             streamingErrors = ErrorHandler { errors += it }
         )
         val failure = IllegalStateException("The stream failed.")
@@ -88,6 +98,29 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
         withHandler.onError(failure)
 
         errors shouldContainExactly listOf(failure)
+    }
+
+    @Test
+    fun `go on delivering after a consumer of no longer matching entities fails`() {
+        val reported = mutableListOf<TestEntityId>()
+        val states = StateDelivery(
+            target = target(),
+            type = TestEntity::class.java,
+            observer = RecordingObserver(),
+            noLongerMatching = listOf(
+                NoLongerMatchingConsumer(TestEntityId::class.java) {
+                    throw AssertionError("The consumer failed.")
+                },
+                NoLongerMatchingConsumer(TestEntityId::class.java) { reported += it }
+            )
+        )
+        val firstId = testEntityId(1)
+        val secondId = testEntityId(2)
+
+        RoutingObserver(listOf(states), streamingErrors = null)
+            .onNext(noLongerMatching(firstId, secondId))
+
+        reported shouldContainExactly listOf(firstId, secondId)
     }
 
     @Test
@@ -116,6 +149,31 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
             .setEventUpdates(eventUpdates(event))
             .buildPartial()
 
+    private fun testEntityId(value: Int): TestEntityId =
+        TestEntityId.newBuilder()
+            .setValue(value)
+            .build()
+
+    private fun noLongerMatching(vararg ids: TestEntityId): @NonValidated SubscriptionUpdate =
+        SubscriptionUpdate.newBuilder()
+            .setEntityUpdates(entityUpdates(ids.map(::noLongerMatchingUpdate)))
+            .buildPartial()
+
+    private fun noLongerMatchingUpdate(entity: TestEntityId): EntityStateUpdate {
+        val entityId = EntityId.newBuilder()
+            .setId(Identifier.pack(entity))
+            .build()
+        return EntityStateUpdate.newBuilder()
+            .setId(AnyPacker.pack(entityId))
+            .setNoLongerMatching(true)
+            .build()
+    }
+
+    private fun entityUpdates(updates: List<EntityStateUpdate>): @NonValidated EntityUpdates =
+        EntityUpdates.newBuilder()
+            .addAllUpdate(updates)
+            .buildPartial()
+
     private fun eventUpdates(event: Event): @NonValidated EventUpdates =
         EventUpdates.newBuilder()
             .addEvent(event)
@@ -123,14 +181,14 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
 }
 
 /**
- * Remembers the events it receives.
+ * Remembers the messages it receives.
  */
-private class RecordingObserver : StreamObserver<Event> {
+private class RecordingObserver<T> : StreamObserver<T> {
 
-    val events = mutableListOf<Event>()
+    val messages = mutableListOf<T>()
 
-    override fun onNext(value: Event) {
-        events += value
+    override fun onNext(value: T) {
+        messages += value
     }
 
     override fun onError(t: Throwable) = Unit
