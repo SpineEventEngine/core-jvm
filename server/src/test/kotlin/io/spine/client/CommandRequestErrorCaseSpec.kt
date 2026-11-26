@@ -69,6 +69,17 @@ internal class CommandRequestErrorCaseSpec : AbstractClientTest() {
         client().subscriptions().isEmpty shouldBe true
     }
 
+    @Test
+    fun `return 'null' if there is no server error handler`() {
+        val subscription = client().asGuest()
+            .command(logInUser())
+            .observe(UserLoggedIn::class.java) { }
+            .post()
+
+        subscription shouldBe null
+        client().subscriptions().isEmpty shouldBe true
+    }
+
     private fun logInUser(): LogInUser =
         LogInUser.newBuilder()
             .setUser(GivenUserId.generated())
