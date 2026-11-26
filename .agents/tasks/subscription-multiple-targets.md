@@ -293,3 +293,34 @@ All specs are in Kotlin with Kotest.
   the subscription back with a modified topic still reaches every holder. Activation streams
   through `GuardedObserver`, which passes nothing after the stream terminates, so an update
   that one context delivers while another fails cannot follow the error.
+- 2026-11-26 — PR 2 started in its own worktree (branch `claude/subscriptions-client-api-7f88b0`,
+  stacked on PR 1's branch). The owner approved the public signatures in two rounds. The
+  second round added a Kotlin DSL and one `observe` name in Kotlin. Differences from the
+  design above:
+  - `CommandRequest` and `EventsAfterCommand` are converted to Kotlin. In Kotlin,
+    `observe(Class<S>, Consumer<StateTarget<S>>)` takes entity states. Kotlin chooses it by
+    the bound of the type. Java sees it as `observeState()` (`@JvmName`), because the two
+    erase to the same signature.
+  - The Kotlin DSL lives in `ClientExts.kt`: `ClientRequest.command(c) { … }: Subscription?`,
+    `ClientRequest.subscribe { … }: Subscription`, and the reified `observe<T>`, `event<E>`,
+    and `state<S>`, all `@JvmSynthetic`. They are extensions because detekt allows 10
+    functions per class, and `*Exts.kt` files are exempt.
+  - `CommandRequest.onConsumingError()` takes `ConsumerErrorHandler<Message>` (was
+    `<EventMessage>`), so it also covers the consumers of states.
+  - `whenNoLongerMatching()` adds a consumer, as its doc says (it replaced the consumer
+    before). `CommandRequest.observe(eventType, …)` checks the published language.
+  - `TopicRequest` does not redeclare `onServerError()`. As on `SubscribingRequest`,
+    a refusal throws from `post()`.
+  - Removed: `SubscriptionObserver`, `NoLongerMatchingFilter`, `DeliveringMultiEventObserver`,
+    `MultiEventConsumers`, `Subscriptions.addAll()`, and `SubscribingRequest.chain()`
+    (protected in a class that cannot be extended outside the package).
+  - Internals: `TargetDelivery` (sealed: events or states) and `RoutingObserver`.
+    `Subscriptions.subscribeTo(TopicFactory, List<TargetDelivery>, ErrorHandler?)` is the one
+    delivery path of every request. When no streaming handler is set, the observer logs
+    the error.
+  - Behaviour change found on the way: `Client.onBehalfOf()` sets the client-level
+    streaming handler on each `ClientRequest`. `subscribeTo()`/`subscribeToEvent()` streams
+    now use it (before, only `CommandRequest` did). `SubscriptionCancellationErrorCaseSpec`
+    used `addAll()` as a test hook. It now makes a real subscription and drops it on the server
+    through a raw stub. Its stub service accepts `subscribe`/`activate`, and its requests set
+    their own streaming handler.
