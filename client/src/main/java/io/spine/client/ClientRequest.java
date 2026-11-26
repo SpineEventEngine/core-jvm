@@ -79,6 +79,16 @@ public class ClientRequest extends ClientRequestBase {
     }
 
     /**
+     * Creates a builder of one subscription to several targets: events and entity states,
+     * of one or more types.
+     *
+     * @see TopicRequest
+     */
+    public TopicRequest subscribe() {
+        return new TopicRequest(this);
+    }
+
+    /**
      * Runs the {@link EntityQuery} and returns the matched entity states.
      *
      * <p>Usage example:
