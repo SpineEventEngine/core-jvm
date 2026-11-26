@@ -1,27 +1,15 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.stand;
@@ -31,8 +19,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionId;
-import io.spine.client.Subscriptions;
-import io.spine.client.Topic;
 import io.spine.type.TypeUrl;
 import org.jspecify.annotations.Nullable;
 
@@ -43,6 +29,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Multimaps.synchronizedSetMultimap;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -72,21 +59,16 @@ final class TenantSubscriptionRegistry implements SubscriptionRegistry {
     }
 
     @Override
-    public Subscription add(Topic topic) {
-        var subscription = Subscriptions.from(topic);
-        add(subscription);
-        return subscription;
-    }
-
-    @Override
-    public void add(Subscription subscription) {
-        var record = SubscriptionRecord.of(subscription);
+    public void add(Subscription subscription, Set<Integer> targets) {
+        var record = SubscriptionRecord.of(subscription, targets);
         lockAndRun(() -> {
-            var types = record.targetTypes();
-            for (var type : types) {
+            checkArgument(findById(subscription.getId()) == null,
+                          "The subscription with ID `%s` is already in the registry.",
+                          subscription.getId().getValue());
+            for (var type : record.eventTypes()) {
                 typeToRecord.put(type, record);
-                subscriptionToAttrs.put(subscription, record);
             }
+            subscriptionToAttrs.put(subscription, record);
         });
     }
 
@@ -99,8 +81,7 @@ final class TenantSubscriptionRegistry implements SubscriptionRegistry {
             }
 
             var record = subscriptionToAttrs.get(toRemove);
-            var types = record.targetTypes();
-            for (var type : types) {
+            for (var type : record.eventTypes()) {
                 typeToRecord.remove(type, record);
             }
             subscriptionToAttrs.remove(toRemove);

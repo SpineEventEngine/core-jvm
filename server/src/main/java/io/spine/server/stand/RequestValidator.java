@@ -83,7 +83,7 @@ abstract class RequestValidator<M extends Message> {
     /**
      * Throws {@link InvalidRequestException} if the given list of violations is not empty.
      */
-    private static void checkViolations(Message request, List<ConstraintViolation> violations) {
+    static void checkViolations(Message request, List<ConstraintViolation> violations) {
         if (violations.isEmpty()) {
             return;
         }

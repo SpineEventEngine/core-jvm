@@ -448,7 +448,10 @@ internal class TenantOfRequestSpec {
      */
     private fun withUnknownTarget(topic: Topic): @NonValidated Topic =
         topic.toBuilder()
-            .setTarget(topic.target.toBuilder().setType("type.spine.io/spine.test.NoSuchType"))
+            .setTarget(
+                0,
+                topic.getTarget(0).toBuilder().setType("type.spine.io/spine.test.NoSuchType")
+            )
             .buildPartial()
 
     private fun post(command: Command): Ack {

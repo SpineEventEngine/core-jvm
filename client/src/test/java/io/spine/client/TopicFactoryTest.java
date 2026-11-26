@@ -69,7 +69,7 @@ class TopicFactoryTest {
 
             verifyTargetAndContext(topic);
 
-            assertEquals(0, topic.getTarget()
+            assertEquals(0, topic.getTarget(0)
                                  .getFilters()
                                  .getIdFilter()
                                  .getIdCount());
@@ -85,7 +85,7 @@ class TopicFactoryTest {
 
             verifyTargetAndContext(topic);
 
-            var actualIds = topic.getTarget()
+            var actualIds = topic.getTarget(0)
                                  .getFilters()
                                  .getIdFilter()
                                  .getIdList();
@@ -109,7 +109,7 @@ class TopicFactoryTest {
             assertNotNull(topic);
             assertNotNull(topic.getId());
 
-            assertEquals(TARGET_ENTITY_TYPE_URL.value(), topic.getTarget()
+            assertEquals(TARGET_ENTITY_TYPE_URL.value(), topic.getTarget(0)
                                                               .getType());
 
             var actualContext = topic.getContext();

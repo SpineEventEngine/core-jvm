@@ -14,7 +14,9 @@
 
 package io.spine.server;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Streams;
 import com.google.protobuf.Message;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
@@ -53,6 +55,7 @@ import static io.spine.system.server.WriteSideFunction.delegatingTo;
 import static io.spine.type.MessageExtsKt.isInternal;
 import static io.spine.type.ProtoTexts.shortDebugString;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 
 /**
  * An abstract base for classes implementing server-side services.
@@ -60,7 +63,8 @@ import static java.lang.String.format;
  * <p>This class implements a {@linkplain #serve(Object, StreamObserver, Object) common way}
  * in which services work. Initially, each request is checked not to be for an unpublished part
  * of the domain language. Then, a service attempts to find a bounded context of the application
- * that would handle the request. If found, the tenant of the request is checked, and the request
+ * that would handle the request. If one bounded context serves all the types of the messages
+ * enclosed into the request, the tenant of the request is checked, and the request
  * is {@linkplain #serve(BoundedContext, Object, StreamObserver, Object) dispatched} to
  * the bounded context. Otherwise, the service
  * {@linkplain #serveNoContext(Object, StreamObserver, Object) handles} the request on its own.
@@ -126,11 +130,16 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
      * Handles the posted request.
      */
     final void serve(T request, StreamObserver<R> observer, @Nullable Object params) {
-        TypeUrl type;
-        boolean internal;
+        ImmutableList<TypeUrl> types;
+        TypeUrl internal = null;
         try {
-            type = enclosedMessageType(request);
-            internal = isInternal(type.getMessageClass());
+            types = enclosedMessageTypes(request);
+            for (var type : types) {
+                if (isInternal(type.getMessageClass())) {
+                    internal = type;
+                    break;
+                }
+            }
         } catch (UnknownTypeException e) {
             refuse(request, UNSUPPORTED_REQUEST, observer,
                    format("%s The ID of the request: `%s`.",
@@ -141,11 +150,11 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
                    format("The type of the request cannot be read: %s", e.getMessage()));
             return;
         }
-        if (internal) {
-            refuseUnsupported(request, observer, format("The type `%s` is internal.", type));
+        if (internal != null) {
+            refuseUnsupported(request, observer, format("The type `%s` is internal.", internal));
             return;
         }
-        var context = find(type);
+        var context = soleContextOf(types);
         if (context.isPresent()) {
             serveIn(context.get(), request, observer, params);
         } else {
@@ -154,13 +163,13 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     }
 
     /**
-     * Obtains the type of the message enclosed into the request.
+     * Obtains the types of the messages enclosed into the request.
      *
-     * <p>For a command, for example, it would be a type of the command message.
-     * The returned type would be used for finding a bounded context to which the enclosed
-     * message belongs.
+     * <p>For a command, for example, it would be the type of the command message.
+     * The returned types would be used for finding a bounded context to which the enclosed
+     * messages belong.
      */
-    protected abstract TypeUrl enclosedMessageType(T request);
+    protected abstract ImmutableList<TypeUrl> enclosedMessageTypes(T request);
 
     /**
      * Obtains the tenant of the request.
@@ -249,7 +258,11 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
                                   @Nullable Object params);
 
     /**
-     * Handles the case when no bounded context was found for the incoming request.
+     * Handles the case when no single bounded context serves all the types of the messages
+     * enclosed into the request.
+     *
+     * <p>This is the case when no bounded context serves a type, or the types are served by
+     * different bounded contexts.
      *
      * <p>Implementations may {@linkplain #refuseNotServed refuse} the request, and should
      * {@linkplain #admittedToAll check} the tenant of a request that they serve.
@@ -297,9 +310,30 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
      * the request to the log of the application.
      */
     protected final void refuseNotServed(T request, StreamObserver<R> observer) {
-        var type = enclosedMessageType(request);
+        var types = enclosedMessageTypes(request);
+        if (types.size() == 1) {
+            refuseNotServed(request, types.get(0), observer);
+            return;
+        }
+        refuseUnsupported(request, observer,
+                          format("No bounded context serves the types %s.", listOf(types)));
+    }
+
+    /**
+     * Refuses the request with the message of the given type, which no bounded context serves.
+     *
+     * <p>Answers with {@link ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST}, and writes
+     * the request to the log of the application.
+     */
+    protected final void refuseNotServed(T request, TypeUrl type, StreamObserver<R> observer) {
         refuseUnsupported(request, observer,
                           format("No bounded context serves the type `%s`.", type));
+    }
+
+    private static String listOf(Iterable<TypeUrl> types) {
+        return Streams.stream(types)
+                      .map(type -> "`" + type + '`')
+                      .collect(joining(", "));
     }
 
     private void serveIn(BoundedContext context,
@@ -312,13 +346,27 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
         try {
             serve(context, request, observer, params);
         } catch (RuntimeException e) {
-            logger().atError().withCause(e).log(() -> format(
-                    "`%s` failed to serve a request in the bounded context `%s`.",
-                    serviceName(), context.name().getValue()));
-            var event = failureEvent(request, Errors.fromThrowable(e));
-            record(context, request, event);
-            respondWithError(request, INTERNAL_ERROR, observer);
+            fail(context, request, e, observer);
         }
+    }
+
+    /**
+     * Answers the request that the given bounded context failed to serve with
+     * {@link ErrorCase#INTERNAL_ERROR INTERNAL_ERROR}.
+     *
+     * <p>Records the {@linkplain #failureEvent unexpected failure} in the System context of
+     * the bounded context.
+     */
+    protected final void fail(BoundedContext context,
+                              T request,
+                              RuntimeException error,
+                              StreamObserver<R> observer) {
+        logger().atError().withCause(error).log(() -> format(
+                "`%s` failed to serve a request in the bounded context `%s`.",
+                serviceName(), context.name().getValue()));
+        var event = failureEvent(request, Errors.fromThrowable(error));
+        record(context, request, event);
+        respondWithError(request, INTERNAL_ERROR, observer);
     }
 
     private void serveWithoutContext(T request,
@@ -344,7 +392,9 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
      *
      * @return {@code true} if the request may be served
      */
-    private boolean admitted(BoundedContext context, T request, StreamObserver<R> observer) {
+    protected final boolean admitted(BoundedContext context,
+                                     T request,
+                                     StreamObserver<R> observer) {
         var tenant = tenantOf(request);
         var specified = isNotDefault(tenant);
         if (context.isMultiTenant() != specified) {
@@ -500,8 +550,26 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     /**
      * Finds a bounded context to which the given type belongs.
      */
-    private Optional<BoundedContext> find(TypeUrl type) {
+    protected final Optional<BoundedContext> find(TypeUrl type) {
         return types.find(type);
+    }
+
+    /**
+     * Finds the bounded context that serves all the given types.
+     *
+     * @return the context, or {@code Optional.empty()} if there are no types, a type is not
+     *         served, or the types are served by different contexts
+     */
+    private Optional<BoundedContext> soleContextOf(ImmutableList<TypeUrl> types) {
+        BoundedContext result = null;
+        for (var type : types) {
+            var context = find(type);
+            if (context.isEmpty() || (result != null && !result.equals(context.get()))) {
+                return Optional.empty();
+            }
+            result = context.get();
+        }
+        return Optional.ofNullable(result);
     }
 
     /**

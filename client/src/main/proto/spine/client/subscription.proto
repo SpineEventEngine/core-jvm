@@ -45,15 +45,20 @@ message TopicId {
 
 // An object defining a unit of subscription.
 //
-// Defines the target (type and criteria) of subscription.
+// Defines the targets (types and criteria) of a subscription. A topic groups the targets
+// that the client thinks of as one thing, such as the events and the entity states that
+// result from handling a command.
 //
 message Topic {
 
     TopicId id = 1 [(required) = true];
 
-    // Defines the target of interest, e.g. event/entity type URL and a set of subscription
-    // criteria.
-    Target target = 2 [(required) = true, (validate) = true];
+    // The targets of interest, e.g. event or entity type URLs with subscription criteria.
+    //
+    // Each target is matched on its own. One type may appear in several targets,
+    // e.g. with different criteria.
+    //
+    repeated Target target = 2 [(required) = true, (validate) = true];
 
     // Deprecated: field masks are no longer supported.
     //
@@ -77,8 +82,15 @@ message SubscriptionUpdate {
     // i.e. whether the Topic subscription has been acked or not.
     core.Response response = 2 [(required) = true];
 
+    // The index of the topic target that this update matches.
+    //
+    // The index points into the `target` list of the topic of the subscription.
+    // A message that matches several targets comes in a separate update for each of them.
+    //
+    int32 target_index = 3;
+
     // Reserved for more subscription update attributes.
-    reserved 3 to 9;
+    reserved 4 to 9;
 
     // Deleted field `updates`.
     //

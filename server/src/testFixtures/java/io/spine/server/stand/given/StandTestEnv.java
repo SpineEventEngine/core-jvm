@@ -33,11 +33,11 @@ import io.spine.client.Query;
 import io.spine.client.QueryResponse;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
+import io.spine.client.Subscriptions;
 import io.spine.client.Topic;
 import io.spine.core.Event;
 import io.spine.core.Responses;
 import io.spine.core.TenantId;
-import io.spine.grpc.MemoizingObserver;
 import io.spine.people.PersonName;
 import io.spine.protobuf.AnyPacker;
 import io.spine.server.BoundedContext;
@@ -71,7 +71,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.base.Identifier.newUuid;
-import static io.spine.grpc.StreamObservers.memoizingObserver;
 import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.protobuf.AnyPacker.unpack;
 import static io.spine.server.entity.given.Given.projectionOfClass;
@@ -169,13 +168,21 @@ public final class StandTestEnv {
     @CanIgnoreReturnValue
     public static Subscription subscribeAndActivate(Stand stand, Topic topic,
                                                     SubscriptionCallback callback) {
-        MemoizingObserver<Subscription> observer = memoizingObserver();
-        stand.subscribe(topic, observer);
-        var subscription = observer.firstResponse();
+        var subscription = Subscriptions.from(topic);
+        stand.subscribe(subscription, allTargetsOf(topic));
         stand.activate(subscription, callback, noOpObserver());
 
         assertNotNull(subscription);
         return subscription;
+    }
+
+    /**
+     * Obtains the indexes of all the targets of the given topic.
+     */
+    public static ImmutableSet<Integer> allTargetsOf(Topic topic) {
+        return IntStream.range(0, topic.getTargetCount())
+                        .boxed()
+                        .collect(ImmutableSet.toImmutableSet());
     }
 
     public static void verifyObserver(MemoizeQueryResponseObserver observer) {

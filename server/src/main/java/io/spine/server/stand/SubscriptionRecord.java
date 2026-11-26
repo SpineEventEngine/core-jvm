@@ -1,34 +1,24 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.stand;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimaps;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
@@ -37,67 +27,98 @@ import io.spine.system.server.event.EntityStateChanged;
 import io.spine.type.TypeUrl;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.IntStream;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 /**
  * A {@link SubscriptionRegistry} entry that manages a single subscription.
+ *
+ * <p>The record holds the update handlers of the targets of the subscription topic that
+ * it serves. Each target has its own handlers, so a message that matches several targets
+ * produces an update for each of them.
  */
 final class SubscriptionRecord {
 
     private final Subscription subscription;
-    private final ImmutableMap<TypeUrl, UpdateHandler> handlers;
+    private final ImmutableListMultimap<TypeUrl, UpdateHandler> handlers;
 
-    private SubscriptionRecord(Subscription s, ImmutableSet<UpdateHandler> handlers) {
+    private SubscriptionRecord(Subscription s, ImmutableList<UpdateHandler> handlers) {
         this.subscription = s;
-        this.handlers = handlers.stream()
-                .collect(toImmutableMap(UpdateHandler::eventType, h -> h));
-    }
-
-    private SubscriptionRecord(Subscription s, UpdateHandler handler) {
-        this(s, ImmutableSet.of(handler));
+        this.handlers = Multimaps.index(handlers, UpdateHandler::eventType);
     }
 
     /**
-     * Creates a subscription record for the given subscription.
+     * Creates a subscription record for the given targets of the subscription topic.
      *
-     * <p>Distinguishes event and entity subscriptions via the target type URL.
+     * <p>Distinguishes event and entity targets via the target type URL.
      *
-     * <p>By default, assumes that all subscriptions with a non-event type are entity
-     * subscriptions.
+     * <p>By default, assumes that all targets with a non-event type are entity targets.
+     *
+     * @param subscription
+     *         the subscription to serve
+     * @param targets
+     *         the indexes of the topic targets to serve
+     * @throws IllegalArgumentException
+     *         if there are no targets, or an index is out of the range of the topic targets
      */
-    static SubscriptionRecord of(Subscription subscription) {
-        if (subscription.ofEvent()) {
-            return createEventRecord(subscription);
+    static SubscriptionRecord of(Subscription subscription, Set<Integer> targets) {
+        checkArgument(!targets.isEmpty(),
+                      "A subscription record must serve at least one target.");
+        var count = subscription.getTopic()
+                                .getTargetCount();
+        var handlers = ImmutableList.<UpdateHandler>builder();
+        for (int index : targets) {
+            checkArgument(index >= 0 && index < count,
+                          "The topic has no target with the index %s.", index);
+            var target = subscription.getTopic()
+                                     .getTarget(index);
+            if (target.ofEvent()) {
+                handlers.add(new EventUpdateHandler(subscription, index));
+            } else {
+                handlers.addAll(entityHandlers(subscription, index));
+            }
         }
-        return createEntityRecord(subscription);
+        return new SubscriptionRecord(subscription, handlers.build());
     }
 
     /**
-     * Creates a record managing an event subscription.
+     * Creates a subscription record for all the targets of the subscription topic.
      */
-    private static SubscriptionRecord createEventRecord(Subscription subscription) {
-        var handler = new EventUpdateHandler(subscription);
-        return new SubscriptionRecord(subscription, handler);
+    @VisibleForTesting
+    static SubscriptionRecord of(Subscription subscription) {
+        return of(subscription, allTargetsOf(subscription));
     }
 
     /**
-     * Creates a record managing a subscription on entity changes.
+     * Obtains the indexes of all the targets of the topic of the given subscription.
+     */
+    static ImmutableSet<Integer> allTargetsOf(Subscription subscription) {
+        var count = subscription.getTopic()
+                                .getTargetCount();
+        return IntStream.range(0, count)
+                        .boxed()
+                        .collect(toImmutableSet());
+    }
+
+    /**
+     * Creates the handlers of an entity target.
      *
-     * <p>In fact, this is a subscription to {@link EntityStateChanged},
-     * {@link EntityDeleted}, and {@link EntityArchived} events with a custom callback
-     * and matcher (to validate the entity state packed inside the event).
+     * <p>In fact, an entity target is served by handling {@link EntityStateChanged},
+     * {@link io.spine.system.server.event.EntityDeleted EntityDeleted},
+     * {@link io.spine.system.server.event.EntityArchived EntityArchived}, and other entity
+     * lifecycle events with a matcher that validates the entity state packed inside the event.
      */
-    private static SubscriptionRecord createEntityRecord(Subscription subscription) {
-        ImmutableSet<UpdateHandler> handlers =
-                ImmutableSet.of(new EntityChangeHandler(subscription),
-                                new EntityDeletionHandler(subscription),
-                                new EntityRestorationHandler(subscription),
-                                new EntityArchivalHandler(subscription),
-                                new EntityUnarchivalHandler(subscription));
-        return new SubscriptionRecord(subscription, handlers);
+    private static ImmutableList<UpdateHandler> entityHandlers(Subscription subscription,
+                                                               int target) {
+        return ImmutableList.of(new EntityChangeHandler(subscription, target),
+                                new EntityDeletionHandler(subscription, target),
+                                new EntityRestorationHandler(subscription, target),
+                                new EntityArchivalHandler(subscription, target),
+                                new EntityUnarchivalHandler(subscription, target));
     }
 
     /**
@@ -117,25 +138,25 @@ final class SubscriptionRecord {
     /**
      * Updates the subscription with the given event.
      *
-     * <p>Assumes the event is matching the subscription by both filters and type, and that the
-     * subscription is active.
+     * <p>Passes the event to the handlers of every served target that handles events of its
+     * type. Assumes that the subscription is active.
      *
      * @throws IllegalStateException
      *         if the subscription is not activated
      * @see #activate(SubscriptionCallback)
      */
     void update(EventEnvelope event) {
-        var handler = handlerForEvent(event);
-        handler.handle(event);
+        for (var handler : handlersFor(event)) {
+            handler.handle(event);
+        }
     }
 
-    private UpdateHandler handlerForEvent(EventEnvelope event) {
+    private ImmutableList<UpdateHandler> handlersFor(EventEnvelope event) {
         var eventType = event.typeUrl();
-        var handler = handlers.get(eventType);
-        requireNonNull(handler,
-                       () -> format("Cannot find `UpdateHandler` for the event of type `%s`.",
-                                    eventType));
-        return handler;
+        var result = handlers.get(eventType);
+        checkArgument(!result.isEmpty(),
+                      "Cannot find `UpdateHandler` for the event of type `%s`.", eventType);
+        return result;
     }
 
     private Iterable<UpdateHandler> handlers() {
@@ -155,14 +176,22 @@ final class SubscriptionRecord {
     /**
      * A test-only method that exposes {@link UpdateHandler#detectUpdate(EventEnvelope)
      * UpdateHandler.detectUpdate(EventEnvelope)} to tests.
+     *
+     * @return the updates that the handlers of the served targets detect in the event,
+     *         in the order of the targets
      */
     @VisibleForTesting
-    Optional<SubscriptionUpdate> detectUpdate(EventEnvelope event) {
-        var handler = handlerForEvent(event);
-        return handler.detectUpdate(event);
+    ImmutableList<SubscriptionUpdate> detectUpdates(EventEnvelope event) {
+        return handlersFor(event).stream()
+                .map(handler -> handler.detectUpdate(event))
+                .flatMap(Optional::stream)
+                .collect(toImmutableList());
     }
 
-    ImmutableSet<TypeUrl> targetTypes() {
+    /**
+     * Obtains the types of the events that the handlers of this record handle.
+     */
+    ImmutableSet<TypeUrl> eventTypes() {
         return handlers.keySet();
     }
 

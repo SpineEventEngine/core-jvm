@@ -1,34 +1,21 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.stand;
 
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionId;
-import io.spine.client.Topic;
 import io.spine.type.TypeUrl;
 
 import java.util.Set;
@@ -37,8 +24,6 @@ import java.util.Set;
  * Registry for subscription management.
  *
  * <p>Provides a quick access to the subscription records by {@link TypeUrl}.
- *
- * <p>Responsible for {@link Subscription} object instantiation.
  */
 interface SubscriptionRegistry {
 
@@ -55,24 +40,21 @@ interface SubscriptionRegistry {
     void activate(Subscription subscription, SubscriptionCallback callback);
 
     /**
-     * Creates a subscription for the passed {@link Topic} and adds it to the registry.
-     *
-     * @param topic
-     *         the topic to subscribe to
-     * @return the created subscription
-     */
-    Subscription add(Topic topic);
-
-    /**
-     * Registers an existing subscription.
+     * Registers an existing subscription for the given targets of its topic.
      *
      * <p>Some subscriptions may be present in many registries at the same time since Bounded
-     * Contexts may share subscriptions.
+     * Contexts may share subscriptions. Each registry serves the targets that its Bounded
+     * Context serves.
      *
      * @param subscription
      *         the existing subscription
+     * @param targets
+     *         the indexes of the topic targets to serve
+     * @throws IllegalArgumentException
+     *         if the registry already has a subscription with the same ID, or
+     *         the targets are empty or out of the range of the topic targets
      */
-    void add(Subscription subscription);
+    void add(Subscription subscription, Set<Integer> targets);
 
     /**
      * Removes the subscription from this registry.

@@ -14,6 +14,7 @@
 
 package io.spine.server;
 
+import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Message;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
@@ -99,9 +100,10 @@ public final class QueryService
         }
 
         @Override
-        protected TypeUrl enclosedMessageType(Query request) {
-            return request.getTarget()
-                          .type();
+        protected ImmutableList<TypeUrl> enclosedMessageTypes(Query request) {
+            var type = request.getTarget()
+                              .type();
+            return ImmutableList.of(type);
         }
 
         @Override

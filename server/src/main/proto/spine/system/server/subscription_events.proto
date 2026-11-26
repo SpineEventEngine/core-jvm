@@ -51,13 +51,13 @@ message TopicValidationFailed {
 }
 
 // An event emitted when the `SubscriptionService` does not subscribe to a topic because
-// the Bounded Context does not expose the target type of the topic for subscription.
+// the Bounded Context does not expose a target type of the topic for subscription.
 message UnsupportedTopicReceived {
 
     // The ID of the topic.
     client.TopicId id = 1 [(required) = true];
 
-    // The type URL of the topic target.
+    // The type URL of the topic target that the Bounded Context does not expose.
     string type_url = 2 [(required) = true];
 
     // The actor context of the topic.
