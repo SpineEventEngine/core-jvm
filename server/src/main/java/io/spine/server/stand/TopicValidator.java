@@ -47,7 +47,9 @@ final class TopicValidator extends AbstractTargetValidator<Topic> {
      * Checks whether the topic is valid, and the {@code Stand} allows subscribing to
      * the targets of the topic with the given indexes.
      *
-     * <p>The targets with other indexes are not checked.
+     * <p>The constraints of the topic are checked for the whole topic, all its targets
+     * included. Whether the {@code Stand} allows subscribing is checked only for the targets
+     * with the given indexes.
      *
      * @param topic
      *         the topic to validate

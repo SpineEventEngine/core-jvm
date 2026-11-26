@@ -65,6 +65,16 @@ internal class SubscriptionRecordMultiTargetSpec {
     }
 
     @Test
+    fun `report the updates in the order of the targets, whatever order the indexes come in`() {
+        val record = SubscriptionRecord.of(subscription, linkedSetOf(1, 0))
+        val matching = projectWithName(MATCHING)
+
+        val updates = record.detectUpdates(stateChangedEnvelope(id, matching, matching))
+
+        updates.map { it.targetIndex } shouldContainExactly listOf(0, 1)
+    }
+
+    @Test
     fun `report that a state no longer matches one target only for that target`() {
         val record = SubscriptionRecord.of(subscription)
         val before = projectWithName(MATCHING)

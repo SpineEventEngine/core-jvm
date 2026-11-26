@@ -18,6 +18,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Multimaps;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.client.Subscription;
@@ -58,6 +59,9 @@ final class SubscriptionRecord {
      *
      * <p>By default, assumes that all targets with a non-event type are entity targets.
      *
+     * <p>The handlers follow the order of the targets in the topic, whatever order
+     * the indexes come in.
+     *
      * @param subscription
      *         the subscription to serve
      * @param targets
@@ -71,7 +75,7 @@ final class SubscriptionRecord {
         var count = subscription.getTopic()
                                 .getTargetCount();
         var handlers = ImmutableList.<UpdateHandler>builder();
-        for (int index : targets) {
+        for (int index : ImmutableSortedSet.copyOf(targets)) {
             checkArgument(index >= 0 && index < count,
                           "The topic has no target with the index %s.", index);
             var target = subscription.getTopic()
