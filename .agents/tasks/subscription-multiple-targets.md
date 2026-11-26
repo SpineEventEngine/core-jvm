@@ -288,3 +288,8 @@ All specs are in Kotlin with Kotest.
   find one by ID). Lookups, the duplicate check in `add()` (which ran inside the registry lock)
   and removal no longer depend on the number of subscriptions. This matters for PR 2, where
   each `CommandRequest.post()` subscribes and cancels once.
+- 2026-11-26 — review of #1740 (Copilot): activation and cancellation now find the contexts
+  that have a subscription by its ID on the single-context path too, so a client that sends
+  the subscription back with a modified topic still reaches every holder. Activation streams
+  through `GuardedObserver`, which passes nothing after the stream terminates, so an update
+  that one context delivers while another fails cannot follow the error.

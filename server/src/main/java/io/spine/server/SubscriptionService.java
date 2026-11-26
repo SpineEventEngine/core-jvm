@@ -38,10 +38,8 @@ import io.spine.core.TenantId;
 import io.spine.grpc.StreamObservers;
 import io.spine.logging.WithLogging;
 import io.spine.server.app.RefusedRequest;
-import io.spine.server.stand.InvalidRequestException;
 import io.spine.server.stand.Stand;
 import io.spine.server.stand.SubscriptionCallback;
-import io.spine.server.stand.UnsupportedRequestException;
 import io.spine.server.transport.Statuses;
 import io.spine.system.server.event.SubscriptionServiceFailed;
 import io.spine.system.server.event.SubscriptionTenantNotExpected;
@@ -181,13 +179,15 @@ public final class SubscriptionService
     @Override
     public void activate(Subscription subscription, StreamObserver<SubscriptionUpdate> observer) {
         logger().atDebug().log(() -> format("Activating the subscription: `%s`.", subscription));
+        // Several contexts may deliver updates to the stream. The guard keeps an update that
+        // one of them delivers while another one fails from coming after the error.
         runThreadSafe(
                 (safeObserver) -> {
                     var callback = forwardingTo(safeObserver);
                     StreamObserver<Response> responseObserver = forwardErrorsOnly(safeObserver);
                     activation.serve(subscription, responseObserver, callback);
                 },
-                observer, "Error activating the subscription."
+                new GuardedObserver<>(observer), "Error activating the subscription."
         );
     }
 
@@ -463,24 +463,21 @@ public final class SubscriptionService
                     .build();
         }
 
+        /**
+         * Serves the request in the Bounded Contexts that have the subscription.
+         *
+         * <p>The given context serves the types of all the topic targets, and has admitted
+         * the tenant of the subscription. The topic in the request does not decide where
+         * the request is served, though: a client may send the subscription back with
+         * a modified topic. So, like {@link #serveNoContext(Subscription, StreamObserver, Object)
+         * serveNoContext()}, this method finds the contexts that have the subscription by its ID.
+         */
         @Override
         protected final void serve(BoundedContext context,
                                    Subscription subscription,
                                    StreamObserver<Response> observer,
                                    @Nullable Object params) {
-            try {
-                serveBy(context.stand(), subscription, observer, params);
-            } catch (InvalidRequestException e) {
-                var failed = SubscriptionValidationFailed.newBuilder()
-                        .setId(subscription.getId())
-                        .setValidationError(e.validationError())
-                        .setActorContext(actorOf(subscription))
-                        .build();
-                reject(context, subscription, failed, INVALID_REQUEST, observer);
-            } catch (UnsupportedRequestException e) {
-                var unknown = unknownSubscriptionEvent(subscription);
-                reject(context, subscription, unknown, UNSUPPORTED_REQUEST, observer);
-            }
+            serveHolders(subscription, ImmutableSortedSet.of(context), observer, params);
         }
 
         /**
@@ -533,6 +530,21 @@ public final class SubscriptionService
             if (anyUnserved && !admittedToAll(subscription, observer)) {
                 return;
             }
+            serveHolders(subscription, served, observer, params);
+        }
+
+        /**
+         * Serves the request in the Bounded Contexts that have the subscription, finding them
+         * by the ID of the subscription.
+         *
+         * @param served
+         *         the contexts that serve the types of the topic targets, which have admitted
+         *         the tenant of the subscription; they record the problems with the request
+         */
+        private void serveHolders(Subscription subscription,
+                                  SortedSet<BoundedContext> served,
+                                  StreamObserver<Response> observer,
+                                  @Nullable Object params) {
             if (!validated(subscription, served, observer)) {
                 return;
             }

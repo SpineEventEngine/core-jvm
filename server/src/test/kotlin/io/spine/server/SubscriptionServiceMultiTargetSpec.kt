@@ -169,6 +169,35 @@ internal class SubscriptionServiceMultiTargetSpec {
                 .id shouldBe subscription.id
             projectsMonitor.events.shouldBeEmpty()
         }
+
+        @Test
+        fun `activate the subscription in all the contexts, whatever targets its topic names`() {
+            val updates = activate(withTopicOfProjects(subscription))
+
+            post(customers, createCustomer())
+
+            updates.error.shouldBeNull()
+            updates.forTarget(1).shouldBeSingleton()
+        }
+
+        @Test
+        fun `cancel the subscription in all the contexts, whatever targets its topic names`() {
+            val cancellation = cancel(withTopicOfProjects(subscription))
+
+            cancellation.error.shouldBeNull()
+            cancellation.responses().shouldBeSingleton { it.status.hasOk() shouldBe true }
+            projects.stand().hasSubscription(subscription) shouldBe false
+            customers.stand().hasSubscription(subscription) shouldBe false
+        }
+
+        /**
+         * Copies the subscription as a client may send it back: with the same ID, and a topic
+         * that names only the target which the context of projects serves.
+         */
+        private fun withTopicOfProjects(s: Subscription): Subscription =
+            s.toBuilder()
+                .setTopic(s.topic.toBuilder().clearTarget().addTarget(allOf(PROJECT_CREATED)))
+                .build()
     }
 
     @Test
