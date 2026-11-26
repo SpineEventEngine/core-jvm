@@ -14,11 +14,17 @@
 
 package io.spine.client
 
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.spine.client.CompositeEntityStateFilter.either
 import io.spine.client.CompositeFilter.CompositeOperator.EITHER
 import io.spine.client.EntityStateFilter.eq
 import io.spine.test.client.TestEntity
+import io.spine.test.client.TestEntityId
+import io.spine.test.client.testEntityId
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit.SECONDS
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -44,5 +50,43 @@ internal class SubscriptionRequestSpec {
 
         val target = subscription.topic.getTarget(0)
         target.filters.filterList.single().operator shouldBe EITHER
+    }
+
+    @Test
+    fun `keep every consumer of no longer matching entities`() {
+        val id = testEntityId { value = 1 }
+        val reported = CountDownLatch(2)
+        val stoppedMatching = CopyOnWriteArrayList<TestEntityId>()
+        val otherStoppedMatching = CopyOnWriteArrayList<TestEntityId>()
+
+        StubSubscriptionServer { updates ->
+            updates.onNext(entityUpdatesOf(noLongerMatching(id)))
+        }.use { stub ->
+            stub.client.asGuest()
+                .subscribeTo(TestEntity::class.java)
+                .observe { }
+                .whenNoLongerMatching(TestEntityId::class.java) {
+                    stoppedMatching += it
+                    reported.countDown()
+                }
+                .whenNoLongerMatching(TestEntityId::class.java) {
+                    otherStoppedMatching += it
+                    reported.countDown()
+                }
+                .onStreamingError { }
+                .post()
+
+            reported.await(TIMEOUT, SECONDS) shouldBe true
+        }
+        stoppedMatching shouldContainExactly listOf(id)
+        otherStoppedMatching shouldContainExactly listOf(id)
+    }
+
+    private companion object {
+
+        /**
+         * The number of seconds to wait for the updates of the subscription.
+         */
+        const val TIMEOUT = 5L
     }
 }

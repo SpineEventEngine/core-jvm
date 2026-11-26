@@ -21,7 +21,6 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.string.shouldContain
 import io.spine.core.Event
 import io.spine.core.eventId
-import io.spine.protobuf.pack
 import io.spine.test.client.TestEntity
 import io.spine.test.client.TestEntityId
 import io.spine.test.client.testEntityId
@@ -118,7 +117,7 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
         val secondId = testEntityId { value = 2 }
 
         RoutingObserver(listOf(states), streamingErrors = null)
-            .onNext(noLongerMatching(firstId, secondId))
+            .onNext(entityUpdatesOf(noLongerMatching(firstId), noLongerMatching(secondId)))
 
         reported shouldContainExactly listOf(firstId, secondId)
     }
@@ -147,24 +146,6 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
         SubscriptionUpdate.newBuilder()
             .setTargetIndex(targetIndex)
             .setEventUpdates(eventUpdates(event))
-            .buildPartial()
-
-    private fun noLongerMatching(vararg ids: TestEntityId): @NonValidated SubscriptionUpdate =
-        SubscriptionUpdate.newBuilder()
-            .setEntityUpdates(entityUpdates(ids.map(::noLongerMatchingUpdate)))
-            .buildPartial()
-
-    private fun noLongerMatchingUpdate(entity: TestEntityId): EntityStateUpdate {
-        val packedId = entityId { id = entity.pack() }.pack()
-        return entityStateUpdate {
-            id = packedId
-            noLongerMatching = true
-        }
-    }
-
-    private fun entityUpdates(updates: List<EntityStateUpdate>): @NonValidated EntityUpdates =
-        EntityUpdates.newBuilder()
-            .addAllUpdate(updates)
             .buildPartial()
 
     private fun eventUpdates(event: Event): @NonValidated EventUpdates =

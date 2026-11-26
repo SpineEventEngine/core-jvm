@@ -25,6 +25,7 @@ import io.spine.client.EntityStateFilter.eq
 import io.spine.core.userId
 import io.spine.test.client.TestEntity
 import io.spine.test.client.TestEntityId
+import io.spine.test.client.testEntity
 import io.spine.test.client.testEntityId
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -55,6 +56,32 @@ internal class StateTargetSpec {
         )
 
         built(target).filters.filterList.single().operator shouldBe EITHER
+    }
+
+    @Test
+    fun `keep every consumer added to the target`() {
+        val states = mutableListOf<TestEntity>()
+        val otherStates = mutableListOf<TestEntity>()
+        val stoppedMatching = mutableListOf<TestEntityId>()
+        val otherStoppedMatching = mutableListOf<TestEntityId>()
+        val observer = newTarget()
+            .observe { states += it }
+            .observe { otherStates += it }
+            .whenNoLongerMatching(TestEntityId::class.java) { stoppedMatching += it }
+            .whenNoLongerMatching(TestEntityId::class.java) { otherStoppedMatching += it }
+            .toObserver(consumingErrors = null)
+        val id = testEntityId { value = 1 }
+        val state = testEntity {
+            this.id = id
+            firstField = "a"
+        }
+
+        observer.onUpdate(entityUpdatesOf(stateChanged(id, state), noLongerMatching(id)))
+
+        states shouldContainExactly listOf(state)
+        otherStates shouldContainExactly listOf(state)
+        stoppedMatching shouldContainExactly listOf(id)
+        otherStoppedMatching shouldContainExactly listOf(id)
     }
 
     @Test
