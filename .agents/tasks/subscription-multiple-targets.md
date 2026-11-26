@@ -206,7 +206,6 @@ val board: Subscription = client.onBehalfOf(user)
 all keep the set from `post()`.
 
 **Out of scope, noted:**
-- An index by `SubscriptionId`: `findById` is O(n) and now runs once per holder.
 - The leak when a client disconnects without cancelling (an existing problem): issue #1739.
 - `TypeDictionary` keeping the last context for an event type produced by two contexts
   (#1728).
@@ -284,3 +283,8 @@ All specs are in Kotlin with Kotest.
     an unexpected error, which a test cannot trigger without injecting a failing `Stand`.
   - Migration guide `docs/migration/multiple-targets-per-topic.md` names `.790` (breaking bump
     from `.782`); the bump waits for commit authorization.
+- 2026-11-26 — PR #1740 opened. On the owner's request, `TenantSubscriptionRegistry` keys
+  the records by `SubscriptionId` (was the whole `Subscription`, with a scan of all of them to
+  find one by ID). Lookups, the duplicate check in `add()` (which ran inside the registry lock)
+  and removal no longer depend on the number of subscriptions. This matters for PR 2, where
+  each `CommandRequest.post()` subscribes and cancels once.
