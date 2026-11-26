@@ -22,8 +22,8 @@ import io.spine.base.Identifier
 import io.spine.client.CompositeEventFilter.either
 import io.spine.client.CompositeFilter.CompositeOperator.EITHER
 import io.spine.client.EventFilter.eq
-import io.spine.core.EventId
-import io.spine.core.UserId
+import io.spine.core.eventId
+import io.spine.core.userId
 import io.spine.test.client.ClProjectCreated
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -33,8 +33,8 @@ internal class EventTargetSpec {
 
     @Test
     fun `match the events with the given IDs`() {
-        val first = eventId("first")
-        val second = eventId("second")
+        val first = eventId { value = "first" }
+        val second = eventId { value = "second" }
 
         idsOf(newTarget().byId(first, second)) shouldContainExactly listOf(first, second)
         idsOf(newTarget().byId(listOf(second))) shouldContainExactly listOf(second)
@@ -75,15 +75,10 @@ internal class EventTargetSpec {
     private fun idsOf(target: EventTarget<ClProjectCreated>): List<Any> =
         built(target).filters.idFilter.idList.map { Identifier.unpack(it) }
 
-    private fun eventId(value: String): EventId =
-        EventId.newBuilder()
-            .setValue(value)
-            .build()
-
     private companion object {
 
         val topics: TopicFactory = actorRequestFactory(
-            UserId.newBuilder().setValue("event-target-spec").build()
+            userId { value = "event-target-spec" }
         ).topic()
     }
 }

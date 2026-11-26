@@ -21,7 +21,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.spine.test.client.ClProjectCreated
 import io.spine.test.client.TestEntity
-import io.spine.test.commands.CmdCreateProject
+import io.spine.test.commands.cmdCreateProject
 import io.spine.testing.logging.mute.MuteLogging
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit.SECONDS
@@ -54,9 +54,7 @@ internal class RequestStreamingErrorSpec {
 
     @Test
     fun `when observing the outcome of a command, cancelling it if the command is not sent`() {
-        val command = CmdCreateProject.newBuilder()
-            .setId("streaming-error-spec")
-            .build()
+        val command = cmdCreateProject { id = "streaming-error-spec" }
 
         val failure = shouldThrow<StatusRuntimeException> {
             server.client.asGuest()

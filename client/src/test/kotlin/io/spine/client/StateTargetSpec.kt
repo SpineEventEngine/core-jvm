@@ -22,9 +22,10 @@ import io.spine.base.Identifier
 import io.spine.client.CompositeEntityStateFilter.either
 import io.spine.client.CompositeFilter.CompositeOperator.EITHER
 import io.spine.client.EntityStateFilter.eq
-import io.spine.core.UserId
+import io.spine.core.userId
 import io.spine.test.client.TestEntity
 import io.spine.test.client.TestEntityId
+import io.spine.test.client.testEntityId
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
@@ -33,8 +34,8 @@ internal class StateTargetSpec {
 
     @Test
     fun `match the entities with the given IDs`() {
-        val first = entityId(1)
-        val second = entityId(2)
+        val first = testEntityId { value = 1 }
+        val second = testEntityId { value = 2 }
 
         idsOf(newTarget().byId(first, second)) shouldContainExactly listOf(first, second)
         idsOf(newTarget().byId(listOf(second))) shouldContainExactly listOf(second)
@@ -77,15 +78,10 @@ internal class StateTargetSpec {
     private fun idsOf(target: StateTarget<TestEntity>): List<Any> =
         built(target).filters.idFilter.idList.map { Identifier.unpack(it) }
 
-    private fun entityId(value: Int): TestEntityId =
-        TestEntityId.newBuilder()
-            .setValue(value)
-            .build()
-
     private companion object {
 
         val topics: TopicFactory = actorRequestFactory(
-            UserId.newBuilder().setValue("state-target-spec").build()
+            userId { value = "state-target-spec" }
         ).topic()
     }
 }

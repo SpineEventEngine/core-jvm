@@ -21,10 +21,11 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.string.shouldContain
 import io.spine.base.Identifier
 import io.spine.core.Event
-import io.spine.core.EventId
+import io.spine.core.eventId
 import io.spine.protobuf.AnyPacker
 import io.spine.test.client.TestEntity
 import io.spine.test.client.TestEntityId
+import io.spine.test.client.testEntityId
 import io.spine.testing.logging.LoggingTest
 import io.spine.testing.logging.mute.MuteLogging
 import io.spine.validation.NonValidated
@@ -114,8 +115,8 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
                 NoLongerMatchingConsumer(TestEntityId::class.java) { reported += it }
             )
         )
-        val firstId = testEntityId(1)
-        val secondId = testEntityId(2)
+        val firstId = testEntityId { value = 1 }
+        val secondId = testEntityId { value = 2 }
 
         RoutingObserver(listOf(states), streamingErrors = null)
             .onNext(noLongerMatching(firstId, secondId))
@@ -140,7 +141,7 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
 
     private fun event(id: String): @NonValidated Event =
         Event.newBuilder()
-            .setId(EventId.newBuilder().setValue(id))
+            .setId(eventId { value = id })
             .buildPartial()
 
     private fun eventUpdate(targetIndex: Int, event: Event): @NonValidated SubscriptionUpdate =
@@ -149,24 +150,17 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
             .setEventUpdates(eventUpdates(event))
             .buildPartial()
 
-    private fun testEntityId(value: Int): TestEntityId =
-        TestEntityId.newBuilder()
-            .setValue(value)
-            .build()
-
     private fun noLongerMatching(vararg ids: TestEntityId): @NonValidated SubscriptionUpdate =
         SubscriptionUpdate.newBuilder()
             .setEntityUpdates(entityUpdates(ids.map(::noLongerMatchingUpdate)))
             .buildPartial()
 
     private fun noLongerMatchingUpdate(entity: TestEntityId): EntityStateUpdate {
-        val entityId = EntityId.newBuilder()
-            .setId(Identifier.pack(entity))
-            .build()
-        return EntityStateUpdate.newBuilder()
-            .setId(AnyPacker.pack(entityId))
-            .setNoLongerMatching(true)
-            .build()
+        val packedId = AnyPacker.pack(entityId { id = Identifier.pack(entity) })
+        return entityStateUpdate {
+            id = packedId
+            noLongerMatching = true
+        }
     }
 
     private fun entityUpdates(updates: List<EntityStateUpdate>): @NonValidated EntityUpdates =
