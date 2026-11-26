@@ -18,6 +18,7 @@ import io.grpc.StatusRuntimeException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.spine.base.CommandMessage
 import io.spine.client.EventFilter.eq
@@ -33,6 +34,7 @@ import io.spine.test.client.tasks.CTaskId
 import io.spine.test.client.tasks.command.CreateCTask
 import io.spine.test.client.tasks.command.archiveCTask
 import io.spine.test.client.tasks.command.createCTask
+import io.spine.test.client.tasks.command.unarchiveCTask
 import io.spine.test.client.tasks.event.CTaskCreated
 import io.spine.test.client.users.command.logInUser
 import io.spine.test.client.users.event.UserLoggedIn
@@ -163,6 +165,51 @@ internal class TopicRequestSpec : AbstractClientTest() {
         post(createTask("Alpha", author))
         created.shouldBeEmpty()
         tasks.shouldBeEmpty()
+    }
+
+    @Test
+    fun `pass the errors of the consumers of all the targets to the consuming error handler`() {
+        val eventFailure = IllegalStateException("The consumer of events failed.")
+        val stateFailure = IllegalStateException("The consumer of states failed.")
+        val reported = mutableListOf<Throwable>()
+
+        client().asGuest().subscribe {
+            event<CTaskCreated> { it.observe { throw eventFailure } }
+            state<CTask> { it.observe { throw stateFailure } }
+            onConsumingError { _, error -> reported += error }
+        }
+        post(createTask("Alpha", author))
+
+        reported shouldContainExactlyInAnyOrder listOf(eventFailure, stateFailure)
+    }
+
+    @Test
+    fun `keep the subscription when a consumer of no longer matching entities fails`() {
+        val tasks = mutableListOf<CTask>()
+        val noLongerMatching = mutableListOf<CTaskId>()
+        val createTask = createTask("Alpha", author)
+        val id = createTask.id
+
+        client().asGuest().subscribe {
+            state<CTask> {
+                it.byId(id)
+                    .observe { task -> tasks += task }
+                    .whenNoLongerMatching(CTaskId::class.java) {
+                        error("The consumer of no longer matching entities failed.")
+                    }
+            }
+            state<CTask> {
+                it.byId(id)
+                    .observe { }
+                    .whenNoLongerMatching(CTaskId::class.java) { gone -> noLongerMatching += gone }
+            }
+        }
+        post(createTask)
+        post(archiveCTask { this.id = id })
+        post(unarchiveCTask { this.id = id })
+
+        noLongerMatching shouldContainExactly listOf(id)
+        tasks.map { it.id } shouldContainExactly listOf(id, id)
     }
 
     @Nested inner class

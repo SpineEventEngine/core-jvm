@@ -34,7 +34,7 @@ import java.util.function.Consumer
 
 /**
  * Allows posting a command, and observing its outcome: the events that originate from
- * the command, and the states of the entities that its handling changes.
+ * the command, and the states of the entities that the request names.
  *
  * In Kotlin:
  * ```kotlin
@@ -98,7 +98,7 @@ public class CommandRequest internal constructor(
      * comes to each consumer once.
      *
      * @param E The type of the event.
-     * @param type The type of the event message to be received by the consumer.
+     * @param type The class of the event messages to be received by the consumer.
      * @param consumer The consumer.
      * @return This request, for call chaining.
      * @throws io.spine.type.UnpublishedLanguageException If the event type is not a part of
@@ -117,7 +117,7 @@ public class CommandRequest internal constructor(
      * comes to each consumer once.
      *
      * @param E The type of the event.
-     * @param type The type of the event message to be received by the consumer.
+     * @param type The class of the event messages to be received by the consumer.
      * @param consumer The consumer of the event message and its context.
      * @return This request, for call chaining.
      * @throws io.spine.type.UnpublishedLanguageException If the event type is not a part of
@@ -143,7 +143,7 @@ public class CommandRequest internal constructor(
      * In Java, this method is called `observeState()`.
      *
      * @param S The type of the entity states.
-     * @param type The type of the entity states.
+     * @param type The class of the entity states.
      * @param configure Configures the target: the entities that match it, and the consumers
      *   of their states. The target must have at least one consumer of states.
      * @return This request, for call chaining.
@@ -163,7 +163,7 @@ public class CommandRequest internal constructor(
     }
 
     /**
-     * Assigns a handler for errors occurred when delivering the outcome of the command.
+     * Assigns a handler for errors that occur when delivering the outcome of the command.
      *
      * If such an error occurs, no more events or entity states will be delivered to
      * the consumers.
@@ -177,7 +177,7 @@ public class CommandRequest internal constructor(
     }
 
     /**
-     * Assigns a handler for errors occurred in the consumers of events and entity states.
+     * Assigns a handler for errors that occur in the consumers of events and entity states.
      *
      * After the passed handler is called, the remaining consumers will get the messages
      * as usual. If not specified, the default implementation simply logs the error.
@@ -211,13 +211,13 @@ public class CommandRequest internal constructor(
      * entity states. The returned subscription should be [cancelled][Subscriptions.cancel]
      * after the requesting code receives the expected outcome, or after a reasonable timeout.
      *
-     * The server may refuse the subscription, for example, because the tenant of the client
-     * is not registered. Then the method reports the error case to the
+     * If the server refuses the subscription, the method reports the error case to the
      * [server error handler][onServerError], does not post the command, and returns `null`.
      *
      * The server may also refuse the command, for example, because of a validation error.
      * Then the method cancels the subscription, reports the error case to the server error
-     * handler, and returns `null`.
+     * handler, and returns `null`. If the command cannot be sent at all, the method cancels
+     * the subscription, and rethrows the error.
      *
      * Subscriptions should be cancelled to free up client and server resources required for
      * their maintenance. The returned subscription cannot be cancelled automatically, because
@@ -275,7 +275,12 @@ public class CommandRequest internal constructor(
                         " before `post()`. Or, if you subscribe to events or entity states" +
                         " elsewhere, please use `postAndForget()`."
             }
-            val outcome = EventsAfterCommand(command, events.values, states, consumingErrors)
+            val outcome = EventsAfterCommand(
+                command = command,
+                events = events.values,
+                states = states,
+                consumingErrors = consumingErrors
+            )
             try {
                 subscription = outcome.subscribe(client(), streamingErrorHandler())
             } catch (e: StatusRuntimeException) {
@@ -283,7 +288,12 @@ public class CommandRequest internal constructor(
                 report(errorCase)
                 return null
             }
-            val ack = client().post(command)
+            val ack = try {
+                client().post(command)
+            } catch (e: StatusRuntimeException) {
+                cancelSubscription()
+                throw e
+            }
             return handle(ack.status)
         }
 
@@ -299,14 +309,25 @@ public class CommandRequest internal constructor(
         private fun handle(status: Status): Subscription? = when (status.statusCase) {
             OK -> subscription
             ERROR_CASE -> {
-                subscription?.let { client().subscriptions().cancel(it) }
+                cancelSubscription()
                 report(status.errorCase)
                 null
             }
-            STATUS_NOT_SET -> error(
-                "Cannot handle ack status `${status.statusCase}`" +
-                        " when posting the command `${command.shortDebugString()}`."
-            )
+            STATUS_NOT_SET -> {
+                cancelSubscription()
+                error(
+                    "Cannot handle ack status `${status.statusCase}`" +
+                            " when posting the command `${command.shortDebugString()}`."
+                )
+            }
+        }
+
+        /**
+         * Cancels the subscription to the outcome of the command, if it was made,
+         * because the command was not posted.
+         */
+        private fun cancelSubscription() {
+            subscription?.let { client().subscriptions().cancel(it) }
         }
 
         private fun report(errorCase: ErrorCase) {

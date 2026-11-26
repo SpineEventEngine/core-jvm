@@ -173,7 +173,8 @@ Subscription subscription = client.onBehalfOf(user)
 ```
 
 `post()` throws `StatusRuntimeException` if the server refuses the subscription, as
-`subscribeTo(…).post()` does. Each target needs at least one consumer of its messages.
+`subscribeTo(…).post()` does. Each target needs at least one consumer of its messages;
+otherwise, `post()` throws `IllegalStateException`.
 One call of `client.subscriptions().cancel(subscription)` stops the updates of all the targets.
 
 `subscribeTo()` and `subscribeToEvent()` keep making a subscription to one type.
@@ -227,8 +228,9 @@ if (subscription != null) {
 }
 ```
 
-Java calls the method for entity states `observeState()`: in Java, `observe(Class, Consumer)`
-cannot have two versions.
+Java calls the method for entity states `observeState()`, because the versions of
+`observe(Class, Consumer)` for events and for entity states would have the same signature
+after type erasure.
 
 An entity state does not refer to the command that changed it. A target of states without IDs
 or filters gets every change of the entities of its type, so name the IDs of the entities that
@@ -245,6 +247,9 @@ states, and `post()` throws it if the request observes nothing, as before.
 
 - `SubscriptionRequest.whenNoLongerMatching()` adds a consumer, as its documentation says.
   Before, a second call replaced the consumer of the first one.
+- A `whenNoLongerMatching()` consumer that throws no longer ends the subscription: the error
+  is logged, and the updates go on. A subscription now carries the updates of all its targets,
+  so one failing consumer would otherwise stop them all.
 - `CommandRequest.observe()` refuses an event type that is not a part of the published
   language with `UnpublishedLanguageException`, as `subscribeToEvent()` does. Before, the error
   came from the server.
@@ -258,7 +263,9 @@ states, and `post()` throws it if the request observes nothing, as before.
 Upgrade the servers before the clients. The binary format of a one-target topic has not
 changed, so a new server reads the topics of old clients. An old server, however, merges
 the targets of a topic with several of them into one target, without an error, and serves
-a subscription that matches neither.
+a subscription that matches neither. So clients of `2.0.0-SNAPSHOT.800` need servers of
+`2.0.0-SNAPSHOT.790` or later: `subscribe()` and `CommandRequest.post()` make topics with
+several targets.
 
 Convert the topics and subscriptions that you keep as JSON: their `target` field is now
 an array.

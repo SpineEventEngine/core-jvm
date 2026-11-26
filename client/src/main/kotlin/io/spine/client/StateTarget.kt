@@ -123,8 +123,11 @@ public class StateTarget<S : EntityState<*>> internal constructor(
      *
      * The entity may still match another target of the subscription.
      *
+     * If the consumer throws, the error is logged, and the updates of the subscription
+     * go on.
+     *
      * @param I The type of the entity IDs.
-     * @param idType The type of the entity IDs, which must be the ID type of the entities.
+     * @param idType The class of the entity IDs. It must be the ID type of the entities.
      * @param consumer The consumer of the IDs.
      */
     @CanIgnoreReturnValue
@@ -152,7 +155,11 @@ public class StateTarget<S : EntityState<*>> internal constructor(
         consumingErrors?.let { consumers.onConsumingError(it) }
         val target = builder.buildTarget()
         target.checkValid()
-        val observer = consumers.build().toObserver()
-        return StateDelivery(target, type, observer, noLongerMatching.toList())
+        return StateDelivery(
+            target = target,
+            type = type,
+            observer = consumers.build().toObserver(),
+            noLongerMatching = noLongerMatching.toList()
+        )
     }
 }

@@ -20,6 +20,7 @@ import io.spine.client.EntityStateUpdate.KindCase.KIND_NOT_SET
 import io.spine.client.EntityStateUpdate.KindCase.NO_LONGER_MATCHING
 import io.spine.client.EntityStateUpdate.KindCase.STATE
 import io.spine.core.Event
+import io.spine.logging.WithLogging
 import io.spine.protobuf.AnyPacker
 
 /**
@@ -73,7 +74,8 @@ internal class EventDelivery(
  * Delivers the entity states that match an entity target to its consumers.
  *
  * The IDs of the entities that no longer match the target go to
- * the [noLongerMatching] consumers.
+ * the [noLongerMatching] consumers. If such a consumer throws, the delivery logs the error,
+ * and goes on, so that one consumer does not stop the updates of the whole subscription.
  *
  * @param S The type of the entity states.
  */
@@ -82,15 +84,31 @@ internal class StateDelivery<S : EntityState<*>>(
     private val type: Class<S>,
     private val observer: StreamObserver<S>,
     private val noLongerMatching: List<NoLongerMatchingConsumer<*>>
-) : TargetDelivery(target) {
+) : TargetDelivery(target), WithLogging {
 
     override fun deliver(update: SubscriptionUpdate) {
         checkCase(update, SubscriptionUpdate.UpdateCase.ENTITY_UPDATES)
         update.entityUpdates.updateList.forEach { entityUpdate ->
             when (entityUpdate.kindCase) {
                 STATE -> observer.onNext(AnyPacker.unpack(entityUpdate.state, type))
-                NO_LONGER_MATCHING -> noLongerMatching.forEach { it.accept(entityUpdate.id) }
+                NO_LONGER_MATCHING -> noLongerMatching.forEach { reportTo(it, entityUpdate) }
                 KIND_NOT_SET -> Unit
+            }
+        }
+    }
+
+    /**
+     * Passes the ID of the entity that no longer matches the target to the given consumer,
+     * logging an error that the consumer throws.
+     */
+    @Suppress("TooGenericExceptionCaught") // The consumer is the code of the client.
+    private fun reportTo(consumer: NoLongerMatchingConsumer<*>, update: EntityStateUpdate) {
+        try {
+            consumer.accept(update.id)
+        } catch (e: Exception) {
+            logger.atError().withCause(e).log {
+                "The consumer of the entities of the type `${target.type}` that no longer" +
+                        " match the target could not handle the entity update."
             }
         }
     }

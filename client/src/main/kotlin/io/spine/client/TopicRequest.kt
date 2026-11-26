@@ -77,7 +77,7 @@ public class TopicRequest internal constructor(parent: ClientRequest) : ClientRe
      * Adds a target of the events of the given type.
      *
      * @param E The type of the events.
-     * @param type The type of the events.
+     * @param type The class of the events.
      * @param configure Configures the target: the events that match it, and their consumers.
      *   The target must have at least one consumer.
      * @return This request, for call chaining.
@@ -99,7 +99,7 @@ public class TopicRequest internal constructor(parent: ClientRequest) : ClientRe
      * Adds a target of the states of the entities of the given type.
      *
      * @param S The type of the entity states.
-     * @param type The type of the entity states.
+     * @param type The class of the entity states.
      * @param configure Configures the target: the entities that match it, and the consumers
      *   of their states. The target must have at least one consumer of states.
      * @return This request, for call chaining.
@@ -156,6 +156,7 @@ public class TopicRequest internal constructor(parent: ClientRequest) : ClientRe
      * @return The subscription to all the targets of the request.
      * @throws IllegalStateException If the request has no targets, or a target has
      *   no consumers.
+     * @throws IllegalArgumentException If the filters of a target are invalid.
      * @throws io.grpc.StatusRuntimeException If the server refuses the subscription.
      */
     public fun post(): Subscription {

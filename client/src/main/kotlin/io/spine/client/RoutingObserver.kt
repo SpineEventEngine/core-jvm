@@ -42,11 +42,10 @@ internal class RoutingObserver(
      */
     override fun onNext(update: SubscriptionUpdate) {
         val index = update.targetIndex
-        val delivery = targets.getOrNull(index)
-        checkNotNull(delivery) {
+        val delivery = targets.getOrNull(index) ?: error(
             "The update names the target at the index $index," +
                     " but the topic has ${targets.size} target(s)."
-        }
+        )
         delivery.deliver(update)
     }
 
