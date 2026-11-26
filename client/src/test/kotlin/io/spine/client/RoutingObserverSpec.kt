@@ -19,10 +19,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.string.shouldContain
-import io.spine.base.Identifier
 import io.spine.core.Event
 import io.spine.core.eventId
-import io.spine.protobuf.AnyPacker
+import io.spine.protobuf.pack
 import io.spine.test.client.TestEntity
 import io.spine.test.client.TestEntityId
 import io.spine.test.client.testEntityId
@@ -156,7 +155,7 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
             .buildPartial()
 
     private fun noLongerMatchingUpdate(entity: TestEntityId): EntityStateUpdate {
-        val packedId = AnyPacker.pack(entityId { id = Identifier.pack(entity) })
+        val packedId = entityId { id = entity.pack() }.pack()
         return entityStateUpdate {
             id = packedId
             noLongerMatching = true
