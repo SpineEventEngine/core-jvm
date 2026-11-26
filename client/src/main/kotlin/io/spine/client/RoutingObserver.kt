@@ -27,7 +27,7 @@ import io.spine.logging.WithLogging
  * whatever the number of its targets. Without the handler, the observer logs the error.
  */
 internal class RoutingObserver(
-    private val targets: List<TargetDelivery>,
+    private val targets: List<TargetObserver>,
     private val streamingErrors: ErrorHandler?
 ) : StreamObserver<SubscriptionUpdate>, WithLogging {
 
@@ -36,17 +36,17 @@ internal class RoutingObserver(
     }
 
     /**
-     * Passes the update to the delivery of its target.
+     * Passes the update to the observer of its target.
      *
      * @throws IllegalStateException If the update names a target that the topic does not have.
      */
     override fun onNext(update: SubscriptionUpdate) {
         val index = update.targetIndex
-        val delivery = targets.getOrNull(index) ?: error(
+        val observer = targets.getOrNull(index) ?: error(
             "The update names the target at the index $index," +
                     " but the topic has ${targets.size} target(s)."
         )
-        delivery.deliver(update)
+        observer.onUpdate(update)
     }
 
     /**

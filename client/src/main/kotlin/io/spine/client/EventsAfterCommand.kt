@@ -53,22 +53,22 @@ internal class EventsAfterCommand(
     fun subscribe(client: Client, streamingErrors: ErrorHandler?): Subscription {
         val topics = client.requestOf(command.actor()).topic()
         val origin = EventFilter.eq(EventContext.Field.pastMessage(), command.asMessageOrigin())
-        val deliveries = events.map { deliveryOf(it, origin) } + states.map { deliveryOf(it) }
-        return client.subscriptions().subscribeTo(topics, deliveries, streamingErrors)
+        val observers = events.map { observerOf(it, origin) } + states.map { observerOf(it) }
+        return client.subscriptions().subscribeTo(topics, observers, streamingErrors)
     }
 
     /**
-     * Builds the delivery of the events that match the given target and originate from
+     * Builds the observer of the events that match the given target and originate from
      * the command.
      */
-    private fun <E : EventMessage> deliveryOf(
+    private fun <E : EventMessage> observerOf(
         target: EventTarget<E>,
         origin: EventFilter
-    ): TargetDelivery = target.where(origin).delivery(consumingErrors?.narrow())
+    ): TargetObserver = target.where(origin).toObserver(consumingErrors?.narrow())
 
     /**
-     * Builds the delivery of the entity states that match the given target.
+     * Builds the observer of the entity states that match the given target.
      */
-    private fun <S : EntityState<*>> deliveryOf(target: StateTarget<S>): TargetDelivery =
-        target.delivery(consumingErrors?.narrow())
+    private fun <S : EntityState<*>> observerOf(target: StateTarget<S>): TargetObserver =
+        target.toObserver(consumingErrors?.narrow())
 }

@@ -64,9 +64,9 @@ public class TopicRequest internal constructor(parent: ClientRequest) : ClientRe
     private val topics: TopicFactory = client().requestOf(user()).topic()
 
     /**
-     * Builds the deliveries of the targets, in the order of the targets.
+     * Builds the observers of the targets, in the order of the targets.
      */
-    private val targets = mutableListOf<() -> TargetDelivery>()
+    private val targets = mutableListOf<() -> TargetObserver>()
 
     /**
      * The handler of errors thrown by the consumers of all the targets.
@@ -91,7 +91,7 @@ public class TopicRequest internal constructor(parent: ClientRequest) : ClientRe
     ): TopicRequest {
         val target = EventTarget(type, topics.select(type))
         configure.accept(target)
-        targets += { target.delivery(consumingErrors?.narrow()) }
+        targets += { target.toObserver(consumingErrors?.narrow()) }
         return this
     }
 
@@ -113,7 +113,7 @@ public class TopicRequest internal constructor(parent: ClientRequest) : ClientRe
     ): TopicRequest {
         val target = StateTarget(type, topics.select(type))
         configure.accept(target)
-        targets += { target.delivery(consumingErrors?.narrow()) }
+        targets += { target.toObserver(consumingErrors?.narrow()) }
         return this
     }
 
@@ -163,9 +163,9 @@ public class TopicRequest internal constructor(parent: ClientRequest) : ClientRe
         check(targets.isNotEmpty()) {
             "The subscription has no targets. Please call `event()` or `state()` before `post()`."
         }
-        val deliveries = targets.map { it() }
+        val observers = targets.map { it() }
         return client().subscriptions()
-            .subscribeTo(topics, deliveries, streamingErrorHandler())
+            .subscribeTo(topics, observers, streamingErrorHandler())
     }
 }
 

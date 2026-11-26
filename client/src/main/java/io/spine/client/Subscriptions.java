@@ -147,11 +147,11 @@ public final class Subscriptions implements WithLogging {
      * @see #cancel(Subscription)
      */
     Subscription subscribeTo(TopicFactory topics,
-                             List<TargetDelivery> targets,
+                             List<TargetObserver> targets,
                              @Nullable ErrorHandler streamingErrorHandler) {
         var topic = topics.forTargets(
                 targets.stream()
-                       .map(TargetDelivery::getTarget)
+                       .map(TargetObserver::getTarget)
                        .collect(toImmutableList())
         );
         var subscription = blockingServiceStub.subscribe(topic);

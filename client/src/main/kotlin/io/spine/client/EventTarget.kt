@@ -122,15 +122,16 @@ public class EventTarget<E : EventMessage> internal constructor(
     }
 
     /**
-     * Builds the target of the topic, and the delivery of its events to the consumers.
+     * Builds the observer of the target: the target of the topic, with the consumers
+     * of its events.
      *
      * @param consumingErrors The handler of errors thrown by the consumers,
      *   or `null` to log such errors.
      * @throws IllegalStateException If no consumer was added.
      * @throws IllegalArgumentException If the filters of the target are invalid.
      */
-    @JvmName("delivery")
-    internal fun delivery(consumingErrors: ConsumerErrorHandler<E>?): TargetDelivery {
+    @JvmName("toObserver")
+    internal fun toObserver(consumingErrors: ConsumerErrorHandler<E>?): TargetObserver {
         check(observed) {
             "The target of the type `${type.name}` has no consumers." +
                     " Please call `observe()` for the target."
@@ -138,6 +139,6 @@ public class EventTarget<E : EventMessage> internal constructor(
         consumingErrors?.let { consumers.onConsumingError(it) }
         val target = builder.buildTarget()
         target.checkValid()
-        return EventDelivery(target, consumers.build().toObserver())
+        return EventTargetObserver(target, consumers.build().toObserver())
     }
 }

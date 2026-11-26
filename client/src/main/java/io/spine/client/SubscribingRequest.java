@@ -59,12 +59,13 @@ SubscribingRequest<M extends Message,
     abstract void addConsumer(Consumer<M> consumer);
 
     /**
-     * Builds the target of the request, and the delivery of its messages to the consumers.
+     * Builds the observer of the target of the request: the target, with the consumers
+     * of its messages.
      *
      * @param consumingErrorHandler
      *         the handler of errors thrown by the consumers, or {@code null} to log such errors
      */
-    abstract TargetDelivery delivery(@Nullable ConsumerErrorHandler<M> consumingErrorHandler);
+    abstract TargetObserver toObserver(@Nullable ConsumerErrorHandler<M> consumingErrorHandler);
 
     /**
      * Subscribes the passed consumer to receive messages of the subscribed type.
@@ -110,12 +111,12 @@ SubscribingRequest<M extends Message,
      * Creates and posts the subscription request to the server.
      */
     public Subscription post() {
-        var delivery = delivery(consumingErrorHandler);
+        var observer = toObserver(consumingErrorHandler);
         var topics = client().requestOf(user())
                              .topic();
         var subscription =
                 client().subscriptions()
-                        .subscribeTo(topics, ImmutableList.of(delivery), streamingErrorHandler());
+                        .subscribeTo(topics, ImmutableList.of(observer), streamingErrorHandler());
         return subscription;
     }
 }

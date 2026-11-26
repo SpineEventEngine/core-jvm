@@ -103,8 +103,8 @@ public final class EventSubscriptionRequest<E extends EventMessage>
     }
 
     @Override
-    TargetDelivery delivery(@Nullable ConsumerErrorHandler<E> consumingErrorHandler) {
-        return target.delivery(consumingErrorHandler);
+    TargetObserver toObserver(@Nullable ConsumerErrorHandler<E> consumingErrorHandler) {
+        return target.toObserver(consumingErrorHandler);
     }
 
     @Override

@@ -97,8 +97,8 @@ public final class SubscriptionRequest<S extends EntityState<?>>
     }
 
     @Override
-    TargetDelivery delivery(@Nullable ConsumerErrorHandler<S> consumingErrorHandler) {
-        return target.delivery(consumingErrorHandler);
+    TargetObserver toObserver(@Nullable ConsumerErrorHandler<S> consumingErrorHandler) {
+        return target.toObserver(consumingErrorHandler);
     }
 
     @Override

@@ -42,8 +42,8 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
     private val second = RecordingObserver<Event>()
     private val observer = RoutingObserver(
         targets = listOf(
-            EventDelivery(target(), first),
-            EventDelivery(target(), second)
+            EventTargetObserver(target(), first),
+            EventTargetObserver(target(), second)
         ),
         streamingErrors = null
     )
@@ -88,8 +88,8 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
         val errors = mutableListOf<Throwable>()
         val withHandler = RoutingObserver(
             targets = listOf(
-                EventDelivery(target(), first),
-                EventDelivery(target(), second)
+                EventTargetObserver(target(), first),
+                EventTargetObserver(target(), second)
             ),
             streamingErrors = ErrorHandler { errors += it }
         )
@@ -103,7 +103,7 @@ internal class RoutingObserverSpec : LoggingTest(RoutingObserver::class.java, Le
     @Test
     fun `go on delivering after a consumer of no longer matching entities fails`() {
         val reported = mutableListOf<TestEntityId>()
-        val states = StateDelivery(
+        val states = StateTargetObserver(
             target = target(),
             type = TestEntity::class.java,
             observer = RecordingObserver(),

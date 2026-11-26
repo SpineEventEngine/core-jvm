@@ -24,12 +24,13 @@ import io.spine.logging.WithLogging
 import io.spine.protobuf.AnyPacker
 
 /**
- * A target of a subscription topic, with the consumers of the messages that match it.
+ * Observes the updates of one target of a subscription topic, and passes their messages
+ * to the consumers of the target.
  *
- * [RoutingObserver] passes each update of a subscription to the delivery of
+ * [RoutingObserver] passes each update of a subscription to the observer of
  * the target that the update names.
  */
-internal sealed class TargetDelivery(
+internal sealed class TargetObserver(
 
     /**
      * The target of the topic.
@@ -43,7 +44,7 @@ internal sealed class TargetDelivery(
      * @throws IllegalStateException If the update carries messages of another kind than
      *   the target, events instead of entity states, or vice versa.
      */
-    abstract fun deliver(update: SubscriptionUpdate)
+    abstract fun onUpdate(update: SubscriptionUpdate)
 
     /**
      * Ensures that the given update carries the kind of messages that the target expects.
@@ -57,36 +58,36 @@ internal sealed class TargetDelivery(
 }
 
 /**
- * Delivers the events that match an event target to its consumers.
+ * Passes the events that match an event target to its consumers.
  */
-internal class EventDelivery(
+internal class EventTargetObserver(
     target: Target,
     private val observer: StreamObserver<Event>
-) : TargetDelivery(target) {
+) : TargetObserver(target) {
 
-    override fun deliver(update: SubscriptionUpdate) {
+    override fun onUpdate(update: SubscriptionUpdate) {
         checkCase(update, SubscriptionUpdate.UpdateCase.EVENT_UPDATES)
         update.eventUpdates.eventList.forEach(observer::onNext)
     }
 }
 
 /**
- * Delivers the entity states that match an entity target to its consumers.
+ * Passes the entity states that match an entity target to its consumers.
  *
  * The IDs of the entities that no longer match the target go to
- * the [noLongerMatching] consumers. If such a consumer throws, the delivery logs the error,
+ * the [noLongerMatching] consumers. If such a consumer throws, the observer logs the error,
  * and goes on, so that one consumer does not stop the updates of the whole subscription.
  *
  * @param S The type of the entity states.
  */
-internal class StateDelivery<S : EntityState<*>>(
+internal class StateTargetObserver<S : EntityState<*>>(
     target: Target,
     private val type: Class<S>,
     private val observer: StreamObserver<S>,
     private val noLongerMatching: List<NoLongerMatchingConsumer<*>>
-) : TargetDelivery(target), WithLogging {
+) : TargetObserver(target), WithLogging {
 
-    override fun deliver(update: SubscriptionUpdate) {
+    override fun onUpdate(update: SubscriptionUpdate) {
         checkCase(update, SubscriptionUpdate.UpdateCase.ENTITY_UPDATES)
         update.entityUpdates.updateList.forEach { entityUpdate ->
             when (entityUpdate.kindCase) {
@@ -101,8 +102,8 @@ internal class StateDelivery<S : EntityState<*>>(
      * Passes the ID of the entity that no longer matches the target to the given consumer,
      * logging an error that the consumer throws.
      *
-     * As the consumers of states do, it logs any `Throwable` of the consumer, such as
-     * an `AssertionError`. A `VirtualMachineError` propagates.
+     * As the consumers of states do, it logs any `Throwable` of
+     * the consumer, such as an `AssertionError`. A `VirtualMachineError` propagates.
      */
     @Suppress("TooGenericExceptionCaught") // The consumer is the code of the client.
     private fun reportTo(consumer: NoLongerMatchingConsumer<*>, update: EntityStateUpdate) {

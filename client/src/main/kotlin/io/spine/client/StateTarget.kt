@@ -139,15 +139,16 @@ public class StateTarget<S : EntityState<*>> internal constructor(
     }
 
     /**
-     * Builds the target of the topic, and the delivery of its states to the consumers.
+     * Builds the observer of the target: the target of the topic, with the consumers
+     * of its states.
      *
      * @param consumingErrors The handler of errors thrown by the consumers of states,
      *   or `null` to log such errors.
      * @throws IllegalStateException If no consumer of states was added.
      * @throws IllegalArgumentException If the filters of the target are invalid.
      */
-    @JvmName("delivery")
-    internal fun delivery(consumingErrors: ConsumerErrorHandler<S>?): TargetDelivery {
+    @JvmName("toObserver")
+    internal fun toObserver(consumingErrors: ConsumerErrorHandler<S>?): TargetObserver {
         check(observed) {
             "The target of the type `${type.name}` has no consumers of states." +
                     " Please call `observe()` for the target."
@@ -155,7 +156,7 @@ public class StateTarget<S : EntityState<*>> internal constructor(
         consumingErrors?.let { consumers.onConsumingError(it) }
         val target = builder.buildTarget()
         target.checkValid()
-        return StateDelivery(
+        return StateTargetObserver(
             target = target,
             type = type,
             observer = consumers.build().toObserver(),
