@@ -16,7 +16,6 @@ package io.spine.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Streams;
 import com.google.protobuf.Message;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
@@ -51,11 +50,11 @@ import static io.spine.core.ErrorCase.TENANT_ERROR;
 import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
 import static io.spine.logging.Level.WARNING;
 import static io.spine.protobuf.Messages.isNotDefault;
+import static io.spine.string.Diags.toEnumerationBackticked;
 import static io.spine.system.server.WriteSideFunction.delegatingTo;
 import static io.spine.type.MessageExtsKt.isInternal;
 import static io.spine.type.ProtoTexts.shortDebugString;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.joining;
 
 /**
  * An abstract base for classes implementing server-side services.
@@ -315,8 +314,10 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
             refuseNotServed(request, types.get(0), observer);
             return;
         }
+        var enumeration = types.stream()
+                               .collect(toEnumerationBackticked());
         refuseUnsupported(request, observer,
-                          format("No bounded context serves the types %s.", listOf(types)));
+                          format("No bounded context serves the types %s.", enumeration));
     }
 
     /**
@@ -328,12 +329,6 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     protected final void refuseNotServed(T request, TypeUrl type, StreamObserver<R> observer) {
         refuseUnsupported(request, observer,
                           format("No bounded context serves the type `%s`.", type));
-    }
-
-    private static String listOf(Iterable<TypeUrl> types) {
-        return Streams.stream(types)
-                      .map(type -> "`" + type + '`')
-                      .collect(joining(", "));
     }
 
     private void serveIn(BoundedContext context,

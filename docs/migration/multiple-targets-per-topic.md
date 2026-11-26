@@ -2,8 +2,8 @@
 
 This guide tells you what changes when you upgrade to `2.0.0-SNAPSHOT.790`. A subscription
 `Topic` now has a list of targets instead of one. Code that reads the target of a topic or of
-a subscription stops compiling, and needs the changes below. Read the
-[upgrade rule](#upgrade-rule) before you deploy.
+a subscription stops compiling, and needs the changes below. Upgrade the servers before
+the clients; the [upgrade rule](#upgrade-rule) tells why.
 
 ## What changed, in one paragraph
 

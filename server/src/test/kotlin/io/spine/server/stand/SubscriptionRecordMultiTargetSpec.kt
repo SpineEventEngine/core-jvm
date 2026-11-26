@@ -18,7 +18,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldBeSingleton
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
+import io.spine.client.EntityStateUpdate
 import io.spine.client.Filters.all
 import io.spine.client.Filters.eq
 import io.spine.client.SubscriptionUpdate
@@ -39,7 +41,7 @@ import org.junit.jupiter.api.Test
 @DisplayName("`SubscriptionRecord` with several targets should")
 internal class SubscriptionRecordMultiTargetSpec {
 
-    private val projectId = projectId("multi-target-project")
+    private val id = projectId("multi-target-project")
 
     /**
      * Targets all projects, the projects with the matching name, and the creation of
@@ -56,7 +58,7 @@ internal class SubscriptionRecordMultiTargetSpec {
         val record = SubscriptionRecord.of(subscription)
         val matching = projectWithName(MATCHING)
 
-        val updates = record.detectUpdates(stateChangedEnvelope(projectId, matching, matching))
+        val updates = record.detectUpdates(stateChangedEnvelope(id, matching, matching))
 
         updates.map { it.targetIndex } shouldContainExactly listOf(0, 1)
         updates.forEach { it.stateUpdate().hasState() shouldBe true }
@@ -68,7 +70,7 @@ internal class SubscriptionRecordMultiTargetSpec {
         val before = projectWithName(MATCHING)
         val after = projectWithName("Renamed")
 
-        val updates = record.detectUpdates(stateChangedEnvelope(projectId, before, after))
+        val updates = record.detectUpdates(stateChangedEnvelope(id, before, after))
 
         updates.map { it.targetIndex } shouldContainExactly listOf(0, 1)
         updates[0].stateUpdate().hasState() shouldBe true
@@ -93,8 +95,8 @@ internal class SubscriptionRecordMultiTargetSpec {
         val record = SubscriptionRecord.of(subscription, setOf(1))
         val other = projectWithName("Other")
 
-        record.detectUpdates(stateChangedEnvelope(projectId, other, other)).shouldBeEmpty()
-        record.eventTypes().contains(PROJECT_CREATED_TYPE) shouldBe false
+        record.detectUpdates(stateChangedEnvelope(id, other, other)).shouldBeEmpty()
+        record.eventTypes() shouldNotContain PROJECT_CREATED_TYPE
     }
 
     @Test
@@ -116,4 +118,5 @@ internal class SubscriptionRecordMultiTargetSpec {
 /**
  * Obtains the only entity state update of this subscription update.
  */
-private fun SubscriptionUpdate.stateUpdate() = entityUpdates.updateList.single()
+private fun SubscriptionUpdate.stateUpdate(): EntityStateUpdate =
+    entityUpdates.updateList.single()

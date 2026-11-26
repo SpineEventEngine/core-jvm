@@ -17,6 +17,8 @@ package io.spine.server
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldBeSingleton
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.spine.base.CommandMessage
@@ -133,7 +135,7 @@ internal class SubscriptionServiceMultiTargetSpec {
             post(projects, createProject())
             post(customers, createCustomer())
 
-            updates.error shouldBe null
+            updates.error.shouldBeNull()
             updates.isCompleted shouldBe false
             updates.responses().map { it.targetIndex } shouldContainExactlyInAnyOrder listOf(0, 1)
             updates.forTarget(0).shouldBeSingleton {
@@ -148,7 +150,7 @@ internal class SubscriptionServiceMultiTargetSpec {
         fun `cancel the subscription in all the contexts at once`() {
             val cancellation = cancel(subscription)
 
-            cancellation.error shouldBe null
+            cancellation.error.shouldBeNull()
             cancellation.responses().shouldBeSingleton { it.status.hasOk() shouldBe true }
             cancellation.isCompleted shouldBe true
             projects.stand().hasSubscription(subscription) shouldBe false
@@ -172,7 +174,7 @@ internal class SubscriptionServiceMultiTargetSpec {
     @Test
     fun `deliver a message that matches two targets of one type once for each of them`() {
         val command = createCustomer()
-        val customerId = (unpack(command.message) as CreateCustomer).customerId
+        val customerId = unpack(command.message, CreateCustomer::class.java).customerId
         val subscription = subscribed(
             topicOf(allOf(CUSTOMER), someOf(CUSTOMER, setOf(customerId)))
         )
@@ -181,8 +183,8 @@ internal class SubscriptionServiceMultiTargetSpec {
         post(customers, command)
         post(customers, createCustomer())
 
-        updates.error shouldBe null
-        updates.forTarget(0).size shouldBe 2
+        updates.error.shouldBeNull()
+        updates.forTarget(0) shouldHaveSize 2
         updates.forTarget(1).shouldBeSingleton {
             unpack(it.entityUpdates.getUpdate(0).state, Customer::class.java)
                 .id shouldBe customerId
@@ -265,7 +267,7 @@ internal class SubscriptionServiceMultiTargetSpec {
     private fun subscribed(topic: Topic): Subscription {
         val observer = memoizingObserver<Subscription>()
         service.subscribe(topic, observer)
-        observer.error shouldBe null
+        observer.error.shouldBeNull()
         return observer.firstResponse()
     }
 
@@ -319,7 +321,9 @@ internal class SubscriptionServiceMultiTargetSpec {
     /**
      * Obtains the updates of the target with the given index.
      */
-    private fun MemoizingObserver<SubscriptionUpdate>.forTarget(index: Int) =
+    private fun MemoizingObserver<SubscriptionUpdate>.forTarget(
+        index: Int
+    ): List<SubscriptionUpdate> =
         responses().filter { it.targetIndex == index }
 
     private companion object {
@@ -336,4 +340,3 @@ internal class SubscriptionServiceMultiTargetSpec {
  */
 private fun BoundedContext.hasEntitiesWithState(type: TypeUrl): Boolean =
     stand().exposedTypes().contains(type)
-
