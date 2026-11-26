@@ -201,9 +201,10 @@ val board: Subscription = client.onBehalfOf(user)
 - `SubscriptionRequest` and `EventSubscriptionRequest` are moved onto the shared builders.
 - The client part of the migration guide, with Kotlin samples first.
 
-**Follow-ups in other repositories, after the release:** `examples/hello`,
-`examples/hello-kt`, the `delivery` demo servlets, and the `documentation` todo-list example
-all keep the set from `post()`.
+**Follow-ups in other repositories, after the release:** they keep the set from `post()`.
+Filed on 2026-11-26: spine-examples/hello#80, SpineEventEngine/delivery#86 (`GreeterServlet`),
+and SpineEventEngine/documentation#99 (the quick start embeds the `hello` client).
+`examples/hello-kt` has no client code, and `todo-list` only calls `postAndForget()`.
 
 **Out of scope, noted:**
 - The leak when a client disconnects without cancelling (an existing problem): issue #1739.
@@ -314,8 +315,8 @@ All specs are in Kotlin with Kotest.
   - Removed: `SubscriptionObserver`, `NoLongerMatchingFilter`, `DeliveringMultiEventObserver`,
     `MultiEventConsumers`, `Subscriptions.addAll()`, and `SubscribingRequest.chain()`
     (protected in a class that cannot be extended outside the package).
-  - Internals: `TargetDelivery` (sealed: events or states) and `RoutingObserver`.
-    `Subscriptions.subscribeTo(TopicFactory, List<TargetDelivery>, ErrorHandler?)` is the one
+  - Internals: `TargetObserver` (sealed: events or states) and `RoutingObserver`.
+    `Subscriptions.subscribeTo(TopicFactory, List<TargetObserver>, ErrorHandler?)` is the one
     delivery path of every request. When no streaming handler is set, the observer logs
     the error.
   - Behaviour change found on the way: `Client.onBehalfOf()` sets the client-level
@@ -324,3 +325,16 @@ All specs are in Kotlin with Kotest.
     used `addAll()` as a test hook. It now makes a real subscription and drops it on the server
     through a raw stub. Its stub service accepts `subscribe`/`activate`, and its requests set
     their own streaming handler.
+- 2026-11-26 — PR #1741 opened (base `master`, since #1740 was merged first). On the owner's
+  request, a separate fixture tests the client API in full. The new `board` model
+  (`server/src/testFixtures/.../client/board/`) has a `Card` aggregate with the `status` and
+  `assignee` columns. `TopicRequestSpec` and `CommandRequestSpec` now filter state targets by
+  fields, use a composite filter, repeat a filtered event type, and report an entity that stops
+  matching one target while it still matches another. `CTask` has no columns, and stays as it is.
+- 2026-11-26 — The owner renamed the internal `TargetDelivery` to `TargetObserver`. Its subclasses
+  are now `EventTargetObserver` and `StateTargetObserver`, with `onUpdate()` and the targets'
+  `toObserver()`. The reason: the server has `io.spine.server.delivery.TargetDelivery`, and
+  "delivery" names the server's Delivery subsystem. After Codex and Copilot reviewed #1741,
+  a `whenNoLongerMatching()` consumer that throws any `Throwable` is logged. Before, only an
+  `Exception` was, so an `AssertionError` still ended the subscription. A `VirtualMachineError`
+  still propagates.
