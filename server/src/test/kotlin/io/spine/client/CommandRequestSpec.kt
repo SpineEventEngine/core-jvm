@@ -19,9 +19,16 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.spine.base.CommandMessage
+import io.spine.client.EntityStateFilter.eq
 import io.spine.server.BoundedContextBuilder
 import io.spine.test.client.ClientTestContext.tasks
 import io.spine.test.client.ClientTestContext.users
+import io.spine.test.client.board.Card
+import io.spine.test.client.board.CardId
+import io.spine.test.client.board.builder as board
+import io.spine.test.client.board.command.assignCard
+import io.spine.test.client.board.command.createCard
+import io.spine.test.client.board.event.CardAssigned
 import io.spine.test.client.tasks.CTask
 import io.spine.test.client.tasks.CTaskId
 import io.spine.test.client.tasks.command.CreateCTask
@@ -39,7 +46,7 @@ import org.junit.jupiter.api.Test
 @DisplayName("`CommandRequest` should")
 internal class CommandRequestSpec : AbstractClientTest() {
 
-    override fun contexts(): List<BoundedContextBuilder> = listOf(tasks(), users())
+    override fun contexts(): List<BoundedContextBuilder> = listOf(tasks(), users(), board())
 
     @Test
     fun `observe the states of the entities that the command changes`() {
@@ -52,6 +59,28 @@ internal class CommandRequestSpec : AbstractClientTest() {
             .post()
 
         tasks.map { it.id } shouldContainExactly listOf(command.id)
+    }
+
+    @Test
+    fun `observe the states of the entities that match the filters of a target`() {
+        val assignedToAlice = mutableListOf<Card>()
+        val assigned = mutableListOf<CardAssigned>()
+        val card = createCard {
+            id = CardId.generate()
+            title = "A card to assign"
+        }
+        post(card)
+
+        client().asGuest().command(assignCard { id = card.id; assignee = ALICE }) {
+            observe<CardAssigned> { e -> assigned += e }
+            observe<Card> {
+                it.where(eq(Card.Field.assignee(), ALICE))
+                    .observe { card -> assignedToAlice += card }
+            }
+        }
+
+        assigned.map { it.assignee } shouldContainExactly listOf(ALICE)
+        assignedToAlice.map { it.id } shouldContainExactly listOf(card.id)
     }
 
     @Test
@@ -161,4 +190,9 @@ internal class CommandRequestSpec : AbstractClientTest() {
             name = "A task created at ${System.nanoTime()}"
             author = GivenUserId.generated()
         }
+
+    private companion object {
+
+        const val ALICE = "Alice"
+    }
 }

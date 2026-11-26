@@ -21,6 +21,8 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.spine.base.CommandMessage
+import io.spine.client.CompositeEntityStateFilter.either
+import io.spine.client.EntityStateFilter.eq
 import io.spine.client.EventFilter.eq
 import io.spine.core.ErrorCase.UNSUPPORTED_REQUEST
 import io.spine.core.UserId
@@ -28,6 +30,20 @@ import io.spine.grpc.StreamObservers.errorCaseOf
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.given.organizations.Organization
 import io.spine.test.client.ClientTestContext.tasks
+import io.spine.test.client.board.Card
+import io.spine.test.client.board.CardId
+import io.spine.test.client.board.CardStatus.DONE
+import io.spine.test.client.board.CardStatus.OPEN
+import io.spine.test.client.board.builder as board
+import io.spine.test.client.board.command.AssignCard
+import io.spine.test.client.board.command.CompleteCard
+import io.spine.test.client.board.command.CreateCard
+import io.spine.test.client.board.command.ReopenCard
+import io.spine.test.client.board.command.assignCard
+import io.spine.test.client.board.command.completeCard
+import io.spine.test.client.board.command.createCard
+import io.spine.test.client.board.command.reopenCard
+import io.spine.test.client.board.event.CardAssigned
 import io.spine.test.client.ClientTestContext.users
 import io.spine.test.client.tasks.CTask
 import io.spine.test.client.tasks.CTaskId
@@ -54,7 +70,7 @@ internal class TopicRequestSpec : AbstractClientTest() {
 
     private val author = GivenUserId.generated()
 
-    override fun contexts(): List<BoundedContextBuilder> = listOf(tasks(), users())
+    override fun contexts(): List<BoundedContextBuilder> = listOf(tasks(), users(), board())
 
     @Test
     fun `deliver events and entity states of several contexts in one subscription`() {
@@ -100,6 +116,118 @@ internal class TopicRequestSpec : AbstractClientTest() {
 
     @Test
     fun `deliver the states that match each target of one type to its own consumers`() {
+        val done = mutableListOf<Card>()
+        val assignedToAlice = mutableListOf<Card>()
+
+        client().asGuest().subscribe {
+            state<Card> {
+                it.where(eq(Card.Field.status(), DONE))
+                    .observe { card -> done += card }
+            }
+            state<Card> {
+                it.where(eq(Card.Field.assignee(), ALICE))
+                    .observe { card -> assignedToAlice += card }
+            }
+        }
+        val both = newCard()
+        val onlyAssigned = newCard()
+        val onlyDone = newCard()
+        listOf(both, onlyAssigned, onlyDone).forEach(::post)
+        post(assign(both.id, ALICE))
+        post(assign(onlyAssigned.id, ALICE))
+        post(complete(both.id))
+        post(complete(onlyDone.id))
+
+        done.map { it.id } shouldContainExactly listOf(both.id, onlyDone.id)
+        assignedToAlice.map { it.id to it.status } shouldContainExactly listOf(
+            both.id to OPEN,
+            onlyAssigned.id to OPEN,
+            both.id to DONE
+        )
+    }
+
+    @Test
+    fun `report an entity that stops matching one target while it still matches another`() {
+        val noLongerDone = mutableListOf<CardId>()
+        val noLongerAssignedToAlice = mutableListOf<CardId>()
+        val assignedToAlice = mutableListOf<Card>()
+
+        client().asGuest().subscribe {
+            state<Card> {
+                it.where(eq(Card.Field.status(), DONE))
+                    .observe { }
+                    .whenNoLongerMatching(CardId::class.java) { id -> noLongerDone += id }
+            }
+            state<Card> {
+                it.where(eq(Card.Field.assignee(), ALICE))
+                    .observe { card -> assignedToAlice += card }
+                    .whenNoLongerMatching(CardId::class.java) { id ->
+                        noLongerAssignedToAlice += id
+                    }
+            }
+        }
+        val card = newCard()
+        post(card)
+        post(assign(card.id, ALICE))
+        post(complete(card.id))
+
+        post(reopen(card.id))
+        noLongerDone shouldContainExactly listOf(card.id)
+        noLongerAssignedToAlice.shouldBeEmpty()
+        assignedToAlice.last().status shouldBe OPEN
+
+        post(assign(card.id, BOB))
+        noLongerDone shouldContainExactly listOf(card.id)
+        noLongerAssignedToAlice shouldContainExactly listOf(card.id)
+    }
+
+    @Test
+    fun `match the states by a composite filter`() {
+        val matched = mutableListOf<Card>()
+
+        client().asGuest().subscribe {
+            state<Card> {
+                it.where(either(eq(Card.Field.status(), DONE), eq(Card.Field.assignee(), ALICE)))
+                    .observe { card -> matched += card }
+            }
+        }
+        val done = newCard()
+        val assigned = newCard()
+        val other = newCard()
+        listOf(done, assigned, other).forEach(::post)
+        post(complete(done.id))
+        post(assign(assigned.id, ALICE))
+        post(assign(other.id, BOB))
+
+        matched.map { it.id } shouldContainExactly listOf(done.id, assigned.id)
+    }
+
+    @Test
+    fun `deliver the events that match each target of one type to its own consumers`() {
+        val toAlice = mutableListOf<CardAssigned>()
+        val toBob = mutableListOf<CardAssigned>()
+
+        client().asGuest().subscribe {
+            event<CardAssigned> {
+                it.where(eq(CardAssigned.Field.assignee(), ALICE))
+                    .observe { e -> toAlice += e }
+            }
+            event<CardAssigned> {
+                it.where(eq(CardAssigned.Field.assignee(), BOB))
+                    .observe { e -> toBob += e }
+            }
+        }
+        val card = newCard()
+        post(card)
+        post(assign(card.id, ALICE))
+        post(assign(card.id, BOB))
+
+        toAlice.map { it.assignee } shouldContainExactly listOf(ALICE)
+        toBob.map { it.assignee } shouldContainExactly listOf(BOB)
+    }
+
+    @Test
+    fun `deliver the states of the entities that each target names by ID to its consumers`() {
         val first = mutableListOf<CTask>()
         val second = mutableListOf<CTask>()
         val onlyFirst = createTask("Alpha", author)
@@ -123,7 +251,7 @@ internal class TopicRequestSpec : AbstractClientTest() {
     }
 
     @Test
-    fun `report the entities that no longer match a target to the consumers of that target`() {
+    fun `report an archived entity to the consumers of each target that it matched`() {
         val noLongerFirst = mutableListOf<CTaskId>()
         val noLongerSecond = mutableListOf<CTaskId>()
         val onlyFirst = createTask("Alpha", author)
@@ -265,4 +393,26 @@ internal class TopicRequestSpec : AbstractClientTest() {
             this.name = name
             this.author = author
         }
+
+    private fun newCard(): CreateCard =
+        createCard {
+            id = CardId.generate()
+            title = "A card created at ${System.nanoTime()}"
+        }
+
+    private fun assign(card: CardId, person: String): AssignCard =
+        assignCard {
+            id = card
+            assignee = person
+        }
+
+    private fun complete(card: CardId): CompleteCard = completeCard { id = card }
+
+    private fun reopen(card: CardId): ReopenCard = reopenCard { id = card }
+
+    private companion object {
+
+        const val ALICE = "Alice"
+        const val BOB = "Bob"
+    }
 }

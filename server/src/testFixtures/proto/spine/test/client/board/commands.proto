@@ -1,0 +1,48 @@
+/*
+ * Copyright 2026 CodeMatters, Lda.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
+ */
+
+syntax = "proto3";
+
+package spine.test.client.board;
+
+import "spine/options.proto";
+
+option (type_url_prefix) = "type.spine.io";
+option java_package = "io.spine.test.client.board.command";
+option java_outer_classname = "CommandsProto";
+option java_multiple_files = true;
+
+import "spine/test/client/board/card.proto";
+
+// Puts a new open card on the board.
+message CreateCard {
+    CardId id = 1;
+    string title = 2;
+}
+
+// Gives the card to the person who works on it.
+message AssignCard {
+    CardId id = 1;
+    string assignee = 2;
+}
+
+// Marks the work on the card as done.
+message CompleteCard {
+    CardId id = 1;
+}
+
+// Opens the done card again.
+message ReopenCard {
+    CardId id = 1;
+}
