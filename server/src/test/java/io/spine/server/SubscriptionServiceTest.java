@@ -211,7 +211,7 @@ class SubscriptionServiceTest {
             assertResponse.isNotNull();
             assertResponse.hasAllRequiredFields();
             assertThat(response.getTopic()
-                               .getTarget()
+                               .getTarget(0)
                                .getType())
                     .isEqualTo(target.getType());
             assertThat(observer.getError())

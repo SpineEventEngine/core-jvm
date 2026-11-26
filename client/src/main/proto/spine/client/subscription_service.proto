@@ -28,14 +28,13 @@ import "spine/core/response.proto";
 
 // A service for subscribing to receive updates by a specified topic.
 //
-// The subscription topic defines a type in updates of which the client code is interested, and
-// filtering conditions (e.g. by values of fields or identity).
+// The subscription topic defines its targets: the types in updates of which the client code is
+// interested, and filtering conditions (e.g. by values of fields or identity).
 //
 // Creating a subscription consists of two steps:
-//  * Step 1: creating a `Subscription` instance. This step verifies that the type specified in
-//    the `Topic` is available at the server, and prepares backend structures for delivering
-//    updates. Subscription is created by the `Subscribe(Topic)` call.
-//    together with the contexts of the events.
+//  * Step 1: creating a `Subscription` instance. This step verifies that the types specified
+//    in the `Topic` are available at the server, and prepares backend structures for
+//    delivering updates. Subscription is created by the `Subscribe(Topic)` call.
 //
 //  * Step 2: activating the subscription. This step turns the subscription on.
 //    Activation is performed by the `Activate(Subscription)` call.
@@ -46,7 +45,7 @@ service SubscriptionService {
 
     // Creates the subscription to the particular read-side updates.
     //
-    // `Topic` defines the target of the subscription.
+    // `Topic` defines the targets of the subscription.
     //
     // NOTE: this method only creates a `Subscription` for the passed `Topic`.
     // To start listening for updates, please call `Activate(Subscription)`.
@@ -55,8 +54,12 @@ service SubscriptionService {
 
     // Activates the subscription.
     //
-    // The client will start receiving the updates when 1) an instance of the type specified
-    // in the topic changes and 2) filtering conditions are met. See `spine.client.Target`.
+    // The client will start receiving the updates when 1) an instance of a type specified in
+    // a target of the topic changes and 2) the filtering conditions of that target are met.
+    // See `spine.client.Target`.
+    //
+    // The stream carries the updates of all the targets of the topic. The updates of one
+    // target are not ordered with respect to the updates of another.
     //
     // Cancelled subscriptions cannot be activated. Passing a cancelled subscription will result
     // in a run-time error.

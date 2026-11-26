@@ -14,11 +14,13 @@
 
 package io.spine.client;
 
+import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Message;
 import io.spine.annotation.Internal;
 import io.spine.base.Identifier;
 import io.spine.core.ActorContext;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 
@@ -87,14 +89,32 @@ public final class TopicFactory {
     @Internal
     public Topic forTarget(Target target) {
         checkNotNull(target);
-        return builderForTarget(target).build();
+        return forTargets(ImmutableList.of(target));
     }
 
-    private Topic.Builder builderForTarget(Target target) {
+    /**
+     * Creates a {@link Topic} for the specified {@link Target}s, in the given order.
+     *
+     * <p>One type may appear in several targets.
+     *
+     * @param targets
+     *         the targets to create a topic for
+     * @return an instance of {@code Topic}
+     * @throws IllegalArgumentException
+     *         if there are no targets
+     * @apiNote Assumes the passed targets are {@linkplain TargetMixin#checkValid() valid} and
+     *        doesn't do any additional checks.
+     */
+    @Internal
+    public Topic forTargets(Iterable<Target> targets) {
+        checkNotNull(targets);
+        var list = ImmutableList.copyOf(targets);
+        checkArgument(!list.isEmpty(), "A topic must have at least one target.");
         return Topic.newBuilder()
                 .setId(generateId())
                 .setContext(actorContext)
-                .setTarget(target);
+                .addAllTarget(list)
+                .build();
     }
 
     private static TopicId generateId() {

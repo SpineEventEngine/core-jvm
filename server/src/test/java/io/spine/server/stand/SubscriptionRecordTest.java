@@ -1,27 +1,15 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.stand;
@@ -43,7 +31,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
+import java.util.List;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.spine.client.Targets.composeTarget;
@@ -72,10 +60,10 @@ class SubscriptionRecordTest {
         var id = ProjectId.getDefaultInstance();
 
         var matches = stateChangedEnvelope(id, EMPTY_PRJ, EMPTY_PRJ);
-        assertThat(record.detectUpdate(matches)).isPresent();
+        assertThat(record.detectUpdates(matches)).hasSize(1);
 
         var notMatches = stateChangedEnvelope(id, EMPTY_PRJ, EMPTY_PRJ, OTHER_TYPE);
-        assertThat(record.detectUpdate(notMatches)).isEmpty();
+        assertThat(record.detectUpdates(notMatches)).isEmpty();
     }
 
     @Nested
@@ -90,11 +78,11 @@ class SubscriptionRecordTest {
             var record = SubscriptionRecord.of(subscription(targetId));
 
             var envelope = stateChangedEnvelope(targetId, state, state);
-            assertThat(record.detectUpdate(envelope)).isPresent();
+            assertThat(record.detectUpdates(envelope)).hasSize(1);
 
             var otherId = projectId("some-other-ID");
             var envelope2 = stateChangedEnvelope(otherId, state, state);
-            assertThat(record.detectUpdate(envelope2)).isEmpty();
+            assertThat(record.detectUpdates(envelope2)).isEmpty();
         }
 
         @Test
@@ -108,13 +96,13 @@ class SubscriptionRecordTest {
             var record = SubscriptionRecord.of(subscription);
 
             var envelope = projectCreatedEnvelope(targetId);
-            assertThat(record.detectUpdate(envelope)).isPresent();
+            assertThat(record.detectUpdates(envelope)).hasSize(1);
 
             var otherId = EventId.newBuilder()
                     .setValue("other-event-ID")
                     .build();
             var nonMatching = projectCreatedEnvelope(otherId);
-            assertThat(record.detectUpdate(nonMatching)).isEmpty();
+            assertThat(record.detectUpdates(nonMatching)).isEmpty();
         }
     }
 
@@ -131,14 +119,14 @@ class SubscriptionRecordTest {
                                        Filters.eq("name", targetName));
             var matching = projectWithName(targetName);
             var envelope = stateChangedEnvelope(targetId, EMPTY_PRJ, matching);
-            var maybeUpdate = record.detectUpdate(envelope);
-            assertThat(maybeUpdate).isPresent();
-            var entityUpdate = firstEntityUpdate(maybeUpdate);
+            var updates = record.detectUpdates(envelope);
+            assertThat(updates).hasSize(1);
+            var entityUpdate = firstEntityUpdate(updates);
             assertEquals(matching, AnyPacker.unpack(entityUpdate.getState()));
 
             var nonMatching = projectWithName("some-other-name");
             var envelope2 = stateChangedEnvelope(targetId, EMPTY_PRJ, nonMatching);
-            assertThat(record.detectUpdate(envelope2)).isEmpty();
+            assertThat(record.detectUpdates(envelope2)).isEmpty();
         }
 
         @Test
@@ -165,10 +153,10 @@ class SubscriptionRecordTest {
                     .setTeamId(matchingTeamId)
                     .build();
             var envelope = projectCreatedEnvelope(targetId, matching);
-            var maybeUpdate = record.detectUpdate(envelope);
-            assertThat(maybeUpdate).isPresent();
+            var updates = record.detectUpdates(envelope);
+            assertThat(updates).hasSize(1);
 
-            var event = firstEventUpdate(maybeUpdate);
+            var event = firstEventUpdate(updates);
             var message = EventEnvelope.of(event).message();
             assertEquals(matching, message);
 
@@ -180,7 +168,7 @@ class SubscriptionRecordTest {
                     .setProjectId(subscriptionProjectId("Another Subscription Project"))
                     .build();
             var nonMatching = projectCreatedEnvelope(targetId, other);
-            assertThat(record.detectUpdate(nonMatching)).isEmpty();
+            assertThat(record.detectUpdates(nonMatching)).isEmpty();
         }
     }
 
@@ -196,10 +184,10 @@ class SubscriptionRecordTest {
         var nonMatching = projectWithName("not-matching-anymore");
 
         var envelope = stateChangedEnvelope(targetId, matching, nonMatching);
-        var maybeUpdate = record.detectUpdate(envelope);
-        assertThat(maybeUpdate).isPresent();
+        var updates = record.detectUpdates(envelope);
+        assertThat(updates).hasSize(1);
 
-        var entityUpdate = firstEntityUpdate(maybeUpdate);
+        var entityUpdate = firstEntityUpdate(updates);
         assertTrue(entityUpdate.getNoLongerMatching());
     }
 
@@ -236,20 +224,16 @@ class SubscriptionRecordTest {
     }
 
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType") // OK for tests.
-    private static EntityStateUpdate firstEntityUpdate(Optional<SubscriptionUpdate> maybeUpdate) {
-        @SuppressWarnings("OptionalGetWithoutIsPresent")    // Checked by `Truth8.assertThat(..)`.
-        var update = maybeUpdate.get();
+    private static EntityStateUpdate firstEntityUpdate(List<SubscriptionUpdate> updates) {
+        var update = updates.get(0);
         var updateList = update.getEntityUpdates().getUpdateList();
         assertEquals(1, updateList.size());
 
         return updateList.get(0);
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType") // OK for tests.
-    private static Event firstEventUpdate(Optional<SubscriptionUpdate> maybeUpdate) {
-        @SuppressWarnings("OptionalGetWithoutIsPresent")    // Checked by `Truth8.assertThat(..)`.
-        var update = maybeUpdate.get();
+    private static Event firstEventUpdate(List<SubscriptionUpdate> updates) {
+        var update = updates.get(0);
         var updateList = update.getEventUpdates().getEventList();
         assertEquals(1, updateList.size());
 

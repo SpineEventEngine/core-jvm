@@ -14,14 +14,20 @@
 
 package io.spine.server.stand;
 
-import io.spine.base.EventMessage;
+import io.spine.client.Target;
 import io.spine.client.Topic;
+import io.spine.validation.Validate;
+
+import java.util.Set;
 
 import static io.spine.option.EntityOption.Visibility.SUBSCRIBE;
 import static java.lang.String.format;
 
 /**
  * Validates the {@linkplain Topic} instances submitted to {@linkplain Stand}.
+ *
+ * <p>The {@code Stand} allows subscribing to a target of an entity type that it exposes for
+ * subscription, and to a target of any event type.
  */
 final class TopicValidator extends AbstractTargetValidator<Topic> {
 
@@ -29,22 +35,64 @@ final class TopicValidator extends AbstractTargetValidator<Topic> {
         super(SUBSCRIBE, typeRegistry);
     }
 
+    /**
+     * Tells whether the {@code Stand} allows subscribing to the given target.
+     */
+    boolean allows(Target target) {
+        var exposedEntity = typeRegistryContains(target) && visibilitySufficient(target);
+        return exposedEntity || target.ofEvent();
+    }
+
+    /**
+     * Checks whether the topic is valid, and the {@code Stand} allows subscribing to
+     * the targets of the topic with the given indexes.
+     *
+     * <p>The constraints of the topic are checked for the whole topic, all its targets
+     * included. Whether the {@code Stand} allows subscribing is checked only for the targets
+     * with the given indexes.
+     *
+     * @param topic
+     *         the topic to validate
+     * @param targets
+     *         the indexes of the topic targets to check
+     * @throws InvalidRequestException
+     *         if the topic violates its constraints
+     * @throws UnsupportedRequestException
+     *         if the {@code Stand} does not allow subscribing to one of the checked targets
+     */
+    void validate(Topic topic, Set<Integer> targets)
+            throws InvalidRequestException, UnsupportedRequestException {
+        checkViolations(topic, Validate.violationsOf(topic));
+        for (int index : targets) {
+            var target = topic.getTarget(index);
+            if (!allows(target)) {
+                throw new UnsupportedRequestException(topic, errorMessage(target));
+            }
+        }
+    }
+
+    /**
+     * Tells whether the {@code Stand} allows subscribing to every target of the topic.
+     */
     @Override
     protected boolean isSupported(Topic request) {
-        var target = request.getTarget();
-        var supportedEntityTopic = typeRegistryContains(target) && visibilitySufficient(target);
-        if (supportedEntityTopic) {
-            return true;
-        } else {
-            var targetClass = target.type().getMessageClass();
-            var supportedEventTopic = EventMessage.class.isAssignableFrom(targetClass);
-            return supportedEventTopic;
-        }
+        return request.getTargetList()
+                      .stream()
+                      .allMatch(this::allows);
     }
 
     @Override
     protected String errorMessage(Topic request) {
-        var targetType = getTypeOf(request.getTarget());
+        var unsupported = request.getTargetList()
+                                 .stream()
+                                 .filter(target -> !allows(target))
+                                 .findFirst()
+                                 .orElseThrow();
+        return errorMessage(unsupported);
+    }
+
+    private static String errorMessage(Target target) {
+        var targetType = getTypeOf(target);
         return format("The topic target type is not supported: %s", targetType.typeName());
     }
 }

@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.stand;
@@ -38,18 +26,30 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.util.Optional;
 
+import static io.spine.core.Responses.ok;
 import static io.spine.util.Exceptions.newIllegalStateException;
 
 /**
- * Handles the domain and system events that correspond to the specified {@code Subscription}.
+ * Handles the domain and system events that correspond to a target of
+ * the specified {@code Subscription}.
  *
- * <p>Compares the event data to the filtering criteria of the {@code Subscription} and
+ * <p>Compares the event data to the filtering criteria of the target and
  * notifies the {@linkplain #setCallback(SubscriptionCallback) callback} with
  * the detected {@linkplain SubscriptionUpdate subscription updates}.
  */
 abstract class UpdateHandler implements WithLogging {
 
     private final Subscription subscription;
+
+    /**
+     * The index of the handled target among the targets of the subscription topic.
+     */
+    private final int targetIndex;
+
+    /**
+     * The handled target of the subscription topic.
+     */
+    private final Target target;
 
     /**
      * The type of {@code EntityLifecycle} event handled by this instance.
@@ -62,12 +62,30 @@ abstract class UpdateHandler implements WithLogging {
     private @MonotonicNonNull SubscriptionCallback callback = null;
 
     /**
-     * Creates an update handler acting according to the criteria of the passed
-     * {@code Subscription}, reacting to the system events of the specified {@code eventType}.
+     * Creates an update handler acting according to the criteria of the given target of
+     * the passed {@code Subscription}, reacting to the events of the specified
+     * {@code eventType}.
+     *
+     * @param subscription
+     *         the subscription to serve
+     * @param targetIndex
+     *         the index of the served target among the targets of the subscription topic
+     * @param eventType
+     *         the type of the handled events
      */
-    UpdateHandler(Subscription subscription, TypeUrl eventType) {
+    UpdateHandler(Subscription subscription, int targetIndex, TypeUrl eventType) {
         this.subscription = subscription;
+        this.targetIndex = targetIndex;
+        this.target = targetOf(subscription, targetIndex);
         this.eventType = eventType;
+    }
+
+    /**
+     * Obtains the target with the given index from the topic of the given subscription.
+     */
+    static Target targetOf(Subscription subscription, int targetIndex) {
+        return subscription.getTopic()
+                           .getTarget(targetIndex);
     }
 
     /**
@@ -108,11 +126,20 @@ abstract class UpdateHandler implements WithLogging {
     }
 
     /**
-     * Obtains the {@code Target} of the handled subscription.
+     * Obtains the handled {@code Target} of the subscription topic.
      */
     final Target target() {
-        return subscription.getTopic()
-                           .getTarget();
+        return target;
+    }
+
+    /**
+     * Creates a builder of a successful update of the handled target of the subscription.
+     */
+    final SubscriptionUpdate.Builder newUpdate() {
+        return SubscriptionUpdate.newBuilder()
+                .setSubscription(subscription)
+                .setResponse(ok())
+                .setTargetIndex(targetIndex);
     }
 
     /**

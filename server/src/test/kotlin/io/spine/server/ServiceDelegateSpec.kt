@@ -14,6 +14,7 @@
 
 package io.spine.server
 
+import com.google.common.collect.ImmutableList
 import com.google.protobuf.Empty
 import com.google.protobuf.Message
 import com.google.protobuf.StringValue
@@ -98,8 +99,8 @@ private abstract class StubDelegate(application: Application) :
 
     private var tenantObtained = false
 
-    override fun enclosedMessageType(request: StringValue): TypeUrl =
-        TypeUrl.of(StringValue::class.java)
+    override fun enclosedMessageTypes(request: StringValue): ImmutableList<TypeUrl> =
+        ImmutableList.of(TypeUrl.of(StringValue::class.java))
 
     override fun tenantOf(request: StringValue): TenantId {
         check(!tenantObtained) { "The tenant cannot be obtained." }

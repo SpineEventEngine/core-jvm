@@ -99,7 +99,7 @@ internal class SubscriptionServiceUnservedTopicSpec {
             shared = application.contexts().first()
             both = SubscriptionService.of(application)
             subscription = Subscriptions.from(taskEvents(requests))
-            shared.stand().subscribe(subscription)
+            shared.stand().subscribe(subscription, setOf(0))
         }
 
         @Test

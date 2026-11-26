@@ -14,6 +14,7 @@
 
 package io.spine.server;
 
+import com.google.common.collect.ImmutableList;
 import com.google.protobuf.Message;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
@@ -115,10 +116,10 @@ public final class CommandService
          * whatever its message holds.
          */
         @Override
-        protected TypeUrl enclosedMessageType(Command request) {
+        protected ImmutableList<TypeUrl> enclosedMessageTypes(Command request) {
             var typeUrl = request.getMessage()
                                  .getTypeUrl();
-            return TypeUrl.parse(typeUrl);
+            return ImmutableList.of(TypeUrl.parse(typeUrl));
         }
 
         @Override

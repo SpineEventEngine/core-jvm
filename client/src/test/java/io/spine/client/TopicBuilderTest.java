@@ -108,7 +108,7 @@ class TopicBuilderTest {
                                .build();
             assertNotNull(topic);
 
-            var target = topic.getTarget();
+            var target = topic.getTarget(0);
             assertTrue(target.getIncludeAll());
 
             assertEquals(TEST_ENTITY_TYPE_URL.value(), target.getType());
@@ -124,7 +124,7 @@ class TopicBuilderTest {
                                .build();
             assertNotNull(topic);
 
-            var target = topic.getTarget();
+            var target = topic.getTarget(0);
             assertFalse(target.getIncludeAll());
 
             var entityFilters = target.getFilters();
@@ -161,7 +161,7 @@ class TopicBuilderTest {
                                .where(eq(columnName, columnValue))
                                .build();
             assertNotNull(topic);
-            var target = topic.getTarget();
+            var target = topic.getTarget(0);
             assertFalse(target.getIncludeAll());
 
             var entityFilters = target.getFilters();
@@ -192,7 +192,7 @@ class TopicBuilderTest {
                                         eq(columnName2, columnValue2))
                                .build();
             assertNotNull(topic);
-            var target = topic.getTarget();
+            var target = topic.getTarget(0);
             assertFalse(target.getIncludeAll());
 
             var entityFilters = target.getFilters();
@@ -228,7 +228,7 @@ class TopicBuilderTest {
                                         either(eq(secondColumn, false),
                                                eq(firstColumn, countryName)))
                                .build();
-            var target = topic.getTarget();
+            var target = topic.getTarget(0);
             var filters = target.getFilters()
                                 .getFilterList();
             assertThat(filters)
@@ -300,7 +300,7 @@ class TopicBuilderTest {
                                .build();
             assertNotNull(query);
 
-            var target = query.getTarget();
+            var target = query.getTarget(0);
             assertFalse(target.getIncludeAll());
             var targetFilters = target.getFilters();
 
@@ -367,7 +367,7 @@ class TopicBuilderTest {
                                .build();
             assertNotNull(topic);
 
-            var target = topic.getTarget();
+            var target = topic.getTarget(0);
             var filters = target.getFilters();
             Collection<Any> entityIds = filters.getIdFilter()
                                                .getIdList();

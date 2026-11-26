@@ -690,9 +690,10 @@ class StandTest extends TenantAwareTest {
             // Project type was NOT registered.
             // So create a topic for an unknown type.
             var allProjectsTopic = requestFactory.topic().allOf(Project.class);
+            var subscription = Subscriptions.from(allProjectsTopic);
             var exception =
                     assertThrows(UnsupportedRequestException.class,
-                                 () -> stand.subscribe(allProjectsTopic, noOpObserver()));
+                                 () -> stand.subscribe(subscription, Set.of(0)));
             assertEquals(allProjectsTopic, exception.getRequest());
         }
 
@@ -701,9 +702,13 @@ class StandTest extends TenantAwareTest {
         void ifInvalidTopicMessagePassed() {
             var stand = createStand();
             var invalidTopic = Topic.getDefaultInstance();
+            var subscription = Subscription.newBuilder()
+                    .setId(Subscriptions.generateId())
+                    .setTopic(invalidTopic)
+                    .buildPartial();
             var exception =
                     assertThrows(InvalidRequestException.class,
-                                 () -> stand.subscribe(invalidTopic, noOpObserver()));
+                                 () -> stand.subscribe(subscription, Set.of()));
             assertEquals(invalidTopic, exception.getRequest());
             assertTrue(isNotDefault(exception.validationError()));
         }

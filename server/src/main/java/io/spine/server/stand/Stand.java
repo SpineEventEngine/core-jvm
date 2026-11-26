@@ -23,7 +23,7 @@ import io.spine.client.EntityStateWithVersion;
 import io.spine.client.Query;
 import io.spine.client.QueryResponse;
 import io.spine.client.Subscription;
-import io.spine.client.Topic;
+import io.spine.client.Target;
 import io.spine.core.Origin;
 import io.spine.core.Response;
 import io.spine.core.Responses;
@@ -47,7 +47,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.grpc.StreamObservers.ack;
 
@@ -63,8 +65,8 @@ import static io.spine.grpc.StreamObservers.ack;
  * {@linkplain #execute(Query, StreamObserver) queries} sent by
  * the {@link io.spine.server.QueryService QueryService}.
  *
- * <p>The {@code Stand} also manages {@linkplain #subscribe(Topic, StreamObserver)
- * creation of subscriptions}, their
+ * <p>The {@code Stand} also manages {@linkplain #subscribe(Subscription, Set)
+ * registration of subscriptions}, their
  * {@linkplain #activate(Subscription, SubscriptionCallback, StreamObserver) activation}, and
  * delivering updates to the subscribers when requested by
  * the {@linkplain io.spine.server.SubscriptionService SubscriptionService}.
@@ -153,64 +155,63 @@ public class Stand implements Closeable {
     }
 
     /**
-     * Creates a subscription for the passed topic.
+     * Registers the inactive subscription in this {@code Stand} for the given targets of
+     * its topic.
      *
-     * @param topic
-     *         defines the subscription target
-     * @param responseObserver
-     *         the observer for obtaining the created subscription
-     * @throws InvalidRequestException
-     *         if the topic fails validation
-     * @throws UnsupportedRequestException
-     *         if this {@code Stand} does not expose the target type of the topic
-     */
-    public void subscribe(Topic topic, StreamObserver<Subscription> responseObserver)
-            throws InvalidRequestException, UnsupportedRequestException {
-        topicValidator.validate(topic);
-
-        var tenantId = topic.getContext()
-                            .getTenantId();
-        var op = new TenantAwareOperation(tenantId) {
-            @Override
-            public void run() {
-                var subscription = subscriptionRegistry.add(topic);
-                responseObserver.onNext(subscription);
-                responseObserver.onCompleted();
-            }
-        };
-        op.execute();
-    }
-
-    /**
-     * Registers this inactive subscription in this {@code Stand}.
-     *
-     * <p>The given subscription is shared between different Bounded Contexts.
+     * <p>The given subscription may be shared between different Bounded Contexts. Each of
+     * them holds the targets of the topic that it serves, so that an update of a target
+     * comes from the context that serves the target.
      *
      * @param subscription
      *         an existing subscription
+     * @param targets
+     *         the indexes of the topic targets to serve
      * @throws InvalidRequestException
      *         if the topic fails validation
      * @throws UnsupportedRequestException
-     *         if this {@code Stand} does not expose the target type of the topic
+     *         if this {@code Stand} does not allow subscribing to one of the given targets
+     * @throws IllegalArgumentException
+     *         if this {@code Stand} already has the subscription, or the targets are empty
+     *         or out of the range of the topic targets
+     * @see #allowsSubscriptionTo(Target)
      */
-    public void subscribe(Subscription subscription)
+    public void subscribe(Subscription subscription, Set<Integer> targets)
             throws InvalidRequestException, UnsupportedRequestException {
+        checkNotNull(subscription);
+        checkNotNull(targets);
         var topic = subscription.getTopic();
-        topicValidator.validate(topic);
+        var count = topic.getTargetCount();
+        for (int index : targets) {
+            checkArgument(index >= 0 && index < count,
+                          "The topic has no target with the index %s.", index);
+        }
+        topicValidator.validate(topic, targets);
 
         var tenantId = topic.getContext()
                             .getTenantId();
         var op = new TenantAwareOperation(tenantId) {
             @Override
             public void run() {
-                subscriptionRegistry.add(subscription);
+                subscriptionRegistry.add(subscription, targets);
             }
         };
         op.execute();
     }
 
     /**
-     * Activates the subscription created via {@link #subscribe(Topic, StreamObserver)
+     * Tells whether this {@code Stand} allows subscribing to the given target.
+     *
+     * <p>A {@code Stand} allows subscribing to a target of an entity type that it exposes
+     * for subscription, and to a target of any event type.
+     */
+    @Internal
+    public boolean allowsSubscriptionTo(Target target) {
+        checkNotNull(target);
+        return topicValidator.allows(target);
+    }
+
+    /**
+     * Activates the subscription registered via {@link #subscribe(Subscription, Set)
      * subscribe()} method.
      *
      * <p>After the activation, the clients will start receiving the updates via the passed
@@ -226,7 +227,7 @@ public class Stand implements Closeable {
      *         if the subscription fails validation
      * @throws UnsupportedRequestException
      *         if this {@code Stand} does not have the subscription
-     * @see #subscribe(Topic, StreamObserver)
+     * @see #subscribe(Subscription, Set)
      */
     public void activate(Subscription subscription,
                          SubscriptionCallback callback,
