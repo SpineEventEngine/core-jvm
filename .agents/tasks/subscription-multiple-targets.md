@@ -207,7 +207,7 @@ all keep the set from `post()`.
 
 **Out of scope, noted:**
 - An index by `SubscriptionId`: `findById` is O(n) and now runs once per holder.
-- The leak when a client disconnects without cancelling (an existing problem).
+- The leak when a client disconnects without cancelling (an existing problem): issue #1739.
 - `TypeDictionary` keeping the last context for an event type produced by two contexts
   (#1728).
 
