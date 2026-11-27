@@ -14,13 +14,21 @@
 
 package io.spine.server.delivery
 
+import com.google.protobuf.Message
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.spine.query.RecordQuery
 import io.spine.server.BoundedContextBuilder
+import io.spine.server.ContextSpec
+import io.spine.server.storage.DelegatingRecordStorage
+import io.spine.server.storage.RecordSpec
+import io.spine.server.storage.RecordStorage
 import io.spine.server.storage.StorageFactory
+import io.spine.server.storage.StorageGroup
 import io.spine.server.storage.memory.InMemoryStorageFactory
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -29,57 +37,44 @@ import org.junit.jupiter.api.Test
 internal class AbstractDeliveryTestSpec {
 
     @Test
-    fun `close the shared storage factory once, after the black boxes`() {
-        val factory = RecordedFactory()
-        val test = testOver(factory)
+    fun `close an application factory with its application`() {
+        val created = mutableListOf<PoolFactory>()
+        val test = testOver(created)
         test.setUp()
         try {
+            val catchUp = test.delivery().catchUpStorage()
             val first = test.blackBoxWith()
             val second = test.blackBoxWith()
+            created.shouldHaveSize(3)
+
             first.close()
             second.close()
 
-            factory.isOpen.shouldBeTrue()
-            factory.closings shouldBe 0
-            test.delivery().catchUpStorage().clear()
+            created[0].isOpen.shouldBeTrue()
+            created[1].isOpen.shouldBeFalse()
+            created[2].isOpen.shouldBeFalse()
+            created[1].closings shouldBe 1
+            created[2].closings shouldBe 1
+            catchUp.clear()
 
             test.tearDown()
 
-            factory.closings shouldBe 1
-            factory.isOpen.shouldBeFalse()
-
-            test.tearDown()
-            factory.closings shouldBe 1
+            created[0].closings shouldBe 1
+            created[0].isOpen.shouldBeFalse()
+            shouldThrow<IllegalStateException> { catchUp.clear() }
         } finally {
             test.tearDown()
         }
+        created.forEach { it.closings shouldBe 1 }
     }
 
     @Test
-    fun `close the storage factory that the delivery opened`() {
-        val factory = RecordedFactory()
-        val test = testOver(factory)
+    fun `close the delivery factory when an application fails to close`() {
+        val created = mutableListOf<PoolFactory>()
+        val test = testOver(created)
         test.setUp()
         try {
             test.delivery()
-
-            factory.closings shouldBe 0
-
-            test.tearDown()
-
-            factory.closings shouldBe 1
-            factory.isOpen.shouldBeFalse()
-        } finally {
-            test.tearDown()
-        }
-    }
-
-    @Test
-    fun `close the storage factory when an application fails to close`() {
-        val factory = RecordedFactory()
-        val test = testOver(factory)
-        test.setUp()
-        try {
             val builder = BoundedContextBuilder.assumingTests()
             builder.setOnBeforeClose { error("The context failed to close.") }
             test.build(builder)
@@ -89,38 +84,79 @@ internal class AbstractDeliveryTestSpec {
             }
 
             error.message shouldContain "The context failed to close."
-            factory.closings shouldBe 1
-            factory.isOpen.shouldBeFalse()
         } finally {
             test.tearDown()
         }
-        factory.closings shouldBe 1
+        created.shouldHaveSize(2)
+        created.forEach { it.closings shouldBe 1 }
     }
 }
 
 /**
- * Runs [AbstractDeliveryTest] over the given factory.
+ * Runs [AbstractDeliveryTest] over a new [PoolFactory] on every
+ * [AbstractDeliveryTest.storageFactory] call.
  */
-private fun testOver(factory: StorageFactory): AbstractDeliveryTest =
+private fun testOver(created: MutableList<PoolFactory>): AbstractDeliveryTest =
     object : AbstractDeliveryTest() {
-        override fun storageFactory(): StorageFactory = factory
+        override fun storageFactory(): StorageFactory {
+            val factory = PoolFactory()
+            created += factory
+            return factory
+        }
     }
 
 /**
- * An in-memory storage factory that counts the calls to [close].
+ * A storage factory that closes its resources, and whose storages then reject reads.
  *
- * The second call fails, so a suite that closes the factory twice fails the test.
+ * The second call to [close] fails.
  */
-private class RecordedFactory(
-    private val delegate: StorageFactory = InMemoryStorageFactory.newInstance()
-) : StorageFactory by delegate {
+private class PoolFactory : StorageFactory {
+
+    private val delegate = InMemoryStorageFactory.newInstance()
 
     var closings: Int = 0
         private set
 
+    private var open = true
+
+    override fun isOpen(): Boolean = open
+
     override fun close() {
+        check(open) { "The factory was closed more than once." }
         closings += 1
-        check(closings == 1) { "The storage factory was closed $closings times." }
+        open = false
         delegate.close()
+    }
+
+    override fun <I : Any, R : Message> createRecordStorage(
+        context: ContextSpec,
+        recordSpec: RecordSpec<I, R>,
+        group: StorageGroup?
+    ): RecordStorage<I, R> {
+        check(open) { "The factory is closed." }
+        val storage = delegate.createRecordStorage(context, recordSpec, group)
+        return GuardedStorage(context, storage, this)
+    }
+
+    /**
+     * Throws if this factory is closed.
+     */
+    fun checkUsable() {
+        check(open) { "The factory is closed." }
+    }
+}
+
+/**
+ * A record storage that reads through [factory] and rejects a read once the factory is closed.
+ */
+private class GuardedStorage<I : Any, R : Message>(
+    context: ContextSpec,
+    delegate: RecordStorage<I, R>,
+    private val factory: PoolFactory
+) : DelegatingRecordStorage<I, R>(context, delegate) {
+
+    override fun index(query: RecordQuery<I, R>): MutableIterator<I> {
+        factory.checkUsable()
+        return super.index(query)
     }
 }

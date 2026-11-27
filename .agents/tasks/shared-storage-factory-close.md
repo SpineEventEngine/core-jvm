@@ -8,9 +8,9 @@ started: 2026-11-27
 
 ## Goal
 
-A storage implementation that returns its factory from `AbstractDeliveryTest.storageFactory()`
-has that factory closed once, after the test has finished reading it. No wrapper in the
-storage repository is required.
+Each application of a delivery test is given its own `StorageFactory` and closes it.
+The `Delivery` is given a factory of its own, which the test closes after the reads.
+`storageFactory()` returns a new instance on every call. No wrapper suppresses `close()`.
 
 ## Context
 
@@ -27,9 +27,9 @@ the shared factory and still uses it after an application closes, so the suite c
 ## Plan
 
 - [x] Confirm the close order in `BlackBox`, `Application`, and `ServerEnvironment`
-- [x] Give each environment of a delivery test a factory that leaves the shared factory open
-- [x] Close the shared factory once at the end of `tearDown()`, after the applications
-- [x] Cover two closed black boxes, a catch-up read, and a second tear-down
+- [x] Give each application a new factory and let the application close it
+- [x] Give `Delivery` its own factory, closed by the test after the reads
+- [x] Cover a factory that rejects reads after `close()`
 - [x] Run the in-memory delivery suites and the fast storage suites
 
 ## Log

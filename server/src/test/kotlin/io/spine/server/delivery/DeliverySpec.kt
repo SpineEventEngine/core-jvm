@@ -98,7 +98,7 @@ internal class DeliverySpec : AbstractDeliveryTest() {
     @Test
     fun `store a message with the context of the inbox that received it`() {
         // No shard observer, so the message waits in the shard.
-        val delivery = Delivery.newBuilder(nodeId(), openedStorageFactory())
+        val delivery = Delivery.newBuilder(nodeId(), deliveryFactory())
             .setStrategy(UniformAcrossAllShards.singleShard())
             .build()
         use(delivery)

@@ -26,7 +26,6 @@ import io.spine.server.entity.Repository;
 import io.spine.server.storage.StorageFactory;
 import io.spine.server.storage.memory.InMemoryStorageFactory;
 import io.spine.testing.server.blackbox.BlackBox;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,14 +42,13 @@ import static io.spine.util.Cleanup.throwIfAny;
  * <p>A test sets the {@link Delivery} of its contexts with {@link #use(Delivery)}, and then
  * builds the contexts with {@link #build(BoundedContextBuilder)} or
  * {@link #blackBox(BoundedContextBuilder)}. Each context is the only context of an application
- * of its own. The environments of these applications share the {@linkplain #storageFactory()
- * storage factory}, the {@linkplain #nodeId() node}, and the {@code Delivery} of the test.
+ * of its own. The environments of these applications share the {@linkplain #nodeId() node}
+ * and the {@code Delivery} of the test. Each application is given its own
+ * {@linkplain #storageFactory() storage factory}, and closes that factory.
  *
- * <p>Closing a black box closes its application and the environment of that application.
- * The storage factory stays open: the test reads the storages of its {@code Delivery}
- * after a black box is closed, and several applications share the factory.
- * {@link #tearDown()} closes the applications that are still open, and then closes
- * the factory once.
+ * <p>The {@code Delivery} is given a factory of its own. The test closes that factory
+ * in {@link #tearDown()}, after the applications. The catch-up and inbox storages of
+ * the delivery therefore stay open after a black box has closed its application.
  */
 public abstract class AbstractDeliveryTest {
 
@@ -62,20 +60,6 @@ public abstract class AbstractDeliveryTest {
             .build();
 
     /**
-     * The storage factory of the test, created on the first call to {@link #storageFactory()}.
-     */
-    private @MonotonicNonNull StorageFactory inMemoryStorage;
-
-    /**
-     * The factory returned by {@link #storageFactory()}, remembered so {@link #tearDown()}
-     * closes it once.
-     *
-     * <p>Differs from {@link #inMemoryStorage} when a storage implementation overrides
-     * {@link #storageFactory()}.
-     */
-    private @MonotonicNonNull StorageFactory factoryToClose;
-
-    /**
      * The delivery of the contexts built by the test, or {@code null} until it is set or
      * {@linkplain #delivery() created}.
      */
@@ -84,10 +68,15 @@ public abstract class AbstractDeliveryTest {
     /**
      * The applications built by the test.
      *
-     * <p>A black box closes its application. {@link #tearDown()} closes any application
-     * that is still open, and then the storage factory of the test.
+     * <p>A black box closes its application, and with it the storage factory of that
+     * application. {@link #tearDown()} closes any application that is still open.
      */
     private final List<Application> applications = new ArrayList<>();
+
+    /**
+     * The storage factories given to a {@link Delivery}, closed by {@link #tearDown()}.
+     */
+    private final List<StorageFactory> deliveryFactories = new ArrayList<>();
 
     @BeforeEach
     public void setUp() {
@@ -95,13 +84,14 @@ public abstract class AbstractDeliveryTest {
     }
 
     /**
-     * Closes the applications that are still open, and then the storage factory of the test.
+     * Closes the applications that are still open, and then the storage factories
+     * given to a {@link Delivery}.
      *
-     * <p>The storage factory stays open while the applications close. A tear-down that
-     * reads the {@link Delivery} of the test does so before calling this method.
-     * This method then closes the factory once. If closing an application fails,
-     * the remaining applications and the factory are still closed, and the first
-     * failure is thrown.
+     * <p>An application closes the factory it was given. A tear-down that reads the
+     * catch-up or inbox storage of the delivery does so before calling this method:
+     * this method closes the delivery's factory. If closing an application fails,
+     * the remaining applications and the delivery factories are still closed, and
+     * the first failure is thrown.
      */
     @AfterEach
     public void tearDown() {
@@ -110,55 +100,45 @@ public abstract class AbstractDeliveryTest {
             failure = runKeepingFailure(failure, application::closeIfOpen);
         }
         applications.clear();
-        failure = runKeepingFailure(failure, this::closeFactory);
+        for (var factory : List.copyOf(deliveryFactories)) {
+            failure = runKeepingFailure(failure, () -> closeIfOpen(factory));
+        }
+        deliveryFactories.clear();
         delivery = null;
         throwIfAny(failure);
     }
 
     /**
-     * Closes the storage factory remembered by {@link #openedStorageFactory()}, once.
+     * Closes the factory if it is still open.
      */
-    private void closeFactory() {
-        var factory = factoryToClose;
-        if (factory == null) {
-            return;
-        }
-        factoryToClose = null;
+    private static void closeIfOpen(StorageFactory factory) {
         if (factory.isOpen()) {
             factory.close();
         }
     }
 
     /**
-     * Obtains the storage factory with which the contexts and the delivery of the test create
-     * their storages.
+     * Creates a new storage factory.
      *
-     * <p>Returns an in-memory factory by default. Storage implementations override this method
-     * to run the tests over their storages. The override returns the same instance on every
-     * call and leaves it open. The test closes that instance once, in {@link #tearDown()}.
+     * <p>Returns a new in-memory factory on every call. Storage implementations override
+     * this method and return a new factory on every call.
      *
-     * @see #openedStorageFactory()
+     * <p>An application closes the factory it is given. {@link #deliveryFactory()}
+     * uses this method for the factory of a {@link Delivery}, which the test closes.
      */
     public StorageFactory storageFactory() {
-        if (inMemoryStorage == null) {
-            inMemoryStorage = InMemoryStorageFactory.newInstance();
-        }
-        return inMemoryStorage;
+        return InMemoryStorageFactory.newInstance();
     }
 
     /**
-     * Obtains the {@linkplain #storageFactory() storage factory} of the test and remembers
-     * the instance, so {@link #tearDown()} closes it once.
+     * Creates a storage factory for a {@link Delivery} and remembers it.
      *
-     * <p>The code of the suite calls this method. An override of {@link #storageFactory()}
-     * returns the factory.
+     * <p>{@link #tearDown()} closes this factory after the applications. The catch-up
+     * and inbox storages of the delivery stay open until then.
      */
-    public final StorageFactory openedStorageFactory() {
-        var factory = factoryToClose;
-        if (factory == null) {
-            factory = storageFactory();
-            factoryToClose = factory;
-        }
+    public final StorageFactory deliveryFactory() {
+        var factory = storageFactory();
+        deliveryFactories.add(factory);
         return factory;
     }
 
@@ -183,16 +163,18 @@ public abstract class AbstractDeliveryTest {
      */
     public final Delivery delivery() {
         if (delivery == null) {
-            delivery = Delivery.local(nodeId, openedStorageFactory());
+            delivery = Delivery.local(nodeId, deliveryFactory());
         }
         return delivery;
     }
 
     /**
-     * Creates a new environment with the storage factory and the delivery of the test.
+     * Creates a new environment with a new storage factory and the delivery of the test.
+     *
+     * <p>The application built with this environment closes the factory.
      */
     public final ServerEnvironment newEnvironment() {
-        var storage = new TestOwnedStorageFactory(openedStorageFactory());
+        var storage = storageFactory();
         var delivery = delivery();
         return ServerEnvironment.newBuilder()
                 .under(Tests.class, env -> env.use(storage)
@@ -215,8 +197,8 @@ public abstract class AbstractDeliveryTest {
      * Creates a black box over the context of the given builder, the only context of
      * a new application with a {@linkplain #newEnvironment() new environment} of the test.
      *
-     * <p>Closing the black box closes the application and its environment.
-     * The storage factory of the test stays open until {@link #tearDown()}.
+     * <p>Closing the black box closes the application, and with it the storage factory
+     * of that application.
      */
     public final BlackBox blackBox(BoundedContextBuilder builder) {
         return BlackBox.from(newApplication(builder));
@@ -262,7 +244,7 @@ public abstract class AbstractDeliveryTest {
      * with the given number of shards.
      */
     public final void changeShardCountTo(int shards) {
-        var factory = openedStorageFactory();
+        var factory = deliveryFactory();
         use(Delivery.localWithShardsAndWindow(nodeId, factory, shards, Durations.ZERO));
     }
 }
