@@ -72,7 +72,7 @@ internal class CommandEmitterSpec {
     private lateinit var context: BoundedContext
 
     @BeforeEach
-    fun openContext() {
+    fun openApplication() {
         shipping = application {
             serverEnvironment = serverEnvironment {}
             add(singleTenantContext("Shipping") {
@@ -87,7 +87,7 @@ internal class CommandEmitterSpec {
     }
 
     @AfterEach
-    fun closeContext() {
+    fun closeApplication() {
         shipping.close()
     }
 
