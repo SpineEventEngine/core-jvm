@@ -32,6 +32,9 @@ interface SubscriptionRegistry {
      * Activates the subscription with the passed action.
      *
      * <p>The passed action will be used to notify the read-side about the subscription update.
+     * The action that the subscription was activated with before, if any, is
+     * {@linkplain SubscriptionCallback#onCancelled() told} that it serves the subscription
+     * no more.
      *
      * @param subscription
      *         the subscription to activate
@@ -79,9 +82,11 @@ interface SubscriptionRegistry {
      *         the subscription to remove
      * @param callback
      *         the callback with which the subscription must be activated
-     * @return {@code true} if the subscription was removed
+     * @return the removed record, or {@code Optional.empty()} if the subscription was not
+     *         removed
      */
-    boolean removeIfActivatedWith(Subscription subscription, SubscriptionCallback callback);
+    Optional<SubscriptionRecord> removeIfActivatedWith(Subscription subscription,
+                                                       SubscriptionCallback callback);
 
     /**
      * Allows determining if this registry has an item with the specified ID.

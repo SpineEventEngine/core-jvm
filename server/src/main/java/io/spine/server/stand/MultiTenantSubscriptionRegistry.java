@@ -62,8 +62,8 @@ final class MultiTenantSubscriptionRegistry implements SubscriptionRegistry {
     }
 
     @Override
-    public boolean removeIfActivatedWith(Subscription subscription,
-                                         SubscriptionCallback callback) {
+    public Optional<SubscriptionRecord> removeIfActivatedWith(Subscription subscription,
+                                                              SubscriptionCallback callback) {
         return registrySlice().removeIfActivatedWith(subscription, callback);
     }
 

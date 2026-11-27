@@ -24,7 +24,8 @@ import java.util.concurrent.TimeUnit.SECONDS
  *
  * The server pings the client of a connection that has no read activity for [TIME_MINUTES],
  * and closes the connection if the client does not answer within [TIMEOUT_SECONDS].
- * The calls of a client that disappears without closing its connection end then.
+ * So the calls of a client that disappears without closing its connection end within
+ * about a minute and 20 seconds.
  */
 internal object KeepAlive : WithLogging {
 
@@ -32,13 +33,13 @@ internal object KeepAlive : WithLogging {
      * The minutes without read activity on a connection after which the server pings
      * the client.
      */
-    const val TIME_MINUTES: Long = 1
+    private const val TIME_MINUTES: Long = 1
 
     /**
      * The seconds that the server waits for the answer to a ping before it closes
      * the connection.
      */
-    const val TIMEOUT_SECONDS: Long = 20
+    private const val TIMEOUT_SECONDS: Long = 20
 
     /**
      * Sets the keepalive of the given builder.

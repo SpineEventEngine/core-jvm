@@ -31,7 +31,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public interface SubscriptionCallback extends Consumer<SubscriptionUpdate> {
 
     /**
-     * Handles the cancellation of the subscription that this callback serves.
+     * Handles the end of the subscription for this callback: the subscription is cancelled,
+     * or activated again with another callback.
      *
      * <p>The callback receives no updates after that.
      *

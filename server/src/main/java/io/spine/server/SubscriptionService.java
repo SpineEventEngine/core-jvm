@@ -219,7 +219,8 @@ public final class SubscriptionService
             call.setOnCancelHandler(() -> activation.release(subscription, callback));
         } catch (IllegalStateException e) {
             logger().atDebug().withCause(e).log(() -> format(
-                    "Unable to watch the call that activates the subscription `%s`.",
+                    "Unable to set the cancellation handler of the call that activates" +
+                            " the subscription `%s`.",
                     subscription.getId().getValue()));
         }
     }
@@ -717,8 +718,8 @@ public final class SubscriptionService
          *
          * <p>If a context fails to activate the subscription, the failure closes the stream,
          * and then the subscription is cancelled in all the contexts, so that no context
-         * keeps serving it. The failure comes first: the cancellation would complete
-         * the stream otherwise.
+         * keeps serving it. The failure comes first, because the cancellation would complete
+         * the stream.
          */
         @Override
         void serveIn(ImmutableSortedSet<BoundedContext> holders,
@@ -746,9 +747,9 @@ public final class SubscriptionService
          * Cancels the subscription in the Bounded Contexts where the given callback serves it.
          *
          * <p>Reacts to the cancellation of the gRPC call that activated the subscription.
-         * Unlike a cancellation request, it records nothing for the contexts that do not have
-         * the subscription: the subscription may already be cancelled, or activated again by
-         * another call.
+         * Unlike a cancellation request, it is not refused for the contexts that do not have
+         * the subscription, and posts no event about them: the subscription may already be
+         * cancelled, or activated again by another call.
          *
          * <p>A failure to cancel is logged, and does not stop cancelling the subscription in
          * other contexts.

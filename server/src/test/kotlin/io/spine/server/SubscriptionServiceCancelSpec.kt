@@ -54,7 +54,7 @@ internal class SubscriptionServiceCancelSpec {
     }
 
     @Test
-    fun `complete the stream once, if several contexts hold the subscription`() {
+    fun `complete the stream without an error, if several contexts hold the subscription`() {
         val subscription = server.subscribe(UserLoggedIn::class.java, CTaskCreated::class.java)
         val stream = server.activate(subscription)
 

@@ -52,16 +52,20 @@ final class TenantSubscriptionRegistry implements SubscriptionRegistry {
     private final Map<SubscriptionId, SubscriptionRecord> records = new ConcurrentHashMap<>();
     private final Lock lock = new ReentrantLock();
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Activates the record outside the lock of the registry: the record may notify
+     * the callback it was activated with before, which may call the registry.
+     */
     @Override
     public void activate(Subscription subscription, SubscriptionCallback callback) {
-        lockAndRun(() -> {
-            var record = records.get(subscription.getId());
-            requireNonNull(record,
-                           () -> format(
-                                   "Cannot find the subscription with ID `%s` in the registry.",
-                                   subscription.getId()));
-            record.activate(callback);
-        });
+        var record = lockAndGet(() -> records.get(subscription.getId()));
+        requireNonNull(record,
+                       () -> format(
+                               "Cannot find the subscription with ID `%s` in the registry.",
+                               subscription.getId()));
+        record.activate(callback);
     }
 
     @Override
@@ -91,17 +95,17 @@ final class TenantSubscriptionRegistry implements SubscriptionRegistry {
     }
 
     @Override
-    public boolean removeIfActivatedWith(Subscription subscription,
-                                         SubscriptionCallback callback) {
+    public Optional<SubscriptionRecord> removeIfActivatedWith(Subscription subscription,
+                                                              SubscriptionCallback callback) {
         return lockAndGet(() -> {
             var id = subscription.getId();
             var record = records.get(id);
             if (record == null || !record.isActivatedWith(callback)) {
-                return false;
+                return Optional.empty();
             }
             records.remove(id);
             unindex(record);
-            return true;
+            return Optional.of(record);
         });
     }
 

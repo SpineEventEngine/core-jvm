@@ -43,7 +43,7 @@ internal class StandCancellationSpec {
     }
 
     @Test
-    fun `tell the callback of the activation, and acknowledge the cancellation`() {
+    fun `tell the callback it was activated with, and acknowledge the cancellation`() {
         stand.activate(subscription, callback, noOpObserver())
         val response = memoizingObserver<Response>()
 
@@ -55,14 +55,18 @@ internal class StandCancellationSpec {
     }
 
     @Test
-    fun `tell only the callback of the latest activation`() {
+    fun `tell each callback once, when it serves the subscription no more`() {
         val latest = CountingCallback()
         stand.activate(subscription, callback, noOpObserver())
+
         stand.activate(subscription, latest, noOpObserver())
+
+        callback.cancellations shouldBe 1
+        latest.cancellations shouldBe 0
 
         stand.cancel(subscription, noOpObserver())
 
-        callback.cancellations shouldBe 0
+        callback.cancellations shouldBe 1
         latest.cancellations shouldBe 1
     }
 
@@ -80,7 +84,9 @@ internal class StandCancellationSpec {
     fun `cancel the subscription and acknowledge it, even if the callback fails`() {
         val failing = object : SubscriptionCallback {
             override fun accept(update: SubscriptionUpdate) = Unit
-            override fun onCancelled() = error("The callback fails on purpose.")
+            override fun onCancelled() {
+                error("The callback fails on purpose.")
+            }
         }
         stand.activate(subscription, failing, noOpObserver())
         val response = memoizingObserver<Response>()
@@ -92,11 +98,13 @@ internal class StandCancellationSpec {
     }
 
     @Test
-    fun `cancel a subscription that is not activated`() {
-        stand.cancel(subscription, noOpObserver())
+    fun `cancel a subscription that is not activated, and acknowledge it`() {
+        val response = memoizingObserver<Response>()
+
+        stand.cancel(subscription, response)
 
         stand.hasSubscription(subscription) shouldBe false
-        callback.cancellations shouldBe 0
+        response.responses().shouldBeSingleton { it.status.hasOk() shouldBe true }
     }
 }
 

@@ -14,9 +14,11 @@
 
 package io.spine.server
 
+import io.grpc.stub.ServerCallStreamObserver
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.spine.client.SubscriptionUpdate
 import io.spine.server.given.SubscriptionServer
 import io.spine.server.given.waitFor
 import io.spine.test.client.tasks.event.CTaskCreated
@@ -91,4 +93,58 @@ internal class SubscriptionServiceLostClientSpec {
 
         waitFor("the cancellation of the subscription") { !server.holds(subscription) }
     }
+
+    @Test
+    fun `activate the subscription, if the cancellation handler of the call cannot be set`() {
+        val subscription = server.subscribe(UserLoggedIn::class.java)
+        val call = FrozenCall()
+
+        server.directService.activate(subscription, call)
+        server.logIn()
+
+        call.updates shouldHaveSize 1
+        server.holds(subscription) shouldBe true
+    }
+}
+
+/**
+ * A server call whose cancellation handler cannot be set, as gRPC refuses it once
+ * the service method returns.
+ *
+ * Remembers the updates it receives.
+ */
+private class FrozenCall : ServerCallStreamObserver<SubscriptionUpdate>() {
+
+    private val received = mutableListOf<SubscriptionUpdate>()
+
+    /**
+     * The received updates, in the order of receiving.
+     */
+    val updates: List<SubscriptionUpdate> = received
+
+    override fun setOnCancelHandler(onCancelHandler: Runnable) {
+        error("The call is frozen.")
+    }
+
+    override fun isCancelled(): Boolean = false
+
+    override fun setCompression(compression: String) = Unit
+
+    override fun isReady(): Boolean = true
+
+    override fun setOnReadyHandler(onReadyHandler: Runnable) = Unit
+
+    override fun disableAutoInboundFlowControl() = Unit
+
+    override fun request(count: Int) = Unit
+
+    override fun setMessageCompression(enable: Boolean) = Unit
+
+    override fun onNext(value: SubscriptionUpdate) {
+        received.add(value)
+    }
+
+    override fun onError(t: Throwable) = Unit
+
+    override fun onCompleted() = Unit
 }

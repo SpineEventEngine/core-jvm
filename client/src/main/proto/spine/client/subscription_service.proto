@@ -64,15 +64,15 @@ service SubscriptionService {
     // Cancelled subscriptions cannot be activated. Passing a cancelled subscription will result
     // in a run-time error.
     //
-    // The stream completes when the subscription is cancelled. Cancelling the call cancels
-    // the subscription too.
+    // The stream completes when the subscription is cancelled, or activated again by another
+    // call. Cancelling the call cancels the subscription too.
     //
     rpc Activate(Subscription) returns (stream SubscriptionUpdate);
 
     // Cancels the given subscription.
     //
     // Clients will stop receiving the `SubscriptionUpdate` after this method is called.
-    // The stream of the activated subscription completes.
+    // The `Activate(Subscription)` stream of the subscription completes.
     //
     // The subscription is destroyed as the result of this call. To restore the subscription,
     // please call `Subscribe(Topic)` and then `Activate(Subscription)` again.

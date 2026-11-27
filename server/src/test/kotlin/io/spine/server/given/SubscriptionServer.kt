@@ -32,6 +32,7 @@ import io.spine.grpc.StreamObservers.memoizingObserver
 import io.spine.server.Application
 import io.spine.server.BoundedContext
 import io.spine.server.Server
+import io.spine.server.SubscriptionService
 import io.spine.test.client.ClientTestContext
 import io.spine.test.client.users.NAME as USERS
 import io.spine.test.client.users.command.logInUser
@@ -50,6 +51,11 @@ import org.junit.jupiter.api.fail
  * [UserLoggedIn][io.spine.test.client.users.event.UserLoggedIn] events, and the context of
  * [tasks] emits [CTaskCreated][io.spine.test.client.tasks.event.CTaskCreated] events.
  * Each context records the problems with the requests to the services in its monitor.
+ *
+ * The server and the channel use direct executors. So the server serves the calls in
+ * the order the spec makes them, which decides the latest of several activations of
+ * a subscription. The cancellation of a call usually reaches the server before
+ * [UpdateStream.cancel] returns.
  */
 internal class SubscriptionServer : AutoCloseable {
 
@@ -79,6 +85,12 @@ internal class SubscriptionServer : AutoCloseable {
      * The context of tasks.
      */
     val tasks: BoundedContext = application.contexts().single { it != users }
+
+    /**
+     * The subscription service of the application, for the specs that call it directly
+     * rather than over gRPC.
+     */
+    val directService: SubscriptionService = SubscriptionService.of(application)
 
     private val serverName = InProcessServerBuilder.generateName()
     private val server: Server = Server.inProcess(serverName)
@@ -122,7 +134,9 @@ internal class SubscriptionServer : AutoCloseable {
      * Makes the context of users emit
      * a [UserLoggedIn][io.spine.test.client.users.event.UserLoggedIn] event.
      */
-    fun logIn() = post(users, logInUser { user = GivenUserId.generated() })
+    fun logIn() {
+        post(users, logInUser { user = GivenUserId.generated() })
+    }
 
     private fun post(context: BoundedContext, message: CommandMessage) {
         val ack = memoizingObserver<Ack>()
@@ -143,7 +157,7 @@ internal class SubscriptionServer : AutoCloseable {
     override fun close() {
         try {
             channel.shutdownNow().awaitTermination(TIMEOUT_SECONDS, SECONDS)
-            server.shutdown()
+            server.shutdownAndWait()
         } finally {
             application.close()
         }
@@ -204,7 +218,8 @@ internal class UpdateStream : ClientResponseObserver<Subscription, SubscriptionU
 /**
  * Waits until the condition holds, failing the test if it does not hold within a few seconds.
  *
- * The end of a gRPC call, and an update, may reach the other side on another thread.
+ * Guards the specs against the end of a gRPC call, or an update, reaching the other side
+ * after the call that causes it returns.
  *
  * @param what The description of the awaited state, for the failure message.
  * @param condition Tells whether the awaited state is reached.

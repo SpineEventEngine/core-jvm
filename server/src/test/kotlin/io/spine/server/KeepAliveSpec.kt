@@ -19,6 +19,7 @@ import io.grpc.ServerBuilder
 import io.grpc.inprocess.InProcessServerBuilder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.spine.testing.logging.mute.MuteLogging
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.MINUTES
 import java.util.concurrent.TimeUnit.SECONDS
@@ -39,6 +40,7 @@ internal class KeepAliveSpec {
     }
 
     @Test
+    @MuteLogging
     fun `leave a builder whose transport does not support keepalive as it is`() {
         val builder = InProcessServerBuilder.forName(InProcessServerBuilder.generateName())
 
@@ -53,7 +55,7 @@ internal class KeepAliveSpec {
  */
 private class RecordingServerBuilder : ForwardingServerBuilder<RecordingServerBuilder>() {
 
-    private val delegate = InProcessServerBuilder.forName(InProcessServerBuilder.generateName())
+    private val target = InProcessServerBuilder.forName(InProcessServerBuilder.generateName())
 
     var keepAliveTimeNanos: Long? = null
         private set
@@ -61,7 +63,7 @@ private class RecordingServerBuilder : ForwardingServerBuilder<RecordingServerBu
     var keepAliveTimeoutNanos: Long? = null
         private set
 
-    override fun delegate(): ServerBuilder<*> = delegate
+    override fun delegate(): ServerBuilder<*> = target
 
     override fun keepAliveTime(keepAliveTime: Long, timeUnit: TimeUnit): RecordingServerBuilder {
         keepAliveTimeNanos = timeUnit.toNanos(keepAliveTime)

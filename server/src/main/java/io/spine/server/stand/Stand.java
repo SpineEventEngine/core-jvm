@@ -215,7 +215,9 @@ public class Stand implements Closeable {
      * subscribe()} method.
      *
      * <p>After the activation, the clients will start receiving the updates via the passed
-     * {@code SubscriptionCallback}.
+     * {@code SubscriptionCallback}. If the subscription is already activated with another
+     * callback, that callback receives no updates after that, and is
+     * {@linkplain SubscriptionCallback#onCancelled() told} about it.
      *
      * @param subscription
      *         the subscription to activate
@@ -308,9 +310,11 @@ public class Stand implements Closeable {
         var tenantId = subscription.getTopic()
                                    .getContext()
                                    .getTenantId();
-        return TenantAwareRunner.with(tenantId)
-                                .evaluate(() -> subscriptionRegistry.removeIfActivatedWith(
-                                        subscription, callback));
+        return TenantAwareRunner.with(tenantId).evaluate(() -> {
+            var released = subscriptionRegistry.removeIfActivatedWith(subscription, callback);
+            released.ifPresent(SubscriptionRecord::release);
+            return released.isPresent();
+        });
     }
 
     /**

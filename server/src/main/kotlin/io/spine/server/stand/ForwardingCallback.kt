@@ -16,37 +16,29 @@ package io.spine.server.stand
 
 import io.grpc.stub.StreamObserver
 import io.spine.client.SubscriptionUpdate
+import io.spine.server.GuardedObserver
 
 /**
  * A [SubscriptionCallback] that passes the updates to an observer and completes
  * the observer when the subscription is cancelled.
  *
- * Several Bounded Contexts may hold the subscription and tell the callback about its
- * cancellation. The observer is completed once, and gets no updates after that.
+ * Several Bounded Contexts may hold the subscription, deliver its updates, and tell
+ * the callback about its cancellation at the same time. The callback is safe to use from
+ * several threads: the observer is completed once, and gets no updates after that.
  *
  * @param observer The observer to pass the updates to.
  */
 internal class ForwardingCallback(
-    private val observer: StreamObserver<SubscriptionUpdate>
+    observer: StreamObserver<SubscriptionUpdate>
 ) : SubscriptionCallback {
 
-    /**
-     * Tells whether the observer is completed.
-     */
-    private var completed = false
+    private val guarded = GuardedObserver(observer)
 
-    @Synchronized
     override fun accept(update: SubscriptionUpdate) {
-        if (!completed) {
-            observer.onNext(update)
-        }
+        guarded.onNext(update)
     }
 
-    @Synchronized
     override fun onCancelled() {
-        if (!completed) {
-            completed = true
-            observer.onCompleted()
-        }
+        guarded.onCompleted()
     }
 }
