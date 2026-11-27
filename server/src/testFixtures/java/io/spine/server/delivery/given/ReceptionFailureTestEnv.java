@@ -57,7 +57,7 @@ public final class ReceptionFailureTestEnv {
      * Makes the given test deliver through a {@code Delivery} with the given monitor.
      */
     public static void configureDelivery(AbstractDeliveryTest test, DeliveryMonitor monitor) {
-        var delivery = Delivery.newBuilder(test.nodeId(), test.deliveryFactory())
+        var delivery = Delivery.newBuilder(test.nodeId(), test.newDeliveryFactory())
                 .setMonitor(monitor)
                 .build();
         delivery.subscribe(new IgnoringObserver(delivery));

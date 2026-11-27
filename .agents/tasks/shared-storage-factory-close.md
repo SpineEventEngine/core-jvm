@@ -10,7 +10,7 @@ started: 2026-11-27
 
 Each application of a delivery test is given its own `StorageFactory` and closes it.
 The `Delivery` is given a factory of its own, which the test closes after the reads.
-`storageFactory()` returns a new instance on every call. No wrapper suppresses `close()`.
+`newStorageFactory()` returns a new instance on every call. The receiver owns it and closes it.
 
 ## Context
 

@@ -94,11 +94,11 @@ internal class AbstractDeliveryTestSpec {
 
 /**
  * Runs [AbstractDeliveryTest] over a new [PoolFactory] on every
- * [AbstractDeliveryTest.storageFactory] call.
+ * [AbstractDeliveryTest.newStorageFactory] call.
  */
 private fun testOver(created: MutableList<PoolFactory>): AbstractDeliveryTest =
     object : AbstractDeliveryTest() {
-        override fun storageFactory(): StorageFactory {
+        override fun newStorageFactory(): StorageFactory {
             val factory = PoolFactory()
             created += factory
             return factory

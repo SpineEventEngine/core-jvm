@@ -107,7 +107,7 @@ abstract class AbstractCatchUpIgTest : AbstractDeliveryTest() {
         configure: (DeliveryBuilder) -> Unit = {}
     ): Delivery {
         val watchdog = Watchdog(onePagePerRun)
-        val builder = Delivery.newBuilder(nodeId(), deliveryFactory())
+        val builder = Delivery.newBuilder(nodeId(), newDeliveryFactory())
             .setStrategy(strategy)
             .setDeduplicationWindow(Durations.ZERO)
         configure(builder)
