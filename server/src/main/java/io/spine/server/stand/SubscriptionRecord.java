@@ -23,6 +23,7 @@ import com.google.common.collect.Multimaps;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
+import io.spine.logging.WithLogging;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.event.EntityStateChanged;
 import io.spine.type.TypeUrl;
@@ -35,6 +36,7 @@ import java.util.stream.IntStream;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static java.lang.String.format;
 
 /**
  * A {@link SubscriptionRegistry} entry that manages a single subscription.
@@ -43,7 +45,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
  * it serves. Each target has its own handlers, so a message that matches several targets
  * produces an update for each of them.
  */
-final class SubscriptionRecord {
+final class SubscriptionRecord implements WithLogging {
 
     private final Subscription subscription;
     private final ImmutableListMultimap<TypeUrl, UpdateHandler> handlers;
@@ -152,6 +154,26 @@ final class SubscriptionRecord {
      */
     boolean isActivatedWith(SubscriptionCallback callback) {
         return this.callback == callback;
+    }
+
+    /**
+     * Tells the callback with which the record is activated, if any, that the subscription
+     * is cancelled.
+     *
+     * <p>A failure of the callback is logged: the subscription is cancelled anyway.
+     */
+    void notifyCancelled() {
+        var current = callback;
+        if (current == null) {
+            return;
+        }
+        try {
+            current.onCancelled();
+        } catch (RuntimeException e) {
+            logger().atError().withCause(e).log(() -> format(
+                    "Unable to tell the callback of the subscription `%s` about its cancellation.",
+                    subscription.getId().getValue()));
+        }
     }
 
     /**

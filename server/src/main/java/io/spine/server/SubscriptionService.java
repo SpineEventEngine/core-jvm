@@ -711,9 +711,10 @@ public final class SubscriptionService
         /**
          * Activates the subscription in each of the given Bounded Contexts.
          *
-         * <p>If a context fails to activate the subscription, the subscription is cancelled
-         * in all of them, so that no context sends updates to the stream that the failure
-         * closes.
+         * <p>If a context fails to activate the subscription, the failure closes the stream,
+         * and then the subscription is cancelled in all the contexts, so that no context
+         * keeps serving it. The failure comes first: the cancellation would complete
+         * the stream otherwise.
          */
         @Override
         void serveIn(ImmutableSortedSet<BoundedContext> holders,
@@ -725,8 +726,11 @@ public final class SubscriptionService
                 try {
                     serveBy(context.stand(), subscription, gatheringObserver, params);
                 } catch (RuntimeException e) {
-                    cancelIn(holders, subscription, this);
-                    fail(context, subscription, e, observer);
+                    try {
+                        fail(context, subscription, e, observer);
+                    } finally {
+                        cancelIn(holders, subscription, this);
+                    }
                     return;
                 }
             }

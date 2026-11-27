@@ -349,9 +349,9 @@ class SubscriptionServiceTest {
         // Post update to Stand.
         updateEntity();
 
-        // The update must not be handled by the observer.
+        // The update must not be handled by the observer, whose stream the cancellation completes.
         assertThat(activationObserver.responses()).isEmpty();
-        assertThat(activationObserver.isCompleted()).isFalse();
+        assertThat(activationObserver.isCompleted()).isTrue();
     }
 
     @Nested

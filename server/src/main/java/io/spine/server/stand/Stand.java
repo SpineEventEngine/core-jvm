@@ -274,7 +274,10 @@ public class Stand implements Closeable {
             @Override
             public void run() {
                 subscriptionRegistry.remove(subscription)
-                                    .ifPresent(record -> ack(responseObserver));
+                                    .ifPresent(record -> {
+                                        record.notifyCancelled();
+                                        ack(responseObserver);
+                                    });
             }
         };
         op.execute();
