@@ -20,6 +20,7 @@ import io.spine.environment.Tests;
 import io.spine.server.Application;
 import io.spine.server.BoundedContext;
 import io.spine.server.BoundedContextBuilder;
+import io.spine.server.Closeable;
 import io.spine.server.NodeId;
 import io.spine.server.ServerEnvironment;
 import io.spine.server.entity.Repository;
@@ -181,15 +182,23 @@ public abstract class AbstractDeliveryTest {
     /**
      * Creates a new environment with a new storage factory and the delivery of the test.
      *
-     * <p>The application built with this environment closes the factory.
+     * <p>The application built with this environment closes the factory. If creating
+     * the environment fails after that factory was created, this method closes it.
+     * The original failure is thrown. A failure of that cleanup is added to it
+     * as suppressed.
      */
     public final ServerEnvironment newEnvironment() {
         var storage = newStorageFactory();
-        var delivery = delivery();
-        return ServerEnvironment.newBuilder()
-                .under(Tests.class, env -> env.use(storage)
-                                              .use(delivery))
-                .build();
+        try {
+            var delivery = delivery();
+            return ServerEnvironment.newBuilder()
+                    .under(Tests.class, env -> env.use(storage)
+                                                  .use(delivery))
+                    .build();
+        } catch (RuntimeException | Error failure) {
+            closeAfterFailure(storage, failure);
+            throw failure;
+        }
     }
 
     /**
@@ -239,15 +248,15 @@ public abstract class AbstractDeliveryTest {
     }
 
     /**
-     * Closes the environment whose application failed to build.
+     * Closes a resource that the failed operation was going to own.
      *
-     * <p>Closing the environment closes the storage factory given to it.
-     * The application was not built, so {@link #tearDown()} would not see it.
+     * <p>The caller keeps the original failure. A failure of this cleanup is added
+     * to it as suppressed, unless closing throws that same failure.
      */
-    private static void closeAfterFailure(ServerEnvironment environment, Throwable failure) {
+    private static void closeAfterFailure(Closeable resource, Throwable failure) {
         try {
-            if (environment.isOpen()) {
-                environment.close();
+            if (resource.isOpen()) {
+                resource.close();
             }
         } catch (RuntimeException | Error closing) {
             if (closing != failure) {

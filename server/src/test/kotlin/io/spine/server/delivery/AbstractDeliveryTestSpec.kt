@@ -113,6 +113,33 @@ internal class AbstractDeliveryTestSpec {
         }
         created.forEach { it.closings shouldBe 1 }
     }
+
+    @Test
+    fun `close the application factory when the delivery fails to open`() {
+        val created = mutableListOf<PoolFactory>()
+        val test = object : AbstractDeliveryTest() {
+            override fun newStorageFactory(): StorageFactory {
+                val factory = PoolFactory(failInbox = created.isNotEmpty())
+                created += factory
+                return factory
+            }
+        }
+        test.setUp()
+        try {
+            val error = shouldThrow<IllegalStateException> {
+                test.blackBoxWith()
+            }
+
+            error.message shouldContain "The inbox storage failed to open."
+            created.shouldHaveSize(2)
+            created[0].isOpen.shouldBeFalse()
+            created[0].closings shouldBe 1
+            created[1].isOpen.shouldBeTrue()
+        } finally {
+            test.tearDown()
+        }
+        created.forEach { it.closings shouldBe 1 }
+    }
 }
 
 /**
@@ -144,7 +171,7 @@ private fun testOver(created: MutableList<PoolFactory>): AbstractDeliveryTest =
  *
  * The second call to [close] fails.
  */
-private class PoolFactory : StorageFactory {
+private class PoolFactory(private val failInbox: Boolean = false) : StorageFactory {
 
     private val delegate = InMemoryStorageFactory.newInstance()
 
@@ -160,6 +187,13 @@ private class PoolFactory : StorageFactory {
         closings += 1
         open = false
         delegate.close()
+    }
+
+    override fun createInboxStorage(multiTenant: Boolean): InboxStorage {
+        if (failInbox) {
+            error("The inbox storage failed to open.")
+        }
+        return super.createInboxStorage(multiTenant)
     }
 
     override fun <I : Any, R : Message> createRecordStorage(
