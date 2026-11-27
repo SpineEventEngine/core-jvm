@@ -1,27 +1,15 @@
 /*
- * Copyright 2022, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.model;
@@ -30,6 +18,7 @@ import com.google.errorprone.annotations.Immutable;
 import io.spine.base.CommandMessage;
 import io.spine.client.ActorRequestFactory;
 import io.spine.core.Command;
+import io.spine.core.Origin;
 import io.spine.server.dispatch.ProducedCommands;
 import io.spine.server.dispatch.Success;
 import io.spine.server.type.CommandClass;
@@ -66,6 +55,9 @@ public interface CommandEmitter<T,
     /**
      * Produces an outcome in case the command producing method call finished successfully.
      *
+     * <p>The handled signal becomes the origin of each produced command, so that
+     * the command leads back to the root of the signal chain.
+     *
      * @implNote This method does not perform the validation of the resulting
      *          {@code Success} message, as all of its parts (mostly {@link Command} instances)
      *          are validated beforehand.
@@ -76,16 +68,29 @@ public interface CommandEmitter<T,
         if (result.isEmpty()) {
             return fromEmpty(handledSignal);
         }
-        var actorContext = handledSignal.asMessageOrigin().getActorContext();
-        var commandFactory = ActorRequestFactory.fromContext(actorContext).command();
+        var origin = handledSignal.asMessageOrigin();
+        var commandFactory = ActorRequestFactory.fromContext(origin.getActorContext()).command();
         var signals = ProducedCommands.newBuilder();
         var messages = result.messages(CommandMessage.class);
         for (var msg : messages) {
             var command = commandFactory.create(msg);
-            signals.addCommand(command);
+            signals.addCommand(withOrigin(command, origin));
         }
         return Success.newBuilder()
                 .setProducedCommands(signals)
+                .build();
+    }
+
+    /**
+     * Creates a copy of the given command whose context has the given origin.
+     */
+    private static Command withOrigin(Command command, Origin origin) {
+        var context = command.context()
+                .toBuilder()
+                .setOrigin(origin)
+                .build();
+        return command.toBuilder()
+                .setContext(context)
                 .build();
     }
 }
