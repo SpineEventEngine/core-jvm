@@ -73,9 +73,12 @@ the type last. Issue #1728 ("Proposal" section is the scope). Breaking: public A
    - `rejections()` (`CommandHandlingClass`, its implementations, and `CommandReceptor`) and
      `reactionOutput()` (`ReactingClass` and its implementations), with their tests: once
      the above went, only tests read them (owner's answer, 2026-11-27: "Yes, remove them").
-   - Kept: `commandOutput()` and `outgoingCommands()`. Only tests read `outgoingCommands()`,
-     already on `master`, and `commandOutput()` is read only by it; they concern commands,
-     outside #1728, so they are left for a separate cleanup.
+   - The command side too (owner, 2026-11-27: "Let's do this in this session"):
+     `commandOutput()`, `outgoingCommands()` with `CommandingClass`, and what only fed them:
+     `producedTypes()` of `ReceptorMap` and `EventReceivingClassDelegate`,
+     `Receptor.producedMessages()`, and `MethodResults` with its test and fixture. The generic
+     type parameters of the produced message classes stay: removing them would touch every
+     receptor signature.
 6. **Version:** breaking → next round version via `bump-version` (expected `.820`).
 7. **Migration note:** `docs/migration/event-subscriptions-in-every-context.md`.
 
@@ -144,3 +147,10 @@ the type last. Issue #1728 ("Proposal" section is the scope). Breaking: public A
   run. Reviewers (`spine-code-review`, `kotlin-engineer`, `review-docs`, then delta re-reviews):
   no must-fix. Committed on `master`; the trial merge with #1749 conflicts only on one import
   line of `SubscriptionRecord.java` and the version files.
+- 2026-11-27 — Copilot: listeners also get external events; the note's examples now skip
+  them (`4692d70527e`, thread resolved). Then the command-side declared outputs were removed.
+- 2026-11-27 — owner: the identical `onRoutingFailed()` of `AggregateRepository` and
+  `ProcessManagerRepository` moved into `SignalDispatchingRepository`; `postIfCommandRejected()`
+  is `private` now. Command-side removal: targeted `:server:test` 1002 tests, 0 failed.
+- 2026-11-27 — owner: `SubscriptionServiceUnservedTopicSpec` renamed (`git mv`) to
+  `SubscriptionServiceEventHoldersSpec`: no event topic is unserved any more.

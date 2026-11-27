@@ -58,7 +58,7 @@ import org.junit.jupiter.api.Test
  */
 @MuteLogging
 @DisplayName("`SubscriptionService`, for a topic of an event type, should")
-internal class SubscriptionServiceUnservedTopicSpec {
+internal class SubscriptionServiceEventHoldersSpec {
 
     /**
      * The applications built by the current test, closed after it.
