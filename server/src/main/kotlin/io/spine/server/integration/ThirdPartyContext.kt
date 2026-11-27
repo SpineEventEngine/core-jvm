@@ -135,7 +135,8 @@ public class ThirdPartyContext private constructor(
      * @param eventMessage The event.
      * @param actorContext The info about the actor, a user or a software component,
      *   who emits the event.
-     * @throws IllegalStateException If the application of this context is not built yet.
+     * @throws IllegalStateException If the application of this context is not built yet,
+     *   or this context is closed.
      */
     public fun emittedEvent(eventMessage: EventMessage, actorContext: ActorContext) {
         val context = context()
@@ -162,7 +163,8 @@ public class ThirdPartyContext private constructor(
      *
      * @param eventMessage The event.
      * @param userId The ID of the actor, a user or a software component, who emits the event.
-     * @throws IllegalStateException If the application of this context is not built yet.
+     * @throws IllegalStateException If the application of this context is not built yet,
+     *   or this context is closed.
      */
     public fun emittedEvent(eventMessage: EventMessage, userId: UserId) {
         val actorContext = actorContext {
@@ -187,11 +189,21 @@ public class ThirdPartyContext private constructor(
      */
     override fun isOpen(): Boolean = context?.isOpen ?: false
 
-    private fun context(): BoundedContext =
-        checkNotNull(context) {
+    /**
+     * Obtains the built context to emit events from.
+     *
+     * @throws IllegalStateException If the context is not built yet, or is closed.
+     */
+    private fun context(): BoundedContext {
+        val context = checkNotNull(context) {
             "The third-party context `${name.value}` is not built yet." +
                     " Please add it to an `Application`, and build the application."
         }
+        check(context.isOpen) {
+            "The third-party context `${name.value}` is closed."
+        }
+        return context
+    }
 
     public companion object {
 
