@@ -46,9 +46,9 @@ import static io.spine.util.Cleanup.throwIfAny;
  * and the {@code Delivery} of the test. Each application is given its own
  * {@linkplain #newStorageFactory() storage factory}, and closes that factory.
  *
- * <p>The {@code Delivery} is given a factory of its own. The test closes that factory
- * in {@link #tearDown()}, after the applications. The catch-up and inbox storages of
- * the delivery therefore stay open after a black box has closed its application.
+ * <p>The {@code Delivery} is given its own storage factory, for the catch-up and inbox
+ * storages. The test closes that factory in {@link #tearDown()}, after the applications,
+ * so those storages stay open after a black box has closed its application.
  */
 public abstract class AbstractDeliveryTest {
 
@@ -74,9 +74,12 @@ public abstract class AbstractDeliveryTest {
     private final List<Application> applications = new ArrayList<>();
 
     /**
-     * The storage factories given to a {@link Delivery}, closed by {@link #tearDown()}.
+     * The storage factory for the catch-up and inbox storages of the {@link Delivery}
+     * of this test, or {@code null} until {@link #deliveryStorageFactory()} creates it.
+     *
+     * <p>The test owns this factory and closes it in {@link #tearDown()}.
      */
-    private final List<StorageFactory> deliveryFactories = new ArrayList<>();
+    private @Nullable StorageFactory deliveryStorageFactory;
 
     @BeforeEach
     public void setUp() {
@@ -87,11 +90,11 @@ public abstract class AbstractDeliveryTest {
      * Closes the applications that are still open, and then the storage factories
      * given to a {@link Delivery}.
      *
-     * <p>An application closes the factory it was given. A tear-down that reads the
-     * catch-up or inbox storage of the delivery does so before calling this method:
-     * this method closes the delivery's factory. If closing an application fails,
-     * the remaining applications and the delivery factories are still closed, and
-     * the first failure is thrown.
+     * <p>An application closes the storage factory it was given. A tear-down that reads
+     * the catch-up or inbox storage does so before calling this method: this method
+     * closes the storage factory of the {@link Delivery}. If closing an application
+     * fails, the remaining applications and that storage factory are still closed,
+     * and the first failure is thrown.
      */
     @AfterEach
     public void tearDown() {
@@ -100,10 +103,11 @@ public abstract class AbstractDeliveryTest {
             failure = runKeepingFailure(failure, application::closeIfOpen);
         }
         applications.clear();
-        for (var factory : List.copyOf(deliveryFactories)) {
+        var factory = deliveryStorageFactory;
+        deliveryStorageFactory = null;
+        if (factory != null) {
             failure = runKeepingFailure(failure, () -> closeIfOpen(factory));
         }
-        deliveryFactories.clear();
         delivery = null;
         throwIfAny(failure);
     }
@@ -121,27 +125,31 @@ public abstract class AbstractDeliveryTest {
      * Creates a new storage factory.
      *
      * <p>Each call returns a new instance. The receiver owns that instance and closes it.
-     * An application closes the factory given to its environment. The test closes the
-     * factory of a {@link Delivery}, obtained from {@link #newDeliveryFactory()}.
+     * An application closes the storage factory given to its environment. The test
+     * keeps the storage factory of its {@link Delivery} in {@link #deliveryStorageFactory()}
+     * and closes that one instance in {@link #tearDown()}.
      *
      * <p>The default returns a new in-memory factory. Storage implementations override
-     * this method and return a new factory on every call.
+     * this method and return a new factory on every call. This method does not
+     * retain the instance.
      */
-    public StorageFactory newStorageFactory() {
+    protected StorageFactory newStorageFactory() {
         return InMemoryStorageFactory.newInstance();
     }
 
     /**
-     * Creates a new storage factory for a {@link Delivery}.
+     * Obtains the {@link StorageFactory} for the catch-up and inbox storages
+     * of the {@link Delivery} of this test.
      *
-     * <p>Each call returns a new instance. The test owns it and closes it in
-     * {@link #tearDown()}, after the applications. The catch-up and inbox storages
-     * of the delivery stay open until then.
+     * <p>The first call creates the factory with {@link #newStorageFactory()} and
+     * keeps it. Later calls return that instance. The test owns it and closes it
+     * in {@link #tearDown()}, after the applications.
      */
-    public final StorageFactory newDeliveryFactory() {
-        var factory = newStorageFactory();
-        deliveryFactories.add(factory);
-        return factory;
+    public final StorageFactory deliveryStorageFactory() {
+        if (deliveryStorageFactory == null) {
+            deliveryStorageFactory = newStorageFactory();
+        }
+        return deliveryStorageFactory;
     }
 
     /**
@@ -165,7 +173,7 @@ public abstract class AbstractDeliveryTest {
      */
     public final Delivery delivery() {
         if (delivery == null) {
-            delivery = Delivery.local(nodeId, newDeliveryFactory());
+            delivery = Delivery.local(nodeId, deliveryStorageFactory());
         }
         return delivery;
     }
@@ -246,7 +254,7 @@ public abstract class AbstractDeliveryTest {
      * with the given number of shards.
      */
     public final void changeShardCountTo(int shards) {
-        var factory = newDeliveryFactory();
+        var factory = deliveryStorageFactory();
         use(Delivery.localWithShardsAndWindow(nodeId, factory, shards, Durations.ZERO));
     }
 }

@@ -172,7 +172,8 @@ environment. An application registers a tenant with `application.tenantIndex().k
   configuring `ServerEnvironment.under(Tests.class)`. `newStorageFactory()` returns a new
   factory on every call. The receiver owns it and closes it: an application closes the
   factory it is given. The `Delivery` of the test receives a factory of its own, through
-  `newDeliveryFactory()`, and the test closes that factory after the applications.
+  `deliveryStorageFactory()`, which keeps that one instance, and the test closes it
+  after the applications.
   `AbstractDeliveryTest.use(Delivery)` sets the delivery of the contexts that a delivery
   test builds afterwards.
 

@@ -76,9 +76,9 @@ public abstract class CatchUpTest extends AbstractDeliveryTest {
      * Clears the catch-up storage of the {@linkplain #delivery() delivery}, then closes
      * the applications.
      *
-     * <p>The catch-up storage belongs to the delivery. The test closes the delivery's
-     * factory in {@link AbstractDeliveryTest#tearDown()}. A black box may already have
-     * closed its application and the factory of that application.
+     * <p>The catch-up storage belongs to the delivery. The test closes the storage
+     * factory of the delivery in {@link AbstractDeliveryTest#tearDown()}. A black box
+     * may already have closed its application and that application's storage factory.
      */
     @Override
     @AfterEach
