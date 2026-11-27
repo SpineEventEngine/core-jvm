@@ -94,7 +94,23 @@ internal class TopicRequestSpec : AbstractClientTest() {
         created.map { it.id } shouldContainExactly listOf(createTask.id)
         tasks.map { it.id } shouldContainExactly listOf(createTask.id)
         loggedIn.map { it.user } shouldContainExactly listOf(user)
+        subscription.typesOfTargets() shouldContainExactly
+                typeUrls(CTaskCreated::class.java, CTask::class.java, UserLoggedIn::class.java)
         client().subscriptions().contains(subscription) shouldBe true
+    }
+
+    @Test
+    fun `keep the order of the calls when the block of a target adds a target`() {
+        val subscription = client().asGuest().subscribe {
+            event<CTaskCreated> {
+                it.observe { }
+                state<CTask> { task -> task.observe { } }
+            }
+            event<UserLoggedIn> { it.observe { } }
+        }
+
+        subscription.typesOfTargets() shouldContainExactly
+                typeUrls(CTaskCreated::class.java, CTask::class.java, UserLoggedIn::class.java)
     }
 
     @Test

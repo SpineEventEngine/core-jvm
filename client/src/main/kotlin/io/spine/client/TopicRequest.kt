@@ -90,8 +90,7 @@ public class TopicRequest internal constructor(parent: ClientRequest) : ClientRe
         configure: Consumer<EventTarget<E>>
     ): TopicRequest {
         val target = EventTarget(type, topics.select(type))
-        configure.accept(target)
-        targets += { target.toObserver(consumingErrors?.narrow()) }
+        add(target, configure) { target.toObserver(consumingErrors?.narrow()) }
         return this
     }
 
@@ -112,8 +111,7 @@ public class TopicRequest internal constructor(parent: ClientRequest) : ClientRe
         configure: Consumer<StateTarget<S>>
     ): TopicRequest {
         val target = StateTarget(type, topics.select(type))
-        configure.accept(target)
-        targets += { target.toObserver(consumingErrors?.narrow()) }
+        add(target, configure) { target.toObserver(consumingErrors?.narrow()) }
         return this
     }
 
@@ -166,6 +164,22 @@ public class TopicRequest internal constructor(parent: ClientRequest) : ClientRe
         val observers = targets.map { it() }
         return client().subscriptions()
             .subscribeTo(topics, observers, streamingErrorHandler())
+    }
+
+    /**
+     * Configures the given target, and then adds the builder of its [observer] to
+     * the [targets].
+     *
+     * The [configure] block may add targets as well, for example, when the Kotlin block of
+     * a target calls `state()` of this request. The configured target goes before them,
+     * so the targets stay in the order of the calls.
+     *
+     * If the block throws, the target is not added.
+     */
+    private fun <T> add(target: T, configure: Consumer<T>, observer: () -> TargetObserver) {
+        val position = targets.size
+        configure.accept(target)
+        targets.add(position, observer)
     }
 }
 

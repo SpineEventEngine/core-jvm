@@ -338,3 +338,10 @@ All specs are in Kotlin with Kotest.
   a `whenNoLongerMatching()` consumer that throws any `Throwable` is logged. Before, only an
   `Exception` was, so an `AssertionError` still ended the subscription. A `VirtualMachineError`
   still propagates.
+- 2026-11-27 — armiol's review of #1741. A `state()` called from the Kotlin block of another
+  target (`this` there is still the request) used to come first. Now each target keeps the
+  position of its call, in `TopicRequest` and among the state targets of `CommandRequest`.
+  `CommandRequest.post()` still rethrows a failed subscription that carries no error case, as
+  master's Java code did. Its KDoc and the guide now say so. Trap: `Subscription` already has
+  a member `targetTypes()` that returns an unordered `ImmutableSet<TypeUrl>`, which shadows any
+  test extension with that name.

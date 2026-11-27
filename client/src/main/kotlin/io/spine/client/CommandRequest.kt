@@ -157,8 +157,10 @@ public class CommandRequest internal constructor(
         configure: Consumer<StateTarget<S>>
     ): CommandRequest {
         val target = StateTarget(type, topics.select(type))
+        // The block may add targets too. This one goes before them, in the order of the requests.
+        val position = states.size
         configure.accept(target)
-        states += target
+        states.add(position, target)
         return this
     }
 

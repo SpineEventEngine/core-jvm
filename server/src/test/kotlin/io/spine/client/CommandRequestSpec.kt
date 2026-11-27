@@ -104,6 +104,23 @@ internal class CommandRequestSpec : AbstractClientTest() {
     }
 
     @Test
+    fun `keep the order of the calls when the block of a target adds a target`() {
+        val command = createTask()
+
+        val subscription = client().asGuest().command(command) {
+            observe<CTask> {
+                it.byId(command.id).observe { }
+                observe<Card> { card -> card.observe { } }
+            }
+            observe<CTaskCreated> { }
+        }
+
+        subscription.shouldNotBeNull()
+        subscription.typesOfTargets() shouldContainExactly
+                typeUrls(CTaskCreated::class.java, CTask::class.java, Card::class.java)
+    }
+
+    @Test
     fun `deliver an event to each of its consumers once, through one target`() {
         val first = mutableListOf<CTaskCreated>()
         val second = mutableListOf<CTaskCreated>()
