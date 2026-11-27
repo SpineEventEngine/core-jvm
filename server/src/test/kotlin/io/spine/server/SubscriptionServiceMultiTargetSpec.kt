@@ -24,6 +24,7 @@ import io.kotest.matchers.shouldBe
 import io.spine.base.CommandMessage
 import io.spine.client.Subscription
 import io.spine.client.SubscriptionUpdate
+import io.spine.client.Subscriptions
 import io.spine.client.Target
 import io.spine.client.Targets.allOf
 import io.spine.client.Targets.someOf
@@ -46,6 +47,7 @@ import io.spine.system.server.event.UnknownSubscriptionActivationRequested
 import io.spine.system.server.event.UnsupportedTopicReceived
 import io.spine.test.aggregate.AggProject
 import io.spine.test.aggregate.ProjectId
+import io.spine.test.aggregate.SubProjectList
 import io.spine.test.aggregate.event.AggProjectCreated
 import io.spine.test.bc.SecretProject
 import io.spine.test.client.tasks.CTask
@@ -236,6 +238,17 @@ internal class SubscriptionServiceMultiTargetSpec {
             projects.stand().hasSubscription(subscription) shouldBe false
             customers.stand().hasSubscription(subscription) shouldBe false
         }
+
+        @Test
+        fun `cancel the subscription in the context that still has it`() {
+            customers.stand().cancel(subscription, noOpObserver())
+
+            val cancellation = cancel(subscription)
+
+            cancellation.error.shouldBeNull()
+            cancellation.responses().shouldBeSingleton { it.status.hasOk() shouldBe true }
+            projects.stand().hasSubscription(subscription) shouldBe false
+        }
     }
 
     @Test
@@ -309,10 +322,42 @@ internal class SubscriptionServiceMultiTargetSpec {
 
             nothingRecorded()
         }
+
+        @Test
+        fun `with two entity types that no context serves, recording nothing`() {
+            val topic = topicOf(allOf(CTask::class.java), allOf(SubProjectList::class.java))
+
+            subscribe(topic).errorCase() shouldBe UNSUPPORTED_REQUEST
+
+            nothingRecorded()
+        }
     }
 
     @Test
     fun `refuse a topic spanning a single-tenant and a multi-tenant context`() {
+        serveByContextsOfMixedTenancy()
+
+        val topic = topicOf(allOf(PROJECT_CREATED), allOf(CUSTOMER))
+
+        subscribe(topic).errorCase() shouldBe TENANT_ERROR
+    }
+
+    @Test
+    fun `refuse to activate a subscription spanning a single-tenant and a multi-tenant context`() {
+        serveByContextsOfMixedTenancy()
+        val subscription = Subscriptions.from(topicOf(allOf(PROJECT), allOf(CUSTOMER)))
+
+        val updates = activate(subscription)
+
+        updates.responses().shouldBeEmpty()
+        updates.error.shouldNotBeNull().errorCase() shouldBe TENANT_ERROR
+    }
+
+    /**
+     * Replaces the application with one of a single-tenant context of projects and
+     * a multi-tenant context of customers.
+     */
+    private fun serveByContextsOfMixedTenancy() {
         application.close()
         application = testApplication {
             add(BoundedContextBuilder.assumingTests().add(Given.ProjectAggregateRepository()))
@@ -322,10 +367,6 @@ internal class SubscriptionServiceMultiTargetSpec {
             )
         }
         service = SubscriptionService.of(application)
-
-        val topic = topicOf(allOf(PROJECT_CREATED), allOf(CUSTOMER))
-
-        subscribe(topic).errorCase() shouldBe TENANT_ERROR
     }
 
     private fun topicOf(vararg targets: Target): Topic =

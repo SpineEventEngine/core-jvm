@@ -55,6 +55,7 @@ import io.spine.system.server.event.SubscriptionTenantNotSpecified
 import io.spine.system.server.event.TopicTenantNotExpected
 import io.spine.system.server.event.TopicTenantNotSpecified
 import io.spine.test.aggregate.ProjectId
+import io.spine.test.client.tasks.CTask
 import io.spine.test.client.tasks.event.CTaskCreated
 import io.spine.test.commandservice.CmdServDontHandle
 import io.spine.test.projection.Project
@@ -284,6 +285,17 @@ internal class TenantOfRequestSpec {
         observer.error.shouldBeNull()
         observer.firstResponse().shouldNotBeNull()
         log.records.shouldBeEmpty()
+    }
+
+    @Test
+    fun `refuse a topic of an unserved entity type as unsupported, whatever its tenant`() {
+        serve(multiTenant = false)
+        val topic = withTenant.topic().allOf(CTask::class.java)
+
+        subscribe(topic).error.shouldNotBeNull().errorCase() shouldBe UNSUPPORTED_REQUEST
+
+        val (_, event) = log.single<UnsupportedRequestRejected>()
+        event.request.topic shouldBe topic
     }
 
     @Nested inner class

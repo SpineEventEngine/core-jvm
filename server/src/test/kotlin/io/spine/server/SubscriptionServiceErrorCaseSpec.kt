@@ -25,6 +25,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.spine.client.Subscription
 import io.spine.client.SubscriptionUpdate
 import io.spine.client.Subscriptions
+import io.spine.client.Targets.allOf
 import io.spine.client.Topic
 import io.spine.core.ErrorCase.INTERNAL_ERROR
 import io.spine.core.ErrorCase.INVALID_REQUEST
@@ -43,6 +44,7 @@ import io.spine.system.server.event.UnknownSubscriptionActivationRequested
 import io.spine.system.server.event.UnknownSubscriptionCancellationRequested
 import io.spine.system.server.event.UnsupportedTopicReceived
 import io.spine.test.aggregate.AggProject
+import io.spine.test.aggregate.event.AggProjectCreated
 import io.spine.test.bc.SecretProject
 import io.spine.test.client.tasks.CTask
 import io.spine.test.client.tasks.event.CTaskCreated
@@ -208,6 +210,17 @@ internal class SubscriptionServiceErrorCaseSpec {
                 .buildPartial()
 
             activate(invalid).errorCase() shouldBe INVALID_REQUEST
+
+            monitor.events.shouldBeEmpty()
+        }
+
+        @Test
+        fun `activating, with several targets`() {
+            val topic = requests.topic().forTargets(
+                listOf(allOf(CTaskCreated::class.java), allOf(AggProjectCreated::class.java))
+            )
+
+            activate(unknownSubscription(topic)).errorCase() shouldBe UNSUPPORTED_REQUEST
 
             monitor.events.shouldBeEmpty()
         }
