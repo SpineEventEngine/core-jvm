@@ -26,6 +26,7 @@ import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.Closeable
 import io.spine.server.event.EventFactory
+import io.spine.server.tenant.TenantAwareRunner
 import io.spine.server.type.EventEnvelope
 import io.spine.util.Preconditions2.checkNotEmptyOrBlank
 
@@ -101,8 +102,8 @@ public class ThirdPartyContext private constructor(
     /**
      * Emits an event from the third-party system.
      *
-     * If another Context needs the event, posts it to that Context. Does nothing if
-     * no Context needs it.
+     * Delivers the event to the active client subscriptions to its type. If another Context
+     * needs the event, posts it to that Context.
      *
      * The caller is required to supply the tenant ID via the `ActorContext.tenant_id` if
      * this Context is multi-tenant.
@@ -116,17 +117,21 @@ public class ThirdPartyContext private constructor(
         val context = context()
         checkTenant(context, actorContext, eventMessage)
         val eventFactory = EventFactory.forImport(actorContext, producerId)
-        val event = eventFactory.createEvent(eventMessage)
+        val event = EventEnvelope.of(eventFactory.createEvent(eventMessage))
         context.internalAccess()
             .broker()
-            .publish(EventEnvelope.of(event))
+            .publish(event)
+        // The stand passes the event to the subscriptions, as for an event posted to the bus.
+        // The event is not posted to the bus, so that this Context does not store it.
+        TenantAwareRunner.with(actorContext.tenantId)
+            .run { context.stand().eventListener().accept(event) }
     }
 
     /**
      * Emits an event from the third-party system.
      *
-     * If another Context needs the event, posts it to that Context. Does nothing if
-     * no Context needs it.
+     * Delivers the event to the active client subscriptions to its type. If another Context
+     * needs the event, posts it to that Context.
      *
      * This overload may only be used for single-tenant third-party contexts. If this Context is
      * multi-tenant, this method throws an exception.
