@@ -109,22 +109,5 @@ class ProcessManagerClassTest {
                     PmQuestionAnswered.class
             );
         }
-
-        @Test
-        @DisplayName("commands produced by the process manager")
-        void producedCommands() {
-            assertCommandClassesExactly(
-                    processManagerClass.outgoingCommands(),
-
-                    PmAddTask.class,
-                    PmReviewBacklog.class,
-                    PmScheduleRetrospective.class,
-                    PmPlanIteration.class,
-                    PmScheduleRetrospective.class,
-                    PmPlanIteration.class,
-                    PmStartIteration.class,
-                    PmCreateProject.class
-            );
-        }
     }
 }

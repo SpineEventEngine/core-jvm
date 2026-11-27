@@ -51,11 +51,6 @@ public abstract class AbstractCommandHandlingClass<C,
         return commands.messageClasses();
     }
 
-    @Override
-    public ImmutableSet<P> commandOutput() {
-        return commands.producedTypes();
-    }
-
     /**
      * Obtains the receptor for the passed command.
      */

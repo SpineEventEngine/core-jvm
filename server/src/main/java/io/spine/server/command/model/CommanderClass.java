@@ -29,7 +29,6 @@ import io.spine.server.type.EventEnvelope;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Sets.union;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -40,7 +39,7 @@ import static java.util.stream.Collectors.toSet;
  */
 public final class CommanderClass<C extends Commander>
         extends AbstractCommandHandlingClass<C, CommandClass, CommandSubstituter>
-        implements EventReceiverClass, CommandingClass {
+        implements EventReceiverClass {
 
     /**
      * Associates a {@code CommanderClass} with a Java class of commanders.
@@ -117,12 +116,6 @@ public final class CommanderClass<C extends Commander>
      */
     public boolean producesCommandsOn(EventClass eventClass) {
         return delegate.contains(eventClass);
-    }
-
-    @Override
-    public ImmutableSet<CommandClass> outgoingCommands() {
-        var result = union(commandOutput(), delegate.producedTypes());
-        return result.immutableCopy();
     }
 
     /**

@@ -48,11 +48,6 @@ public abstract class AssigneeEntityClass<E extends Entity<?, ?>>
         return commands.messageClasses();
     }
 
-    @Override
-    public ImmutableSet<EventClass> commandOutput() {
-        return commands.producedTypes();
-    }
-
     public boolean handlesCommand(CommandClass commandClass) {
         return commands.containsClass(commandClass);
     }

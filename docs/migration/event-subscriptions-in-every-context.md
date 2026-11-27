@@ -40,6 +40,9 @@ event once. A target of an entity type is still served by the one context that h
 | `AggregateClass.outgoingEvents()`, `ProcessManagerClass.outgoingEvents()` | public | **removed** |
 | `rejections()` of `CommandHandlingClass`, its implementations, and `CommandReceptor` | public | **removed** |
 | `reactionOutput()` of `ReactingClass` and its implementations | public | **removed** |
+| `commandOutput()` of `CommandHandlingClass` and its implementations | public | **removed** |
+| `CommandingClass`, and `outgoingCommands()` of `CommanderClass` and `ProcessManagerClass` | public | **removed** |
+| `Receptor.producedMessages()`, `producedTypes()` of `ReceptorMap` and `EventReceivingClassDelegate` | public | **removed** |
 
 ## 1. Subscribe as before
 
@@ -75,11 +78,15 @@ public ImmutableSet<EventClass> producedEvents() {
 The methods that listed the event types declared by receptors are removed:
 `Stand.exposedEventTypes()`, `EventProducingRepository.outgoingEvents()`, the `outgoingEvents()`
 of `AggregateClass` and `ProcessManagerClass`, `rejections()` of the command-handling classes and
-of `CommandReceptor`, and `reactionOutput()` of the reacting classes. They have no direct
-replacement: the declared types never told which contexts post a type. To see the events that
-a context posts, add a listener to its `EventBus`, and skip the external events: the bus also
-passes to its listeners the events that the context receives from other contexts. In
-the examples below, `postedTypes` is a set of your own. In Kotlin:
+of `CommandReceptor`, and `reactionOutput()` of the reacting classes. So are the methods that
+listed the other messages that receptors declare, commands included: `commandOutput()`,
+`outgoingCommands()` with the `CommandingClass` interface, `Receptor.producedMessages()`, and
+the `producedTypes()` of `ReceptorMap` and `EventReceivingClassDelegate`.
+
+None of them has a direct replacement: the declared types never told which contexts post a type.
+To see the events that a context posts, add a listener to its `EventBus`, and skip the external
+events: the bus also passes to its listeners the events that the context receives from other
+contexts. In the examples below, `postedTypes` is a set of your own. In Kotlin:
 
 ```kotlin
 add(singleTenantContext("Tasks") {

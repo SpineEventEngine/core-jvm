@@ -36,11 +36,6 @@ public interface CommandHandlingClass<P extends MessageClass<?>,
     ImmutableSet<CommandClass> commands();
 
     /**
-     * Obtains types of all messages produced as a result of command handling.
-     */
-    ImmutableSet<P> commandOutput();
-
-    /**
      * Obtains the receptor for the type of the passed command.
      */
     R receptorOf(CommandEnvelope command);

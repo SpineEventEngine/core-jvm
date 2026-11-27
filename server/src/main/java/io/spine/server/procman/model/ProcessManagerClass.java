@@ -17,7 +17,6 @@ package io.spine.server.procman.model;
 import com.google.common.collect.ImmutableSet;
 import io.spine.server.command.model.CommandSubstituter;
 import io.spine.server.command.model.CommanderClass;
-import io.spine.server.command.model.CommandingClass;
 import io.spine.server.command.model.CommandingReaction;
 import io.spine.server.entity.model.AssigneeEntityClass;
 import io.spine.server.event.model.EventReactorMethod;
@@ -43,7 +42,7 @@ import static com.google.common.collect.Sets.union;
  */
 public final class ProcessManagerClass<P extends ProcessManager<?, ?, ?>>
         extends AssigneeEntityClass<P>
-        implements ReactingClass, CommandingClass {
+        implements ReactingClass {
 
     /**
      * Associates a {@code ProcessManagerClass} with a Java class of process managers.
@@ -103,11 +102,6 @@ public final class ProcessManagerClass<P extends ProcessManager<?, ?, ?>>
     @Override
     public Optional<EventReactorMethod> reactorOf(EventEnvelope event) {
         return reactorDelegate.reactorOf(event);
-    }
-
-    @Override
-    public ImmutableSet<CommandClass> outgoingCommands() {
-        return commanderDelegate.outgoingCommands();
     }
 
     /**

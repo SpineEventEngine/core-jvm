@@ -74,7 +74,6 @@ import io.spine.test.procman.quiz.event.PmQuizStarted
 import io.spine.testdata.Sample.messageOfType
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
-import io.spine.testing.server.Assertions.assertCommandClassesExactly
 import io.spine.testing.server.Assertions.assertEventClassesExactly
 import io.spine.testing.server.EventSubject
 import io.spine.testing.server.TestEventFactory
@@ -454,21 +453,6 @@ internal class ProcessManagerSpec {
 
     @Nested internal inner class
     `in its class, expose` {
-
-        @Test
-        fun `produced commands`() {
-            val pmClass = asProcessManagerClass(LastSignalMemo::class.java)
-            val commands = pmClass.outgoingCommands()
-            assertCommandClassesExactly(
-                commands,
-                PmCreateProject::class.java,
-                PmAddTask::class.java,
-                PmReviewBacklog::class.java,
-                PmScheduleRetrospective::class.java,
-                PmPlanIteration::class.java,
-                PmStartIteration::class.java
-            )
-        }
 
         @Test
         fun `handled external event classes`() {
