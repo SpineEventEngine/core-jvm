@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.entity
@@ -29,16 +17,13 @@ package io.spine.server.entity
 import com.google.protobuf.Any as ProtoAny
 import com.google.protobuf.Message
 import io.spine.base.EntityState
-import io.spine.base.Error
 import io.spine.base.Identifier
 import io.spine.change.MessageMismatch
 import io.spine.change.StringMismatch
 import io.spine.change.ValueMismatch
 import io.spine.core.Event
-import io.spine.core.MessageId
 import io.spine.server.command.Assignee
 import io.spine.server.dispatch.DispatchOutcome
-import io.spine.server.dispatch.dispatchOutcome
 import io.spine.server.type.CommandEnvelope
 import io.spine.server.type.EventEnvelope
 import io.spine.validation.ValidatingBuilder
@@ -88,8 +73,6 @@ public abstract class SignalDispatchingEntity<I : Any,
     Assignee {
 
     private val recentEventHistory = RecentEventHistory()
-
-    private val doubleDispatchGuard = DoubleDispatchGuard(this)
 
     private val uncommittedEventHistory = UncommittedEventHistory()
 
@@ -194,42 +177,6 @@ public abstract class SignalDispatchingEntity<I : Any,
      */
     internal fun commitEvents() {
         uncommittedEventHistory.commit()
-    }
-
-    /**
-     * Checks the passed command against the double-dispatch guard.
-     *
-     * @param command The envelope with the command about to be dispatched.
-     * @return The erroneous outcome to return instead of dispatching if the command was
-     *   already dispatched to this entity, or `null` if the dispatch may proceed.
-     */
-    protected fun detectDuplicate(command: CommandEnvelope): DispatchOutcome? =
-        doubleDispatchGuard.check(command)
-            ?.let { error -> duplicateOutcome(command.messageId(), error) }
-
-    /**
-     * Checks the passed event against the double-dispatch guard.
-     *
-     * @param event The envelope with the event about to be dispatched.
-     * @return The erroneous outcome to return instead of dispatching if the event was
-     *   already dispatched to this entity, or `null` if the dispatch may proceed.
-     */
-    protected fun detectDuplicate(event: EventEnvelope): DispatchOutcome? =
-        doubleDispatchGuard.check(event)
-            ?.let { error -> duplicateOutcome(event.messageId(), error) }
-
-    private fun duplicateOutcome(signal: MessageId, error: Error): DispatchOutcome =
-        dispatchOutcome {
-            propagatedSignal = signal
-            this.error = error
-        }
-
-    /**
-     * Enables the opt-in double-dispatch guard for this entity, scanning up to
-     * [historyDepth] most recent events for a duplicate on each dispatch.
-     */
-    internal fun enableDoubleDispatchGuard(historyDepth: Int) {
-        doubleDispatchGuard.enable(historyDepth)
     }
 
     /**
@@ -361,9 +308,8 @@ public abstract class SignalDispatchingEntity<I : Any,
         /**
          * The default number of most recent events kept in an entity's history window.
          *
-         * It is the window read by the deprecated parameterless history accessors, and
-         * the default number of recent events scanned per dispatch by the opt-in check
-         * that rejects a signal already dispatched to the entity.
+         * It is the default window of a history read or check that does not state
+         * its own depth.
          */
         public const val DEFAULT_HISTORY_DEPTH: Int = 100
     }

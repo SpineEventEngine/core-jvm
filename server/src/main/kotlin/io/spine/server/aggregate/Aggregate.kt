@@ -17,11 +17,15 @@ package io.spine.server.aggregate
 import com.google.common.collect.ImmutableSet
 import io.spine.annotation.Internal
 import io.spine.base.AggregateState
+import io.spine.base.Error
 import io.spine.core.Event
+import io.spine.core.MessageId
 import io.spine.server.Ignored.ignored
 import io.spine.server.aggregate.model.AggregateClass
 import io.spine.server.aggregate.model.AggregateClass.asAggregateClass
 import io.spine.server.dispatch.DispatchOutcome
+import io.spine.server.dispatch.dispatchOutcome
+import io.spine.server.entity.DoubleDispatchGuard
 import io.spine.server.entity.SignalDispatchingEntity
 import io.spine.server.event.EventReactor
 import io.spine.server.type.CommandEnvelope
@@ -96,6 +100,8 @@ public abstract class Aggregate<I : Any,
                                 B : ValidatingBuilder<S>> :
     SignalDispatchingEntity<I, S, B>,
     EventReactor {
+
+    private val doubleDispatchGuard = DoubleDispatchGuard(this)
 
     /**
      * Creates a new instance.
@@ -179,6 +185,42 @@ public abstract class Aggregate<I : Any,
         val method = thisClass().reactorOf(event)
         return method.map { reactorMethod -> reactorMethod.invoke(this, event) }
             .orElseGet { ignored(thisClass(), event) }
+    }
+
+    /**
+     * Checks the passed command against the double-dispatch guard.
+     *
+     * @param command The envelope with the command about to be dispatched.
+     * @return The erroneous outcome to return instead of dispatching if the command was
+     *   already dispatched to this aggregate, or `null` if the dispatch may proceed.
+     */
+    private fun detectDuplicate(command: CommandEnvelope): DispatchOutcome? =
+        doubleDispatchGuard.check(command)
+            ?.let { error -> duplicateOutcome(command.messageId(), error) }
+
+    /**
+     * Checks the passed event against the double-dispatch guard.
+     *
+     * @param event The envelope with the event about to be dispatched.
+     * @return The erroneous outcome to return instead of dispatching if the event was
+     *   already dispatched to this aggregate, or `null` if the dispatch may proceed.
+     */
+    private fun detectDuplicate(event: EventEnvelope): DispatchOutcome? =
+        doubleDispatchGuard.check(event)
+            ?.let { error -> duplicateOutcome(event.messageId(), error) }
+
+    private fun duplicateOutcome(signal: MessageId, error: Error): DispatchOutcome =
+        dispatchOutcome {
+            propagatedSignal = signal
+            this.error = error
+        }
+
+    /**
+     * Enables the opt-in double-dispatch guard for this aggregate, scanning up to
+     * [historyDepth] most recent events for a duplicate on each dispatch.
+     */
+    internal fun enableDoubleDispatchGuard(historyDepth: Int) {
+        doubleDispatchGuard.enable(historyDepth)
     }
 
     @Internal
