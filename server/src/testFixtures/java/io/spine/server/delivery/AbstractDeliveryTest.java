@@ -34,6 +34,9 @@ import org.junit.jupiter.api.BeforeEach;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.spine.util.Cleanup.runKeepingFailure;
+import static io.spine.util.Cleanup.throwIfAny;
+
 /**
  * An abstract base for the tests performing actual delivery.
  *
@@ -96,14 +99,20 @@ public abstract class AbstractDeliveryTest {
      *
      * <p>The storage factory stays open while the applications close. A tear-down that
      * reads the {@link Delivery} of the test does so before calling this method.
-     * This method then closes the factory once.
+     * This method then closes the factory once. If closing an application fails,
+     * the remaining applications and the factory are still closed, and the first
+     * failure is thrown.
      */
     @AfterEach
     public void tearDown() {
-        applications.forEach(Application::closeIfOpen);
+        Throwable failure = null;
+        for (var application : applications) {
+            failure = runKeepingFailure(failure, application::closeIfOpen);
+        }
         applications.clear();
-        closeFactory();
+        failure = runKeepingFailure(failure, this::closeFactory);
         delivery = null;
+        throwIfAny(failure);
     }
 
     /**
