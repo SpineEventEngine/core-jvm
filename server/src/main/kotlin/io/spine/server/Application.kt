@@ -320,7 +320,7 @@ public class Application private constructor(
         @CanIgnoreReturnValue
         public fun add(context: ThirdPartyContext): Builder {
             checkNotAttached(context)
-            add(context.builder)
+            add(context.newBuilder())
             thirdParty.add(context)
             return this
         }
@@ -361,7 +361,7 @@ public class Application private constructor(
             val registry = buildContexts(environment)
             built = true
             thirdParty.forEach { party ->
-                party.attach(registry.all().first { it.name() == party.builder.name() })
+                party.attach(registry.all().first { it.name() == party.name })
             }
             return Application(environment, registry, index, log ?: DefaultLog)
         }
@@ -400,7 +400,7 @@ public class Application private constructor(
          */
         private fun checkNotAttached(context: ThirdPartyContext) {
             check(!context.isAttached) {
-                "The third-party context `${context.builder.name().value}` already belongs" +
+                "The third-party context `${context.name.value}` already belongs" +
                         " to another application."
             }
         }
