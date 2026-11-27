@@ -201,9 +201,10 @@ val board: Subscription = client.onBehalfOf(user)
 - `SubscriptionRequest` and `EventSubscriptionRequest` are moved onto the shared builders.
 - The client part of the migration guide, with Kotlin samples first.
 
-**Follow-ups in other repositories, after the release:** `examples/hello`,
-`examples/hello-kt`, the `delivery` demo servlets, and the `documentation` todo-list example
-all keep the set from `post()`.
+**Follow-ups in other repositories, after the release:** they keep the set from `post()`.
+Filed on 2026-11-26: spine-examples/hello#80, SpineEventEngine/delivery#86 (`GreeterServlet`),
+and SpineEventEngine/documentation#99 (the quick start embeds the `hello` client).
+`examples/hello-kt` has no client code, and `todo-list` only calls `postAndForget()`.
 
 **Out of scope, noted:**
 - The leak when a client disconnects without cancelling (an existing problem): issue #1739.
@@ -293,3 +294,54 @@ All specs are in Kotlin with Kotest.
   the subscription back with a modified topic still reaches every holder. Activation streams
   through `GuardedObserver`, which passes nothing after the stream terminates, so an update
   that one context delivers while another fails cannot follow the error.
+- 2026-11-26 — PR 2 started in its own worktree (branch `claude/subscriptions-client-api-7f88b0`,
+  stacked on PR 1's branch). The owner approved the public signatures in two rounds. The
+  second round added a Kotlin DSL and one `observe` name in Kotlin. Differences from the
+  design above:
+  - `CommandRequest` and `EventsAfterCommand` are converted to Kotlin. In Kotlin,
+    `observe(Class<S>, Consumer<StateTarget<S>>)` takes entity states. Kotlin chooses it by
+    the bound of the type. Java sees it as `observeState()` (`@JvmName`), because the two
+    erase to the same signature.
+  - The Kotlin DSL lives in `ClientExts.kt`: `ClientRequest.command(c) { … }: Subscription?`,
+    `ClientRequest.subscribe { … }: Subscription`, and the reified `observe<T>`, `event<E>`,
+    and `state<S>`, all `@JvmSynthetic`. They are extensions because detekt allows 10
+    functions per class, and `*Exts.kt` files are exempt.
+  - `CommandRequest.onConsumingError()` takes `ConsumerErrorHandler<Message>` (was
+    `<EventMessage>`), so it also covers the consumers of states.
+  - `whenNoLongerMatching()` adds a consumer, as its doc says (it replaced the consumer
+    before). `CommandRequest.observe(eventType, …)` checks the published language.
+  - `TopicRequest` does not redeclare `onServerError()`. As on `SubscribingRequest`,
+    a refusal throws from `post()`.
+  - Removed: `SubscriptionObserver`, `NoLongerMatchingFilter`, `DeliveringMultiEventObserver`,
+    `MultiEventConsumers`, `Subscriptions.addAll()`, and `SubscribingRequest.chain()`
+    (protected in a class that cannot be extended outside the package).
+  - Internals: `TargetObserver` (sealed: events or states) and `RoutingObserver`.
+    `Subscriptions.subscribeTo(TopicFactory, List<TargetObserver>, ErrorHandler?)` is the one
+    delivery path of every request. When no streaming handler is set, the observer logs
+    the error.
+  - Behaviour change found on the way: `Client.onBehalfOf()` sets the client-level
+    streaming handler on each `ClientRequest`. `subscribeTo()`/`subscribeToEvent()` streams
+    now use it (before, only `CommandRequest` did). `SubscriptionCancellationErrorCaseSpec`
+    used `addAll()` as a test hook. It now makes a real subscription and drops it on the server
+    through a raw stub. Its stub service accepts `subscribe`/`activate`, and its requests set
+    their own streaming handler.
+- 2026-11-26 — PR #1741 opened (base `master`, since #1740 was merged first). On the owner's
+  request, a separate fixture tests the client API in full. The new `board` model
+  (`server/src/testFixtures/.../client/board/`) has a `Card` aggregate with the `status` and
+  `assignee` columns. `TopicRequestSpec` and `CommandRequestSpec` now filter state targets by
+  fields, use a composite filter, repeat a filtered event type, and report an entity that stops
+  matching one target while it still matches another. `CTask` has no columns, and stays as it is.
+- 2026-11-26 — The owner renamed the internal `TargetDelivery` to `TargetObserver`. Its subclasses
+  are now `EventTargetObserver` and `StateTargetObserver`, with `onUpdate()` and the targets'
+  `toObserver()`. The reason: the server has `io.spine.server.delivery.TargetDelivery`, and
+  "delivery" names the server's Delivery subsystem. After Codex and Copilot reviewed #1741,
+  a `whenNoLongerMatching()` consumer that throws any `Throwable` is logged. Before, only an
+  `Exception` was, so an `AssertionError` still ended the subscription. A `VirtualMachineError`
+  still propagates.
+- 2026-11-27 — armiol's review of #1741. A `state()` called from the Kotlin block of another
+  target (`this` there is still the request) used to come first. Now each target keeps the
+  position of its call, in `TopicRequest` and among the state targets of `CommandRequest`.
+  `CommandRequest.post()` still rethrows a failed subscription that carries no error case, as
+  master's Java code did. Its KDoc and the guide now say so. Trap: `Subscription` already has
+  a member `targetTypes()` that returns an unordered `ImmutableSet<TypeUrl>`, which shadows any
+  test extension with that name.

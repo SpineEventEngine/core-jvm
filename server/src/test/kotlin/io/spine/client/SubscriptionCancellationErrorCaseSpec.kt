@@ -17,6 +17,7 @@ package io.spine.client
 import com.google.protobuf.Message
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
+import io.grpc.inprocess.InProcessChannelBuilder
 import io.grpc.inprocess.InProcessServerBuilder
 import io.grpc.stub.StreamObserver
 import io.kotest.matchers.shouldBe
@@ -32,7 +33,6 @@ import io.spine.core.response
 import io.spine.server.BoundedContextBuilder
 import io.spine.test.client.ClientTestContext
 import io.spine.test.client.users.event.UserLoggedIn
-import io.spine.testing.client.TestActorRequestFactory
 import io.spine.validation.NonValidated
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit.SECONDS
@@ -44,19 +44,23 @@ internal class SubscriptionCancellationErrorCaseSpec : AbstractClientTest() {
 
     private val serverErrors = CompletableFuture<Pair<Message, ErrorCase>>()
     private val streamingErrors = CompletableFuture<Throwable>()
-    private val subscription = Subscriptions.from(
-        TestActorRequestFactory(javaClass).topic().allOf(UserLoggedIn::class.java)
-    )
+    private lateinit var serverName: String
 
     override fun contexts(): List<BoundedContextBuilder> =
         listOf(ClientTestContext.users())
 
-    override fun newClientBuilder(serverName: String): Client.Builder =
-        withErrorHandlers(super.newClientBuilder(serverName))
+    override fun newClientBuilder(serverName: String): Client.Builder {
+        this.serverName = serverName
+        return withErrorHandlers(super.newClientBuilder(serverName))
+    }
 
     @Test
     fun `pass the subscription and the error case to the server error handler`() {
-        cancelWith(client())
+        val client = client()
+        val subscription = subscribe(client)
+        forgetOnServer(subscription)
+
+        client.subscriptions().cancel(subscription)
 
         serverErrors.get(TIMEOUT, SECONDS) shouldBe (subscription to UNSUPPORTED_REQUEST)
         streamingErrors.isDone shouldBe false
@@ -66,7 +70,7 @@ internal class SubscriptionCancellationErrorCaseSpec : AbstractClientTest() {
     fun `pass the error case of the response to the server error handler`() {
         val answer = response { status = errorWith(REQUEST_DENIED) }
 
-        cancelOnStub { observer ->
+        val subscription = cancelOnStub { observer ->
             observer.onNext(answer)
             observer.onCompleted()
         }
@@ -108,20 +112,40 @@ internal class SubscriptionCancellationErrorCaseSpec : AbstractClientTest() {
             .onStreamingError { throwable -> streamingErrors.complete(throwable) }
 
     /**
-     * Makes the given client remember the [subscription], unknown to the server, and requests
-     * its cancellation.
+     * Subscribes to events with the given client.
+     *
+     * The errors of the stream of updates go to a handler of the request, so that the error
+     * handlers of the client get only the errors of the cancellation.
      */
-    private fun cancelWith(client: Client) {
-        val subscriptions = client.subscriptions()
-        subscriptions.addAll(listOf(subscription))
-        subscriptions.cancel(subscription)
+    private fun subscribe(client: Client): Subscription =
+        client.asGuest()
+            .subscribeToEvent(UserLoggedIn::class.java)
+            .observe { }
+            .onStreamingError { }
+            .post()
+
+    /**
+     * Cancels the given subscription on the server, so that the client still remembers
+     * the subscription that the server no longer has.
+     */
+    private fun forgetOnServer(subscription: Subscription) {
+        val channel = InProcessChannelBuilder.forName(serverName)
+            .directExecutor()
+            .build()
+        try {
+            SubscriptionServiceGrpc.newBlockingStub(channel).cancel(subscription)
+        } finally {
+            channel.shutdownNow()
+        }
     }
 
     /**
-     * Requests the cancellation of the [subscription] from a stub of the subscription service,
-     * which answers the cancellation as the given function does.
+     * Subscribes with a stub of the subscription service, and requests the cancellation of
+     * the subscription, which the stub answers as the given function does.
+     *
+     * @return The subscription made with the stub.
      */
-    private fun cancelOnStub(answer: (StreamObserver<Response>) -> Unit) {
+    private fun cancelOnStub(answer: (StreamObserver<Response>) -> Unit): Subscription {
         val serverName = InProcessServerBuilder.generateName()
         val server = InProcessServerBuilder.forName(serverName)
             .directExecutor()
@@ -132,8 +156,10 @@ internal class SubscriptionCancellationErrorCaseSpec : AbstractClientTest() {
             Client.inProcess(serverName).shutdownTimeout(0, SECONDS)
         ).build()
         try {
-            cancelWith(client)
+            val subscription = subscribe(client)
+            client.subscriptions().cancel(subscription)
             CompletableFuture.anyOf(serverErrors, streamingErrors).get(TIMEOUT, SECONDS)
+            return subscription
         } finally {
             client.shutdown()
             server.shutdownNow()
@@ -150,11 +176,25 @@ internal class SubscriptionCancellationErrorCaseSpec : AbstractClientTest() {
 }
 
 /**
- * Answers every cancellation request as the given function does.
+ * Accepts every subscription, and answers every cancellation request as the given
+ * function does.
  */
 private class AnsweringCancellation(
     private val answer: (StreamObserver<Response>) -> Unit
 ) : SubscriptionServiceGrpc.SubscriptionServiceImplBase() {
+
+    override fun subscribe(request: Topic, responseObserver: StreamObserver<Subscription>) {
+        responseObserver.onNext(Subscriptions.from(request))
+        responseObserver.onCompleted()
+    }
+
+    /**
+     * Keeps the stream of updates open, sending nothing.
+     */
+    override fun activate(
+        request: Subscription,
+        responseObserver: StreamObserver<SubscriptionUpdate>
+    ) = Unit
 
     override fun cancel(request: Subscription, responseObserver: StreamObserver<Response>) {
         answer(responseObserver)
