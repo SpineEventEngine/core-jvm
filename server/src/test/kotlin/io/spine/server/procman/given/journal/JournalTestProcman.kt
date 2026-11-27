@@ -19,7 +19,6 @@ import io.spine.core.Event
 import io.spine.server.command.Assign
 import io.spine.server.command.Command
 import io.spine.server.entity.rejection.EntityAlreadyArchived
-import io.spine.server.event.React
 import io.spine.server.procman.ProcessManager
 import io.spine.test.procman.ElephantProcess
 import io.spine.test.procman.ProjectId
@@ -31,13 +30,10 @@ import io.spine.test.procman.command.PmStartProject
 import io.spine.test.procman.command.PmThrowEntityAlreadyArchived
 import io.spine.test.procman.command.pmAddTask
 import io.spine.test.procman.event.PmNothingDone
-import io.spine.test.procman.event.PmNotificationSent
-import io.spine.test.procman.event.PmOwnerChanged
 import io.spine.test.procman.event.PmProjectCreated
 import io.spine.test.procman.event.PmProjectStarted
 import io.spine.test.procman.event.PmTaskAdded
 import io.spine.test.procman.event.pmNothingDone
-import io.spine.test.procman.event.pmNotificationSent
 import io.spine.test.procman.event.pmProjectCreated
 import io.spine.test.procman.event.pmProjectStarted
 import io.spine.test.procman.event.pmTaskAdded
@@ -111,12 +107,6 @@ internal class JournalTestProcman :
     fun transform(command: PmReviewBacklog): PmAddTask =
         pmAddTask {
             projectId = command.projectId
-        }
-
-    @React
-    fun on(event: PmOwnerChanged): PmNotificationSent =
-        pmNotificationSent {
-            projectId = event.projectId
         }
 
     /**

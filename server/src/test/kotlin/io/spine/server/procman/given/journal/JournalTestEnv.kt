@@ -16,7 +16,6 @@ package io.spine.server.procman.given.journal
 
 import io.spine.base.CommandMessage
 import io.spine.core.Command
-import io.spine.core.Event
 import io.spine.test.procman.ProjectId
 import io.spine.test.procman.command.pmAddTask
 import io.spine.test.procman.command.pmCompleteProject
@@ -24,17 +23,14 @@ import io.spine.test.procman.command.pmCreateProject
 import io.spine.test.procman.command.pmReviewBacklog
 import io.spine.test.procman.command.pmStartProject
 import io.spine.test.procman.command.pmThrowEntityAlreadyArchived
-import io.spine.test.procman.event.pmOwnerChanged
 import io.spine.testdata.Sample
 import io.spine.testing.client.TestActorRequestFactory
-import io.spine.testing.server.TestEventFactory
 
 /**
  * Signal factories for the process-manager journaling specs.
  */
 internal object JournalTestEnv {
 
-    private val eventFactory = TestEventFactory.newInstance(JournalTestEnv::class.java)
     private val requestFactory = TestActorRequestFactory(JournalTestEnv::class.java)
 
     fun newProjectId(): ProjectId = Sample.messageOfType(ProjectId::class.java)
@@ -56,9 +52,6 @@ internal object JournalTestEnv {
 
     fun throwEntityAlreadyArchived(id: ProjectId): Command =
         command(pmThrowEntityAlreadyArchived { projectId = id })
-
-    fun ownerChanged(id: ProjectId): Event =
-        eventFactory.createEvent(pmOwnerChanged { projectId = id })
 
     private fun command(message: CommandMessage): Command =
         requestFactory.command().create(message)
