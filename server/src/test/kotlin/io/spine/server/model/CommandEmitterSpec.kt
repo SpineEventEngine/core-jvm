@@ -22,8 +22,9 @@ import io.spine.core.MessageId
 import io.spine.core.Signal
 import io.spine.core.grandOriginOrNull
 import io.spine.grpc.StreamObservers.noOpObserver
+import io.spine.server.Application
 import io.spine.server.BoundedContext
-import io.spine.server.BoundedContextBuilder.assumingTests
+import io.spine.server.application
 import io.spine.server.async.given.OrderShippingProcess
 import io.spine.server.async.given.newOrder
 import io.spine.server.command.AbstractAssignee
@@ -42,6 +43,8 @@ import io.spine.server.given.context.shipping.event.orderPaid
 import io.spine.server.given.context.shipping.event.shipmentReserved
 import io.spine.server.given.context.shipping.rejection.CarrierUnavailable
 import io.spine.server.given.context.shipping.rejection.ShippingRejections
+import io.spine.server.serverEnvironment
+import io.spine.server.singleTenantContext
 import io.spine.server.type.CommandEnvelope
 import io.spine.server.type.EventEnvelope
 import io.spine.testing.client.TestActorRequestFactory
@@ -65,22 +68,27 @@ internal class CommandEmitterSpec {
     private val commands = mutableListOf<CommandEnvelope>()
     private val events = mutableListOf<EventEnvelope>()
     private val posted = mutableSetOf<MessageId>()
+    private lateinit var shipping: Application
     private lateinit var context: BoundedContext
 
     @BeforeEach
     fun openContext() {
-        context = assumingTests()
-            .addCommandDispatcher(Planner())
-            .addAssignee(carrier)
-            .add(OrderShippingProcess::class.java)
-            .addCommandListener { commands.add(it) }
-            .addEventListener { events.add(it) }
-            .build()
+        shipping = application {
+            serverEnvironment = serverEnvironment {}
+            add(singleTenantContext("Shipping") {
+                addCommandDispatcher(Planner())
+                addAssignee(carrier)
+                add(OrderShippingProcess::class.java)
+                addCommandListener { commands.add(it) }
+                addEventListener { events.add(it) }
+            })
+        }
+        context = shipping.contexts().single()
     }
 
     @AfterEach
     fun closeContext() {
-        context.close()
+        shipping.close()
     }
 
     @Test
