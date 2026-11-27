@@ -48,9 +48,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.grpc.StreamObservers.ack;
+import static io.spine.server.stand.TopicTargets.checkHasTarget;
 
 /**
  * A bridge that connects {@link io.spine.server.QueryService QueryService} and
@@ -172,10 +172,8 @@ public class Stand implements Closeable {
         checkNotNull(subscription);
         checkNotNull(targets);
         var topic = subscription.getTopic();
-        var count = topic.getTargetCount();
         for (int index : targets) {
-            checkArgument(index >= 0 && index < count,
-                          "The topic has no target with the index %s.", index);
+            checkHasTarget(topic, index);
         }
         topicValidator.validate(topic, targets);
 
