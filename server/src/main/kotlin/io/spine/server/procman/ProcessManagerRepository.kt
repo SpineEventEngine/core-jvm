@@ -38,7 +38,6 @@ import io.spine.server.route.EventRouting
 import io.spine.server.type.CommandClass
 import io.spine.server.type.EventClass
 import io.spine.server.type.EventEnvelope
-import io.spine.server.type.SignalEnvelope
 import io.spine.util.Exceptions.newIllegalStateException
 import io.spine.validation.ValidatingBuilder
 
@@ -193,12 +192,6 @@ protected constructor() :
      */
     final override fun commandClasses(): ImmutableSet<CommandClass> =
         processManagerClass().commands()
-
-    @Internal
-    final override fun onRoutingFailed(envelope: SignalEnvelope<*, *, *>, cause: Throwable) {
-        super.onRoutingFailed(envelope, cause)
-        postIfCommandRejected(envelope, cause)
-    }
 
     override fun canDispatch(envelope: EventEnvelope): Boolean =
         processManagerClass().reactorOf(envelope).isPresent ||

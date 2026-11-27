@@ -33,7 +33,6 @@ import io.spine.server.route.CommandRouting
 import io.spine.server.type.CommandClass
 import io.spine.server.type.EventClass
 import io.spine.server.type.EventEnvelope
-import io.spine.server.type.SignalEnvelope
 import io.spine.util.Exceptions.newIllegalStateException
 import java.util.Optional
 
@@ -243,12 +242,6 @@ protected constructor() :
      * @return A set of command classes or an empty set if the aggregates do not handle commands.
      */
     final override fun commandClasses(): ImmutableSet<CommandClass> = aggregateClass().commands()
-
-    @Internal
-    final override fun onRoutingFailed(envelope: SignalEnvelope<*, *, *>, cause: Throwable) {
-        super.onRoutingFailed(envelope, cause)
-        postIfCommandRejected(envelope, cause)
-    }
 
     /**
      * Obtains a set of event classes on which the aggregates of this repository react.

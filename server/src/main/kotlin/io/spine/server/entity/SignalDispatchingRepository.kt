@@ -15,6 +15,7 @@
 package io.spine.server.entity
 
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper
+import io.spine.annotation.Internal
 import io.spine.base.EntityState
 import io.spine.base.RejectionThrowable
 import io.spine.core.Event
@@ -186,12 +187,22 @@ protected constructor() :
     }
 
     /**
+     * Records the failure to route the signal, as the parent class does, and posts
+     * the rejection if the signal is a command and the cause is a rejection.
+     */
+    @Internal
+    final override fun onRoutingFailed(envelope: SignalEnvelope<*, *, *>, cause: Throwable) {
+        super.onRoutingFailed(envelope, cause)
+        postIfCommandRejected(envelope, cause)
+    }
+
+    /**
      * If the passed signal is a command and the thrown cause is a rejection,
      * posts the rejection to the `EventBus` of the context of this repository.
      *
      * Otherwise, does nothing.
      */
-    internal fun postIfCommandRejected(signal: SignalEnvelope<*, *, *>, cause: Throwable) {
+    private fun postIfCommandRejected(signal: SignalEnvelope<*, *, *>, cause: Throwable) {
         if (signal is CommandEnvelope && cause is RejectionThrowable) {
             val rejection = reject(signal.outerObject(), cause)
             postEvents(rejection.toSet())
