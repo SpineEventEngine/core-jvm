@@ -18,12 +18,11 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldBeSingleton
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
-import io.spine.client.Subscription
 import io.spine.client.SubscriptionUpdate
 import io.spine.core.Response
 import io.spine.grpc.MemoizingObserver
 import io.spine.grpc.StreamObservers.memoizingObserver
-import io.spine.grpc.StreamObservers.noOpObserver
+import io.spine.server.given.CancellingObserver
 import io.spine.server.given.SubscriptionServer
 import io.spine.test.client.tasks.event.CTaskCreated
 import io.spine.test.client.users.event.UserLoggedIn
@@ -96,19 +95,5 @@ internal class SubscriptionServiceConcurrentCancellationSpec {
     private fun nothingRecorded() {
         server.usersMonitor.events.shouldBeEmpty()
         server.tasksMonitor.events.shouldBeEmpty()
-    }
-}
-
-/**
- * Cancels the subscription in the given context when the stream completes.
- */
-private class CancellingObserver(
-    private val context: BoundedContext,
-    private val subscription: Subscription
-) : MemoizingObserver<SubscriptionUpdate>() {
-
-    override fun onCompleted() {
-        super.onCompleted()
-        context.stand().cancel(subscription, noOpObserver())
     }
 }

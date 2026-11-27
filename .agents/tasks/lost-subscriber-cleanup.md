@@ -99,3 +99,8 @@ default.
   subscription meanwhile. The probe shows 0 of 60 after the fix. The generic rollback of
   a failed activation is unreachable in single-threaded specs again.
 - 2026-11-27 — Filed #1751 for a subscription that is never activated (owner: fix in 2.0).
+- 2026-11-27 — `codecov/project` measures `src/main` only: 91.47% against 91.54% on master,
+  0.05% allowed. The rollback paths that master covered only through the race are unreachable
+  now. `SubscriptionServiceDebugLogSpec` records the loggers of `SubscriptionService` at FINE
+  and checks the debug messages about the end of a subscription, which also runs their
+  formatting.
