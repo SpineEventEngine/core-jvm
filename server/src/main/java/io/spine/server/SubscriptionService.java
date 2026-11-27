@@ -14,7 +14,6 @@
 
 package io.spine.server;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
@@ -74,7 +73,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.ImmutableSortedSet.toImmutableSortedSet;
-import static com.google.common.collect.Sets.union;
 import static io.spine.core.ErrorCase.INTERNAL_ERROR;
 import static io.spine.core.ErrorCase.INVALID_REQUEST;
 import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
@@ -95,6 +93,13 @@ import static java.lang.String.format;
  * The topic of a request to a multi-tenant context must have a tenant registered in
  * the {@linkplain Application#tenantIndex() tenant index} of the application, and the topic of
  * a request to a single-tenant context must have no tenant.
+ *
+ * <p>A target of an entity type is served by the Bounded Context that has the entities of
+ * the type. A target of an event type is served by every Bounded Context of the application
+ * whose tenancy fits the topic: by the multi-tenant contexts for a topic with a tenant, and by
+ * the single-tenant contexts for a topic without one. Each such context streams the events
+ * of the type posted in it. A topic with a target of an event type is refused if no context
+ * fits it.
  *
  * <p>The targets of a topic may be served by different Bounded Contexts. The service then
  * keeps the subscription in each of them, streams the updates of all of them to the client
@@ -128,17 +133,9 @@ public final class SubscriptionService
         checkNotNull(application);
         var dictionary = TypeDictionary.newBuilder();
         application.contexts().forEach(
-                context -> dictionary.putAll(context, c -> exposedTypes(c.stand()))
+                context -> dictionary.putAll(context, c -> c.stand().exposedTypes())
         );
         return new SubscriptionService(dictionary.build(), application);
-    }
-
-    /**
-     * Obtains the types of the entity states and of the events to which the given
-     * {@code Stand} allows subscribing.
-     */
-    private static Set<TypeUrl> exposedTypes(Stand stand) {
-        return union(stand.exposedTypes(), stand.exposedEventTypes());
     }
 
     /**
@@ -267,6 +264,9 @@ public final class SubscriptionService
         /**
          * Creates a subscription in the Bounded Context that serves all the targets of
          * the topic.
+         *
+         * <p>A topic is served by one context only if all its targets are of entity types,
+         * and that context serves them all.
          */
         @Override
         protected void serve(BoundedContext context,
@@ -284,14 +284,18 @@ public final class SubscriptionService
         /**
          * Creates a subscription in the Bounded Contexts that serve the targets of the topic.
          *
-         * <p>A target is served by the context that serves its type. A target of an event
-         * type that no context serves is served by each Bounded Context of the application.
+         * <p>A target of an entity type is served by the context that serves the type.
          * A topic with a target of an entity type that no context serves is
-         * {@linkplain #refuseNotServed(Object, TypeUrl, StreamObserver) refused}.
+         * {@linkplain #refuseNotServed(Object, TypeUrl, StreamObserver) refused}. A target of
+         * an event type is served by each Bounded Context of the application whose tenancy
+         * fits the topic. If no context fits, the topic is
+         * {@linkplain #refuseMisfit(Object, StreamObserver) refused} with
+         * {@link io.spine.core.ErrorCase#TENANT_ERROR TENANT_ERROR}.
          *
-         * <p>The tenant of the topic must fit each context that serves the type of a target.
-         * If a type is not served, a topic with a tenant is also refused unless the tenant is
-         * registered in the application. A topic that fails validation is refused with
+         * <p>The tenant of the topic must fit each context that serves the entity type of
+         * a target. If the topic has a target of an event type, or a type that no context
+         * serves, a topic with a tenant is also refused unless the tenant is registered in
+         * the application. A topic that fails validation is refused with
          * {@link io.spine.core.ErrorCase#INVALID_REQUEST INVALID_REQUEST}.
          */
         @Override
@@ -304,7 +308,15 @@ public final class SubscriptionService
                     return;
                 }
             }
-            if (routing.anyUnserved() && !admittedToAll(topic, observer)) {
+            var fitting = ImmutableSortedSet.<BoundedContext>of();
+            if (routing.hasEvents()) {
+                fitting = fittingContexts(topic);
+                if (fitting.isEmpty()) {
+                    refuseMisfit(topic, observer);
+                    return;
+                }
+            }
+            if (routing.anyNotServedByOne() && !admittedToAll(topic, observer)) {
                 return;
             }
             if (!validated(topic, routing.firstServingContext(), observer)) {
@@ -315,15 +327,7 @@ public final class SubscriptionService
                 refuseNotServed(topic, unservedEntity, observer);
                 return;
             }
-            var contexts = ImmutableSortedSet.copyOf(contexts());
-            if (routing.hasUnservedEvents()) {
-                logger().atWarning().log(() -> format(
-                        "Unable to find a Bounded Context for the event types of the targets %s" +
-                                " of the topic `%s`. Creating a subscription in contexts: %s.",
-                        routing.unservedEvents(), topic.getId().getValue(),
-                        contextsAsString(contexts)));
-            }
-            subscribeIn(routing.holders(contexts), topic, observer);
+            subscribeIn(routing.holders(fitting), topic, observer);
         }
 
         /**
@@ -481,25 +485,33 @@ public final class SubscriptionService
         }
 
         /**
-         * Serves the request in those Bounded Contexts known to this service that have
+         * Serves the request in those Bounded Contexts of the application that have
          * the subscription.
          *
-         * <p>The types of the topic targets are served by different Bounded Contexts, or some
-         * of them by none. Upon subscribing, the subscription
+         * <p>The topic has a target of an event type, or the entity types of its targets are
+         * served by different Bounded Contexts, or some of them by none. Upon subscribing, the
+         * subscription
          * {@linkplain SubscriptionImpl#serveNoContext(Topic, StreamObserver, Object) was created}
-         * in each context that serves a type, and, for an event type that no context serves,
-         * in each context known to the service that handled the subscribing. Another service
-         * may know other contexts, which do not have the subscription.
+         * in each context that serves an entity type of a target and, for the targets of event
+         * types, in each context whose tenancy fits the topic. The contexts may still differ in
+         * which of them hold the subscription, for example, when a subscription is created in
+         * one context directly.
          *
-         * <p>The tenant of the subscription must fit each context that serves the type of
-         * a target. If a type is not served, a subscription whose topic has a tenant is also
-         * refused unless the tenant is registered in the application. A subscription that fails
-         * validation is refused with
-         * {@link io.spine.core.ErrorCase#INVALID_REQUEST INVALID_REQUEST}. If no context has
-         * the subscription, a context that serves a type records the request, and the request
-         * is refused with {@link io.spine.core.ErrorCase#UNSUPPORTED_REQUEST
-         * UNSUPPORTED_REQUEST}; if no context serves a type either, the request is
-         * {@linkplain #refuseNotServed(Object, StreamObserver) refused} as not served.
+         * <p>The request is refused with
+         * {@link io.spine.core.ErrorCase#TENANT_ERROR TENANT_ERROR} if its tenant does not fit
+         * a context that serves the entity type of a target, or if it has a target of an event
+         * type and its tenancy fits no context. If the topic has a target of an event type, or
+         * of a type that no context serves, a subscription whose topic has a tenant is also
+         * refused unless the tenant is registered in the application.
+         *
+         * <p>A subscription that fails validation is refused with
+         * {@link io.spine.core.ErrorCase#INVALID_REQUEST INVALID_REQUEST}.
+         *
+         * <p>If no context has the subscription, the request is refused with
+         * {@link io.spine.core.ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST}. A context
+         * that serves an entity type of a target records the request. If there is no such
+         * context, the request is {@linkplain #refuseNotServed(Object, StreamObserver) refused}
+         * without recording it in a context.
          *
          * @implNote The original {@code observer} is only fed with an acknowledgement once
          *         after the request is served in each Bounded Context.
@@ -511,23 +523,18 @@ public final class SubscriptionService
         protected final void serveNoContext(Subscription subscription,
                                             StreamObserver<Response> observer,
                                             @Nullable Object params) {
-            var types = typesOf(subscription.getTopic());
-            var served = new TreeSet<BoundedContext>();
-            var anyUnserved = types.isEmpty();
-            for (var type : types) {
-                var context = find(type);
-                if (context.isPresent()) {
-                    served.add(context.get());
-                } else {
-                    anyUnserved = true;
-                }
-            }
+            var routing = new TopicRouting(subscription.getTopic(), this::find);
+            var served = routing.servingContexts();
             for (var context : served) {
                 if (!admitted(context, subscription, observer)) {
                     return;
                 }
             }
-            if (anyUnserved && !admittedToAll(subscription, observer)) {
+            if (routing.hasEvents() && fittingContexts(subscription).isEmpty()) {
+                refuseMisfit(subscription, observer);
+                return;
+            }
+            if (routing.anyNotServedByOne() && !admittedToAll(subscription, observer)) {
                 return;
             }
             serveHolders(subscription, served, observer, params);
@@ -538,8 +545,9 @@ public final class SubscriptionService
          * by the ID of the subscription.
          *
          * @param served
-         *         the contexts that serve the types of the topic targets, which have admitted
-         *         the tenant of the subscription; they record the problems with the request
+         *         the contexts that serve the entity types of the topic targets, which have
+         *         admitted the tenant of the subscription; they record the problems with
+         *         the request
          */
         private void serveHolders(Subscription subscription,
                                   SortedSet<BoundedContext> served,
@@ -599,8 +607,8 @@ public final class SubscriptionService
         }
 
         /**
-         * Tells whether the request is served only if each context that serves a type of
-         * the topic targets has the subscription.
+         * Tells whether the request is served only if each context that serves an entity type
+         * of the topic targets has the subscription.
          */
         abstract boolean servesOnlyComplete();
 
@@ -672,7 +680,7 @@ public final class SubscriptionService
 
         /**
          * Returns {@code true}: a subscription activated in some of the contexts that serve
-         * the types of its targets would miss the updates of the other targets.
+         * the entity types of its targets would miss the updates of the other targets.
          */
         @Override
         boolean servesOnlyComplete() {
@@ -788,20 +796,21 @@ public final class SubscriptionService
     /**
      * The Bounded Contexts that serve the targets of a topic.
      *
-     * <p>A target is served by the context that serves its type. A target of an event type
-     * that no context serves is served by every context.
+     * <p>A target of an entity type is served by the context that serves the type. A target of
+     * an event type is served by every context whose tenancy fits the topic.
      */
     private static final class TopicRouting {
 
         /**
-         * The contexts that serve the types of targets, with the indexes of those targets.
+         * The contexts that serve the entity types of targets, with the indexes of
+         * those targets.
          */
         private final SortedMap<BoundedContext, Set<Integer>> served = new TreeMap<>();
 
         /**
-         * The indexes of the targets of event types that no context serves.
+         * The indexes of the targets of event types.
          */
-        private final List<Integer> unservedEvents = new ArrayList<>();
+        private final List<Integer> events = new ArrayList<>();
 
         /**
          * The first entity type of a target that no context serves, if any.
@@ -814,24 +823,27 @@ public final class SubscriptionService
         private final boolean noTargets;
 
         /**
-         * Finds the contexts that serve the targets of the given topic.
+         * Finds the contexts that serve the targets of entity types of the given topic,
+         * and the targets of event types.
          *
          * @param topic
          *         the topic whose target types are known to the server
          * @param find
-         *         the function that finds the context serving a type
+         *         the function that finds the context serving an entity type
          */
         private TopicRouting(Topic topic, Function<TypeUrl, Optional<BoundedContext>> find) {
             var types = typesOf(topic);
             this.noTargets = types.isEmpty();
             for (var index = 0; index < types.size(); index++) {
+                if (topic.getTarget(index).ofEvent()) {
+                    events.add(index);
+                    continue;
+                }
                 var type = types.get(index);
                 var context = find.apply(type);
                 if (context.isPresent()) {
                     served.computeIfAbsent(context.get(), c -> new TreeSet<>())
                           .add(index);
-                } else if (topic.getTarget(index).ofEvent()) {
-                    unservedEvents.add(index);
                 } else if (unservedEntity == null) {
                     unservedEntity = type;
                 }
@@ -839,39 +851,34 @@ public final class SubscriptionService
         }
 
         /**
-         * Obtains the contexts that serve the types of targets, in their natural order.
+         * Obtains the contexts that serve the entity types of targets, in their
+         * natural order.
          */
-        private Set<BoundedContext> servingContexts() {
-            return served.keySet();
+        private ImmutableSortedSet<BoundedContext> servingContexts() {
+            return ImmutableSortedSet.copyOf(served.keySet());
         }
 
         /**
-         * Obtains the first of the contexts that serve the types of targets, or {@code null}
-         * if no context serves a type.
+         * Obtains the first of the contexts that serve the entity types of targets,
+         * or {@code null} if no context serves such a type.
          */
         private @Nullable BoundedContext firstServingContext() {
             return served.isEmpty() ? null : served.firstKey();
         }
 
         /**
-         * Tells if the topic has no targets, or a target of a type that no context serves.
+         * Tells if the topic has a target of an event type.
          */
-        private boolean anyUnserved() {
-            return noTargets || unservedEntity != null || hasUnservedEvents();
+        private boolean hasEvents() {
+            return !events.isEmpty();
         }
 
         /**
-         * Tells if the topic has a target of an event type that no context serves.
+         * Tells if the topic has no targets, or a target that no single context serves:
+         * a target of an event type, or of an entity type that no context serves.
          */
-        private boolean hasUnservedEvents() {
-            return !unservedEvents.isEmpty();
-        }
-
-        /**
-         * Obtains the indexes of the targets of event types that no context serves.
-         */
-        private List<Integer> unservedEvents() {
-            return unservedEvents;
+        private boolean anyNotServedByOne() {
+            return noTargets || unservedEntity != null || hasEvents();
         }
 
         /**
@@ -885,26 +892,21 @@ public final class SubscriptionService
          * Obtains the contexts that hold the subscription, with the indexes of
          * the targets that each of them serves.
          *
-         * @param contexts
-         *         all the contexts of the application, which serve the targets of
-         *         the event types that no context serves
+         * @param fitting
+         *         the contexts whose tenancy fits the topic, which serve the targets of
+         *         event types
          */
-        private SortedMap<BoundedContext, Set<Integer>> holders(Iterable<BoundedContext> contexts) {
+        private SortedMap<BoundedContext, Set<Integer>> holders(Iterable<BoundedContext> fitting) {
             SortedMap<BoundedContext, Set<Integer>> result = new TreeMap<>();
             served.forEach((context, targets) -> result.put(context, new TreeSet<>(targets)));
-            if (hasUnservedEvents()) {
-                for (var context : contexts) {
+            if (hasEvents()) {
+                for (var context : fitting) {
                     result.computeIfAbsent(context, c -> new TreeSet<>())
-                          .addAll(unservedEvents);
+                          .addAll(events);
                 }
             }
             return result;
         }
-    }
-
-    private static String contextsAsString(Iterable<BoundedContext> contexts) {
-        return Joiner.on(", ")
-                     .join(contexts);
     }
 
     /**

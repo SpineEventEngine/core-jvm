@@ -128,10 +128,10 @@ internal class SubscriptionServiceErrorCaseSpec {
     }
 
     @Nested inner class
-    `refuse a topic that no context serves, recording nothing, if it` {
+    `refuse a topic without recording it in a context, if it` {
 
         @Test
-        fun `targets an entity type`() {
+        fun `targets an entity type that no context serves`() {
             val topic = requests.topic().allOf(CTask::class.java)
 
             subscribe(topic).errorCase() shouldBe UNSUPPORTED_REQUEST
@@ -140,7 +140,7 @@ internal class SubscriptionServiceErrorCaseSpec {
         }
 
         @Test
-        fun `fails validation`() {
+        fun `targets an event type, and fails validation`() {
             val invalid = requests.topic().allOf(CTaskCreated::class.java).toBuilder()
                 .clearId()
                 .buildPartial()
@@ -274,7 +274,7 @@ internal class SubscriptionServiceErrorCaseSpec {
     }
 
     @Test
-    fun `answer the internal error on a failure with a topic that no context serves`() {
+    fun `answer the internal error on a failure with a topic of an event type`() {
         val failingObserver = object : MemoizingObserver<Subscription>() {
             override fun onNext(value: Subscription) {
                 error("The observer fails on purpose.")
@@ -297,7 +297,7 @@ internal class SubscriptionServiceErrorCaseSpec {
     }
 
     @Test
-    fun `cancel a subscription in the contexts that have it, if no context serves its type`() {
+    fun `cancel a subscription to an event type in the contexts that have it`() {
         val observer = memoizingObserver<Subscription>()
         service.subscribe(requests.topic().allOf(CTaskCreated::class.java), observer)
         val subscription = observer.firstResponse()

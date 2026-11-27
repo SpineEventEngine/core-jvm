@@ -76,7 +76,7 @@ internal class SubscriptionServiceMultiTargetSpec {
     private lateinit var application: Application
 
     /**
-     * The context that serves the events of projects.
+     * The context that posts the events of projects.
      */
     private lateinit var projects: BoundedContext
 
@@ -192,7 +192,7 @@ internal class SubscriptionServiceMultiTargetSpec {
 
         /**
          * Copies the subscription as a client may send it back: with the same ID, and a topic
-         * that names only the target which the context of projects serves.
+         * that names only the target of the events that the context of projects posts.
          */
         private fun withTopicOfProjects(s: Subscription): Subscription =
             s.toBuilder()
@@ -221,7 +221,7 @@ internal class SubscriptionServiceMultiTargetSpec {
     }
 
     @Test
-    fun `hold a subscription to an event type that no context serves in every context`() {
+    fun `hold a subscription to an event type that no context declares in every context`() {
         val subscription = subscribed(topicOf(allOf(CTaskCreated::class.java), allOf(CUSTOMER)))
 
         projects.stand().hasSubscription(subscription) shouldBe true

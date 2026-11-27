@@ -153,7 +153,7 @@ internal class TenantOfRequestSpec {
     }
 
     @Test
-    fun `fail a topic that no context serves if the tenant index fails to tell`() {
+    fun `fail a topic of an event type if the tenant index fails to tell`() {
         serve(multiTenant = true, index = FailingIndex)
         val topic = withTenant.topic().allOf(CTaskCreated::class.java)
 
@@ -251,7 +251,7 @@ internal class TenantOfRequestSpec {
         }
 
         @Test
-        fun `that no context serves, of an unregistered tenant, naming no context`() {
+        fun `of an event type, of an unregistered tenant, naming no context`() {
             serve(multiTenant = true)
             val topic = withTenant.topic().allOf(CTaskCreated::class.java)
 
@@ -260,6 +260,17 @@ internal class TenantOfRequestSpec {
             val (_, event) = log.single<RequestOfUnregisteredTenantRejected>()
             event.request.topic shouldBe topic
             event.hasContext() shouldBe false
+        }
+
+        @Test
+        fun `of an event type with a tenant, if no context is multi-tenant, recording the topic`() {
+            serve(multiTenant = false)
+            val topic = withTenant.topic().allOf(CTaskCreated::class.java)
+
+            subscribe(topic).error.shouldNotBeNull().errorCase() shouldBe TENANT_ERROR
+
+            monitor.single<TopicTenantNotExpected>().tenant shouldBe tenant
+            log.records.shouldBeEmpty()
         }
     }
 
@@ -325,7 +336,7 @@ internal class TenantOfRequestSpec {
         }
 
         @Test
-        fun `to a topic that no context serves, of an unregistered tenant, naming no context`() {
+        fun `to a topic of an event type, of an unregistered tenant, naming no context`() {
             serve(multiTenant = true)
             val topic = withTenant.topic().allOf(CTaskCreated::class.java)
             val subscription = Subscriptions.from(topic)
@@ -336,16 +347,6 @@ internal class TenantOfRequestSpec {
             event.request.subscriptionCancellation shouldBe subscription
             event.hasContext() shouldBe false
         }
-    }
-
-    @Test
-    fun `not check the tenant of a topic that no context serves, if no context is multi-tenant`() {
-        serve(multiTenant = false)
-        val topic = withTenant.topic().allOf(CTaskCreated::class.java)
-
-        subscribe(topic).error.shouldBeNull()
-
-        log.records.shouldBeEmpty()
     }
 
     @Nested inner class
