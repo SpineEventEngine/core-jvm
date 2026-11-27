@@ -15,6 +15,8 @@
 package io.spine.server.stand
 
 import io.kotest.matchers.collections.shouldBeSingleton
+import io.kotest.matchers.optional.shouldBeEmpty
+import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
 import io.spine.client.Subscription
 import io.spine.client.Subscriptions
@@ -60,10 +62,10 @@ internal class TenantSubscriptionRegistrySpec {
     }
 
     @Test
-    fun `remove a subscription by its ID`() {
+    fun `remove a subscription by its ID, returning its record`() {
         registry.add(subscription, setOf(0))
 
-        registry.remove(changed)
+        registry.remove(changed).shouldBePresent()
 
         registry.containsId(subscription.id) shouldBe false
         registry.hasType(PROJECT_CREATED) shouldBe false
@@ -71,9 +73,43 @@ internal class TenantSubscriptionRegistrySpec {
 
     @Test
     fun `ignore the removal of a subscription it does not have`() {
-        registry.remove(subscription)
+        registry.remove(subscription).shouldBeEmpty()
 
         registry.containsId(subscription.id) shouldBe false
+    }
+
+    @Test
+    fun `remove a subscription activated with the given callback`() {
+        val callback = SubscriptionCallback { }
+        registry.add(subscription, setOf(0))
+        registry.activate(subscription, callback)
+
+        registry.removeIfActivatedWith(changed, callback) shouldBe true
+
+        registry.containsId(subscription.id) shouldBe false
+        registry.hasType(PROJECT_CREATED) shouldBe false
+    }
+
+    @Test
+    fun `keep a subscription activated with another callback`() {
+        val callback = SubscriptionCallback { }
+        registry.add(subscription, setOf(0))
+        registry.activate(subscription, callback)
+        registry.activate(subscription) { }
+
+        registry.removeIfActivatedWith(subscription, callback) shouldBe false
+
+        registry.containsId(subscription.id) shouldBe true
+        registry.hasType(PROJECT_CREATED) shouldBe true
+    }
+
+    @Test
+    fun `keep a subscription that is not activated`() {
+        registry.add(subscription, setOf(0))
+
+        registry.removeIfActivatedWith(subscription) { } shouldBe false
+
+        registry.containsId(subscription.id) shouldBe true
     }
 
     private companion object {

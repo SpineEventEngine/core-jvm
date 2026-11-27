@@ -21,6 +21,7 @@ import com.google.common.collect.Ordering;
 import com.google.errorprone.annotations.CompileTimeConstant;
 import com.google.protobuf.Message;
 import io.grpc.BindableService;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Error;
@@ -184,11 +185,39 @@ public final class SubscriptionService
         runThreadSafe(
                 (safeObserver) -> {
                     var callback = forwardingTo(safeObserver);
+                    releaseOnCancel(observer, subscription, callback);
                     StreamObserver<Response> responseObserver = forwardErrorsOnly(safeObserver);
                     activation.serve(subscription, responseObserver, callback);
                 },
                 new GuardedObserver<>(observer), "Error activating the subscription."
         );
+    }
+
+    /**
+     * Makes the cancellation of the gRPC call that activates the subscription cancel
+     * the subscription.
+     *
+     * <p>The call is cancelled when its client cancels it or goes away without cancelling
+     * the subscription, for example, because the client process stops or the connection
+     * drops. The subscription is then cancelled in the Bounded Contexts where the given
+     * callback serves it.
+     *
+     * <p>Does nothing if the observer does not belong to a gRPC call, or if the cancellation
+     * handler of the call can no longer be set.
+     */
+    private void releaseOnCancel(StreamObserver<SubscriptionUpdate> observer,
+                                 Subscription subscription,
+                                 SubscriptionCallback callback) {
+        if (!(observer instanceof ServerCallStreamObserver<SubscriptionUpdate> call)) {
+            return;
+        }
+        try {
+            call.setOnCancelHandler(() -> activation.release(subscription, callback));
+        } catch (IllegalStateException e) {
+            logger().atDebug().withCause(e).log(() -> format(
+                    "Unable to watch the call that activates the subscription `%s`.",
+                    subscription.getId().getValue()));
+        }
     }
 
     @Override
@@ -703,6 +732,36 @@ public final class SubscriptionService
             }
             observer.onNext(gatheringObserver.firstResponse());
             observer.onCompleted();
+        }
+
+        /**
+         * Cancels the subscription in the Bounded Contexts where the given callback serves it.
+         *
+         * <p>Reacts to the cancellation of the gRPC call that activated the subscription.
+         * Unlike a cancellation request, it records nothing for the contexts that do not have
+         * the subscription: the subscription may already be cancelled, or activated again by
+         * another call.
+         *
+         * <p>A failure to cancel is logged, and does not stop cancelling the subscription in
+         * other contexts.
+         */
+        private void release(Subscription subscription, SubscriptionCallback callback) {
+            for (var context : contexts()) {
+                try {
+                    if (context.stand().release(subscription, callback)) {
+                        logger().atDebug().log(() -> format(
+                                "The call that activated the subscription `%s` is cancelled." +
+                                        " The subscription is cancelled in the bounded context" +
+                                        " `%s`.",
+                                subscription.getId().getValue(), context.name().getValue()));
+                    }
+                } catch (RuntimeException e) {
+                    logger().atError().withCause(e).log(() -> format(
+                            "Unable to cancel the subscription `%s` in the bounded context `%s`" +
+                                    " after the call that activated it is cancelled.",
+                            subscription.getId().getValue(), context.name().getValue()));
+                }
+            }
         }
 
         @Override

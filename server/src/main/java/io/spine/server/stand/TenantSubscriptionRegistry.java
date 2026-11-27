@@ -22,6 +22,7 @@ import io.spine.client.SubscriptionId;
 import io.spine.type.TypeUrl;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
@@ -79,16 +80,38 @@ final class TenantSubscriptionRegistry implements SubscriptionRegistry {
     }
 
     @Override
-    public void remove(Subscription subscription) {
-        lockAndRun(() -> {
+    public Optional<SubscriptionRecord> remove(Subscription subscription) {
+        return lockAndGet(() -> {
             var record = records.remove(subscription.getId());
-            if (record == null) {
-                return;
+            if (record != null) {
+                unindex(record);
             }
-            for (var type : record.eventTypes()) {
-                typeToRecord.remove(type, record);
-            }
+            return Optional.ofNullable(record);
         });
+    }
+
+    @Override
+    public boolean removeIfActivatedWith(Subscription subscription,
+                                         SubscriptionCallback callback) {
+        return lockAndGet(() -> {
+            var id = subscription.getId();
+            var record = records.get(id);
+            if (record == null || !record.isActivatedWith(callback)) {
+                return false;
+            }
+            records.remove(id);
+            unindex(record);
+            return true;
+        });
+    }
+
+    /**
+     * Removes the given record from the index of the records by event type.
+     */
+    private void unindex(SubscriptionRecord record) {
+        for (var type : record.eventTypes()) {
+            typeToRecord.remove(type, record);
+        }
     }
 
     @Override

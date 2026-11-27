@@ -18,6 +18,7 @@ import io.spine.client.Subscription;
 import io.spine.client.SubscriptionId;
 import io.spine.type.TypeUrl;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -64,8 +65,23 @@ interface SubscriptionRegistry {
      *
      * @param subscription
      *         the subscription to remove
+     * @return the removed record, or {@code Optional.empty()} if there was no such subscription
      */
-    void remove(Subscription subscription);
+    Optional<SubscriptionRecord> remove(Subscription subscription);
+
+    /**
+     * Removes the subscription from this registry if it is activated with the given callback.
+     *
+     * <p>Leaves the subscription in the registry if it is not activated, or is activated with
+     * another callback.
+     *
+     * @param subscription
+     *         the subscription to remove
+     * @param callback
+     *         the callback with which the subscription must be activated
+     * @return {@code true} if the subscription was removed
+     */
+    boolean removeIfActivatedWith(Subscription subscription, SubscriptionCallback callback);
 
     /**
      * Allows determining if this registry has an item with the specified ID.

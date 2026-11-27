@@ -26,6 +26,7 @@ import io.spine.client.SubscriptionUpdate;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.event.EntityStateChanged;
 import io.spine.type.TypeUrl;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +47,12 @@ final class SubscriptionRecord {
 
     private final Subscription subscription;
     private final ImmutableListMultimap<TypeUrl, UpdateHandler> handlers;
+
+    /**
+     * The callback that the record was last activated with, or {@code null} if the record
+     * is not activated.
+     */
+    private volatile @Nullable SubscriptionCallback callback;
 
     private SubscriptionRecord(Subscription s, ImmutableList<UpdateHandler> handlers) {
         this.subscription = s;
@@ -137,6 +144,14 @@ final class SubscriptionRecord {
         for (var handler : handlers()) {
             handler.setCallback(callback);
         }
+        this.callback = callback;
+    }
+
+    /**
+     * Tells whether the record was last activated with the given callback.
+     */
+    boolean isActivatedWith(SubscriptionCallback callback) {
+        return this.callback == callback;
     }
 
     /**

@@ -273,13 +273,40 @@ public class Stand implements Closeable {
         var op = new SubscriptionOperation(subscription) {
             @Override
             public void run() {
-                if(subscriptionRegistry.containsId(subscription.getId())) {
-                    subscriptionRegistry.remove(subscription);
-                    ack(responseObserver);
-                }
+                subscriptionRegistry.remove(subscription)
+                                    .ifPresent(record -> ack(responseObserver));
             }
         };
         op.execute();
+    }
+
+    /**
+     * Cancels the subscription if it is activated with the given callback.
+     *
+     * <p>Handles a stream of updates that ends without a
+     * {@linkplain #cancel(Subscription, StreamObserver) cancellation}, for example, because
+     * its client is gone. A subscription that is not activated, or is activated again with
+     * another callback, stays.
+     *
+     * <p>The subscription is looked up among those of the tenant of its topic.
+     *
+     * @param subscription
+     *         the subscription to cancel
+     * @param callback
+     *         the callback with which the subscription must be activated
+     * @return {@code true} if this {@code Stand} had the subscription activated with
+     *         the callback, and cancelled it
+     */
+    @Internal
+    public boolean release(Subscription subscription, SubscriptionCallback callback) {
+        checkNotNull(subscription);
+        checkNotNull(callback);
+        var tenantId = subscription.getTopic()
+                                   .getContext()
+                                   .getTenantId();
+        return TenantAwareRunner.with(tenantId)
+                                .evaluate(() -> subscriptionRegistry.removeIfActivatedWith(
+                                        subscription, callback));
     }
 
     /**
