@@ -200,6 +200,44 @@ internal class SubscriptionServiceMultiTargetSpec {
                 .build()
     }
 
+    @Nested inner class
+    `of entity types served by different contexts` {
+
+        private lateinit var subscription: Subscription
+
+        @BeforeEach
+        fun subscribe() {
+            subscription = subscribed(topicOf(allOf(PROJECT), allOf(CUSTOMER)))
+        }
+
+        @Test
+        fun `create one subscription in each of the contexts`() {
+            projects.stand().hasSubscription(subscription) shouldBe true
+            customers.stand().hasSubscription(subscription) shouldBe true
+        }
+
+        @Test
+        fun `stream the updates of both contexts in one activation`() {
+            val updates = activate(subscription)
+
+            post(projects, createProject())
+            post(customers, createCustomer())
+
+            updates.error.shouldBeNull()
+            updates.responses().map { it.targetIndex } shouldContainExactlyInAnyOrder listOf(0, 1)
+        }
+
+        @Test
+        fun `cancel the subscription in both contexts`() {
+            val cancellation = cancel(subscription)
+
+            cancellation.error.shouldBeNull()
+            cancellation.responses().shouldBeSingleton { it.status.hasOk() shouldBe true }
+            projects.stand().hasSubscription(subscription) shouldBe false
+            customers.stand().hasSubscription(subscription) shouldBe false
+        }
+    }
+
     @Test
     fun `deliver a message that matches two targets of one type once for each of them`() {
         val command = createCustomer()
@@ -358,6 +396,7 @@ internal class SubscriptionServiceMultiTargetSpec {
     private companion object {
 
         val PROJECT_CREATED = AggProjectCreated::class.java
+        val PROJECT = AggProject::class.java
         val CUSTOMER = Customer::class.java
         val PROJECT_STATE: TypeUrl = TypeUrl.of(AggProject::class.java)
         val CUSTOMER_STATE: TypeUrl = TypeUrl.of(Customer::class.java)
