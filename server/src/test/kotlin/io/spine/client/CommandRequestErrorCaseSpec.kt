@@ -14,7 +14,6 @@
 
 package io.spine.client
 
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.spine.core.Ack
@@ -59,14 +58,25 @@ internal class CommandRequestErrorCaseSpec : AbstractClientTest() {
     }
 
     @Test
-    fun `cancel the subscriptions made for the command`() {
-        val subscriptions = client().asGuest()
+    fun `cancel the subscription made for the command, and return 'null'`() {
+        val subscription = client().asGuest()
             .command(logInUser())
             .observe(UserLoggedIn::class.java) { }
             .onServerError { _, _ -> }
             .post()
 
-        subscriptions.shouldBeEmpty()
+        subscription shouldBe null
+        client().subscriptions().isEmpty shouldBe true
+    }
+
+    @Test
+    fun `return 'null' if there is no server error handler`() {
+        val subscription = client().asGuest()
+            .command(logInUser())
+            .observe(UserLoggedIn::class.java) { }
+            .post()
+
+        subscription shouldBe null
         client().subscriptions().isEmpty shouldBe true
     }
 

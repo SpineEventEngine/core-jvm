@@ -314,7 +314,7 @@ public final class Client implements AutoCloseable {
          * <p>If not set directly, the channel will be created using the assigned
          * host and port values.
          */
-        private ManagedChannel channel;
+        private @MonotonicNonNull ManagedChannel channel;
 
         /**
          * The address of the host that will be used for creating an instance

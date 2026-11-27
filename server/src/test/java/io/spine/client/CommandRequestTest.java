@@ -180,7 +180,7 @@ class CommandRequestTest extends AbstractClientTest {
             @Test
             @DisplayName("invoking the handler when a consumer fails")
             void invocation() {
-                ConsumerErrorHandler<EventMessage> handler = (c, th) -> {
+                ConsumerErrorHandler<Message> handler = (c, th) -> {
                     handlerInvoked = true;
                     passedThrowable = th;
                 };

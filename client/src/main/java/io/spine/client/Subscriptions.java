@@ -16,7 +16,6 @@ package io.spine.client;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.protobuf.Message;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import io.spine.annotation.VisibleForTesting;
@@ -30,10 +29,12 @@ import io.spine.logging.WithLogging;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.spine.grpc.StreamObservers.errorCaseOf;
 import static io.spine.type.ProtoTexts.shortDebugString;
 import static java.lang.String.format;
@@ -46,8 +47,14 @@ import static java.util.Collections.synchronizedSet;
  * <ul>
  *     <li>{@linkplain ClientRequest#subscribeToEvent(Class) subscribes to events};
  *     <li>{@linkplain ClientRequest#subscribeTo(Class) subscribes to entity states};
- *     <li>{@linkplain CommandRequest#post() posts a command}.
+ *     <li>{@linkplain ClientRequest#subscribe() subscribes to several targets at once},
+ *         such as events and entity states;
+ *     <li>{@linkplain CommandRequest#post() posts a command}, observing its outcome.
  * </ul>
+ *
+ * <p>Each of these requests makes one subscription, whatever the number of its targets.
+ * One {@linkplain Subscriptions#cancel(Subscription) cancellation} ends the delivery of all
+ * the targets of the subscription.
  *
  * <p>The subscriptions should be {@linkplain Subscriptions#cancel(Subscription) cancelled} after
  * an update is delivered to the client and no further updates are expected.
@@ -57,6 +64,7 @@ import static java.util.Collections.synchronizedSet;
  *
  * @see ClientRequest#subscribeTo(Class)
  * @see ClientRequest#subscribeToEvent(Class)
+ * @see ClientRequest#subscribe()
  * @see CommandRequest#post()
  */
 public final class Subscriptions implements WithLogging {
@@ -122,37 +130,34 @@ public final class Subscriptions implements WithLogging {
     }
 
     /**
-     * Subscribes the given {@link StreamObserver} to the given topic and activates
-     * the subscription.
+     * Subscribes to a topic of the given targets, and activates the subscription.
      *
-     * @param topic
-     *         the topic to subscribe to
-     * @param observer
-     *         the observer to subscribe
-     * @param <M>
-     *         the type of the result messages
+     * <p>The updates of the subscription go to the consumers of the targets that they match.
+     *
+     * @param topics
+     *         the factory of the topic
+     * @param targets
+     *         the targets of the topic with their consumers, in the order of the targets
+     * @param streamingErrorHandler
+     *         the handler of an error of the stream of updates, or {@code null} to log
+     *         such an error
      * @return the activated subscription
+     * @throws io.grpc.StatusRuntimeException
+     *         if the server refuses the subscription
      * @see #cancel(Subscription)
      */
-    <M extends Message> Subscription subscribeTo(Topic topic, StreamObserver<M> observer) {
+    Subscription subscribeTo(TopicFactory topics,
+                             List<TargetObserver> targets,
+                             @Nullable ErrorHandler streamingErrorHandler) {
+        var topic = topics.forTargets(
+                targets.stream()
+                       .map(TargetObserver::getTarget)
+                       .collect(toImmutableList())
+        );
         var subscription = blockingServiceStub.subscribe(topic);
-        service.activate(subscription, new SubscriptionObserver<>(observer));
+        service.activate(subscription, new RoutingObserver(targets, streamingErrorHandler));
         add(subscription);
         return subscription;
-    }
-
-    <M extends Message> Subscription subscribeTo(Topic topic,
-                                                 StreamObserver<M> observer,
-                                                 StreamObserver<SubscriptionUpdate> chain) {
-        var subscription = blockingServiceStub.subscribe(topic);
-        service.activate(subscription, new SubscriptionObserver<>(observer, chain));
-        add(subscription);
-        return subscription;
-    }
-
-    /** Adds all the passed subscriptions. */
-    void addAll(Iterable<Subscription> newSubscriptions) {
-        newSubscriptions.forEach(this::add);
     }
 
     /** Remembers the passed subscription for future use. */

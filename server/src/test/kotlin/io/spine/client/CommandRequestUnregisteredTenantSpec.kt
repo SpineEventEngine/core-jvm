@@ -14,9 +14,8 @@
 
 package io.spine.client
 
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.spine.core.Command
 import io.spine.core.ErrorCase
@@ -46,7 +45,7 @@ internal class CommandRequestUnregisteredTenantSpec : AbstractClientTest() {
         var postedMessage: Any? = null
         var receivedErrorCase: ErrorCase? = null
 
-        val subscriptions = client().asGuest()
+        val subscription = client().asGuest()
             .command(logInUser())
             .observe(UserLoggedIn::class.java) { }
             .onServerError { message, errorCase ->
@@ -57,7 +56,7 @@ internal class CommandRequestUnregisteredTenantSpec : AbstractClientTest() {
 
         postedMessage.shouldBeInstanceOf<Command>()
         receivedErrorCase shouldBe TENANT_ERROR
-        subscriptions.shouldBeEmpty()
+        subscription shouldBe null
         client().subscriptions().isEmpty shouldBe true
     }
 
@@ -66,14 +65,14 @@ internal class CommandRequestUnregisteredTenantSpec : AbstractClientTest() {
         application().tenantIndex().keep(tenant)
         var receivedErrorCase: ErrorCase? = null
 
-        val subscriptions = client().asGuest()
+        val subscription = client().asGuest()
             .command(logInUser())
             .observe(UserLoggedIn::class.java) { }
             .onServerError { _, errorCase -> receivedErrorCase = errorCase }
             .post()
 
         receivedErrorCase shouldBe null
-        subscriptions.shouldNotBeEmpty()
+        subscription shouldNotBe null
     }
 
     private fun logInUser(): LogInUser =
