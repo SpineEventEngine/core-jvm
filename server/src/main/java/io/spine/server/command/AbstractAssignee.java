@@ -17,10 +17,8 @@ package io.spine.server.command;
 import com.google.common.collect.ImmutableSet;
 import io.spine.core.Version;
 import io.spine.server.command.model.AssigneeClass;
-import io.spine.server.commandbus.CommandDispatcher;
 import io.spine.server.dispatch.DispatchOutcome;
 import io.spine.server.dispatch.DispatchOutcomeHandler;
-import io.spine.server.event.EventBus;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
 
@@ -28,7 +26,7 @@ import static io.spine.server.command.model.AssigneeClass.asCommandAssigneeClass
 
 /**
  * The abstract base for non-aggregate classes that expose methods assigned to handle commands
- * and post their results to {@link EventBus}.
+ * and post their results to {@link io.spine.server.event.EventBus EventBus}.
  *
  * <p>A command assignee is responsible for:
  * <ol>
@@ -49,7 +47,7 @@ import static io.spine.server.command.model.AssigneeClass.asCommandAssigneeClass
  * to methods declared in the derived classes.
  *
  * @see io.spine.server.aggregate.Aggregate Aggregate
- * @see CommandDispatcher
+ * @see io.spine.server.commandbus.CommandDispatcher CommandDispatcher
  */
 public abstract class AbstractAssignee
         extends AbstractCommandDispatcher
@@ -58,7 +56,8 @@ public abstract class AbstractAssignee
     private final AssigneeClass<?> thisClass = asCommandAssigneeClass(getClass());
 
     /**
-     * Dispatches the command to its receptor and posts resulting events to the {@link EventBus}.
+     * Dispatches the command to its receptor and posts resulting events to
+     * the {@link io.spine.server.event.EventBus EventBus}.
      *
      * @param envelope
      *         the command to dispatch

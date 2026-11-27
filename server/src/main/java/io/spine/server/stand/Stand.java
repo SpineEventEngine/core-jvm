@@ -40,7 +40,6 @@ import io.spine.server.tenant.SubscriptionOperation;
 import io.spine.server.tenant.TenantAwareOperation;
 import io.spine.server.tenant.TenantAwareRunner;
 import io.spine.server.type.EventEnvelope;
-import io.spine.system.server.event.EntityStateChanged;
 import io.spine.type.TypeUrl;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
@@ -123,7 +122,8 @@ public class Stand implements Closeable {
      * @param lifecycle
      *         the lifecycle of the entity
      * @implNote The only purpose of this method is to deliver the new entity state to the
-     *         subscribers through the artificially created {@link EntityStateChanged} event.
+     *         subscribers through the artificially created
+     *         {@link io.spine.system.server.event.EntityStateChanged EntityStateChanged} event.
      *         It doesn't do any proper lifecycle management, ignoring "archived"/"deleted" actions,
      *         IDs of applied messages, etc.
      */

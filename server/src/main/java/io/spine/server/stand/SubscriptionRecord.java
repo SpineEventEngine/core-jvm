@@ -24,7 +24,6 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
 import io.spine.server.type.EventEnvelope;
-import io.spine.system.server.event.EntityStateChanged;
 import io.spine.type.TypeUrl;
 
 import java.util.Optional;
@@ -109,7 +108,8 @@ final class SubscriptionRecord {
     /**
      * Creates the handlers of an entity target.
      *
-     * <p>In fact, an entity target is served by handling {@link EntityStateChanged},
+     * <p>In fact, an entity target is served by handling
+     * {@link io.spine.system.server.event.EntityStateChanged EntityStateChanged},
      * {@link io.spine.system.server.event.EntityDeleted EntityDeleted},
      * {@link io.spine.system.server.event.EntityArchived EntityArchived}, and other entity
      * lifecycle events with a matcher that validates the entity state packed inside the event.
