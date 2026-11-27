@@ -21,6 +21,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.optional.shouldBePresent
 import io.spine.base.Time.currentTime
+import io.spine.client.Filters.gt
 import io.spine.client.Subscription
 import io.spine.client.SubscriptionUpdate
 import io.spine.client.Topic
@@ -133,6 +134,28 @@ internal class ThirdPartyContextSubscriptionSpec {
             imports.emittedEvent(event, user)
         }
         documents.find(event.id).shouldBePresent()
+    }
+
+    @Test
+    @MuteLogging
+    fun `without failing the emission if a filter of a subscription fails`() {
+        val documents = DocumentRepository()
+        val imports = ThirdPartyContext.singleTenant(IMPORTS)
+        val app = newApplication(imports, singleTenantContext(DOCUMENTS) { add(documents) })
+        val service = SubscriptionService.of(app)
+        val unmatchable = withoutTenant.topic()
+            .select(OpenOfficeDocumentUploaded::class.java)
+            .where(gt("text", 42))
+            .build()
+        service.activate(subscribe(service, unmatchable), memoizingObserver())
+        val updates = activate(service, uploads(withoutTenant))
+        val event = uploaded()
+
+        shouldNotThrowAny {
+            imports.emittedEvent(event, user)
+        }
+        documents.find(event.id).shouldBePresent()
+        updates.uploads() shouldContainExactly listOf(event)
     }
 
     /**

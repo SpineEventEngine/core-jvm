@@ -43,6 +43,13 @@ Issue #1750.
    a builder from `newBuilder()`.
 5. No `try`/`catch` around the stand call: `UpdateHandler.deliverUpdate()` already logs whatever
    a subscriber throws, so a failing subscriber does not fail the emission. A spec case checks it.
+6. Matching an event against the filters of a target is guarded in `UpdateHandler` too: a filter
+   whose value cannot be compared to the field (`gt("text", 42)`, which no check refuses) threw
+   out of `EventTap`. That failed `emittedEvent()` after the broker had published the event, and
+   on the bus path stopped the event from reaching the other subscriptions to its type.
+   The failure is logged, and the handler detects no update.
+7. Emitting from a closed `ThirdPartyContext` throws `IllegalStateException`, as `close()` says
+   (Codex review).
 
 ## Plan
 
@@ -53,7 +60,9 @@ Issue #1750.
   - multi-tenant: a subscriber of the event's tenant gets it, one of another tenant does not;
   - a failing subscriber does not fail the emission.
 - [x] `ThirdPartyContext` keeps `name` instead of the builder (decision 4).
-- [ ] Bump `version.gradle.kts` to `.821`, regenerate the dependency reports.
-- [ ] `./gradlew build dokkaGenerate`; reviewers per `pre-pr`.
-- [ ] PR targets `claude/event-subscriptions-fan-out-16f8c0` (stacked on #1752); delete this file
-  on merge.
+- [x] Bump `version.gradle.kts` to `.821`, regenerate the dependency reports.
+- [x] `./gradlew build dokkaGenerate`; reviewers per `pre-pr`.
+- [x] PR #1753 targets `claude/event-subscriptions-fan-out-16f8c0` (stacked on #1752).
+- [x] Refuse emitting from a closed context (decision 7).
+- [x] Guard filter matching in `UpdateHandler`, with `StandFilterFailureSpec` (decision 6).
+- [ ] Delete this file on merge.
