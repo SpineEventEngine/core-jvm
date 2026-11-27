@@ -154,3 +154,7 @@ the type last. Issue #1728 ("Proposal" section is the scope). Breaking: public A
   is `private` now. Command-side removal: targeted `:server:test` 1002 tests, 0 failed.
 - 2026-11-27 — owner: `SubscriptionServiceUnservedTopicSpec` renamed (`git mv`) to
   `SubscriptionServiceEventHoldersSpec`: no event topic is unserved any more.
+- 2026-11-27 — owner: the type parameter of produced message classes dropped from the receptor
+  model (`Receptor`, `AbstractReceptor`, `CommandReceptor`, `EventReceptor`, `RejectionHandler`,
+  `ReceptorMap`, `EventReceivingClassDelegate`, `CommandHandlingClass`,
+  `AbstractCommandHandlingClass`) and from every use; `EmptyClass` stays (`EnvelopeWithOrigin`).
