@@ -14,6 +14,7 @@
 
 package io.spine.client
 
+import io.grpc.Status
 import io.grpc.inprocess.InProcessServerBuilder
 import io.grpc.stub.StreamObserver
 import io.spine.client.grpc.CommandServiceGrpc
@@ -29,8 +30,8 @@ import java.util.concurrent.TimeUnit.SECONDS
  * An in-process server that has a stub of the subscription service, and the [client]
  * connected to it.
  *
- * The stub accepts every subscription, and starts its stream of updates with
- * the given [activation]. It answers every cancellation with `OK`.
+ * Unless there is a [subscriptionError], the stub accepts every subscription, and starts its
+ * stream of updates with the given [activation]. It answers every cancellation with `OK`.
  *
  * If there is a [commandAck], a stub of the command service answers every command with it.
  * Otherwise, the server has no command service, and posting a command fails with
@@ -38,12 +39,15 @@ import java.util.concurrent.TimeUnit.SECONDS
  *
  * @param commandAck The acknowledgement for every posted command, or `null` to have no
  *   command service.
+ * @param subscriptionError The error with which the stub answers every subscription,
+ *   or `null` to accept them.
  * @param configureClient Configures the builder of the [client], for example, with
  *   error handlers.
  * @param activation Starts the stream of updates of each subscription.
  */
 internal class StubSubscriptionServer(
     commandAck: Ack? = null,
+    subscriptionError: Status? = null,
     configureClient: Client.Builder.() -> Unit = {},
     activation: (StreamObserver<SubscriptionUpdate>) -> Unit
 ) : AutoCloseable {
@@ -60,9 +64,14 @@ internal class StubSubscriptionServer(
      */
     val cancelled: MutableList<Subscription> = CopyOnWriteArrayList()
 
+    /**
+     * The commands that the stub of the command service received, in their order.
+     */
+    val posted: MutableList<Command> = CopyOnWriteArrayList()
+
     private val server = InProcessServerBuilder.forName(name)
         .directExecutor()
-        .addService(SubscriptionStub(activation))
+        .addService(SubscriptionStub(subscriptionError, activation))
         .apply { commandAck?.let { addService(CommandStub(it)) } }
         .build()
         .start()
@@ -81,10 +90,15 @@ internal class StubSubscriptionServer(
     }
 
     private inner class SubscriptionStub(
+        private val error: Status?,
         private val activation: (StreamObserver<SubscriptionUpdate>) -> Unit
     ) : SubscriptionServiceGrpc.SubscriptionServiceImplBase() {
 
         override fun subscribe(request: Topic, responseObserver: StreamObserver<Subscription>) {
+            if (error != null) {
+                responseObserver.onError(error.asRuntimeException())
+                return
+            }
             val subscription = Subscriptions.from(request)
             subscribed += subscription
             responseObserver.onNext(subscription)
@@ -103,11 +117,12 @@ internal class StubSubscriptionServer(
         }
     }
 
-    private class CommandStub(
+    private inner class CommandStub(
         private val ack: Ack
     ) : CommandServiceGrpc.CommandServiceImplBase() {
 
         override fun post(request: Command, responseObserver: StreamObserver<Ack>) {
+            posted += request
             responseObserver.onNext(ack)
             responseObserver.onCompleted()
         }

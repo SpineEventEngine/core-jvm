@@ -211,8 +211,11 @@ public class CommandRequest internal constructor(
      * entity states. The returned subscription should be [cancelled][Subscriptions.cancel]
      * after the requesting code receives the expected outcome, or after a reasonable timeout.
      *
-     * If the server refuses the subscription, the method reports the error case to the
-     * [server error handler][onServerError], does not post the command, and returns `null`.
+     * If the server refuses the subscription with an error case, the method reports the error
+     * case to the [server error handler][onServerError], does not post the command, and
+     * returns `null`. If the subscription fails without an error case, for example, because
+     * the server cannot be reached, the method does not post the command, and rethrows
+     * the error.
      *
      * The server may also refuse the command, for example, because of a validation error.
      * Then the method cancels the subscription, reports the error case to the server error
@@ -228,9 +231,11 @@ public class CommandRequest internal constructor(
      * no longer needs it.
      *
      * @return The subscription to the outcome of the command if the command was posted,
-     *   or `null` if the server refused the subscription or the command.
+     *   or `null` if the server refused the subscription or the command with an error case.
      * @throws IllegalStateException If nothing was requested to observe, or if a target of
      *   entity states has no consumers.
+     * @throws io.grpc.StatusRuntimeException If the subscription fails without an error case,
+     *   or the command cannot be sent.
      * @see postAndForget
      */
     public fun post(): Subscription? = PostOperation().perform()

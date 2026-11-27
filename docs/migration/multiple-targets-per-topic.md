@@ -183,7 +183,9 @@ One call of `client.subscriptions().cancel(subscription)` stops the updates of a
 
 `CommandRequest.post()` makes one subscription for the whole outcome of the command:
 the observed events and entity states. It returns this subscription, or `null` if the server
-refuses the subscription or the command. The error case still goes to the server error handler.
+refuses the subscription or the command with an error case. The error case still goes to
+the server error handler. Other failures, such as a server that cannot be reached, are still
+thrown as `StatusRuntimeException`.
 
 In Kotlin:
 

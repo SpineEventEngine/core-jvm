@@ -42,8 +42,10 @@ public fun actorRequestFactory(actor: UserId): ActorRequestFactory =
  * @param message The command to post.
  * @param configure Configures the request: what to observe, and the error handlers.
  * @return The subscription to the outcome of the command, or `null` if the server
- *   refused the subscription or the command.
+ *   refused the subscription or the command with an error case.
  * @throws IllegalStateException If the block requests nothing to observe.
+ * @throws io.grpc.StatusRuntimeException If the subscription fails without an error case,
+ *   or the command cannot be sent.
  * @see CommandRequest.post
  */
 @JvmSynthetic
