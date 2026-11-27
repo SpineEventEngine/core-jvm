@@ -395,8 +395,10 @@ Added while implementing, within the decisions above:
   `TestContexts.kt`, with the shortcut `buildForTests(environment)` for one context, was removed
   the same day in favor of `build()` on a builder made for tests (Q9).
 - A test closes each application it builds, together with its environment, when it completes.
-  `AbstractDeliveryTest` keeps the applications of a test and closes them in `tearDown()`: their
-  environments share the storage factory of the test, which closing an environment closes.
+  `AbstractDeliveryTest` keeps the applications of a test and closes them in `tearDown()`.
+  Their environments share the storage factory of the test. The test closes that factory
+  once, after the applications: closing one environment would close it while another
+  application, or the tear-down, still reads it.
   `DefaultEventStoreTest` closes its application, and so its storage factory, after each test.
   `BlackBox.from(Application)` takes an application of one context and closes it with the black
   box. The application that `build()` creates for a test-only context is closed with the

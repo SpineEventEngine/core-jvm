@@ -159,7 +159,7 @@ public class CounterCatchUp implements Closeable {
     public static void addOngoingCatchUpRecord(AbstractDeliveryTest test,
                                                WhatToCatchUp target,
                                                CatchUpStatus status) {
-        var factory = test.storageFactory();
+        var factory = test.openedStorageFactory();
         var storage = new CatchUpStorage(factory, false);
         Collection<Object> ids = null;
         if (!target.shouldCatchUpAll()) {

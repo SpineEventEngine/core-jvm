@@ -169,8 +169,11 @@ environment. An application registers a tenant with `application.tenantIndex().k
   one application, or build their environments with one `TransportFactory`.
 - Storage implementations that run the test suites of `server` override `storageFactory()` of
   `AbstractStorageTest` and `AbstractDeliveryTest`, instead of configuring
-  `ServerEnvironment.under(Tests.class)`. `AbstractDeliveryTest.use(Delivery)` sets the delivery
-  of the contexts that a delivery test builds afterwards.
+  `ServerEnvironment.under(Tests.class)`. For `AbstractDeliveryTest`, the override returns
+  the same factory on every call and leaves it open. The suite closes that factory once,
+  after the test, including when a black box has already closed its application.
+  `AbstractDeliveryTest.use(Delivery)` sets the delivery of the contexts that a delivery
+  test builds afterwards.
 
 ## 7. Spell `multiTenant` as two words
 

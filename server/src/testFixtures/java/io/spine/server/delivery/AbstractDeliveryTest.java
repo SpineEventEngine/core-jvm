@@ -43,10 +43,11 @@ import java.util.List;
  * of its own. The environments of these applications share the {@linkplain #storageFactory()
  * storage factory}, the {@linkplain #nodeId() node}, and the {@code Delivery} of the test.
  *
- * <p>The test closes these applications after it completes, together with their environments,
- * which close the storage factory of the test. Closing a context during the test leaves
- * the storage factory open. Closing a black box closes its application and environment, and so
- * the storage factory of the test.
+ * <p>Closing a black box closes its application and the environment of that application.
+ * The storage factory stays open: the test reads the storages of its {@code Delivery}
+ * after a black box is closed, and several applications share the factory.
+ * {@link #tearDown()} closes the applications that are still open, and then closes
+ * the factory once.
  */
 public abstract class AbstractDeliveryTest {
 
@@ -63,16 +64,25 @@ public abstract class AbstractDeliveryTest {
     private @MonotonicNonNull StorageFactory inMemoryStorage;
 
     /**
+     * The factory returned by {@link #storageFactory()}, remembered so {@link #tearDown()}
+     * closes it once.
+     *
+     * <p>Differs from {@link #inMemoryStorage} when a storage implementation overrides
+     * {@link #storageFactory()}.
+     */
+    private @MonotonicNonNull StorageFactory factoryToClose;
+
+    /**
      * The delivery of the contexts built by the test, or {@code null} until it is set or
      * {@linkplain #delivery() created}.
      */
     private @Nullable Delivery delivery;
 
     /**
-     * The applications built by the test, closed after it.
+     * The applications built by the test.
      *
-     * <p>Their environments share the storage factory of the test. So the applications are
-     * closed only when the test completes, rather than with their contexts.
+     * <p>A black box closes its application. {@link #tearDown()} closes any application
+     * that is still open, and then the storage factory of the test.
      */
     private final List<Application> applications = new ArrayList<>();
 
@@ -82,13 +92,32 @@ public abstract class AbstractDeliveryTest {
     }
 
     /**
-     * Closes the applications built by the test.
+     * Closes the applications that are still open, and then the storage factory of the test.
+     *
+     * <p>The storage factory stays open while the applications close. A tear-down that
+     * reads the {@link Delivery} of the test does so before calling this method.
+     * This method then closes the factory once.
      */
     @AfterEach
     public void tearDown() {
         applications.forEach(Application::closeIfOpen);
         applications.clear();
+        closeFactory();
         delivery = null;
+    }
+
+    /**
+     * Closes the storage factory remembered by {@link #openedStorageFactory()}, once.
+     */
+    private void closeFactory() {
+        var factory = factoryToClose;
+        if (factory == null) {
+            return;
+        }
+        factoryToClose = null;
+        if (factory.isOpen()) {
+            factory.close();
+        }
     }
 
     /**
@@ -96,13 +125,32 @@ public abstract class AbstractDeliveryTest {
      * their storages.
      *
      * <p>Returns an in-memory factory by default. Storage implementations override this method
-     * to run the tests over their storages.
+     * to run the tests over their storages. The override returns the same instance on every
+     * call and leaves it open. The test closes that instance once, in {@link #tearDown()}.
+     *
+     * @see #openedStorageFactory()
      */
     public StorageFactory storageFactory() {
         if (inMemoryStorage == null) {
             inMemoryStorage = InMemoryStorageFactory.newInstance();
         }
         return inMemoryStorage;
+    }
+
+    /**
+     * Obtains the {@linkplain #storageFactory() storage factory} of the test and remembers
+     * the instance, so {@link #tearDown()} closes it once.
+     *
+     * <p>The code of the suite calls this method. An override of {@link #storageFactory()}
+     * returns the factory.
+     */
+    public final StorageFactory openedStorageFactory() {
+        var factory = factoryToClose;
+        if (factory == null) {
+            factory = storageFactory();
+            factoryToClose = factory;
+        }
+        return factory;
     }
 
     /**
@@ -126,7 +174,7 @@ public abstract class AbstractDeliveryTest {
      */
     public final Delivery delivery() {
         if (delivery == null) {
-            delivery = Delivery.local(nodeId, storageFactory());
+            delivery = Delivery.local(nodeId, openedStorageFactory());
         }
         return delivery;
     }
@@ -135,7 +183,7 @@ public abstract class AbstractDeliveryTest {
      * Creates a new environment with the storage factory and the delivery of the test.
      */
     public final ServerEnvironment newEnvironment() {
-        var storage = storageFactory();
+        var storage = new TestOwnedStorageFactory(openedStorageFactory());
         var delivery = delivery();
         return ServerEnvironment.newBuilder()
                 .under(Tests.class, env -> env.use(storage)
@@ -158,7 +206,8 @@ public abstract class AbstractDeliveryTest {
      * Creates a black box over the context of the given builder, the only context of
      * a new application with a {@linkplain #newEnvironment() new environment} of the test.
      *
-     * <p>Closing the black box closes the application, together with its environment.
+     * <p>Closing the black box closes the application and its environment.
+     * The storage factory of the test stays open until {@link #tearDown()}.
      */
     public final BlackBox blackBox(BoundedContextBuilder builder) {
         return BlackBox.from(newApplication(builder));
@@ -204,6 +253,7 @@ public abstract class AbstractDeliveryTest {
      * with the given number of shards.
      */
     public final void changeShardCountTo(int shards) {
-        use(Delivery.localWithShardsAndWindow(nodeId, storageFactory(), shards, Durations.ZERO));
+        var factory = openedStorageFactory();
+        use(Delivery.localWithShardsAndWindow(nodeId, factory, shards, Durations.ZERO));
     }
 }
