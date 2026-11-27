@@ -36,10 +36,10 @@ to the root signal.
 
 - [x] `CommandEmitterSpec`: 5 of 5 pass with the fix, 0 of 5 without it (2026-11-27).
 - [x] `./gradlew check dokkaGenerate`: green, `:server:test` 2723 tests (2026-11-27).
+- [x] Version bumped to `.802` (open PR #1742 takes `.801`); `./gradlew build` green.
 
 ## Open
 
-- Version bump (`.802`; open PR #1742 takes `.801`) and commit wait for the user's go-ahead.
 - Commands now carry the whole ancestry, as events already do. Protobuf parses at most
   100 levels of nesting by default, so a chain of about 95 signals would fail to parse;
   before the fix every emitted command cut the chain. A possible follow-up, not in scope.
