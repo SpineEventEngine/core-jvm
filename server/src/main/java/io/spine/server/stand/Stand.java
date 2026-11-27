@@ -254,7 +254,8 @@ public class Stand implements Closeable {
      * {@link #activate(Subscription, SubscriptionCallback, StreamObserver) activate()} call.
      *
      * <p>After this method is called, the subscribers stop receiving the updates,
-     * related to the given {@code Subscription}.
+     * related to the given {@code Subscription}. The callback with which the subscription is
+     * activated is {@linkplain SubscriptionCallback#onCancelled() told} about the cancellation.
      *
      * @param subscription
      *         the subscription to cancel

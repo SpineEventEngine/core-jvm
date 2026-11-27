@@ -101,6 +101,10 @@ import static java.lang.String.format;
  * keeps the subscription in each of them, streams the updates of all of them to the client
  * that activates the subscription, and cancels the subscription in all of them.
  *
+ * <p>The stream of updates of a subscription completes when the subscription is cancelled.
+ * If the gRPC call that activated the subscription is cancelled instead, for example, because
+ * its client is gone, the service cancels the subscription.
+ *
  * <p>For synchronous read-side updates please see {@link QueryService}.
  */
 public final class SubscriptionService
