@@ -395,18 +395,22 @@ Added while implementing, within the decisions above:
   `TestContexts.kt`, with the shortcut `buildForTests(environment)` for one context, was removed
   the same day in favor of `build()` on a builder made for tests (Q9).
 - A test closes each application it builds, together with its environment, when it completes.
-  `AbstractDeliveryTest` keeps the applications of a test and closes them in `tearDown()`: their
-  environments share the storage factory of the test, which closing an environment closes.
+  `AbstractDeliveryTest` keeps the applications of a test and closes them in `tearDown()`.
+  Each application is given its own storage factory, from a new call to `newStorageFactory()`,
+  and closes that factory. The `Delivery` of the test is given a factory of its own, which
+  the test closes after the applications, so the catch-up and inbox storages stay readable
+  after a black box has closed its application.
   `DefaultEventStoreTest` closes its application, and so its storage factory, after each test.
   `BlackBox.from(Application)` takes an application of one context and closes it with the black
   box. The application that `build()` creates for a test-only context is closed with the
   context (Q11).
 - The test fixtures of `server` that storage implementations reuse take the storage factory from
-  an overridable `storageFactory()` of `AbstractStorageTest` and `AbstractDeliveryTest`, instead
-  of `ServerEnvironment.instance()`. `AbstractDeliveryTest` also has `nodeId()`, `use(Delivery)`,
+  an overridable `storageFactory()` of `AbstractStorageTest`, and `newStorageFactory()` of
+  `AbstractDeliveryTest`, instead of `ServerEnvironment.instance()`. `AbstractDeliveryTest` also has `nodeId()`, `use(Delivery)`,
   `delivery()`, `newEnvironment()`, `build()`, `blackBox()`, and `blackBoxWith()`: each context
-  of a delivery test is the only context of an application of its own, and the environments of
-  a test share its storage factory and `Delivery`. `InboxContents.get()` becomes
+  of a delivery test is the only context of an application of its own. Each application is given
+  its own storage factory. The environments share the `Delivery`, which has a factory of its own.
+  `InboxContents.get()` becomes
   `InboxContents.of(Delivery)`.
 - The contexts of `IntegrationBrokerTest` share one in-memory transport per test.
 - `TenantAwareTest.createTenantIndex()` is removed: it needed the default index of the

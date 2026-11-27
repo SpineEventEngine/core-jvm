@@ -168,9 +168,14 @@ environment. An application registers a tenant with `application.tenantIndex().k
 - Contexts that receive the external events of each other must share a transport: put them into
   one application, or build their environments with one `TransportFactory`.
 - Storage implementations that run the test suites of `server` override `storageFactory()` of
-  `AbstractStorageTest` and `AbstractDeliveryTest`, instead of configuring
-  `ServerEnvironment.under(Tests.class)`. `AbstractDeliveryTest.use(Delivery)` sets the delivery
-  of the contexts that a delivery test builds afterwards.
+  `AbstractStorageTest` and `newStorageFactory()` of `AbstractDeliveryTest`, instead of
+  configuring `ServerEnvironment.under(Tests.class)`. `newStorageFactory()` returns a new
+  factory on every call. The receiver owns it and closes it: an application closes the
+  factory it is given. The `Delivery` of the test receives a factory of its own, through
+  `deliveryStorageFactory()`, which keeps that one instance, and the test closes it
+  after the applications.
+  `AbstractDeliveryTest.use(Delivery)` sets the delivery of the contexts that a delivery
+  test builds afterwards.
 
 ## 7. Spell `multiTenant` as two words
 
