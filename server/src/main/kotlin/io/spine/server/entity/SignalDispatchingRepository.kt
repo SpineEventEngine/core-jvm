@@ -37,17 +37,9 @@ import java.util.Optional
  * The entities of such a repository emit events. The repository appends the emitted
  * events to the per-entity [event journal][eventStorage], kept append-only
  * for traceability. The journal serves the
- * [recent-history reads][SignalDispatchingEntity.eventHistoryBackward]
- * and the opt-in double-dispatch guard. Whether the journal is written is determined by
- * [eventHistoryEnabled]: the journaling is unconditional for aggregates and
- * opt-in for process managers.
- *
- * Two per-repository settings tune the machinery:
- *  - [useDoubleDispatchGuard] — enables the history-backed double-dispatch
- *    guard, which rejects a signal already seen among the last
- *    [eventHistoryDepth] dispatches;
- *  - [eventHistoryDepth] — how many recent events the guard scans on each
- *    dispatch when enabled.
+ * [recent-history reads][SignalDispatchingEntity.eventHistoryBackward].
+ * Whether the journal is written is determined by [eventHistoryEnabled]: the journaling
+ * is unconditional for aggregates and opt-in for process managers.
  *
  * @param I The type of the entity identifiers.
  * @param E The type of managed entities.
@@ -66,12 +58,6 @@ protected constructor() :
         CommandRouting.newInstance(idClass())
     }
 
-    /** Whether the opt-in double-dispatch guard is enabled for this repository. */
-    private var guardEnabled = false
-
-    /** The window (in journal events) the opt-in double-dispatch guard scans. */
-    private var historyDepth = SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH
-
     /**
      * The journal of the events emitted by the entities of this repository; created
      * lazily once the journal is first needed.
@@ -82,16 +68,10 @@ protected constructor() :
      * Registers this repository with the given context, as the parent class does, and sets up
      * the routing of the commands it dispatches.
      *
-     * Before any step of the registration, verifies that the configuration of this
-     * repository is consistent — e.g., that the [double-dispatch guard][useDoubleDispatchGuard],
-     * if enabled, has the [event journal][eventHistoryEnabled] it scans. So a misconfigured
-     * repository is left unregistered.
-     *
      * @param context The `BoundedContext` of this repository.
      */
     @OverridingMethodsMustInvokeSuper
     override fun registerWith(context: BoundedContext) {
-        checkGuardHasJournal()
         super.registerWith(context)
         doSetupCommandRouting()
     }
@@ -99,24 +79,6 @@ protected constructor() :
     private fun doSetupCommandRouting() {
         CommandRoutingSetup.apply(entityClass(), commandRouting)
         setupCommandRouting(commandRouting)
-    }
-
-    /**
-     * Ensures the double-dispatch guard, if enabled, is backed by the event journal.
-     *
-     * The guard scans the journal of the entity — with the journaling disabled it
-     * could see only the events of the current instance, silently missing the duplicates
-     * arriving after a cache eviction or a restart. Such a configuration is an error.
-     */
-    private fun checkGuardHasJournal() {
-        if (doubleDispatchGuardEnabled() && !eventHistoryEnabled()) {
-            throw newIllegalStateException(
-                "The double-dispatch guard of the repository `%s` requires the event" +
-                        " journal it scans, but the event journaling is disabled for" +
-                        " this repository. Enable the journaling along with the guard.",
-                this
-            )
-        }
     }
 
     /**
@@ -129,8 +91,7 @@ protected constructor() :
     protected abstract fun setupCommandRouting(routing: CommandRouting<I>)
 
     /**
-     * Creates an entity with the given ID, installing the event history loader and,
-     * when enabled, the double-dispatch guard on it.
+     * Creates an entity with the given ID, installing the event history loader on it.
      */
     @OverridingMethodsMustInvokeSuper
     override fun create(id: I): E {
@@ -140,8 +101,7 @@ protected constructor() :
     }
 
     /**
-     * Reconstructs an entity from the given record, installing the event history loader
-     * and, when enabled, the double-dispatch guard on it.
+     * Reconstructs an entity from the given record, installing the event history loader on it.
      */
     @OverridingMethodsMustInvokeSuper
     override fun toEntity(record: EntityRecord): E {
@@ -151,8 +111,7 @@ protected constructor() :
     }
 
     /**
-     * Installs the event history loader and, when enabled, the double-dispatch guard
-     * on a newly created or reconstructed entity.
+     * Installs the event history loader on a newly created or reconstructed entity.
      *
      * The loader is installed unconditionally: whether this repository journals the
      * emitted events gates only the behavior of the installed loader — while the
@@ -164,9 +123,6 @@ protected constructor() :
      */
     private fun setUpEventHistoryReading(entity: E, id: I) {
         entity.setEventHistoryLoader(eventHistoryLoaderFor(id))
-        if (doubleDispatchGuardEnabled()) {
-            entity.enableDoubleDispatchGuard(eventHistoryDepth())
-        }
     }
 
     /**
@@ -217,52 +173,6 @@ protected constructor() :
     }
 
     /**
-     * Enables the opt-in, history-backed double-dispatch guard for the entities of
-     * this repository.
-     *
-     * When enabled, each dispatch scans a bounded window of the entity's recent events —
-     * including the events of the current delivery batch that have not reached the journal
-     * yet — and rejects a signal already seen among them, however long ago it was dispatched.
-     * This mechanism is distinct from the delivery layer's time-windowed deduplication. The
-     * guard is **off by default** for performance: it adds a bounded history read
-     * to every dispatch.
-     *
-     * The guard scans the [event journal][eventStorage] of the entity, so it
-     * requires the [journaling to be enabled][eventHistoryEnabled]: registering
-     * a repository that enables the guard while leaving the journaling off fails with a
-     * configuration error.
-     */
-    protected open fun useDoubleDispatchGuard() {
-        guardEnabled = true
-    }
-
-    /**
-     * Tells whether the opt-in double-dispatch guard is enabled for this repository.
-     *
-     * @return `false` by default.
-     */
-    protected open fun doubleDispatchGuardEnabled(): Boolean = guardEnabled
-
-    /**
-     * Returns the number of the most recent events scanned by the opt-in
-     * double-dispatch guard when it is enabled.
-     *
-     * @return A positive integer value; the default is
-     *   [SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH].
-     */
-    protected fun eventHistoryDepth(): Int = historyDepth
-
-    /**
-     * Sets the [event history depth][eventHistoryDepth] to the passed value.
-     *
-     * @param depth A positive number of recent events the double-dispatch guard scans.
-     */
-    protected fun setEventHistoryDepth(depth: Int) {
-        require(depth > 0) { "Event history depth must be positive. Got $depth." }
-        historyDepth = depth
-    }
-
-    /**
      * Tells whether this repository maintains the event history, on behalf of
      * the endpoints of the entity packages.
      */
@@ -290,10 +200,9 @@ protected constructor() :
      * `createStorage()` uses for the entity state. A repository that overrides
      * `createStorage()` to serve the entity state from a custom
      * [io.spine.server.storage.StorageFactory] or backend should override this method as
-     * well, so the journal — feeding the double-dispatch guard and the
-     * [recent-history][SignalDispatchingEntity.eventHistoryBackward]
-     * reads — is served by the same backend as the state, rather than silently falling
-     * back to the default one.
+     * well, so the journal — feeding the
+     * [recent-history reads][SignalDispatchingEntity.eventHistoryBackward] — is served
+     * by the same backend as the state, rather than silently falling back to the default one.
      *
      * @return A new event journal.
      */

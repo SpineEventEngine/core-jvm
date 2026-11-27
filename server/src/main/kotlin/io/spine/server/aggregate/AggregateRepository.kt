@@ -26,7 +26,9 @@ import io.spine.server.delivery.InboxLabel.HANDLE_COMMAND
 import io.spine.server.delivery.InboxLabel.REACT_UPON_EVENT
 import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.dispatch.DispatchOutcomes.sentToInbox
+import io.spine.server.entity.EntityRecord
 import io.spine.server.entity.EventProducingRepository
+import io.spine.server.entity.SignalDispatchingEntity
 import io.spine.server.entity.SignalDispatchingRepository
 import io.spine.server.event.EventBus
 import io.spine.server.route.CommandRouting
@@ -83,6 +85,12 @@ protected constructor() :
     SignalDispatchingRepository<I, A, S>(),
     EventProducingRepository {
 
+    /** Whether the opt-in double-dispatch guard is enabled for this repository. */
+    private var guardEnabled = false
+
+    /** The window (in journal events) the opt-in double-dispatch guard scans. */
+    private var historyDepth = SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH
+
     final override fun eventBus(): EventBus = context().eventBus()
 
     /**
@@ -124,14 +132,40 @@ protected constructor() :
      * Creates an aggregate with the given ID, also posting the
      * [entity-created][io.spine.system.server.event.EntityCreated] system event.
      *
-     * The history loaders and, when enabled, the double-dispatch guard are installed
-     * by the parent repository classes.
+     * Installs the [double-dispatch guard][useDoubleDispatchGuard] on the aggregate
+     * when the guard is enabled. The history loaders are installed by the parent
+     * repository classes.
      */
     @OverridingMethodsMustInvokeSuper
     override fun create(id: I): A {
         val aggregate = super.create(id)
+        setUpDoubleDispatchGuard(aggregate)
         lifecycleOf(id).onEntityCreated(AGGREGATE)
         return aggregate
+    }
+
+    /**
+     * Reconstructs an aggregate from the given record.
+     *
+     * Installs the [double-dispatch guard][useDoubleDispatchGuard] on the aggregate
+     * when the guard is enabled. The history loaders are installed by the parent
+     * repository classes.
+     */
+    @OverridingMethodsMustInvokeSuper
+    override fun toEntity(record: EntityRecord): A {
+        val aggregate = super.toEntity(record)
+        setUpDoubleDispatchGuard(aggregate)
+        return aggregate
+    }
+
+    /**
+     * Installs the double-dispatch guard on a newly created or reconstructed aggregate
+     * if the guard is [enabled][doubleDispatchGuardEnabled] for this repository.
+     */
+    private fun setUpDoubleDispatchGuard(aggregate: A) {
+        if (doubleDispatchGuardEnabled()) {
+            aggregate.enableDoubleDispatchGuard(eventHistoryDepth())
+        }
     }
 
     /** Obtains class information of aggregates managed by this repository. */
@@ -147,6 +181,47 @@ protected constructor() :
      * its aggregates unconditionally.
      */
     final override fun eventHistoryEnabled(): Boolean = true
+
+    /**
+     * Enables the opt-in, history-backed double-dispatch guard for the aggregates of
+     * this repository.
+     *
+     * When enabled, each dispatch scans a bounded window of the aggregate's recent events —
+     * including the events of the current delivery batch that have not reached the journal
+     * yet — and rejects a signal already seen among them, however long ago it was dispatched.
+     * This mechanism is distinct from the delivery layer's time-windowed deduplication. The
+     * guard is **off by default** for performance: it adds a bounded history read
+     * to every dispatch.
+     */
+    protected open fun useDoubleDispatchGuard() {
+        guardEnabled = true
+    }
+
+    /**
+     * Tells whether the opt-in double-dispatch guard is enabled for this repository.
+     *
+     * @return `false` by default.
+     */
+    protected open fun doubleDispatchGuardEnabled(): Boolean = guardEnabled
+
+    /**
+     * Returns the number of the most recent events scanned by the opt-in
+     * double-dispatch guard when it is enabled.
+     *
+     * @return A positive integer value; the default is
+     *   [SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH].
+     */
+    protected fun eventHistoryDepth(): Int = historyDepth
+
+    /**
+     * Sets the [event history depth][eventHistoryDepth] to the passed value.
+     *
+     * @param depth A positive number of recent events the double-dispatch guard scans.
+     */
+    protected fun setEventHistoryDepth(depth: Int) {
+        require(depth > 0) { "Event history depth must be positive. Got $depth." }
+        historyDepth = depth
+    }
 
     /**
      * Stores the aggregate, skipping an instance that was neither changed nor

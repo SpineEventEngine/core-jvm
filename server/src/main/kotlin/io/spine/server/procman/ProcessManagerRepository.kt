@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.procman
@@ -59,7 +47,7 @@ import io.spine.validation.ValidatingBuilder
 /**
  * The abstract base for Process Managers repositories.
  *
- * Three per-repository settings tune the optional machinery:
+ * Two per-repository settings tune the optional machinery:
  *  - [recordEventHistory] — journals the events emitted by the process
  *    managers into the per-entity [event journal][eventStorage]. It is
  *    **off by default**: the emitted events are durable in the
@@ -67,10 +55,6 @@ import io.spine.validation.ValidatingBuilder
  *    per-entity journal is a deliberate diagnostics and history index. While the
  *    journaling is off, reading the event history of a managed process manager
  *    fails fast.
- *  - [useDoubleDispatchGuard] — enables the history-backed double-dispatch
- *    guard, which rejects a signal already seen among the last
- *    [eventHistoryDepth] dispatches. It is **off by default**, and
- *    requires the event journal it scans — enable it together with [recordEventHistory].
  *  - [recordStateHistory] — records the state history of the process
  *    managers on each dispatch. This is an opt-in feature shared by all entity
  *    repositories (see [io.spine.server.entity.AbstractEntityRepository]).
@@ -103,8 +87,6 @@ protected constructor() :
      * enabled, the repository appends the emitted events to the
      * [journal][eventStorage] on each successful dispatch, and the process
      * managers may consult their recent event history.
-     *
-     * The journal is also required by the [double-dispatch guard][useDoubleDispatchGuard].
      */
     protected fun recordEventHistory() {
         eventHistoryEnabled = true
