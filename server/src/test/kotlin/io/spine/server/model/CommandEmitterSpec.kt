@@ -125,12 +125,12 @@ internal class CommandEmitterSpec {
 
     @Test
     fun `give the origin to a command that a process manager emits`() {
-        val shipping = post(shipOrder { order = orderId })
+        val start = post(shipOrder { order = orderId })
 
         val reservation = emitted<ReserveShipment>()
 
-        reservation.context().origin shouldBe shipping.asMessageOrigin()
-        reservation.rootMessage() shouldBe shipping.messageId()
+        reservation.context().origin shouldBe start.asMessageOrigin()
+        reservation.rootMessage() shouldBe start.messageId()
     }
 
     @Test

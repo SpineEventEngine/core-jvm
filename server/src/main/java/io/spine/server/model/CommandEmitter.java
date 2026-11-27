@@ -82,7 +82,7 @@ public interface CommandEmitter<T,
     }
 
     /**
-     * Creates a copy of the given command with the given origin.
+     * Creates a copy of the given command whose context has the given origin.
      */
     private static Command withOrigin(Command command, Origin origin) {
         var context = command.context()
