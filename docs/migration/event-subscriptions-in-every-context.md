@@ -77,13 +77,18 @@ The methods that listed the event types declared by receptors are removed:
 of `AggregateClass` and `ProcessManagerClass`, `rejections()` of the command-handling classes and
 of `CommandReceptor`, and `reactionOutput()` of the reacting classes. They have no direct
 replacement: the declared types never told which contexts post a type. To see the events that
-a context posts, add a listener to its `EventBus`. In the examples below, `postedTypes` is
-a set of your own. In Kotlin:
+a context posts, add a listener to its `EventBus`, and skip the external events: the bus also
+passes to its listeners the events that the context receives from other contexts. In
+the examples below, `postedTypes` is a set of your own. In Kotlin:
 
 ```kotlin
 add(singleTenantContext("Tasks") {
     add(TaskRepository())
-    addEventListener { event -> postedTypes.add(event.typeUrl()) }
+    addEventListener { event ->
+        if (!event.isExternal) {
+            postedTypes.add(event.typeUrl())
+        }
+    }
 })
 ```
 
@@ -92,7 +97,11 @@ In Java:
 ```java
 BoundedContext.singleTenant("Tasks")
         .add(new TaskRepository())
-        .addEventListener(event -> postedTypes.add(event.typeUrl()));
+        .addEventListener(event -> {
+            if (!event.isExternal()) {
+                postedTypes.add(event.typeUrl());
+            }
+        });
 ```
 
 ## 4. Post from a repository through its context
