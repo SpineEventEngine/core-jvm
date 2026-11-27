@@ -24,7 +24,6 @@ import io.spine.server.model.ArgumentFilter;
 import io.spine.server.model.ParameterSpec;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
-import io.spine.type.MessageClass;
 
 import java.lang.reflect.Method;
 import java.util.Optional;
@@ -36,13 +35,10 @@ import static io.spine.server.event.RejectionFactory.reject;
  *
  * @param <T>
  *         the type of the target object
- * @param <R>
- *         the type of the produced message classes
  */
 @Immutable
-public abstract class CommandReceptor<T extends EventProducer,
-                                      R extends MessageClass<?>>
-        extends AbstractReceptor<T, CommandMessage, CommandClass, CommandEnvelope, R> {
+public abstract class CommandReceptor<T extends EventProducer>
+        extends AbstractReceptor<T, CommandMessage, CommandClass, CommandEnvelope> {
 
     CommandReceptor(Method method, ParameterSpec<CommandEnvelope> params) {
         super(checkNotFiltered(method, "command accepting"), params);

@@ -43,15 +43,12 @@ import static java.util.Comparator.comparing;
  *
  * @param <M>
  *         the type of messages
- * @param <P>
- *         the type of message classes produced by receptors
  * @param <R>
  *         the type of receptors
  */
 @Immutable(containerOf = {"M", "R"})
 public final class ReceptorMap<M extends MessageClass<?>,
-                               P extends MessageClass<?>,
-                               R extends Receptor<?, M, ?, P>>
+                               R extends Receptor<?, M, ?>>
         implements Serializable, WithLogging {
 
     @Serial
@@ -69,10 +66,8 @@ public final class ReceptorMap<M extends MessageClass<?>,
      *         the signature of methods
      * @return new instance with methods of the given class matching the given signature
      */
-    public static <M extends MessageClass<?>,
-                   P extends MessageClass<?>,
-                   R extends Receptor<?, M, ?, P>>
-    ReceptorMap<M, P, R> create(Class<?> declaringClass, ReceptorSignature<R, ?> signature) {
+    public static <M extends MessageClass<?>, R extends Receptor<?, M, ?>>
+    ReceptorMap<M, R> create(Class<?> declaringClass, ReceptorSignature<R, ?> signature) {
         checkNotNull(declaringClass);
         checkNotNull(signature);
         var map = findMethodsBy(declaringClass, signature);
@@ -194,7 +189,7 @@ public final class ReceptorMap<M extends MessageClass<?>,
         return receptorsOf(messageClass, EmptyClass.instance());
     }
 
-    private static <M extends MessageClass<?>, R extends Receptor<?, M, ?, ?>>
+    private static <M extends MessageClass<?>, R extends Receptor<?, M, ?>>
     ImmutableSet<M> messageClassesFrom(Collection<R> receptors) {
         var result = receptors.stream()
                 .map(Receptor::messageClass)

@@ -23,7 +23,6 @@ import io.spine.server.model.ReceptorMap;
 import io.spine.server.model.ReceptorSignature;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
-import io.spine.type.MessageClass;
 
 import java.util.Optional;
 
@@ -33,17 +32,14 @@ import java.util.Optional;
  *
  * @param <T>
  *         the type of target objects that handle messages
- * @param <P>
- *         the type of message classes produced by handler methods
  * @param <R>
  *         the type of the receptors
  */
 public class EventReceivingClassDelegate<T extends EventReceiver,
-                                         P extends MessageClass<?>,
-                                         R extends Receptor<?, EventClass, ?, P>>
+                                         R extends Receptor<?, EventClass, ?>>
         extends ModelClass<T> {
 
-    private final ReceptorMap<EventClass, P, R> receptors;
+    private final ReceptorMap<EventClass, R> receptors;
     private final ImmutableSet<EventClass> events;
     private final ImmutableSet<EventClass> domesticEvents;
     private final ImmutableSet<EventClass> externalEvents;

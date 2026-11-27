@@ -15,7 +15,6 @@
 package io.spine.server.event.model;
 
 import io.spine.server.event.EventReceiver;
-import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 
 import java.util.Optional;
@@ -27,7 +26,7 @@ import java.util.Optional;
  *         the type of the raw class for obtaining messaging information
  */
 public final class ReactorClassDelegate<T extends EventReceiver>
-        extends EventReceivingClassDelegate<T, EventClass, EventReactorMethod>
+        extends EventReceivingClassDelegate<T, EventReactorMethod>
         implements ReactingClass {
 
     public ReactorClassDelegate(Class<T> cls) {

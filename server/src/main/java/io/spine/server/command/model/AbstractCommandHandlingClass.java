@@ -19,7 +19,6 @@ import io.spine.server.model.ModelClass;
 import io.spine.server.model.ReceptorMap;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
-import io.spine.type.MessageClass;
 
 
 /**
@@ -27,18 +26,14 @@ import io.spine.type.MessageClass;
  *
  * @param <C>
  *         the type of command handling class
- * @param <P>
- *         the type of the class of produced messages
  * @param <R>
  *         the type of the command receptors
  */
-public abstract class AbstractCommandHandlingClass<C,
-                                                   P extends MessageClass<?>,
-                                                   R extends CommandReceptor<?, P>>
+public abstract class AbstractCommandHandlingClass<C, R extends CommandReceptor<?>>
         extends ModelClass<C>
-        implements CommandHandlingClass<P, R> {
+        implements CommandHandlingClass<R> {
 
-    private final ReceptorMap<CommandClass, P, R> commands;
+    private final ReceptorMap<CommandClass, R> commands;
 
     AbstractCommandHandlingClass(Class<? extends C> cls,
                                  CommandAcceptingSignature<R> signature) {

@@ -34,14 +34,11 @@ import java.util.Set;
  *         the type of the incoming message class
  * @param <E>
  *         the type of the {@link MessageEnvelope} wrapping the method arguments
- * @param <P>
- *         the type of the produced message classes
  */
 @Immutable
 public interface Receptor<T,
                           C extends MessageClass<?>,
-                          E extends MessageEnvelope<?, ?, ?>,
-                          P extends MessageClass<?>> {
+                          E extends MessageEnvelope<?, ?, ?>> {
     /**
      * Obtains the type of the incoming message class.
      */

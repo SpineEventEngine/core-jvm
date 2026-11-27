@@ -43,6 +43,7 @@ event once. A target of an entity type is still served by the one context that h
 | `commandOutput()` of `CommandHandlingClass` and its implementations | public | **removed** |
 | `CommandingClass`, and `outgoingCommands()` of `CommanderClass` and `ProcessManagerClass` | public | **removed** |
 | `Receptor.producedMessages()`, `producedTypes()` of `ReceptorMap` and `EventReceivingClassDelegate` | public | **removed** |
+| The type parameter of produced message classes in `Receptor`, `CommandReceptor`, `EventReceptor`, `ReceptorMap`, `EventReceivingClassDelegate`, `CommandHandlingClass`, `AbstractCommandHandlingClass` | e.g. `CommandReceptor<T, EventClass>` | **removed**; e.g. `CommandReceptor<T>` |
 
 ## 1. Subscribe as before
 

@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableSet;
 import io.spine.server.event.EventSubscriber;
 import io.spine.server.model.ModelClass;
 import io.spine.server.model.ModelClassValue;
-import io.spine.server.type.EmptyClass;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 
@@ -44,7 +43,7 @@ public final class EventSubscriberClass<S extends EventSubscriber> extends Model
     private static final ModelClassValue<EventSubscriberClass<?>> classValue =
             new ModelClassValue<>(cls -> new EventSubscriberClass<>((Class<EventSubscriber>) cls));
 
-    private final EventReceivingClassDelegate<S, EmptyClass, SubscriberMethod> delegate;
+    private final EventReceivingClassDelegate<S, SubscriberMethod> delegate;
 
     private EventSubscriberClass(Class<S> cls) {
         super(cls);

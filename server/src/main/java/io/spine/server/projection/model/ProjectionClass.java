@@ -25,7 +25,6 @@ import io.spine.server.event.model.SubscriberSignature;
 import io.spine.server.event.model.SubscribingClass;
 import io.spine.server.model.ModelClassValue;
 import io.spine.server.projection.Projection;
-import io.spine.server.type.EmptyClass;
 import io.spine.server.type.EventClass;
 import io.spine.server.type.EventEnvelope;
 
@@ -52,7 +51,7 @@ public final class ProjectionClass<P extends Projection<?, ?, ?>>
     private static final ModelClassValue<ProjectionClass<?>> classValue =
             new ModelClassValue<>(cls -> new ProjectionClass<>((Class<Projection<?, ?, ?>>) cls));
 
-    private final EventReceivingClassDelegate<P, EmptyClass, SubscriberMethod> delegate;
+    private final EventReceivingClassDelegate<P, SubscriberMethod> delegate;
 
     private ProjectionClass(Class<P> cls) {
         super(cls);

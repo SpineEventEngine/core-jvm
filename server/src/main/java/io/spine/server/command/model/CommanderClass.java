@@ -38,7 +38,7 @@ import static java.util.stream.Collectors.toSet;
  *         the type of commanders
  */
 public final class CommanderClass<C extends Commander>
-        extends AbstractCommandHandlingClass<C, CommandClass, CommandSubstituter>
+        extends AbstractCommandHandlingClass<C, CommandSubstituter>
         implements EventReceiverClass {
 
     /**
@@ -50,7 +50,7 @@ public final class CommanderClass<C extends Commander>
     private static final ModelClassValue<CommanderClass<?>> classValue =
             new ModelClassValue<>(cls -> new CommanderClass<>((Class<AbstractCommander>) cls));
 
-    private final EventReceivingClassDelegate<C, CommandClass, CommandingReaction> delegate;
+    private final EventReceivingClassDelegate<C, CommandingReaction> delegate;
 
     private CommanderClass(Class<C> cls) {
         super(cls, new CommandSubstituteSignature());

@@ -60,17 +60,14 @@ import static java.util.stream.Collectors.joining;
  *         the type of the message class
  * @param <E>
  *         the type of message envelopes, in which the messages to handle are wrapped
- * @param <R>
- *         the type of the produced message classes
  */
 @Immutable
 public abstract
 class AbstractReceptor<T,
                        M extends Message,
                        C extends MessageClass<M>,
-                       E extends MessageEnvelope<?, ? extends Signal<?, ?, ?>, ?>,
-                       R extends MessageClass<?>>
-        implements Receptor<T, C, E, R> {
+                       E extends MessageEnvelope<?, ? extends Signal<?, ?, ?>, ?>>
+        implements Receptor<T, C, E> {
 
     /** The method to be called. */
     @SuppressWarnings("Immutable")
@@ -376,7 +373,7 @@ class AbstractReceptor<T,
     @Override
     public boolean equals(@Nullable Object obj) {
         return (this == obj) ||
-                ((obj instanceof AbstractReceptor<?, ?, ?, ?, ?> other) &&
+                ((obj instanceof AbstractReceptor<?, ?, ?, ?> other) &&
                         Objects.equals(this.method, other.method));
     }
 

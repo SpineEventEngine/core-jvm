@@ -45,7 +45,7 @@ public final class EventReactorClass<S extends EventReactor> extends ModelClass<
     private static final ModelClassValue<EventReactorClass<?>> classValue =
             new ModelClassValue<>(cls -> new EventReactorClass<>((Class<EventReactor>) cls));
 
-    private final ReceptorMap<EventClass, EventClass, EventReactorMethod> reactors;
+    private final ReceptorMap<EventClass, EventReactorMethod> reactors;
     private final ImmutableSet<EventClass> events;
     private final ImmutableSet<EventClass> domesticEvents;
     private final ImmutableSet<EventClass> externalEvents;

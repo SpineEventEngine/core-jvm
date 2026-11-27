@@ -17,18 +17,14 @@ package io.spine.server.command.model;
 import com.google.common.collect.ImmutableSet;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
-import io.spine.type.MessageClass;
 
 /**
  * A common interface for classes that handle commands.
  *
- * @param <P>
- *         the type of message classes produced from the command handling
  * @param <R>
  *         the type of receptors that accept commands
  */
-public interface CommandHandlingClass<P extends MessageClass<?>,
-                                      R extends CommandReceptor<?, P>> {
+public interface CommandHandlingClass<R extends CommandReceptor<?>> {
 
     /**
      * Obtains classes of commands handled by the class.

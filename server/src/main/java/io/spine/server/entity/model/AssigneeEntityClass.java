@@ -22,7 +22,6 @@ import io.spine.server.entity.Entity;
 import io.spine.server.model.ReceptorMap;
 import io.spine.server.type.CommandClass;
 import io.spine.server.type.CommandEnvelope;
-import io.spine.server.type.EventClass;
 
 
 /**
@@ -34,9 +33,9 @@ import io.spine.server.type.EventClass;
  */
 public abstract class AssigneeEntityClass<E extends Entity<?, ?>>
         extends EntityClass<E>
-        implements CommandHandlingClass<EventClass, AssigneeReceptor> {
+        implements CommandHandlingClass<AssigneeReceptor> {
 
-    private final ReceptorMap<CommandClass, EventClass, AssigneeReceptor> commands;
+    private final ReceptorMap<CommandClass, AssigneeReceptor> commands;
 
     protected AssigneeEntityClass(Class<E> cls) {
         super(cls);
