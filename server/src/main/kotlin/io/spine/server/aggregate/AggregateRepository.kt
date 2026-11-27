@@ -27,10 +27,8 @@ import io.spine.server.delivery.InboxLabel.REACT_UPON_EVENT
 import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.dispatch.DispatchOutcomes.sentToInbox
 import io.spine.server.entity.EntityRecord
-import io.spine.server.entity.EventProducingRepository
 import io.spine.server.entity.SignalDispatchingEntity
 import io.spine.server.entity.SignalDispatchingRepository
-import io.spine.server.event.EventBus
 import io.spine.server.route.CommandRouting
 import io.spine.server.type.CommandClass
 import io.spine.server.type.EventClass
@@ -82,16 +80,13 @@ public abstract class AggregateRepository<I : Any,
                                           A : Aggregate<I, S, *>,
                                           S : AggregateState<I>>
 protected constructor() :
-    SignalDispatchingRepository<I, A, S>(),
-    EventProducingRepository {
+    SignalDispatchingRepository<I, A, S>() {
 
     /** Whether the opt-in double-dispatch guard is enabled for this repository. */
     private var guardEnabled = false
 
     /** The window (in journal events) the opt-in double-dispatch guard scans. */
     private var historyDepth = SignalDispatchingEntity.DEFAULT_HISTORY_DEPTH
-
-    final override fun eventBus(): EventBus = context().eventBus()
 
     /**
      * Sets up the inbox with the endpoints reacting upon events and handling commands.
@@ -279,8 +274,6 @@ protected constructor() :
      */
     override fun externalEventClasses(): ImmutableSet<EventClass> =
         aggregateClass().externalEvents()
-
-    override fun outgoingEvents(): ImmutableSet<EventClass> = aggregateClass().outgoingEvents()
 
     override fun canDispatch(envelope: EventEnvelope): Boolean =
         aggregateClass().reactorOf(envelope).isPresent

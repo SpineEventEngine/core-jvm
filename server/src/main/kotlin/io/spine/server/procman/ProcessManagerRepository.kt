@@ -28,10 +28,8 @@ import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.dispatch.DispatchOutcomes.sentToInbox
 import io.spine.server.entity.EntityLifecycleMonitor
 import io.spine.server.entity.EntityRecord
-import io.spine.server.entity.EventProducingRepository
 import io.spine.server.entity.SignalDispatchingRepository
 import io.spine.server.entity.TransactionListener
-import io.spine.server.event.EventBus
 import io.spine.server.procman.model.ProcessManagerClass
 import io.spine.server.procman.model.ProcessManagerClass.asProcessManagerClass
 import io.spine.server.route.CommandRouting
@@ -71,8 +69,7 @@ public abstract class ProcessManagerRepository<I : Any,
                                                P : ProcessManager<I, S, *>,
                                                S : ProcessManagerState<I>>
 protected constructor() :
-    SignalDispatchingRepository<I, P, S>(),
-    EventProducingRepository {
+    SignalDispatchingRepository<I, P, S>() {
 
     /** Whether this repository journals the events emitted by its process managers. */
     private var eventHistoryEnabled = false
@@ -110,8 +107,6 @@ protected constructor() :
     @Internal
     final override fun toModelClass(cls: Class<P>): ProcessManagerClass<P> =
         asProcessManagerClass(cls)
-
-    final override fun eventBus(): EventBus = context().eventBus()
 
     /**
      * Sets up the inbox with the endpoints reacting upon events and handling commands.
@@ -198,9 +193,6 @@ protected constructor() :
      */
     final override fun commandClasses(): ImmutableSet<CommandClass> =
         processManagerClass().commands()
-
-    override fun outgoingEvents(): ImmutableSet<EventClass> =
-        processManagerClass().outgoingEvents()
 
     @Internal
     final override fun onRoutingFailed(envelope: SignalEnvelope<*, *, *>, cause: Throwable) {

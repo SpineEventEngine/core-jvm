@@ -100,23 +100,9 @@ public final class ProcessManagerClass<P extends ProcessManager<?, ?, ?>>
         return result.immutableCopy();
     }
 
-    /**
-     * Obtains event classes produced by this process manager class.
-     */
-    public ImmutableSet<EventClass> outgoingEvents() {
-        var methodResults = union(commandOutput(), reactionOutput());
-        var result = union(methodResults, rejections());
-        return result.immutableCopy();
-    }
-
     @Override
     public Optional<EventReactorMethod> reactorOf(EventEnvelope event) {
         return reactorDelegate.reactorOf(event);
-    }
-
-    @Override
-    public ImmutableSet<EventClass> reactionOutput() {
-        return reactorDelegate.reactionOutput();
     }
 
     @Override

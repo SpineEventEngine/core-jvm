@@ -27,7 +27,6 @@ import io.spine.model.contexts.projects.event.SigProjectCreated;
 import io.spine.model.contexts.projects.event.SigProjectStopped;
 import io.spine.model.contexts.projects.event.SigTaskDeleted;
 import io.spine.model.contexts.projects.event.SigTaskMoved;
-import io.spine.model.contexts.projects.rejection.ProjectRejections;
 import io.spine.server.command.model.given.commander.SampleCommander;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -73,13 +72,6 @@ class CommanderClassTest {
                                         SigAssignTask.class,
                                         SigPauseTask.class,
                                         SigRemoveTaskFromProject.class);
-        }
-
-        @Test
-        @DisplayName("thrown rejections")
-        void events() {
-            assertEventClassesExactly(commanderClass.rejections(),
-                                      ProjectRejections.SigCannotCreateProject.class);
         }
 
         @Test

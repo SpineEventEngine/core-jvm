@@ -73,11 +73,6 @@ public final class EventReactorClass<S extends EventReactor> extends ModelClass<
     }
 
     @Override
-    public ImmutableSet<EventClass> reactionOutput() {
-        return reactors.producedTypes();
-    }
-
-    @Override
     public ImmutableSet<EventClass> events() {
         return events;
     }

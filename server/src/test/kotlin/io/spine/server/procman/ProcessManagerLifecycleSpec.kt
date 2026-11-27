@@ -15,7 +15,6 @@
 package io.spine.server.procman
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldNotBe
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.entity.given.Given
 import io.spine.server.procman.given.pm.LastSignalMemo
@@ -57,10 +56,5 @@ internal class ProcessManagerLifecycleSpec {
 
         context.close()
         another.close()
-    }
-
-    @Test
-    fun `expose the classes of the events it produces`() {
-        processManager.producedEvents() shouldNotBe null
     }
 }

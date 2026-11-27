@@ -14,8 +14,6 @@
 
 package io.spine.server.aggregate
 
-import com.google.common.collect.ImmutableSet
-import io.spine.annotation.Internal
 import io.spine.base.AggregateState
 import io.spine.base.Error
 import io.spine.core.Event
@@ -29,7 +27,6 @@ import io.spine.server.entity.DoubleDispatchGuard
 import io.spine.server.entity.SignalDispatchingEntity
 import io.spine.server.event.EventReactor
 import io.spine.server.type.CommandEnvelope
-import io.spine.server.type.EventClass
 import io.spine.server.type.EventEnvelope
 import io.spine.validation.ValidatingBuilder
 import java.util.function.Predicate
@@ -222,9 +219,6 @@ public abstract class Aggregate<I : Any,
     internal fun enableDoubleDispatchGuard(historyDepth: Int) {
         doubleDispatchGuard.enable(historyDepth)
     }
-
-    @Internal
-    override fun producedEvents(): ImmutableSet<EventClass> = modelClass().outgoingEvents()
 
     /**
      * Returns the message shown when an aggregate's state or lifecycle flags are modified

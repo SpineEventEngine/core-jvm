@@ -128,16 +128,6 @@ public abstract class AbstractCommander
         return Versions.zero();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>Always returns an empty set.
-     */
-    @Override
-    public final ImmutableSet<EventClass> producedEvents() {
-        return ImmutableSet.of();
-    }
-
     private void postCommands(List<Command> commands) {
         commandBus().post(commands, noOpObserver());
     }

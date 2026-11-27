@@ -64,9 +64,6 @@ import io.spine.test.procman.command.PmReviewBacklog
 import io.spine.test.procman.command.PmScheduleRetrospective
 import io.spine.test.procman.command.PmStartIteration
 import io.spine.test.procman.event.PmIterationCompleted
-import io.spine.test.procman.event.PmIterationPlanned
-import io.spine.test.procman.event.PmIterationStarted
-import io.spine.test.procman.event.PmNotificationSent
 import io.spine.test.procman.event.PmOwnerChanged
 import io.spine.test.procman.event.PmProjectCreated
 import io.spine.test.procman.event.PmProjectStarted
@@ -470,21 +467,6 @@ internal class ProcessManagerSpec {
                 PmScheduleRetrospective::class.java,
                 PmPlanIteration::class.java,
                 PmStartIteration::class.java
-            )
-        }
-
-        @Test
-        fun `produced events`() {
-            val pmClass = asProcessManagerClass(LastSignalMemo::class.java)
-            val events = pmClass.outgoingEvents()
-            assertEventClassesExactly(
-                events,
-                PmProjectCreated::class.java,
-                PmTaskAdded::class.java,
-                PmNotificationSent::class.java,
-                PmIterationPlanned::class.java,
-                PmIterationStarted::class.java,
-                EntityAlreadyArchived::class.java
             )
         }
 

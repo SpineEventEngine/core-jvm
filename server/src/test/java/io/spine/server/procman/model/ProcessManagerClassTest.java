@@ -14,10 +14,8 @@
 
 package io.spine.server.procman.model;
 
-import io.spine.base.RejectionMessage;
 import io.spine.server.entity.rejection.StandardRejections;
 import io.spine.server.procman.given.pm.LastSignalMemo;
-import io.spine.server.type.EventClass;
 import io.spine.test.procman.command.PmAddTask;
 import io.spine.test.procman.command.PmCancelIteration;
 import io.spine.test.procman.command.PmCreateProject;
@@ -41,7 +39,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static com.google.common.truth.Truth.assertThat;
 import static io.spine.server.procman.model.ProcessManagerClass.asProcessManagerClass;
 import static io.spine.testing.server.Assertions.assertCommandClassesExactly;
 import static io.spine.testing.server.Assertions.assertEventClassesExactly;
@@ -128,15 +125,6 @@ class ProcessManagerClassTest {
                     PmStartIteration.class,
                     PmCreateProject.class
             );
-        }
-
-        @Test
-        @DisplayName("generated rejections")
-        void rejections() {
-            Class<? extends RejectionMessage> cls = StandardRejections.EntityAlreadyArchived.class;
-            var rejectionClass = EventClass.from(cls);
-            assertThat(processManagerClass.rejections())
-                    .containsExactly(rejectionClass);
         }
     }
 }

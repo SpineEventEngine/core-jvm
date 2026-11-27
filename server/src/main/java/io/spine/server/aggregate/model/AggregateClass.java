@@ -27,7 +27,6 @@ import io.spine.server.type.EventEnvelope;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Sets.union;
 
 /**
  * Provides message-handling information on an {@code Aggregate} class.
@@ -86,30 +85,8 @@ public class AggregateClass<A extends Aggregate<?, ?, ?>>
         return delegate.domesticEvents();
     }
 
-    /**
-     * Obtains types of events that are going to be posted to {@code EventBus} as a result
-     * of handling messages dispatched to aggregates of this class.
-     *
-     * <p>This includes:
-     * <ol>
-     *     <li>Events generated in response to commands.
-     *     <li>Events generated as a reaction to incoming events.
-     *     <li>Rejections that may be thrown if incoming commands cannot be handled.
-     * </ol>
-     */
-    public ImmutableSet<EventClass> outgoingEvents() {
-        var methodResults = union(commandOutput(), reactionOutput());
-        var result = union(methodResults, rejections());
-        return result.immutableCopy();
-    }
-
     @Override
     public final Optional<EventReactorMethod> reactorOf(EventEnvelope event) {
         return delegate.reactorOf(event);
-    }
-
-    @Override
-    public ImmutableSet<EventClass> reactionOutput() {
-        return delegate.reactionOutput();
     }
 }

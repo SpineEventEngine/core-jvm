@@ -16,15 +16,19 @@ package io.spine.server.entity
 
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper
 import io.spine.base.EntityState
+import io.spine.base.RejectionThrowable
+import io.spine.core.Event
 import io.spine.server.BoundedContext
 import io.spine.server.commandbus.CommandDispatcherDelegate
 import io.spine.server.dispatch.DispatchOutcome
 import io.spine.server.dispatch.DispatchOutcomes.maybeSentToInbox
 import io.spine.server.entity.storage.EntityEventStorage
+import io.spine.server.event.reject
 import io.spine.server.route.CommandRouting
 import io.spine.server.route.setup.CommandRoutingSetup
 import io.spine.server.tenant.TenantAwareRunner
 import io.spine.server.type.CommandEnvelope
+import io.spine.server.type.SignalEnvelope
 import io.spine.util.Exceptions.newIllegalStateException
 import io.spine.util.runKeepingFailure
 import io.spine.util.throwIfAny
@@ -170,6 +174,28 @@ protected constructor() :
         val commandId = cmd.id()
         TenantAwareRunner.with(cmd.tenantId())
             .run { lifecycle.onTargetAssignedToCommand(commandId) }
+    }
+
+    /**
+     * Filters the passed events using the [event filter][eventFilter] of this repository,
+     * and posts the result to the `EventBus` of its context.
+     */
+    internal fun postEvents(events: Collection<Event>) {
+        val filtered = eventFilter().filter(events)
+        context().eventBus().post(filtered)
+    }
+
+    /**
+     * If the passed signal is a command and the thrown cause is a rejection,
+     * posts the rejection to the `EventBus` of the context of this repository.
+     *
+     * Otherwise, does nothing.
+     */
+    internal fun postIfCommandRejected(signal: SignalEnvelope<*, *, *>, cause: Throwable) {
+        if (signal is CommandEnvelope && cause is RejectionThrowable) {
+            val rejection = reject(signal.outerObject(), cause)
+            postEvents(rejection.toSet())
+        }
     }
 
     /**

@@ -28,7 +28,6 @@ import io.spine.core.Origin;
 import io.spine.core.Response;
 import io.spine.core.Responses;
 import io.spine.server.Closeable;
-import io.spine.server.EventProducer;
 import io.spine.server.Identity;
 import io.spine.server.bus.Listener;
 import io.spine.server.entity.Entity;
@@ -74,7 +73,6 @@ import static io.spine.grpc.StreamObservers.ack;
  * @see <a href="https://spine.io/docs/concepts/diagrams/spine-architecture-diagram-full-screen.html">
  *     Spine Architecture Diagram</a>
  */
-@SuppressWarnings("OverlyCoupledClass")
 public class Stand implements Closeable {
 
     /**
@@ -94,11 +92,6 @@ public class Stand implements Closeable {
      */
     private final TypeRegistry typeRegistry;
 
-    /**
-     * Manages the events produced by the associated repositories.
-     */
-    private final EventRegistry eventRegistry;
-
     private final boolean multiTenant;
 
     private final TopicValidator topicValidator;
@@ -112,7 +105,6 @@ public class Stand implements Closeable {
         this.multiTenant = builder.isMultiTenant();
         this.subscriptionRegistry = builder.subscriptionRegistry();
         this.typeRegistry = builder.typeRegistry();
-        this.eventRegistry = builder.eventRegistry();
         this.topicValidator = builder.topicValidator();
         this.queryValidator = builder.queryValidator();
         this.subscriptionValidator = builder.subscriptionValidator();
@@ -303,16 +295,6 @@ public class Stand implements Closeable {
     }
 
     /**
-     * Reads all event types produced by repositories and event producers
-     * associated with this {@code Stand}.
-     *
-     * @return the set of types as {@link TypeUrl} instances
-     */
-    public ImmutableSet<TypeUrl> exposedEventTypes() {
-        return eventRegistry.typeSet();
-    }
-
-    /**
      * Reads all {@link io.spine.server.aggregate.Aggregate Aggregate} entity types
      * exposed for reading by this instance of {@code Stand}.
      *
@@ -365,18 +347,10 @@ public class Stand implements Closeable {
     }
 
     /**
-     * Registers the passed {@code Repository} as an entity/event type supplier.
+     * Registers the passed {@code Repository} as an entity type supplier.
      */
     public void registerTypeSupplier(Repository<?, ?> repository) {
         typeRegistry.register(repository);
-        eventRegistry.register(repository);
-    }
-
-    /**
-     * Registers the passed {@code EventProducer} as the event type supplier.
-     */
-    public void registerTypeSupplier(EventProducer producer) {
-        eventRegistry.register(producer);
     }
 
     @Override
@@ -390,7 +364,6 @@ public class Stand implements Closeable {
     @Override
     public void close() {
         typeRegistry.close();
-        eventRegistry.close();
     }
 
     /**
@@ -446,7 +419,6 @@ public class Stand implements Closeable {
         private @Nullable Boolean multiTenant;
 
         private final TypeRegistry typeRegistry = InMemoryTypeRegistry.newInstance();
-        private final EventRegistry eventRegistry = InMemoryEventRegistry.newInstance();
 
         private @MonotonicNonNull SubscriptionRegistry subscriptionRegistry;
         private @MonotonicNonNull TopicValidator topicValidator;
@@ -490,10 +462,6 @@ public class Stand implements Closeable {
 
         private TypeRegistry typeRegistry() {
             return typeRegistry;
-        }
-
-        private EventRegistry eventRegistry() {
-            return eventRegistry;
         }
 
         /**
