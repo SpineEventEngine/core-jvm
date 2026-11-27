@@ -17,6 +17,8 @@ package io.spine.client
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.spine.test.client.ClProjectCreated
@@ -66,6 +68,8 @@ internal class RequestStreamingErrorSpec {
 
         failure.status.code shouldBe Status.Code.UNIMPLEMENTED
         streamingError.shouldBeUnavailable()
+        server.subscribed shouldHaveSize 1
+        server.cancelled shouldContainExactly server.subscribed
         server.client.subscriptions().isEmpty shouldBe true
     }
 
