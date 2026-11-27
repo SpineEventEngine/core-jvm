@@ -222,41 +222,48 @@ class SubscriptionServiceTest {
         }
     }
 
+    @Test
+    @DisplayName("select proper `BoundedContext` by the type of the requested entity state")
+    void pickContextByEntityType() {
+        var target = Targets.allOf(AggProject.class);
+        var result = subscriptionService.findContextOf(target);
+        assertThat(result).isPresent();
+        var actual = result.get();
+        assertThat(actual.name())
+                .isEqualTo(context.name());
+    }
+
+    /**
+     * Checks that no single context is selected for the events that the context declares.
+     *
+     * <p>Every context whose tenancy fits a topic serves the events of its type.
+     */
     @Nested
-    @DisplayName("select proper `BoundedContext` by the type of the requested ")
-    class PickContextBy {
+    @DisplayName("select no single `BoundedContext` by the type of the requested ")
+    class PickNoContextBy {
 
         @Test
         @DisplayName("events emitted by one of the bounded context entities")
         void eventsFromEntity() {
-            assertTargetFound(AggTaskAdded.class);
+            assertNoContextFound(AggTaskAdded.class);
         }
 
         @Test
         @DisplayName("events emitted by a standalone event reactor")
         void eventsFromEventReactor() {
-            assertTargetFound(AggOwnerNotified.class);
+            assertNoContextFound(AggOwnerNotified.class);
         }
 
         @Test
         @DisplayName("events emitted by a standalone command handler")
         void eventsFromCommandHandler() {
-            assertTargetFound(ReportSent.class);
+            assertNoContextFound(ReportSent.class);
         }
 
-        @Test
-        @DisplayName("state of entities that belong to a bounded context")
-        void entityType() {
-            assertTargetFound(AggProject.class);
-        }
-
-        private void assertTargetFound(Class<? extends Message> targetType) {
+        private void assertNoContextFound(Class<? extends Message> targetType) {
             var target = Targets.allOf(targetType);
             var result = subscriptionService.findContextOf(target);
-            assertThat(result).isPresent();
-            var actual = result.get();
-            assertThat(actual.name())
-                    .isEqualTo(context.name());
+            assertThat(result).isEmpty();
         }
     }
 

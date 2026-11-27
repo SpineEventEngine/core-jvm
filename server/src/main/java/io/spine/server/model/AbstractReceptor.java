@@ -1,27 +1,15 @@
 /*
- * Copyright 2026, TeamDev. All rights reserved.
+ * Copyright 2026 CodeMatters, Lda.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
  * https://www.apache.org/licenses/LICENSE-2.0
  *
- * Redistribution and use in source and/or binary forms, with or without
- * modification, must retain the above copyright notice and the following
- * disclaimer.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 
 package io.spine.server.model;
@@ -53,7 +41,6 @@ import java.util.stream.Stream;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.base.Errors.causeOf;
 import static io.spine.base.Errors.fromThrowable;
-import static io.spine.server.model.MethodResults.collectMessageClasses;
 import static io.spine.util.Exceptions.illegalStateWithCauseOf;
 import static io.spine.util.Suppliers2.memoize;
 import static java.lang.String.format;
@@ -73,17 +60,14 @@ import static java.util.stream.Collectors.joining;
  *         the type of the message class
  * @param <E>
  *         the type of message envelopes, in which the messages to handle are wrapped
- * @param <R>
- *         the type of the produced message classes
  */
 @Immutable
 public abstract
 class AbstractReceptor<T,
                        M extends Message,
                        C extends MessageClass<M>,
-                       E extends MessageEnvelope<?, ? extends Signal<?, ?, ?>, ?>,
-                       R extends MessageClass<?>>
-        implements Receptor<T, C, E, R> {
+                       E extends MessageEnvelope<?, ? extends Signal<?, ?, ?>, ?>>
+        implements Receptor<T, C, E> {
 
     /** The method to be called. */
     @SuppressWarnings("Immutable")
@@ -113,14 +97,6 @@ class AbstractReceptor<T,
      */
     private final ParameterSpec<E> parameterSpec;
 
-    /**
-     * Contains classes of messages returned by the receptor.
-     *
-     * <p>Does <em>not</em> contain interfaces.
-     */
-    @SuppressWarnings("Immutable") // Memoizing supplier is effectively immutable.
-    private final Supplier<ImmutableSet<R>> producedTypes;
-
     @SuppressWarnings("Immutable") // because this `Supplier` is effectively immutable.
     private final Supplier<ArgumentFilter> filter = memoize(this::createFilter);
 
@@ -137,7 +113,6 @@ class AbstractReceptor<T,
         this.messageClass = firstParamType(method);
         this.attributes = discoverAttributes(method);
         this.parameterSpec = parameterSpec;
-        this.producedTypes = memoize(() -> collectMessageClasses(method));
         method.setAccessible(true);
     }
 
@@ -234,11 +209,6 @@ class AbstractReceptor<T,
      */
     protected ParameterSpec<E> parameterSpec() {
         return parameterSpec;
-    }
-
-    @Override
-    public final Set<R> producedMessages() {
-        return producedTypes.get();
     }
 
     /**
@@ -403,7 +373,7 @@ class AbstractReceptor<T,
     @Override
     public boolean equals(@Nullable Object obj) {
         return (this == obj) ||
-                ((obj instanceof AbstractReceptor<?, ?, ?, ?, ?> other) &&
+                ((obj instanceof AbstractReceptor<?, ?, ?, ?> other) &&
                         Objects.equals(this.method, other.method));
     }
 

@@ -21,7 +21,6 @@ import io.spine.core.Command;
 import io.spine.core.Origin;
 import io.spine.server.dispatch.ProducedCommands;
 import io.spine.server.dispatch.Success;
-import io.spine.server.type.CommandClass;
 import io.spine.server.type.MessageEnvelope;
 import io.spine.type.MessageClass;
 import org.jspecify.annotations.Nullable;
@@ -40,7 +39,7 @@ import org.jspecify.annotations.Nullable;
 public interface CommandEmitter<T,
                                 C extends MessageClass<?>,
                                 E extends MessageEnvelope<?, ?, ?>>
-        extends Receptor<T, C, E, CommandClass> {
+        extends Receptor<T, C, E> {
 
     /**
      * Creates success result from the empty result of the method execution.

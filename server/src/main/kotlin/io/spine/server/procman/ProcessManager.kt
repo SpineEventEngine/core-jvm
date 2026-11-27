@@ -14,7 +14,6 @@
 
 package io.spine.server.procman
 
-import com.google.common.collect.ImmutableSet
 import io.spine.annotation.VisibleForTesting
 import io.spine.base.EntityState
 import io.spine.base.ProcessManagerState
@@ -30,7 +29,6 @@ import io.spine.server.procman.model.ProcessManagerClass.asProcessManagerClass
 import io.spine.server.query.Querying
 import io.spine.server.query.QueryingClient
 import io.spine.server.type.CommandEnvelope
-import io.spine.server.type.EventClass
 import io.spine.server.type.EventEnvelope
 import io.spine.util.Exceptions.newIllegalStateException
 import io.spine.validation.ValidatingBuilder
@@ -126,8 +124,6 @@ public abstract class ProcessManager<I : Any,
 
     override fun thisClass(): ProcessManagerClass<*> =
         super.thisClass() as ProcessManagerClass<*>
-
-    override fun producedEvents(): ImmutableSet<EventClass> = thisClass().outgoingEvents()
 
     /**
      * Obtains the builder of the process manager state.

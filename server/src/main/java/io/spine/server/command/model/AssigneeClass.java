@@ -16,7 +16,6 @@ package io.spine.server.command.model;
 
 import io.spine.server.command.AbstractAssignee;
 import io.spine.server.model.ModelClassValue;
-import io.spine.server.type.EventClass;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -27,7 +26,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *         the type of command assignees
  */
 public final class AssigneeClass<C extends AbstractAssignee>
-        extends AbstractCommandHandlingClass<C, EventClass, AssigneeReceptor> {
+        extends AbstractCommandHandlingClass<C, AssigneeReceptor> {
 
     /**
      * Associates an {@code AssigneeClass} with a Java class of command assignees.

@@ -21,8 +21,10 @@ import com.google.protobuf.StringValue
 import io.grpc.BindableService
 import io.grpc.ServerServiceDefinition
 import io.grpc.stub.StreamObserver
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.spine.base.Error
 import io.spine.base.EventMessage
 import io.spine.core.ErrorCase.INVALID_REQUEST
@@ -79,6 +81,17 @@ internal class ServiceDelegateSpec {
         observer.error.shouldNotBeNull().errorCase() shouldBe INVALID_REQUEST
         log.records.single().message shouldBe
                 "`NoService` refused the request with `INVALID_REQUEST`."
+    }
+
+    @Test
+    fun `refuse no request as a misfit if it passes the requests of another tenancy on`() {
+        val delegate = MisfitPassingDelegate(application)
+
+        val error = shouldThrow<IllegalStateException> {
+            delegate.refuseAsMisfit(StringValue.of("A request"), memoizingObserver())
+        }
+
+        error.message shouldContain "does not record the requests that do not fit"
     }
 }
 
@@ -159,6 +172,31 @@ private class RefusingDelegate(application: Application) : StubDelegate(applicat
         params: Any?
     ) {
         refuse(request, INVALID_REQUEST, observer, null)
+    }
+}
+
+/**
+ * Passes the requests of another tenancy to the contexts, as [StubDelegate] does, and lets
+ * a test refuse a request as one that fits no context.
+ *
+ * The tenant of a request may be obtained any number of times.
+ */
+private class MisfitPassingDelegate(application: Application) : StubDelegate(application) {
+
+    override fun tenantOf(request: StringValue): TenantId = TenantId.getDefaultInstance()
+
+    override fun serve(
+        context: BoundedContext,
+        request: StringValue,
+        observer: StreamObserver<Empty>,
+        params: Any?
+    ): Unit = error("The delegate serves no requests.")
+
+    /**
+     * Refuses the request as one whose tenancy fits no context.
+     */
+    fun refuseAsMisfit(request: StringValue, observer: StreamObserver<Empty>) {
+        refuseMisfit(request, observer)
     }
 }
 

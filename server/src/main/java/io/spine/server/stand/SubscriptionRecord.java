@@ -24,7 +24,6 @@ import io.spine.annotation.VisibleForTesting;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
 import io.spine.server.type.EventEnvelope;
-import io.spine.system.server.event.EntityStateChanged;
 import io.spine.type.TypeUrl;
 
 import java.util.Optional;
@@ -34,6 +33,7 @@ import java.util.stream.IntStream;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static io.spine.server.stand.TopicTargets.checkHasTarget;
 
 /**
  * A {@link SubscriptionRegistry} entry that manages a single subscription.
@@ -72,14 +72,11 @@ final class SubscriptionRecord {
     static SubscriptionRecord of(Subscription subscription, Set<Integer> targets) {
         checkArgument(!targets.isEmpty(),
                       "A subscription record must serve at least one target.");
-        var count = subscription.getTopic()
-                                .getTargetCount();
+        var topic = subscription.getTopic();
         var handlers = ImmutableList.<UpdateHandler>builder();
         for (int index : ImmutableSortedSet.copyOf(targets)) {
-            checkArgument(index >= 0 && index < count,
-                          "The topic has no target with the index %s.", index);
-            var target = subscription.getTopic()
-                                     .getTarget(index);
+            checkHasTarget(topic, index);
+            var target = topic.getTarget(index);
             if (target.ofEvent()) {
                 handlers.add(new EventUpdateHandler(subscription, index));
             } else {
@@ -111,7 +108,8 @@ final class SubscriptionRecord {
     /**
      * Creates the handlers of an entity target.
      *
-     * <p>In fact, an entity target is served by handling {@link EntityStateChanged},
+     * <p>In fact, an entity target is served by handling
+     * {@link io.spine.system.server.event.EntityStateChanged EntityStateChanged},
      * {@link io.spine.system.server.event.EntityDeleted EntityDeleted},
      * {@link io.spine.system.server.event.EntityArchived EntityArchived}, and other entity
      * lifecycle events with a matcher that validates the entity state packed inside the event.

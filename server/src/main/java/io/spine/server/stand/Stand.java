@@ -28,7 +28,6 @@ import io.spine.core.Origin;
 import io.spine.core.Response;
 import io.spine.core.Responses;
 import io.spine.server.Closeable;
-import io.spine.server.EventProducer;
 import io.spine.server.Identity;
 import io.spine.server.bus.Listener;
 import io.spine.server.entity.Entity;
@@ -41,7 +40,6 @@ import io.spine.server.tenant.SubscriptionOperation;
 import io.spine.server.tenant.TenantAwareOperation;
 import io.spine.server.tenant.TenantAwareRunner;
 import io.spine.server.type.EventEnvelope;
-import io.spine.system.server.event.EntityStateChanged;
 import io.spine.type.TypeUrl;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
@@ -49,9 +47,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.spine.grpc.StreamObservers.ack;
+import static io.spine.server.stand.TopicTargets.checkHasTarget;
 
 /**
  * A bridge that connects {@link io.spine.server.QueryService QueryService} and
@@ -74,7 +72,6 @@ import static io.spine.grpc.StreamObservers.ack;
  * @see <a href="https://spine.io/docs/concepts/diagrams/spine-architecture-diagram-full-screen.html">
  *     Spine Architecture Diagram</a>
  */
-@SuppressWarnings("OverlyCoupledClass")
 public class Stand implements Closeable {
 
     /**
@@ -94,11 +91,6 @@ public class Stand implements Closeable {
      */
     private final TypeRegistry typeRegistry;
 
-    /**
-     * Manages the events produced by the associated repositories.
-     */
-    private final EventRegistry eventRegistry;
-
     private final boolean multiTenant;
 
     private final TopicValidator topicValidator;
@@ -112,7 +104,6 @@ public class Stand implements Closeable {
         this.multiTenant = builder.isMultiTenant();
         this.subscriptionRegistry = builder.subscriptionRegistry();
         this.typeRegistry = builder.typeRegistry();
-        this.eventRegistry = builder.eventRegistry();
         this.topicValidator = builder.topicValidator();
         this.queryValidator = builder.queryValidator();
         this.subscriptionValidator = builder.subscriptionValidator();
@@ -131,7 +122,8 @@ public class Stand implements Closeable {
      * @param lifecycle
      *         the lifecycle of the entity
      * @implNote The only purpose of this method is to deliver the new entity state to the
-     *         subscribers through the artificially created {@link EntityStateChanged} event.
+     *         subscribers through the artificially created
+     *         {@link io.spine.system.server.event.EntityStateChanged EntityStateChanged} event.
      *         It doesn't do any proper lifecycle management, ignoring "archived"/"deleted" actions,
      *         IDs of applied messages, etc.
      */
@@ -180,10 +172,8 @@ public class Stand implements Closeable {
         checkNotNull(subscription);
         checkNotNull(targets);
         var topic = subscription.getTopic();
-        var count = topic.getTargetCount();
         for (int index : targets) {
-            checkArgument(index >= 0 && index < count,
-                          "The topic has no target with the index %s.", index);
+            checkHasTarget(topic, index);
         }
         topicValidator.validate(topic, targets);
 
@@ -303,16 +293,6 @@ public class Stand implements Closeable {
     }
 
     /**
-     * Reads all event types produced by repositories and event producers
-     * associated with this {@code Stand}.
-     *
-     * @return the set of types as {@link TypeUrl} instances
-     */
-    public ImmutableSet<TypeUrl> exposedEventTypes() {
-        return eventRegistry.typeSet();
-    }
-
-    /**
      * Reads all {@link io.spine.server.aggregate.Aggregate Aggregate} entity types
      * exposed for reading by this instance of {@code Stand}.
      *
@@ -365,18 +345,10 @@ public class Stand implements Closeable {
     }
 
     /**
-     * Registers the passed {@code Repository} as an entity/event type supplier.
+     * Registers the passed {@code Repository} as an entity type supplier.
      */
     public void registerTypeSupplier(Repository<?, ?> repository) {
         typeRegistry.register(repository);
-        eventRegistry.register(repository);
-    }
-
-    /**
-     * Registers the passed {@code EventProducer} as the event type supplier.
-     */
-    public void registerTypeSupplier(EventProducer producer) {
-        eventRegistry.register(producer);
     }
 
     @Override
@@ -390,7 +362,6 @@ public class Stand implements Closeable {
     @Override
     public void close() {
         typeRegistry.close();
-        eventRegistry.close();
     }
 
     /**
@@ -446,7 +417,6 @@ public class Stand implements Closeable {
         private @Nullable Boolean multiTenant;
 
         private final TypeRegistry typeRegistry = InMemoryTypeRegistry.newInstance();
-        private final EventRegistry eventRegistry = InMemoryEventRegistry.newInstance();
 
         private @MonotonicNonNull SubscriptionRegistry subscriptionRegistry;
         private @MonotonicNonNull TopicValidator topicValidator;
@@ -490,10 +460,6 @@ public class Stand implements Closeable {
 
         private TypeRegistry typeRegistry() {
             return typeRegistry;
-        }
-
-        private EventRegistry eventRegistry() {
-            return eventRegistry;
         }
 
         /**

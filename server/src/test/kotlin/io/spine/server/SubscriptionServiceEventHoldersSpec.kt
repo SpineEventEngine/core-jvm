@@ -48,16 +48,17 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 /**
- * Supplements `SubscriptionServiceTest` with the specs of a subscription to a topic whose
- * target type no Bounded Context serves.
+ * Supplements `SubscriptionServiceTest` with the specs of a subscription to an event type,
+ * which no single Bounded Context serves.
  *
- * The service creates such a subscription in each context of its application. The contexts
- * may still disagree, for example, when a subscription is created in one context directly.
- * The service then serves the request only in the contexts that have the subscription.
+ * The service creates such a subscription in each context of its application whose tenancy
+ * fits the topic. The contexts may still differ in which of them hold the subscription, for
+ * example, when a subscription is created in one context directly. The service then serves
+ * the request only in the contexts that have the subscription.
  */
 @MuteLogging
-@DisplayName("`SubscriptionService`, for a topic that no context serves, should")
-internal class SubscriptionServiceUnservedTopicSpec {
+@DisplayName("`SubscriptionService`, for a topic of an event type, should")
+internal class SubscriptionServiceEventHoldersSpec {
 
     /**
      * The applications built by the current test, closed after it.

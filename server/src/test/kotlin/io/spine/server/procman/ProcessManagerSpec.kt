@@ -64,9 +64,6 @@ import io.spine.test.procman.command.PmReviewBacklog
 import io.spine.test.procman.command.PmScheduleRetrospective
 import io.spine.test.procman.command.PmStartIteration
 import io.spine.test.procman.event.PmIterationCompleted
-import io.spine.test.procman.event.PmIterationPlanned
-import io.spine.test.procman.event.PmIterationStarted
-import io.spine.test.procman.event.PmNotificationSent
 import io.spine.test.procman.event.PmOwnerChanged
 import io.spine.test.procman.event.PmProjectCreated
 import io.spine.test.procman.event.PmProjectStarted
@@ -77,7 +74,6 @@ import io.spine.test.procman.quiz.event.PmQuizStarted
 import io.spine.testdata.Sample.messageOfType
 import io.spine.testing.client.TestActorRequestFactory
 import io.spine.testing.logging.mute.MuteLogging
-import io.spine.testing.server.Assertions.assertCommandClassesExactly
 import io.spine.testing.server.Assertions.assertEventClassesExactly
 import io.spine.testing.server.EventSubject
 import io.spine.testing.server.TestEventFactory
@@ -457,36 +453,6 @@ internal class ProcessManagerSpec {
 
     @Nested internal inner class
     `in its class, expose` {
-
-        @Test
-        fun `produced commands`() {
-            val pmClass = asProcessManagerClass(LastSignalMemo::class.java)
-            val commands = pmClass.outgoingCommands()
-            assertCommandClassesExactly(
-                commands,
-                PmCreateProject::class.java,
-                PmAddTask::class.java,
-                PmReviewBacklog::class.java,
-                PmScheduleRetrospective::class.java,
-                PmPlanIteration::class.java,
-                PmStartIteration::class.java
-            )
-        }
-
-        @Test
-        fun `produced events`() {
-            val pmClass = asProcessManagerClass(LastSignalMemo::class.java)
-            val events = pmClass.outgoingEvents()
-            assertEventClassesExactly(
-                events,
-                PmProjectCreated::class.java,
-                PmTaskAdded::class.java,
-                PmNotificationSent::class.java,
-                PmIterationPlanned::class.java,
-                PmIterationStarted::class.java,
-                EntityAlreadyArchived::class.java
-            )
-        }
 
         @Test
         fun `handled external event classes`() {

@@ -16,6 +16,8 @@ package io.spine.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Ordering;
 import com.google.protobuf.Message;
 import io.grpc.BindableService;
 import io.grpc.stub.StreamObserver;
@@ -44,6 +46,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSortedSet.toImmutableSortedSet;
 import static io.spine.core.ErrorCase.INTERNAL_ERROR;
 import static io.spine.core.ErrorCase.INVALID_REQUEST;
 import static io.spine.core.ErrorCase.TENANT_ERROR;
@@ -393,9 +396,7 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
         var tenant = tenantOf(request);
         var specified = isNotDefault(tenant);
         if (context.isMultiTenant() != specified) {
-            var misfit = specified
-                         ? tenantNotExpected(request, tenant)
-                         : tenantNotSpecified(request);
+            var misfit = misfitOf(request);
             if (misfit == null) {
                 return true;
             }
@@ -406,7 +407,58 @@ abstract class ServiceDelegate<T, R> implements WithLogging {
     }
 
     /**
-     * Checks the tenant of the request that every bounded context of the application serves.
+     * Obtains the bounded contexts of the application whose tenancy fits the request.
+     *
+     * <p>A request with a tenant fits the multi-tenant contexts, and a request without one
+     * fits the single-tenant contexts.
+     */
+    protected final ImmutableSortedSet<BoundedContext> fittingContexts(T request) {
+        var specified = isNotDefault(tenantOf(request));
+        return application.contexts()
+                          .stream()
+                          .filter(context -> context.isMultiTenant() == specified)
+                          .collect(toImmutableSortedSet(Ordering.natural()));
+    }
+
+    /**
+     * Refuses the request whose tenancy fits no bounded context of the application.
+     *
+     * <p>The first context of the application, in the natural order, records the request
+     * as one that does not fit it, and the request is answered with
+     * {@link ErrorCase#TENANT_ERROR TENANT_ERROR}. An application always has a context.
+     *
+     * @throws IllegalStateException
+     *         if this delegate passes such requests to the contexts instead of recording them
+     * @see #fittingContexts(Object)
+     */
+    protected final void refuseMisfit(T request, StreamObserver<R> observer) {
+        var misfit = misfitOf(request);
+        if (misfit == null) {
+            throw new IllegalStateException(format(
+                    "`%s` does not record the requests that do not fit a bounded context.",
+                    serviceName()));
+        }
+        var first = ImmutableSortedSet.copyOf(application.contexts())
+                                      .first();
+        reject(first, request, misfit, TENANT_ERROR, observer);
+    }
+
+    /**
+     * Creates the event that records the request whose tenancy does not fit
+     * a bounded context.
+     *
+     * @return the event, or {@code null} if the bounded context checks the tenant of such
+     *         requests on its own
+     */
+    private @Nullable EventMessage misfitOf(T request) {
+        var tenant = tenantOf(request);
+        return isNotDefault(tenant)
+               ? tenantNotExpected(request, tenant)
+               : tenantNotSpecified(request);
+    }
+
+    /**
+     * Checks the tenant of a request that no single bounded context serves.
      *
      * <p>A request with a tenant is admitted only if the tenant is registered in
      * the application. If the application has no multi-tenant bounded contexts, the tenant

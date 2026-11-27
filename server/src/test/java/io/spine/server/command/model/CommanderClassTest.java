@@ -14,20 +14,14 @@
 
 package io.spine.server.command.model;
 
-import io.spine.model.contexts.projects.command.SigAddTaskToProject;
 import io.spine.model.contexts.projects.command.SigAssignTask;
 import io.spine.model.contexts.projects.command.SigCreateProject;
 import io.spine.model.contexts.projects.command.SigCreateTask;
-import io.spine.model.contexts.projects.command.SigPauseTask;
 import io.spine.model.contexts.projects.command.SigRemoveTaskFromProject;
-import io.spine.model.contexts.projects.command.SigSetProjectOwner;
-import io.spine.model.contexts.projects.command.SigStartTask;
-import io.spine.model.contexts.projects.command.SigStopTask;
 import io.spine.model.contexts.projects.event.SigProjectCreated;
 import io.spine.model.contexts.projects.event.SigProjectStopped;
 import io.spine.model.contexts.projects.event.SigTaskDeleted;
 import io.spine.model.contexts.projects.event.SigTaskMoved;
-import io.spine.model.contexts.projects.rejection.ProjectRejections;
 import io.spine.server.command.model.given.commander.SampleCommander;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -60,26 +54,6 @@ class CommanderClassTest {
                                         SigCreateProject.class,
                                         SigRemoveTaskFromProject.class,
                                         SigAssignTask.class);
-        }
-
-        @Test
-        @DisplayName("produced commands")
-        void outgoingCommands() {
-            assertCommandClassesExactly(commanderClass.outgoingCommands(),
-                                        SigAddTaskToProject.class,
-                                        SigStartTask.class,
-                                        SigSetProjectOwner.class,
-                                        SigStopTask.class,
-                                        SigAssignTask.class,
-                                        SigPauseTask.class,
-                                        SigRemoveTaskFromProject.class);
-        }
-
-        @Test
-        @DisplayName("thrown rejections")
-        void events() {
-            assertEventClassesExactly(commanderClass.rejections(),
-                                      ProjectRejections.SigCannotCreateProject.class);
         }
 
         @Test

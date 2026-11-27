@@ -19,8 +19,6 @@ import io.spine.server.aggregate.given.klasse.command.StartEngine;
 import io.spine.server.aggregate.given.klasse.command.StopEngine;
 import io.spine.server.aggregate.given.klasse.event.EmissionTestStarted;
 import io.spine.server.aggregate.given.klasse.event.EmissionTestStopped;
-import io.spine.server.aggregate.given.klasse.event.EngineStarted;
-import io.spine.server.aggregate.given.klasse.event.EngineStopped;
 import io.spine.server.aggregate.given.klasse.event.TankEmpty;
 import io.spine.server.aggregate.given.klasse.rejection.Rejections;
 import org.junit.jupiter.api.DisplayName;
@@ -69,24 +67,6 @@ class AggregateClassTest {
                                       EmissionTestStarted.class,
                                       EmissionTestStopped.class,
                                       Rejections.CannotStartEmissionTest.class);
-        }
-
-        @Test
-        @DisplayName("events (including rejections) produced by the aggregate")
-        void producedEvents() {
-            assertEventClassesExactly(aggregateClass.outgoingEvents(),
-                                      EngineStarted.class,
-                                      EngineStopped.class,
-                                      Rejections.EngineAlreadyStarted.class,
-                                      Rejections.EngineAlreadyStopped.class);
-        }
-
-        @Test
-        @DisplayName("rejections produced by the aggregate")
-        void producedRejections() {
-            assertEventClassesExactly(aggregateClass.rejections(),
-                                      Rejections.EngineAlreadyStarted.class,
-                                      Rejections.EngineAlreadyStopped.class);
         }
     }
 }

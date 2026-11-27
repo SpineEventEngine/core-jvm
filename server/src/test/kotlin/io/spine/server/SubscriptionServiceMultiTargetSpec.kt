@@ -24,6 +24,7 @@ import io.kotest.matchers.shouldBe
 import io.spine.base.CommandMessage
 import io.spine.client.Subscription
 import io.spine.client.SubscriptionUpdate
+import io.spine.client.Subscriptions
 import io.spine.client.Target
 import io.spine.client.Targets.allOf
 import io.spine.client.Targets.someOf
@@ -46,6 +47,7 @@ import io.spine.system.server.event.UnknownSubscriptionActivationRequested
 import io.spine.system.server.event.UnsupportedTopicReceived
 import io.spine.test.aggregate.AggProject
 import io.spine.test.aggregate.ProjectId
+import io.spine.test.aggregate.SubProjectList
 import io.spine.test.aggregate.event.AggProjectCreated
 import io.spine.test.bc.SecretProject
 import io.spine.test.client.tasks.CTask
@@ -76,7 +78,7 @@ internal class SubscriptionServiceMultiTargetSpec {
     private lateinit var application: Application
 
     /**
-     * The context that serves the events of projects.
+     * The context that posts the events of projects.
      */
     private lateinit var projects: BoundedContext
 
@@ -192,12 +194,61 @@ internal class SubscriptionServiceMultiTargetSpec {
 
         /**
          * Copies the subscription as a client may send it back: with the same ID, and a topic
-         * that names only the target which the context of projects serves.
+         * that names only the target of the events that the context of projects posts.
          */
         private fun withTopicOfProjects(s: Subscription): Subscription =
             s.toBuilder()
                 .setTopic(s.topic.toBuilder().clearTarget().addTarget(allOf(PROJECT_CREATED)))
                 .build()
+    }
+
+    @Nested inner class
+    `of entity types served by different contexts` {
+
+        private lateinit var subscription: Subscription
+
+        @BeforeEach
+        fun subscribe() {
+            subscription = subscribed(topicOf(allOf(PROJECT), allOf(CUSTOMER)))
+        }
+
+        @Test
+        fun `create one subscription in each of the contexts`() {
+            projects.stand().hasSubscription(subscription) shouldBe true
+            customers.stand().hasSubscription(subscription) shouldBe true
+        }
+
+        @Test
+        fun `stream the updates of both contexts in one activation`() {
+            val updates = activate(subscription)
+
+            post(projects, createProject())
+            post(customers, createCustomer())
+
+            updates.error.shouldBeNull()
+            updates.responses().map { it.targetIndex } shouldContainExactlyInAnyOrder listOf(0, 1)
+        }
+
+        @Test
+        fun `cancel the subscription in both contexts`() {
+            val cancellation = cancel(subscription)
+
+            cancellation.error.shouldBeNull()
+            cancellation.responses().shouldBeSingleton { it.status.hasOk() shouldBe true }
+            projects.stand().hasSubscription(subscription) shouldBe false
+            customers.stand().hasSubscription(subscription) shouldBe false
+        }
+
+        @Test
+        fun `cancel the subscription in the context that still has it`() {
+            customers.stand().cancel(subscription, noOpObserver())
+
+            val cancellation = cancel(subscription)
+
+            cancellation.error.shouldBeNull()
+            cancellation.responses().shouldBeSingleton { it.status.hasOk() shouldBe true }
+            projects.stand().hasSubscription(subscription) shouldBe false
+        }
     }
 
     @Test
@@ -221,7 +272,7 @@ internal class SubscriptionServiceMultiTargetSpec {
     }
 
     @Test
-    fun `hold a subscription to an event type that no context serves in every context`() {
+    fun `hold a subscription to an event type that no context declares in every context`() {
         val subscription = subscribed(topicOf(allOf(CTaskCreated::class.java), allOf(CUSTOMER)))
 
         projects.stand().hasSubscription(subscription) shouldBe true
@@ -271,10 +322,42 @@ internal class SubscriptionServiceMultiTargetSpec {
 
             nothingRecorded()
         }
+
+        @Test
+        fun `with two entity types that no context serves, recording nothing`() {
+            val topic = topicOf(allOf(CTask::class.java), allOf(SubProjectList::class.java))
+
+            subscribe(topic).errorCase() shouldBe UNSUPPORTED_REQUEST
+
+            nothingRecorded()
+        }
     }
 
     @Test
     fun `refuse a topic spanning a single-tenant and a multi-tenant context`() {
+        serveByContextsOfMixedTenancy()
+
+        val topic = topicOf(allOf(PROJECT_CREATED), allOf(CUSTOMER))
+
+        subscribe(topic).errorCase() shouldBe TENANT_ERROR
+    }
+
+    @Test
+    fun `refuse to activate a subscription spanning a single-tenant and a multi-tenant context`() {
+        serveByContextsOfMixedTenancy()
+        val subscription = Subscriptions.from(topicOf(allOf(PROJECT), allOf(CUSTOMER)))
+
+        val updates = activate(subscription)
+
+        updates.responses().shouldBeEmpty()
+        updates.error.shouldNotBeNull().errorCase() shouldBe TENANT_ERROR
+    }
+
+    /**
+     * Replaces the application with one of a single-tenant context of projects and
+     * a multi-tenant context of customers.
+     */
+    private fun serveByContextsOfMixedTenancy() {
         application.close()
         application = testApplication {
             add(BoundedContextBuilder.assumingTests().add(Given.ProjectAggregateRepository()))
@@ -284,10 +367,6 @@ internal class SubscriptionServiceMultiTargetSpec {
             )
         }
         service = SubscriptionService.of(application)
-
-        val topic = topicOf(allOf(PROJECT_CREATED), allOf(CUSTOMER))
-
-        subscribe(topic).errorCase() shouldBe TENANT_ERROR
     }
 
     private fun topicOf(vararg targets: Target): Topic =
@@ -358,6 +437,7 @@ internal class SubscriptionServiceMultiTargetSpec {
     private companion object {
 
         val PROJECT_CREATED = AggProjectCreated::class.java
+        val PROJECT = AggProject::class.java
         val CUSTOMER = Customer::class.java
         val PROJECT_STATE: TypeUrl = TypeUrl.of(AggProject::class.java)
         val CUSTOMER_STATE: TypeUrl = TypeUrl.of(Customer::class.java)
