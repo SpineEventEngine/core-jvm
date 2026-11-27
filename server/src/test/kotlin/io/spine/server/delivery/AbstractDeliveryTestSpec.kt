@@ -23,6 +23,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.spine.query.RecordQuery
 import io.spine.server.BoundedContextBuilder
+import io.spine.server.delivery.given.DeliveryTestEnv.CalculatorRepository
 import io.spine.server.ContextSpec
 import io.spine.server.storage.DelegatingRecordStorage
 import io.spine.server.storage.RecordSpec
@@ -89,6 +90,39 @@ internal class AbstractDeliveryTestSpec {
         }
         created.shouldHaveSize(2)
         created.forEach { it.closings shouldBe 1 }
+    }
+
+    @Test
+    fun `close the application factory when the application fails to build`() {
+        val created = mutableListOf<PoolFactory>()
+        val test = testOver(created)
+        test.setUp()
+        try {
+            val builder = BoundedContextBuilder.assumingTests()
+                .add(FailingRepository())
+
+            val error = shouldThrow<IllegalStateException> {
+                test.build(builder)
+            }
+
+            error.message shouldContain "The repository failed on registration."
+            created[0].isOpen.shouldBeFalse()
+            created[0].closings shouldBe 1
+        } finally {
+            test.tearDown()
+        }
+        created.forEach { it.closings shouldBe 1 }
+    }
+}
+
+/**
+ * A repository that fails once the context registers it.
+ */
+private class FailingRepository : CalculatorRepository() {
+
+    override fun onRegistered() {
+        super.onRegistered()
+        error("The repository failed on registration.")
     }
 }
 

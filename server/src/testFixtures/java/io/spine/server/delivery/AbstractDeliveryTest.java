@@ -218,15 +218,42 @@ public abstract class AbstractDeliveryTest {
      * Creates a new application of the only context of the given builder,
      * with a {@linkplain #newEnvironment() new environment} of the test.
      *
-     * <p>The test closes the application after it completes.
+     * <p>The test closes the application after it completes. If building the
+     * application fails, closes the environment, and so the storage factory
+     * given to it. The original failure is thrown. A failure of that cleanup
+     * is added to it as suppressed.
      */
     public final Application newApplication(BoundedContextBuilder builder) {
-        var application = Application.newBuilder()
-                .setServerEnvironment(newEnvironment())
-                .add(builder)
-                .build();
-        applications.add(application);
-        return application;
+        var environment = newEnvironment();
+        try {
+            var application = Application.newBuilder()
+                    .setServerEnvironment(environment)
+                    .add(builder)
+                    .build();
+            applications.add(application);
+            return application;
+        } catch (RuntimeException | Error failure) {
+            closeAfterFailure(environment, failure);
+            throw failure;
+        }
+    }
+
+    /**
+     * Closes the environment whose application failed to build.
+     *
+     * <p>Closing the environment closes the storage factory given to it.
+     * The application was not built, so {@link #tearDown()} would not see it.
+     */
+    private static void closeAfterFailure(ServerEnvironment environment, Throwable failure) {
+        try {
+            if (environment.isOpen()) {
+                environment.close();
+            }
+        } catch (RuntimeException | Error closing) {
+            if (closing != failure) {
+                failure.addSuppressed(closing);
+            }
+        }
     }
 
     /**
