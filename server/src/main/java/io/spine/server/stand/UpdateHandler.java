@@ -28,6 +28,7 @@ import java.util.Optional;
 
 import static io.spine.core.Responses.ok;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static java.lang.String.format;
 
 /**
  * Handles the domain and system events that correspond to a target of
@@ -121,7 +122,9 @@ abstract class UpdateHandler implements WithLogging {
         try {
             callback.accept(update);
         } catch (Throwable t) {
-            logger().atError().withCause(t).log();
+            logger().atError().withCause(t).log(() -> format(
+                    "Unable to deliver an update of the subscription `%s` to its callback.",
+                    subscription.getId().getValue()));
         }
     }
 
