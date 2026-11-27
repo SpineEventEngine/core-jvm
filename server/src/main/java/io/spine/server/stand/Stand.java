@@ -83,6 +83,11 @@ public class Stand implements Closeable {
     private static final QueryProcessor NO_OP_PROCESSOR = new NoOpQueryProcessor();
 
     /**
+     * The message of the exception about a subscription cancelled while it is activated.
+     */
+    private static final String CANCELLED = "The subscription is cancelled.";
+
+    /**
      * Manages the subscriptions for this instance of {@code Stand}.
      *
      * <p>The registry is shared between a domain Bounded Context and its system counterpart.
@@ -228,7 +233,8 @@ public class Stand implements Closeable {
      * @throws InvalidRequestException
      *         if the subscription fails validation
      * @throws UnsupportedRequestException
-     *         if this {@code Stand} does not have the subscription
+     *         if this {@code Stand} does not have the subscription, including when
+     *         the subscription is cancelled while it is activated
      * @see #subscribe(Subscription, Set)
      */
     public void activate(Subscription subscription,
@@ -242,7 +248,9 @@ public class Stand implements Closeable {
         var op = new SubscriptionOperation(subscription) {
             @Override
             public void run() {
-                subscriptionRegistry.activate(subscription, callback);
+                if (!subscriptionRegistry.activate(subscription, callback)) {
+                    throw new UnsupportedRequestException(subscription, CANCELLED);
+                }
                 ack(responseObserver);
             }
         };

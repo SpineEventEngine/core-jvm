@@ -40,8 +40,10 @@ interface SubscriptionRegistry {
      *         the subscription to activate
      * @param callback
      *         the action that notifies the subscription listeners on the read-side
+     * @return {@code true} if the subscription is activated, {@code false} if the registry
+     *         does not have the subscription, or it is cancelled
      */
-    void activate(Subscription subscription, SubscriptionCallback callback);
+    boolean activate(Subscription subscription, SubscriptionCallback callback);
 
     /**
      * Registers an existing subscription for the given targets of its topic.

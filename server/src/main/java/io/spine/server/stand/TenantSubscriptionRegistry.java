@@ -31,8 +31,6 @@ import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Multimaps.synchronizedSetMultimap;
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
 /**
  * A slice with subscriptions belonging to one tenant in a multi-tenant application.
@@ -59,13 +57,9 @@ final class TenantSubscriptionRegistry implements SubscriptionRegistry {
      * the callback it was activated with before, which may call the registry.
      */
     @Override
-    public void activate(Subscription subscription, SubscriptionCallback callback) {
+    public boolean activate(Subscription subscription, SubscriptionCallback callback) {
         var record = lockAndGet(() -> records.get(subscription.getId()));
-        requireNonNull(record,
-                       () -> format(
-                               "Cannot find the subscription with ID `%s` in the registry.",
-                               subscription.getId()));
-        record.activate(callback);
+        return record != null && record.activate(callback);
     }
 
     @Override

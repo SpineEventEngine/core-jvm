@@ -16,17 +16,9 @@ package io.spine.server
 
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.spine.client.SubscriptionUpdate
-import io.spine.core.ErrorCase.INTERNAL_ERROR
-import io.spine.grpc.MemoizingObserver
-import io.spine.grpc.StreamObservers.memoizingObserver
-import io.spine.grpc.StreamObservers.noOpObserver
 import io.spine.server.given.SubscriptionServer
-import io.spine.server.given.errorCase
 import io.spine.server.given.waitFor
-import io.spine.test.client.tasks.event.CTaskCreated
 import io.spine.test.client.users.event.UserLoggedIn
 import io.spine.testing.logging.mute.MuteLogging
 import org.junit.jupiter.api.AfterEach
@@ -72,31 +64,5 @@ internal class SubscriptionServiceReactivationSpec {
 
         waitFor("the completion of the second stream") { second.completed }
         first.updates.shouldBeEmpty()
-    }
-
-    /**
-     * Makes the second of the two contexts that hold the subscription lose it while
-     * the later activation runs. The later activation then succeeds in the first context,
-     * which ends the earlier activation, and fails in the second.
-     */
-    @Test
-    fun `fail the activation that one of the contexts refuses, and cancel it in every context`() {
-        val subscription = server.subscribe(UserLoggedIn::class.java, CTaskCreated::class.java)
-        val secondContext = listOf(server.tasks, server.users).sorted().last()
-        val earlier = object : MemoizingObserver<SubscriptionUpdate>() {
-            override fun onCompleted() {
-                super.onCompleted()
-                secondContext.stand().cancel(subscription, noOpObserver())
-            }
-        }
-        server.directService.activate(subscription, earlier)
-        val later = memoizingObserver<SubscriptionUpdate>()
-
-        server.directService.activate(subscription, later)
-
-        earlier.isCompleted shouldBe true
-        later.error.shouldNotBeNull().errorCase() shouldBe INTERNAL_ERROR
-        later.isCompleted shouldBe false
-        server.holds(subscription) shouldBe false
     }
 }

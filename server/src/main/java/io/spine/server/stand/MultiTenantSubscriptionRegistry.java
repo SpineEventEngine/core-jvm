@@ -47,8 +47,8 @@ final class MultiTenantSubscriptionRegistry implements SubscriptionRegistry {
     }
 
     @Override
-    public void activate(Subscription subscription, SubscriptionCallback callback) {
-        registrySlice().activate(subscription, callback);
+    public boolean activate(Subscription subscription, SubscriptionCallback callback) {
+        return registrySlice().activate(subscription, callback);
     }
 
     @Override

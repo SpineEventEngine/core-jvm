@@ -14,7 +14,6 @@
 
 package io.spine.server.stand
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.spine.client.SubscriptionUpdate
 import io.spine.client.Targets.allOf
@@ -100,10 +99,13 @@ internal class SubscriptionRecordCancellationSpec {
     fun `refuse to be activated once the subscription is cancelled`() {
         record.activate(callback)
         record.notifyCancelled()
+        val latest = RecordingCallback()
 
-        shouldThrow<IllegalStateException> {
-            record.activate(RecordingCallback())
-        }
+        record.activate(latest) shouldBe false
+
+        record.update(projectCreated())
+        latest.updates shouldBe 0
+        latest.cancellations shouldBe 0
     }
 
     private fun projectCreated(): EventEnvelope =

@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.lang.String.format;
@@ -158,12 +157,13 @@ final class SubscriptionRecord implements WithLogging {
      *
      * @param callback
      *         the action to attach to the record
-     * @throws IllegalStateException
-     *         if the subscription is cancelled
+     * @return {@code true} if the record is activated, {@code false} if the subscription is
+     *         cancelled
      */
-    synchronized void activate(SubscriptionCallback callback) {
-        checkState(!cancelled, "The subscription `%s` is cancelled.",
-                   subscription.getId().getValue());
+    synchronized boolean activate(SubscriptionCallback callback) {
+        if (cancelled) {
+            return false;
+        }
         var displaced = this.callback;
         for (var handler : handlers()) {
             handler.setCallback(callback);
@@ -172,6 +172,7 @@ final class SubscriptionRecord implements WithLogging {
         if (displaced != null && displaced != callback) {
             tellCancelled(displaced);
         }
+        return true;
     }
 
     /**

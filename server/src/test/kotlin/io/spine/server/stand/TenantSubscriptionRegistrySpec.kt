@@ -57,9 +57,26 @@ internal class TenantSubscriptionRegistrySpec {
     fun `activate a subscription by its ID`() {
         registry.add(subscription, setOf(0))
 
-        registry.activate(changed) { }
+        registry.activate(changed, newCallback()) shouldBe true
 
         registry.byType(PROJECT_CREATED).shouldBeSingleton { it.isActive shouldBe true }
+    }
+
+    @Test
+    fun `refuse to activate a subscription it does not have`() {
+        registry.activate(subscription, newCallback()) shouldBe false
+
+        registry.containsId(subscription.id) shouldBe false
+    }
+
+    @Test
+    fun `refuse to activate a subscription removed from it`() {
+        val callback = newCallback()
+        registry.add(subscription, setOf(0))
+        registry.activate(subscription, callback)
+        registry.removeIfActivatedWith(subscription, callback)
+
+        registry.activate(subscription, newCallback()) shouldBe false
     }
 
     @Test

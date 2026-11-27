@@ -90,3 +90,12 @@ default.
   reached when the later activation displaces a callback that then cancels the subscription
   in the other context; with the old order of the rollback, that spec fails. The defensive
   `catch` and the debug message of `ActivationImpl.release()` stay uncovered.
+- 2026-11-27 — A race that master has too: a client that subscribes and closes at once sends
+  `Activate` and `Cancel` together. If the cancellation removes the subscription from a
+  context after the activation finds it there, the activation answered INTERNAL and logged
+  SEVERE (13 of 60 rounds on a real port). Now `Stand.activate()` reports a missing or
+  cancelled record as `UnsupportedRequestException`. The activation then releases what it
+  activated and completes the stream, and a cancellation skips a context that lost the
+  subscription meanwhile. The probe shows 0 of 60 after the fix. The generic rollback of
+  a failed activation is unreachable in single-threaded specs again.
+- 2026-11-27 — Filed #1751 for a subscription that is never activated (owner: fix in 2.0).
