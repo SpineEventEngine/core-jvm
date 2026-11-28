@@ -18,6 +18,8 @@ import com.google.protobuf.Any
 import io.spine.base.EventMessage
 import io.spine.base.Time.currentTime
 import io.spine.core.ActorContext
+import io.spine.core.BoundedContextName
+import io.spine.core.BoundedContextNames.newName
 import io.spine.core.UserId
 import io.spine.core.actorContext
 import io.spine.protobuf.AnyPacker.pack
@@ -26,6 +28,7 @@ import io.spine.server.BoundedContext
 import io.spine.server.BoundedContextBuilder
 import io.spine.server.Closeable
 import io.spine.server.event.EventFactory
+import io.spine.server.tenant.TenantAwareRunner
 import io.spine.server.type.EventEnvelope
 import io.spine.util.Preconditions2.checkNotEmptyOrBlank
 
@@ -59,15 +62,18 @@ import io.spine.util.Preconditions2.checkNotEmptyOrBlank
 public class ThirdPartyContext private constructor(
 
     /**
-     * The builder of the Bounded Context that represents the third-party system.
-     *
-     * The [Application] builds the context.
+     * The name of the Bounded Context that represents the third-party system.
      */
     @get:JvmSynthetic
-    internal val builder: BoundedContextBuilder
+    internal val name: BoundedContextName,
+
+    /**
+     * Tells if the Bounded Context that represents the third-party system is multi-tenant.
+     */
+    private val multiTenant: Boolean
 ) : Closeable {
 
-    private val producerId: Any = pack(builder.name())
+    private val producerId: Any = pack(name)
 
     /**
      * The built context, or `null` until the application is built.
@@ -85,15 +91,34 @@ public class ThirdPartyContext private constructor(
         get() = context != null
 
     /**
+     * Creates a builder of the Bounded Context that represents the third-party system.
+     *
+     * The [Application] builds the context with the builder, and then
+     * [attaches][attach] the context to this third-party context.
+     */
+    @JvmSynthetic
+    internal fun newBuilder(): BoundedContextBuilder {
+        val builder = if (multiTenant) {
+            BoundedContext.multiTenant(name.value)
+        } else {
+            BoundedContext.singleTenant(name.value)
+        }
+        builder.systemSettings()
+            .disableCommandLog()
+            .forgetEvents()
+        return builder
+    }
+
+    /**
      * Gives this third-party context the Bounded Context that the [Application] built
-     * from its [builder].
+     * with a [new builder][newBuilder].
      *
      * @throws IllegalStateException If the context is already given.
      */
     @JvmSynthetic
     internal fun attach(context: BoundedContext) {
         check(this.context == null) {
-            "The third-party context `${builder.name().value}` is already built."
+            "The third-party context `${name.value}` is already built."
         }
         this.context = context
     }
@@ -101,8 +126,8 @@ public class ThirdPartyContext private constructor(
     /**
      * Emits an event from the third-party system.
      *
-     * If another Context needs the event, posts it to that Context. Does nothing if
-     * no Context needs it.
+     * Delivers the event to the active client subscriptions to its type. If another Context
+     * needs the event, posts it to that Context.
      *
      * The caller is required to supply the tenant ID via the `ActorContext.tenant_id` if
      * this Context is multi-tenant.
@@ -110,30 +135,36 @@ public class ThirdPartyContext private constructor(
      * @param eventMessage The event.
      * @param actorContext The info about the actor, a user or a software component,
      *   who emits the event.
-     * @throws IllegalStateException If the application of this context is not built yet.
+     * @throws IllegalStateException If the application of this context is not built yet,
+     *   or this context is closed.
      */
     public fun emittedEvent(eventMessage: EventMessage, actorContext: ActorContext) {
         val context = context()
         checkTenant(context, actorContext, eventMessage)
         val eventFactory = EventFactory.forImport(actorContext, producerId)
-        val event = eventFactory.createEvent(eventMessage)
+        val event = EventEnvelope.of(eventFactory.createEvent(eventMessage))
         context.internalAccess()
             .broker()
-            .publish(EventEnvelope.of(event))
+            .publish(event)
+        // The stand passes the event to the subscriptions, as for an event posted to the bus.
+        // The event is not posted to the bus, so that this Context does not store it.
+        TenantAwareRunner.with(actorContext.tenantId)
+            .run { context.stand().eventListener().accept(event) }
     }
 
     /**
      * Emits an event from the third-party system.
      *
-     * If another Context needs the event, posts it to that Context. Does nothing if
-     * no Context needs it.
+     * Delivers the event to the active client subscriptions to its type. If another Context
+     * needs the event, posts it to that Context.
      *
      * This overload may only be used for single-tenant third-party contexts. If this Context is
      * multi-tenant, this method throws an exception.
      *
      * @param eventMessage The event.
      * @param userId The ID of the actor, a user or a software component, who emits the event.
-     * @throws IllegalStateException If the application of this context is not built yet.
+     * @throws IllegalStateException If the application of this context is not built yet,
+     *   or this context is closed.
      */
     public fun emittedEvent(eventMessage: EventMessage, userId: UserId) {
         val actorContext = actorContext {
@@ -158,11 +189,21 @@ public class ThirdPartyContext private constructor(
      */
     override fun isOpen(): Boolean = context?.isOpen ?: false
 
-    private fun context(): BoundedContext =
-        checkNotNull(context) {
-            "The third-party context `${builder.name().value}` is not built yet." +
+    /**
+     * Obtains the built context to emit events from.
+     *
+     * @throws IllegalStateException If the context is not built yet, or is closed.
+     */
+    private fun context(): BoundedContext {
+        val context = checkNotNull(context) {
+            "The third-party context `${name.value}` is not built yet." +
                     " Please add it to an `Application`, and build the application."
         }
+        check(context.isOpen) {
+            "The third-party context `${name.value}` is closed."
+        }
+        return context
+    }
 
     public companion object {
 
@@ -194,15 +235,7 @@ public class ThirdPartyContext private constructor(
 
         private fun newContext(name: String, multiTenant: Boolean): ThirdPartyContext {
             checkNotEmptyOrBlank(name)
-            val builder = if (multiTenant) {
-                BoundedContext.multiTenant(name)
-            } else {
-                BoundedContext.singleTenant(name)
-            }
-            builder.systemSettings()
-                .disableCommandLog()
-                .forgetEvents()
-            return ThirdPartyContext(builder)
+            return ThirdPartyContext(newName(name), multiTenant)
         }
 
         private fun checkTenant(

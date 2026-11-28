@@ -20,6 +20,7 @@ import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.string.shouldContain
 import io.spine.server.BoundedContextBuilder
+import io.spine.testing.core.given.GivenUserId
 import io.spine.testing.server.testApplication
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -27,7 +28,8 @@ import org.junit.jupiter.api.Test
 /**
  * Checks closing a [ThirdPartyContext], and giving it the context that its application built.
  *
- * Supplements `ThirdPartyContextTest`, which checks emitting events.
+ * Supplements `ThirdPartyContextTest`, which checks emitting events, and
+ * `ThirdPartyContextSubscriptionSpec`, which checks passing them to client subscriptions.
  */
 @DisplayName("`ThirdPartyContext` should")
 internal class ThirdPartyContextSpec {
@@ -55,6 +57,26 @@ internal class ThirdPartyContextSpec {
 
             calendar.isOpen.shouldBeFalse()
             application.contexts().first().isOpen.shouldBeTrue()
+        }
+    }
+
+    @Test
+    fun `refuse to emit an event once closed`() {
+        val calendar = ThirdPartyContext.singleTenant("Calendar")
+
+        testApplication {
+            add(BoundedContextBuilder.assumingTests())
+            add(calendar)
+        }.use {
+            calendar.close()
+
+            val error = shouldThrow<IllegalStateException> {
+                calendar.emittedEvent(
+                    openOfficeDocumentUploaded { id = DocumentId.generate() },
+                    GivenUserId.newUuid()
+                )
+            }
+            error.message shouldContain "closed"
         }
     }
 

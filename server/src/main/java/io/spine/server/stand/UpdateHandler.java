@@ -28,6 +28,7 @@ import java.util.Optional;
 
 import static io.spine.core.Responses.ok;
 import static io.spine.util.Exceptions.newIllegalStateException;
+import static java.lang.String.format;
 
 /**
  * Handles the domain and system events that correspond to a target of
@@ -99,7 +100,28 @@ abstract class UpdateHandler implements WithLogging {
      */
     void handle(EventEnvelope event) {
         checkActive(event);
-        detectUpdate(event).ifPresent(this::deliverUpdate);
+        matchingUpdate(event).ifPresent(this::deliverUpdate);
+    }
+
+    /**
+     * Detects the update that the passed event brings to the subscription.
+     *
+     * <p>If the event cannot be matched against the criteria of the target, for example,
+     * because a filter value cannot be compared to the field value, the failure is logged,
+     * and no update is detected. So, the event still reaches the other subscriptions
+     * to its type.
+     */
+    private Optional<SubscriptionUpdate> matchingUpdate(EventEnvelope event) {
+        try {
+            return detectUpdate(event);
+        } catch (RuntimeException e) {
+            var subscriptionId = subscription.getId().getValue();
+            logger().atError().withCause(e).log(() -> format(
+                    "Unable to match the event of type `%s` against the target `%d`" +
+                            " of the subscription with the ID `%s`.",
+                    event.typeUrl(), targetIndex, subscriptionId));
+            return Optional.empty();
+        }
     }
 
     /**
