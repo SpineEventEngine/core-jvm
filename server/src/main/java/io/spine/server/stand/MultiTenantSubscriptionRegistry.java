@@ -21,6 +21,7 @@ import io.spine.server.tenant.TenantFunction;
 import io.spine.type.TypeUrl;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,8 +47,8 @@ final class MultiTenantSubscriptionRegistry implements SubscriptionRegistry {
     }
 
     @Override
-    public void activate(Subscription subscription, SubscriptionCallback callback) {
-        registrySlice().activate(subscription, callback);
+    public boolean activate(Subscription subscription, SubscriptionCallback callback) {
+        return registrySlice().activate(subscription, callback);
     }
 
     @Override
@@ -56,8 +57,14 @@ final class MultiTenantSubscriptionRegistry implements SubscriptionRegistry {
     }
 
     @Override
-    public void remove(Subscription subscription) {
-        registrySlice().remove(subscription);
+    public Optional<SubscriptionRecord> remove(Subscription subscription) {
+        return registrySlice().remove(subscription);
+    }
+
+    @Override
+    public Optional<SubscriptionRecord> removeIfActivatedWith(Subscription subscription,
+                                                              SubscriptionCallback callback) {
+        return registrySlice().removeIfActivatedWith(subscription, callback);
     }
 
     @Override

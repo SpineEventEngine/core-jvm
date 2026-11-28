@@ -18,6 +18,7 @@ import io.spine.client.Subscription;
 import io.spine.client.SubscriptionId;
 import io.spine.type.TypeUrl;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -31,13 +32,18 @@ interface SubscriptionRegistry {
      * Activates the subscription with the passed action.
      *
      * <p>The passed action will be used to notify the read-side about the subscription update.
+     * The action that the subscription was activated with before, if any, is
+     * {@linkplain SubscriptionCallback#onCancelled() told} that it serves the subscription
+     * no more.
      *
      * @param subscription
      *         the subscription to activate
      * @param callback
      *         the action that notifies the subscription listeners on the read-side
+     * @return {@code true} if the subscription is activated, {@code false} if the registry
+     *         does not have the subscription, or it is cancelled
      */
-    void activate(Subscription subscription, SubscriptionCallback callback);
+    boolean activate(Subscription subscription, SubscriptionCallback callback);
 
     /**
      * Registers an existing subscription for the given targets of its topic.
@@ -64,8 +70,25 @@ interface SubscriptionRegistry {
      *
      * @param subscription
      *         the subscription to remove
+     * @return the removed record, or {@code Optional.empty()} if there was no such subscription
      */
-    void remove(Subscription subscription);
+    Optional<SubscriptionRecord> remove(Subscription subscription);
+
+    /**
+     * Removes the subscription from this registry if it is activated with the given callback.
+     *
+     * <p>Leaves the subscription in the registry if it is not activated, or is activated with
+     * another callback.
+     *
+     * @param subscription
+     *         the subscription to remove
+     * @param callback
+     *         the callback with which the subscription must be activated
+     * @return the removed record, or {@code Optional.empty()} if the subscription was not
+     *         removed
+     */
+    Optional<SubscriptionRecord> removeIfActivatedWith(Subscription subscription,
+                                                       SubscriptionCallback callback);
 
     /**
      * Allows determining if this registry has an item with the specified ID.

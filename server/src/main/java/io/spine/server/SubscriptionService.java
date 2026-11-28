@@ -21,6 +21,7 @@ import com.google.common.collect.Ordering;
 import com.google.errorprone.annotations.CompileTimeConstant;
 import com.google.protobuf.Message;
 import io.grpc.BindableService;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.base.Error;
@@ -40,6 +41,7 @@ import io.spine.logging.WithLogging;
 import io.spine.server.app.RefusedRequest;
 import io.spine.server.stand.Stand;
 import io.spine.server.stand.SubscriptionCallback;
+import io.spine.server.stand.UnsupportedRequestException;
 import io.spine.server.transport.Statuses;
 import io.spine.system.server.event.SubscriptionServiceFailed;
 import io.spine.system.server.event.SubscriptionTenantNotExpected;
@@ -78,7 +80,9 @@ import static com.google.common.collect.Sets.union;
 import static io.spine.core.ErrorCase.INTERNAL_ERROR;
 import static io.spine.core.ErrorCase.INVALID_REQUEST;
 import static io.spine.core.ErrorCase.UNSUPPORTED_REQUEST;
+import static io.spine.core.Responses.ok;
 import static io.spine.grpc.StreamObservers.forwardErrorsOnly;
+import static io.spine.grpc.StreamObservers.noOpObserver;
 import static io.spine.server.stand.SubscriptionCallback.forwardingTo;
 import static java.lang.String.format;
 
@@ -99,6 +103,10 @@ import static java.lang.String.format;
  * <p>The targets of a topic may be served by different Bounded Contexts. The service then
  * keeps the subscription in each of them, streams the updates of all of them to the client
  * that activates the subscription, and cancels the subscription in all of them.
+ *
+ * <p>The stream of updates of a subscription completes when the subscription is cancelled.
+ * If the gRPC call that activated the subscription is cancelled instead, for example, because
+ * its client is gone, the service cancels the subscription.
  *
  * <p>For synchronous read-side updates please see {@link QueryService}.
  */
@@ -184,11 +192,40 @@ public final class SubscriptionService
         runThreadSafe(
                 (safeObserver) -> {
                     var callback = forwardingTo(safeObserver);
+                    releaseOnCancel(observer, subscription, callback);
                     StreamObserver<Response> responseObserver = forwardErrorsOnly(safeObserver);
                     activation.serve(subscription, responseObserver, callback);
                 },
                 new GuardedObserver<>(observer), "Error activating the subscription."
         );
+    }
+
+    /**
+     * Makes the cancellation of the gRPC call that activates the subscription cancel
+     * the subscription.
+     *
+     * <p>The call is cancelled when its client cancels it or goes away without cancelling
+     * the subscription, for example, because the client process stops or the connection
+     * drops. The subscription is then cancelled in the Bounded Contexts where the given
+     * callback serves it.
+     *
+     * <p>Does nothing if the observer does not belong to a gRPC call, or if the cancellation
+     * handler of the call can no longer be set.
+     */
+    private void releaseOnCancel(StreamObserver<SubscriptionUpdate> observer,
+                                 Subscription subscription,
+                                 SubscriptionCallback callback) {
+        if (!(observer instanceof ServerCallStreamObserver<SubscriptionUpdate> call)) {
+            return;
+        }
+        try {
+            call.setOnCancelHandler(() -> activation.release(subscription, callback));
+        } catch (IllegalStateException e) {
+            logger().atDebug().withCause(e).log(() -> format(
+                    "Unable to set the cancellation handler of the call that activates" +
+                            " the subscription `%s`.",
+                    subscription.getId().getValue()));
+        }
     }
 
     @Override
@@ -682,9 +719,14 @@ public final class SubscriptionService
         /**
          * Activates the subscription in each of the given Bounded Contexts.
          *
-         * <p>If a context fails to activate the subscription, the subscription is cancelled
-         * in all of them, so that no context sends updates to the stream that the failure
-         * closes.
+         * <p>A context loses the subscription while it is activated if a concurrent request
+         * cancels it. The activation then ends as the cancellation does: the contexts that
+         * activated the subscription release it, and the stream completes.
+         *
+         * <p>If a context fails to activate the subscription otherwise, the failure closes
+         * the stream, and then the subscription is cancelled in all the contexts, so that no
+         * context keeps serving it. The failure comes first, because the cancellation would
+         * complete the stream.
          */
         @Override
         void serveIn(ImmutableSortedSet<BoundedContext> holders,
@@ -695,14 +737,64 @@ public final class SubscriptionService
             for (var context : holders) {
                 try {
                     serveBy(context.stand(), subscription, gatheringObserver, params);
+                } catch (UnsupportedRequestException e) {
+                    endCancelled(subscription, (SubscriptionCallback) checkNotNull(params));
+                    return;
                 } catch (RuntimeException e) {
-                    cancelIn(holders, subscription, this);
-                    fail(context, subscription, e, observer);
+                    try {
+                        fail(context, subscription, e, observer);
+                    } finally {
+                        cancelIn(holders, subscription, this);
+                    }
                     return;
                 }
             }
             observer.onNext(gatheringObserver.firstResponse());
             observer.onCompleted();
+        }
+
+        /**
+         * Ends the activation of a subscription that a concurrent request cancels.
+         *
+         * <p>Releases the subscription in the contexts that activated it with the given
+         * callback already, and completes the stream of updates.
+         */
+        private void endCancelled(Subscription subscription, SubscriptionCallback callback) {
+            logger().atDebug().log(() -> format(
+                    "The subscription `%s` is cancelled while it is activated.",
+                    subscription.getId().getValue()));
+            release(subscription, callback);
+            callback.onCancelled();
+        }
+
+        /**
+         * Cancels the subscription in the Bounded Contexts where the given callback serves it.
+         *
+         * <p>Reacts to the cancellation of the gRPC call that activated the subscription.
+         * Unlike a cancellation request, it is not refused for the contexts that do not have
+         * the subscription, and posts no event about them: the subscription may already be
+         * cancelled, or activated again by another call.
+         *
+         * <p>A failure to cancel is logged, and does not stop cancelling the subscription in
+         * other contexts.
+         */
+        private void release(Subscription subscription, SubscriptionCallback callback) {
+            for (var context : contexts()) {
+                try {
+                    if (context.stand().release(subscription, callback)) {
+                        logger().atDebug().log(() -> format(
+                                "The call that activated the subscription `%s` is cancelled." +
+                                        " The subscription is cancelled in the bounded context" +
+                                        " `%s`.",
+                                subscription.getId().getValue(), context.name().getValue()));
+                    }
+                } catch (RuntimeException e) {
+                    logger().atError().withCause(e).log(() -> format(
+                            "Unable to cancel the subscription `%s` in the bounded context `%s`" +
+                                    " after the call that activated it is cancelled.",
+                            subscription.getId().getValue(), context.name().getValue()));
+                }
+            }
         }
 
         @Override
@@ -749,6 +841,9 @@ public final class SubscriptionService
         /**
          * Cancels the subscription in each of the given Bounded Contexts.
          *
+         * <p>A context that loses the subscription meanwhile, because a concurrent request
+         * cancels it, is skipped: the subscription is cancelled there anyway.
+         *
          * <p>A failure in one context does not stop cancelling the subscription in the others.
          * The first failure is answered and recorded after that.
          */
@@ -757,11 +852,14 @@ public final class SubscriptionService
                      Subscription subscription,
                      StreamObserver<Response> observer,
                      @Nullable Object params) {
-            var gatheringObserver = StreamObservers.<Response>memoizingObserver();
             Map.Entry<BoundedContext, RuntimeException> failure = null;
             for (var context : holders) {
                 try {
-                    serveBy(context.stand(), subscription, gatheringObserver, params);
+                    serveBy(context.stand(), subscription, noOpObserver(), params);
+                } catch (UnsupportedRequestException e) {
+                    logger().atDebug().log(() -> format(
+                            "Skipped the bounded context `%s`, which lost the subscription `%s`.",
+                            context.name().getValue(), subscription.getId().getValue()));
                 } catch (RuntimeException e) {
                     if (failure == null) {
                         failure = Map.entry(context, e);
@@ -772,7 +870,7 @@ public final class SubscriptionService
                 fail(failure.getKey(), subscription, failure.getValue(), observer);
                 return;
             }
-            observer.onNext(gatheringObserver.firstResponse());
+            observer.onNext(ok());
             observer.onCompleted();
         }
 
@@ -938,7 +1036,7 @@ public final class SubscriptionService
         for (var context : contexts) {
             try {
                 context.stand()
-                       .cancel(subscription, StreamObservers.noOpObserver());
+                       .cancel(subscription, noOpObserver());
             } catch (RuntimeException e) {
                 logging.logger().atError().withCause(e).log(() -> format(
                         "Unable to cancel the subscription `%s` in the bounded context `%s`.",

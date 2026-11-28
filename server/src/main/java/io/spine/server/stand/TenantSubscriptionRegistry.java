@@ -22,6 +22,7 @@ import io.spine.client.SubscriptionId;
 import io.spine.type.TypeUrl;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
@@ -30,8 +31,6 @@ import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Multimaps.synchronizedSetMultimap;
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
 /**
  * A slice with subscriptions belonging to one tenant in a multi-tenant application.
@@ -51,16 +50,16 @@ final class TenantSubscriptionRegistry implements SubscriptionRegistry {
     private final Map<SubscriptionId, SubscriptionRecord> records = new ConcurrentHashMap<>();
     private final Lock lock = new ReentrantLock();
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Activates the record outside the lock of the registry: the record may notify
+     * the callback it was activated with before, which may call the registry.
+     */
     @Override
-    public void activate(Subscription subscription, SubscriptionCallback callback) {
-        lockAndRun(() -> {
-            var record = records.get(subscription.getId());
-            requireNonNull(record,
-                           () -> format(
-                                   "Cannot find the subscription with ID `%s` in the registry.",
-                                   subscription.getId()));
-            record.activate(callback);
-        });
+    public boolean activate(Subscription subscription, SubscriptionCallback callback) {
+        var record = lockAndGet(() -> records.get(subscription.getId()));
+        return record != null && record.activate(callback);
     }
 
     @Override
@@ -79,16 +78,38 @@ final class TenantSubscriptionRegistry implements SubscriptionRegistry {
     }
 
     @Override
-    public void remove(Subscription subscription) {
-        lockAndRun(() -> {
+    public Optional<SubscriptionRecord> remove(Subscription subscription) {
+        return lockAndGet(() -> {
             var record = records.remove(subscription.getId());
-            if (record == null) {
-                return;
+            if (record != null) {
+                unindex(record);
             }
-            for (var type : record.eventTypes()) {
-                typeToRecord.remove(type, record);
-            }
+            return Optional.ofNullable(record);
         });
+    }
+
+    @Override
+    public Optional<SubscriptionRecord> removeIfActivatedWith(Subscription subscription,
+                                                              SubscriptionCallback callback) {
+        return lockAndGet(() -> {
+            var id = subscription.getId();
+            var record = records.get(id);
+            if (record == null || !record.isActivatedWith(callback)) {
+                return Optional.empty();
+            }
+            records.remove(id);
+            unindex(record);
+            return Optional.of(record);
+        });
+    }
+
+    /**
+     * Removes the given record from the index of the records by event type.
+     */
+    private void unindex(SubscriptionRecord record) {
+        for (var type : record.eventTypes()) {
+            typeToRecord.remove(type, record);
+        }
     }
 
     @Override

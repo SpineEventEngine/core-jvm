@@ -15,8 +15,11 @@
 package io.spine.server.stand
 
 import io.kotest.matchers.collections.shouldBeSingleton
+import io.kotest.matchers.optional.shouldBeEmpty
+import io.kotest.matchers.optional.shouldBePresent
 import io.kotest.matchers.shouldBe
 import io.spine.client.Subscription
+import io.spine.client.SubscriptionUpdate
 import io.spine.client.Subscriptions
 import io.spine.client.TopicId
 import io.spine.test.event.ProjectCreated
@@ -54,16 +57,33 @@ internal class TenantSubscriptionRegistrySpec {
     fun `activate a subscription by its ID`() {
         registry.add(subscription, setOf(0))
 
-        registry.activate(changed) { }
+        registry.activate(changed, newCallback()) shouldBe true
 
         registry.byType(PROJECT_CREATED).shouldBeSingleton { it.isActive shouldBe true }
     }
 
     @Test
-    fun `remove a subscription by its ID`() {
+    fun `refuse to activate a subscription it does not have`() {
+        registry.activate(subscription, newCallback()) shouldBe false
+
+        registry.containsId(subscription.id) shouldBe false
+    }
+
+    @Test
+    fun `refuse to activate a subscription removed from it`() {
+        val callback = newCallback()
+        registry.add(subscription, setOf(0))
+        registry.activate(subscription, callback)
+        registry.removeIfActivatedWith(subscription, callback)
+
+        registry.activate(subscription, newCallback()) shouldBe false
+    }
+
+    @Test
+    fun `remove a subscription by its ID, returning its record`() {
         registry.add(subscription, setOf(0))
 
-        registry.remove(changed)
+        registry.remove(changed).shouldBePresent()
 
         registry.containsId(subscription.id) shouldBe false
         registry.hasType(PROJECT_CREATED) shouldBe false
@@ -71,12 +91,56 @@ internal class TenantSubscriptionRegistrySpec {
 
     @Test
     fun `ignore the removal of a subscription it does not have`() {
-        registry.remove(subscription)
+        registry.remove(subscription).shouldBeEmpty()
 
         registry.containsId(subscription.id) shouldBe false
+    }
+
+    @Test
+    fun `remove a subscription activated with the given callback`() {
+        val callback = newCallback()
+        registry.add(subscription, setOf(0))
+        registry.activate(subscription, callback)
+
+        registry.removeIfActivatedWith(changed, callback).shouldBePresent()
+
+        registry.containsId(subscription.id) shouldBe false
+        registry.hasType(PROJECT_CREATED) shouldBe false
+    }
+
+    @Test
+    fun `keep a subscription activated with another callback`() {
+        val callback = newCallback()
+        val other = newCallback()
+        registry.add(subscription, setOf(0))
+        registry.activate(subscription, callback)
+        registry.activate(subscription, other)
+
+        registry.removeIfActivatedWith(subscription, callback).shouldBeEmpty()
+
+        registry.containsId(subscription.id) shouldBe true
+        registry.hasType(PROJECT_CREATED) shouldBe true
+    }
+
+    @Test
+    fun `keep a subscription that is not activated`() {
+        registry.add(subscription, setOf(0))
+
+        registry.removeIfActivatedWith(subscription, newCallback()).shouldBeEmpty()
+
+        registry.containsId(subscription.id) shouldBe true
     }
 
     private companion object {
         val PROJECT_CREATED: TypeUrl = TypeUrl.of(ProjectCreated::class.java)
     }
+}
+
+/**
+ * Creates a callback that ignores the updates.
+ *
+ * Each call returns a new object, as the registry tells callbacks apart by identity.
+ */
+private fun newCallback(): SubscriptionCallback = object : SubscriptionCallback {
+    override fun accept(update: SubscriptionUpdate) = Unit
 }

@@ -83,6 +83,11 @@ public class Stand implements Closeable {
     private static final QueryProcessor NO_OP_PROCESSOR = new NoOpQueryProcessor();
 
     /**
+     * The message of the exception about a subscription cancelled while it is activated.
+     */
+    private static final String CANCELLED = "The subscription is cancelled.";
+
+    /**
      * Manages the subscriptions for this instance of {@code Stand}.
      *
      * <p>The registry is shared between a domain Bounded Context and its system counterpart.
@@ -215,7 +220,9 @@ public class Stand implements Closeable {
      * subscribe()} method.
      *
      * <p>After the activation, the clients will start receiving the updates via the passed
-     * {@code SubscriptionCallback}.
+     * {@code SubscriptionCallback}. If the subscription is already activated with another
+     * callback, that callback receives no updates after that, and is
+     * {@linkplain SubscriptionCallback#onCancelled() told} about it.
      *
      * @param subscription
      *         the subscription to activate
@@ -226,7 +233,8 @@ public class Stand implements Closeable {
      * @throws InvalidRequestException
      *         if the subscription fails validation
      * @throws UnsupportedRequestException
-     *         if this {@code Stand} does not have the subscription
+     *         if this {@code Stand} does not have the subscription, including when
+     *         the subscription is cancelled while it is activated
      * @see #subscribe(Subscription, Set)
      */
     public void activate(Subscription subscription,
@@ -240,7 +248,9 @@ public class Stand implements Closeable {
         var op = new SubscriptionOperation(subscription) {
             @Override
             public void run() {
-                subscriptionRegistry.activate(subscription, callback);
+                if (!subscriptionRegistry.activate(subscription, callback)) {
+                    throw new UnsupportedRequestException(subscription, CANCELLED);
+                }
                 ack(responseObserver);
             }
         };
@@ -254,7 +264,8 @@ public class Stand implements Closeable {
      * {@link #activate(Subscription, SubscriptionCallback, StreamObserver) activate()} call.
      *
      * <p>After this method is called, the subscribers stop receiving the updates,
-     * related to the given {@code Subscription}.
+     * related to the given {@code Subscription}. The callback with which the subscription is
+     * activated is {@linkplain SubscriptionCallback#onCancelled() told} about the cancellation.
      *
      * @param subscription
      *         the subscription to cancel
@@ -273,13 +284,45 @@ public class Stand implements Closeable {
         var op = new SubscriptionOperation(subscription) {
             @Override
             public void run() {
-                if(subscriptionRegistry.containsId(subscription.getId())) {
-                    subscriptionRegistry.remove(subscription);
-                    ack(responseObserver);
-                }
+                subscriptionRegistry.remove(subscription)
+                                    .ifPresent(record -> {
+                                        record.notifyCancelled();
+                                        ack(responseObserver);
+                                    });
             }
         };
         op.execute();
+    }
+
+    /**
+     * Cancels the subscription if it is activated with the given callback.
+     *
+     * <p>Handles a stream of updates that ends without a
+     * {@linkplain #cancel(Subscription, StreamObserver) cancellation}, for example, because
+     * its client is gone. A subscription that is not activated, or is activated again with
+     * another callback, stays.
+     *
+     * <p>The subscription is looked up among those of the tenant of its topic.
+     *
+     * @param subscription
+     *         the subscription to cancel
+     * @param callback
+     *         the callback with which the subscription must be activated
+     * @return {@code true} if this {@code Stand} had the subscription activated with
+     *         the callback, and cancelled it
+     */
+    @Internal
+    public boolean release(Subscription subscription, SubscriptionCallback callback) {
+        checkNotNull(subscription);
+        checkNotNull(callback);
+        var tenantId = subscription.getTopic()
+                                   .getContext()
+                                   .getTenantId();
+        return TenantAwareRunner.with(tenantId).evaluate(() -> {
+            var released = subscriptionRegistry.removeIfActivatedWith(subscription, callback);
+            released.ifPresent(SubscriptionRecord::release);
+            return released.isPresent();
+        });
     }
 
     /**

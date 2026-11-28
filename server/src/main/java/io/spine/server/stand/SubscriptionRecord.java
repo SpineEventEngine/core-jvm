@@ -23,9 +23,11 @@ import com.google.common.collect.Multimaps;
 import io.spine.annotation.VisibleForTesting;
 import io.spine.client.Subscription;
 import io.spine.client.SubscriptionUpdate;
+import io.spine.logging.WithLogging;
 import io.spine.server.type.EventEnvelope;
 import io.spine.system.server.event.EntityStateChanged;
 import io.spine.type.TypeUrl;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.Set;
@@ -34,6 +36,7 @@ import java.util.stream.IntStream;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static java.lang.String.format;
 
 /**
  * A {@link SubscriptionRegistry} entry that manages a single subscription.
@@ -41,11 +44,29 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
  * <p>The record holds the update handlers of the targets of the subscription topic that
  * it serves. Each target has its own handlers, so a message that matches several targets
  * produces an update for each of them.
+ *
+ * <p>The record activates, updates, and cancels the subscription one at a time, so that
+ * a callback receives no update after it is told about the cancellation. A callback may
+ * call the registry, so the registry calls these methods only outside its lock.
  */
-final class SubscriptionRecord {
+final class SubscriptionRecord implements WithLogging {
 
     private final Subscription subscription;
     private final ImmutableListMultimap<TypeUrl, UpdateHandler> handlers;
+
+    /**
+     * The callback that the record was last activated with, or {@code null} if the record
+     * is not activated.
+     *
+     * <p>The field is {@code volatile} because {@link #isActivatedWith(SubscriptionCallback)}
+     * reads it under the lock of the registry, not the monitor of the record.
+     */
+    private volatile @Nullable SubscriptionCallback callback;
+
+    /**
+     * Tells whether the subscription is cancelled.
+     */
+    private boolean cancelled = false;
 
     private SubscriptionRecord(Subscription s, ImmutableList<UpdateHandler> handlers) {
         this.subscription = s;
@@ -130,12 +151,72 @@ final class SubscriptionRecord {
      *
      * <p>Only active subscription records are eligible to receive any event/entity updates.
      *
+     * <p>If the record is activated with another callback, that callback serves
+     * the subscription no more, and is {@linkplain SubscriptionCallback#onCancelled() told}
+     * about it.
+     *
      * @param callback
      *         the action to attach to the record
+     * @return {@code true} if the record is activated, {@code false} if the subscription is
+     *         cancelled
      */
-    void activate(SubscriptionCallback callback) {
+    synchronized boolean activate(SubscriptionCallback callback) {
+        if (cancelled) {
+            return false;
+        }
+        var displaced = this.callback;
         for (var handler : handlers()) {
             handler.setCallback(callback);
+        }
+        this.callback = callback;
+        if (displaced != null && displaced != callback) {
+            tellCancelled(displaced);
+        }
+        return true;
+    }
+
+    /**
+     * Tells whether the record was last activated with the given callback.
+     */
+    boolean isActivatedWith(SubscriptionCallback callback) {
+        return this.callback == callback;
+    }
+
+    /**
+     * Marks the subscription cancelled, and notifies the callback with which the record is
+     * activated, if any, about the cancellation.
+     *
+     * <p>The callback receives no updates after that.
+     */
+    synchronized void notifyCancelled() {
+        cancelled = true;
+        var current = callback;
+        if (current != null) {
+            tellCancelled(current);
+        }
+    }
+
+    /**
+     * Marks the subscription cancelled without notifying the callback.
+     *
+     * <p>The callback receives no updates after that.
+     */
+    synchronized void release() {
+        cancelled = true;
+    }
+
+    /**
+     * Notifies the given callback that it serves the subscription no more.
+     *
+     * <p>A failure of the callback is logged: the subscription is cancelled anyway.
+     */
+    private void tellCancelled(SubscriptionCallback callback) {
+        try {
+            callback.onCancelled();
+        } catch (RuntimeException e) {
+            logger().atError().withCause(e).log(() -> format(
+                    "Unable to tell the callback of the subscription `%s` about its cancellation.",
+                    subscription.getId().getValue()));
         }
     }
 
@@ -145,12 +226,18 @@ final class SubscriptionRecord {
      * <p>Passes the event to the handlers of every served target that handles events of its
      * type. Assumes that the subscription is active.
      *
+     * <p>Does nothing once the subscription is cancelled, including when a callback cancels
+     * it while the event is passed to the handlers of several targets.
+     *
      * @throws IllegalStateException
      *         if the subscription is not activated
      * @see #activate(SubscriptionCallback)
      */
-    void update(EventEnvelope event) {
+    synchronized void update(EventEnvelope event) {
         for (var handler : handlersFor(event)) {
+            if (cancelled) {
+                return;
+            }
             handler.handle(event);
         }
     }
@@ -171,7 +258,7 @@ final class SubscriptionRecord {
     /**
      * Checks whether this record has an active callback attached.
      */
-    boolean isActive() {
+    synchronized boolean isActive() {
         return handlers.values()
                 .stream()
                 .anyMatch(UpdateHandler::isActive);
