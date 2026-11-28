@@ -295,8 +295,13 @@ public final class SubscriptionService
          * <p>The tenant of the topic must fit each context that serves the entity type of
          * a target. If the topic has a target of an event type, or a type that no context
          * serves, a topic with a tenant is also refused unless the tenant is registered in
-         * the application. A topic that fails validation is refused with
-         * {@link io.spine.core.ErrorCase#INVALID_REQUEST INVALID_REQUEST}.
+         * the application.
+         *
+         * <p>A topic that violates the constraints of its Protobuf type, for example, one
+         * without an ID, is refused with
+         * {@link io.spine.core.ErrorCase#INVALID_REQUEST INVALID_REQUEST}. The constraints are
+         * checked after the tenancy, so a topic that the tenancy checks above refuse gets
+         * {@code TENANT_ERROR}, even if it also violates the constraints.
          */
         @Override
         protected void serveNoContext(Topic topic,
@@ -504,8 +509,11 @@ public final class SubscriptionService
          * of a type that no context serves, a subscription whose topic has a tenant is also
          * refused unless the tenant is registered in the application.
          *
-         * <p>A subscription that fails validation is refused with
-         * {@link io.spine.core.ErrorCase#INVALID_REQUEST INVALID_REQUEST}.
+         * <p>A subscription that violates the constraints of its Protobuf type, for example,
+         * one without an ID, is refused with
+         * {@link io.spine.core.ErrorCase#INVALID_REQUEST INVALID_REQUEST}. The constraints are
+         * checked after the tenancy, so a subscription that the tenancy checks above refuse
+         * gets {@code TENANT_ERROR}, even if it also violates the constraints.
          *
          * <p>If no context has the subscription, the request is refused with
          * {@link io.spine.core.ErrorCase#UNSUPPORTED_REQUEST UNSUPPORTED_REQUEST}. A context

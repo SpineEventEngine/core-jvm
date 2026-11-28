@@ -248,7 +248,10 @@ internal class TenantOfRequestSpec {
 
             subscribe(topic).error.shouldNotBeNull().errorCase() shouldBe TENANT_ERROR
 
-            monitor.single<TopicTenantNotExpected>().tenant shouldBe tenant
+            val misfit = monitor.single<TopicTenantNotExpected>()
+            misfit.id shouldBe topic.id
+            misfit.actorContext shouldBe topic.context
+            misfit.tenant shouldBe tenant
         }
 
         @Test
@@ -270,7 +273,10 @@ internal class TenantOfRequestSpec {
 
             subscribe(topic).error.shouldNotBeNull().errorCase() shouldBe TENANT_ERROR
 
-            monitor.single<TopicTenantNotExpected>().tenant shouldBe tenant
+            val misfit = monitor.single<TopicTenantNotExpected>()
+            misfit.id shouldBe topic.id
+            misfit.actorContext shouldBe topic.context
+            misfit.tenant shouldBe tenant
             log.records.shouldBeEmpty()
         }
     }

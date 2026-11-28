@@ -35,6 +35,7 @@ import io.spine.grpc.MemoizingObserver
 import io.spine.grpc.StreamObservers.memoizingObserver
 import io.spine.protobuf.AnyPacker.unpack
 import io.spine.server.aggregate.given.repo.RejectingRepository
+import io.spine.server.given.ExternalReports
 import io.spine.server.given.ReportOnProjectCreated
 import io.spine.server.given.RequestEventMonitor
 import io.spine.server.given.UndeclaredRejector
@@ -94,11 +95,19 @@ internal class SubscriptionServiceEventFanOutSpec {
         private lateinit var service: SubscriptionService
         private lateinit var subscription: Subscription
 
+        /**
+         * Makes the reacting context receive the reports that the sending context posts.
+         */
+        private val external = ExternalReports()
+
         @BeforeEach
         fun createSubscription() {
             val app = newApplication(
                 singleTenantContext(SENDING) { addAssignee(Given.ReportSender()) },
-                singleTenantContext(REACTING) { addEventDispatcher(ReportOnProjectCreated()) }
+                singleTenantContext(REACTING) {
+                    addEventDispatcher(ReportOnProjectCreated())
+                    addEventDispatcher(external)
+                }
             )
             sending = app.context(SENDING)
             reacting = app.context(REACTING)
@@ -124,6 +133,19 @@ internal class SubscriptionServiceEventFanOutSpec {
             updates.error.shouldBeNull()
             updates.isCompleted shouldBe false
             updates.events() shouldContainExactly listOf(fromSending, fromReacting)
+        }
+
+        @Test
+        fun `deliver an event once, though another context receives it as external`() {
+            val updates = activate(service, subscription)
+            val event = reportEvent(withoutTenant)
+
+            sending.eventBus().post(event)
+
+            val report = unpack(event.message, ReportSent::class.java)
+            external.reports shouldContainExactly listOf(report)
+            updates.error.shouldBeNull()
+            updates.events() shouldContainExactly listOf(event)
         }
 
         @Test

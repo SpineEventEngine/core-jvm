@@ -158,3 +158,13 @@ the type last. Issue #1728 ("Proposal" section is the scope). Breaking: public A
   model (`Receptor`, `AbstractReceptor`, `CommandReceptor`, `EventReceptor`, `RejectionHandler`,
   `ReceptorMap`, `EventReceivingClassDelegate`, `CommandHandlingClass`,
   `AbstractCommandHandlingClass`) and from every use; `EmptyClass` stays (`EnvelopeWithOrigin`).
+- 2026-11-27 — `codecov/project` −0.057% vs the 0.05% threshold: coverage moves between runs
+  (the `Activate`/`Cancel` race of `ClientEndToEndTest`, random `RoverBot` moves). Five
+  deterministic cases added to the multi-target, error-case and tenant specs (`20ee406dd46`).
+- 2026-11-28 — armiol's review: the two-single-tenant-contexts setup gets an `@External`
+  subscriber of `ReportSent` (`ExternalReports`), and a new case checks that the broker
+  delivers the report to it while the client still gets one update; dropping the
+  `isExternal()` filter of `EventTap` fails it and the exact-list case. Both
+  `TopicTenantNotExpected` tests compare the recorded ID and actor with the topic. The Javadoc
+  of both `serveNoContext()` methods names the Protobuf constraints behind `INVALID_REQUEST`,
+  checked after the tenancy.

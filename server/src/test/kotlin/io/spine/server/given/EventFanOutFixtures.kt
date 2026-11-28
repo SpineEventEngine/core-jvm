@@ -14,9 +14,12 @@
 
 package io.spine.server.given
 
+import io.spine.core.External
+import io.spine.core.Subscribe
 import io.spine.server.command.AbstractAssignee
 import io.spine.server.command.Assign
 import io.spine.server.event.AbstractEventReactor
+import io.spine.server.event.AbstractEventSubscriber
 import io.spine.server.event.React
 import io.spine.test.aggregate.ProjectId
 import io.spine.test.aggregate.event.AggProjectCreated
@@ -36,6 +39,28 @@ internal class ReportOnProjectCreated : AbstractEventReactor() {
     @React
     internal fun on(@Suppress("UNUSED_PARAMETER") event: AggProjectCreated): ReportSent =
         reportSent { id = ReportId.generate() }
+}
+
+/**
+ * Remembers the [ReportSent] events that reach its context from other contexts.
+ *
+ * Subscribing to the external events makes the broker deliver the reports that other contexts
+ * post to the event bus of the context of this subscriber.
+ */
+internal class ExternalReports : AbstractEventSubscriber() {
+
+    private val received = mutableListOf<ReportSent>()
+
+    /**
+     * The reports that came from other contexts, in the order of receiving.
+     */
+    val reports: List<ReportSent>
+        get() = received.toList()
+
+    @Subscribe
+    internal fun on(@External event: ReportSent) {
+        received.add(event)
+    }
 }
 
 /**
